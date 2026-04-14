@@ -39,9 +39,9 @@ import nl.adaptivity.xmlutil.localPart
 import nl.adaptivity.xmlutil.namespaceURI
 
 @XPathInternal
-object Xs: AbstractFunctionObject() {
+object CastFunctions: AbstractFunctionObject() {
 
-    object constructAnyType: ConstructorBase<Nothing>("anyType") {
+    object constructAnyType: ConstructorBase<Nothing, Nothing>("anyType") {
         override val returnSchemaType: Nothing
             get() = throw UnsupportedOperationException("AnyType cannot be instantiated")
 
@@ -51,7 +51,7 @@ object Xs: AbstractFunctionObject() {
         }
     }
 
-    object constructAnySimpleType: ConstructorBase<Nothing>("anySimpleType") {
+    object constructAnySimpleType: ConstructorBase<Nothing, Nothing>("anySimpleType") {
         override val returnSchemaType: AnySimpleType<*> get() = AnySimpleType.Instance
 
         context(ctx: ExprEvalContext)
@@ -60,7 +60,7 @@ object Xs: AbstractFunctionObject() {
         }
     }
 
-    object constructAnyAtomicType: ConstructorBase<Nothing>("anyAtomicType") {
+    object constructAnyAtomicType: ConstructorBase<Nothing, Nothing>("anyAtomicType") {
         override val returnSchemaType: AnyAtomicType<*> get() = AnyAtomicType.Instance
 
         context(ctx: ExprEvalContext)
@@ -104,11 +104,11 @@ object Xs: AbstractFunctionObject() {
 
     object constructDateTimeStamp: AtomicConstructor<XsdDateTime>(DateTimeStampType.Instance)
 
-    object constructNumeric: ConstructorBase<XdmAtomicOrEmpty<XdmAtomic<XsdNumeric<*>>>>("numeric") {
+    object constructNumeric: ConstructorBase<XsdNumeric<*>, XdmAtomicOrEmpty<XdmAtomic<XsdNumeric<*>>>>("numeric") {
         override val returnSchemaType: NumericType<*> get() = NumericType.Instance
 
         context(ctx: ExprEvalContext)
-        override fun invoke(arg: XdmAtomic<*>): XdmAtomicOrEmpty<XdmAtomic<XsdNumeric<*>>> {
+        override fun invoke(arg: XdmAtomic<*>): XdmAtomic<XsdNumeric<*>> {
             val v = arg.value
             when {
                 v is XsdBoolean -> return when (v.value) {
@@ -317,6 +317,17 @@ object Xs: AbstractFunctionObject() {
         override fun invoke(arg: String): XsdNMToken = XsdNMToken(arg)
     }
 
+    object constructError: ConstructorBase<Nothing, Nothing>("error") {
+        override val returnSchemaType: ErrorType get() = ErrorType.Instance
+
+        context(ctx: ExprEvalContext)
+        override fun invoke(arg: XdmAtomic<*>): Nothing {
+            throw EvaluationException(ErrorCodes.FORG0001, "Error function cannot be instantiated")
+        }
+    }
+
+
+    interface ConstructorFunction<out T: XsdAtomic>: BuiltinFunction<XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>> {}
 
     context(ctx: ExprEvalContext)
     fun createFromSchemaType(name: QName): BuiltinFunction<*> {
@@ -324,16 +335,23 @@ object Xs: AbstractFunctionObject() {
         val type = ctx.resolveTypeOrNull(name) as AnyAtomicType<*>
         */
         if (name.namespaceURI == XMLConstants.XSD_NS_URI) {
+            when (name.localPart) {
+                "NOTATION", "anySimpleType", "anyAtomicType"
+                    -> throw EvaluationException(ErrorCodes.XPST0080_INVALID_TARGET_TYPE, "Cannot construct instances of $name")
+
+                "anyType" -> throw EvaluationException(ErrorCodes.XPST0080_INVALID_TARGET_TYPE, "Cannot cast to non-simple types")
+            }
+
             val resolvedConstructor = knownTypes[name.localPart]
                 ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Constructor function $name not found with the given arguments")
 
             return resolvedConstructor
         }
-        throw EvaluationException("Cannot contstruct instances in namespace ${name.namespaceURI}")
+        throw EvaluationException("Cannot contstruct instances in namespace yet ${name.namespaceURI}")
     }
 
 
-    val knownTypes: Map<String, ConstructorBase<*>> = arrayOf(
+    val knownTypes: Map<String, ConstructorBase<*, *>> = arrayOf(
         constructAnyType, constructAnySimpleType, constructAnyAtomicType, constructAnyURI, constructBase64Binary,
         constructBoolean, constructDate, constructDateTime, constructDateTimeStamp, constructDecimal,
         constructInteger, constructLong, constructInt, constructShort, constructByte,
@@ -344,12 +362,12 @@ object Xs: AbstractFunctionObject() {
         constructGYearMonth, constructHexBinary, constructNOTATION, constructQName, constructString,
         constructNormalizedString, constructToken, constructLanguage, constructName, constructNCName,
         constructENTITY, constructID, constructIDREF, constructNMTOKEN, constructTime, constructENTITIES,
-        constructIDREFS, constructNMTOKENS, constructNumeric, constructUntypedAtomic,
+        constructIDREFS, constructNMTOKENS, constructNumeric, constructUntypedAtomic, constructError,
     ).groupBy { it.localName }
         .mapValues { (k, v) -> v.singleOrNull() ?: throw IllegalArgumentException("Multiple bindings to type $k") }
 
-    abstract class ConstructorBase<out XR : XdmAtomicOrSequence<*>>(localName: String) :
-        BuiltinFunction<XR> {
+    abstract class ConstructorBase<out T: XsdAtomic, out XR : XdmAtomicOrSequence<XdmAtomic<T>>>(localName: String) :
+        ConstructorFunction<T> {
 
         final override val functionName: QName = XsdQNameImpl(XMLConstants.XSD_NS_URI, localName)
         val localName: String get() = functionName.localPart
@@ -383,7 +401,7 @@ object Xs: AbstractFunctionObject() {
     }
 
     abstract class AtomicConstructor<R : XsdAtomic>(override val returnSchemaType: AnyAtomicType<R>) :
-        ConstructorBase<XdmAtomicOrEmpty<XdmAtomic<R>>>(returnSchemaType.name!!.localPart) {
+        ConstructorBase<R, XdmAtomicOrEmpty<XdmAtomic<R>>>(returnSchemaType.name!!.localPart) {
 
         context(ctx: ExprEvalContext)
         open fun constructXsd(arg: XdmAtomic<*>): R {
@@ -411,8 +429,9 @@ object Xs: AbstractFunctionObject() {
 
     }
 
-    abstract class ListConstructor<T: XsdAnySimple, E: XsdAtomic>(localName: String, override val returnSchemaType: AnySimpleListType<T, E>):
-        ConstructorBase<XdmAtomicOrSequence<XdmAtomic<*>>>(localName) {
+    abstract class ListConstructor<T: XsdAnySimple, E: XsdAtomic>(
+        localName: String, override val returnSchemaType: AnySimpleListType<T, E>
+    ): ConstructorBase<E, XdmAtomicOrSequence<XdmAtomic<E>>>(localName) {
 
         abstract fun invoke(arg: String): E
 

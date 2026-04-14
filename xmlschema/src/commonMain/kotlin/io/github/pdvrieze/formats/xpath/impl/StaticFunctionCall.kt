@@ -27,8 +27,8 @@ import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.*
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.functions.CastFunctions
 import io.github.pdvrieze.formats.xpath.functions.Fn
-import io.github.pdvrieze.formats.xpath.functions.Xs
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.types.FloatType
 import io.github.pdvrieze.xml.schematypes.types.StringType
@@ -125,7 +125,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
     override fun eval(): XdmValue<*> {
         val function = when (name.namespaceURI) {
             BuiltinFunction.FN_NAMESPACE, "" -> Fn.of(name.localPart)
-            XMLConstants.XSD_NS_URI -> ctx.withExprContext(this) { Xs.createFromSchemaType(name) }
+            XMLConstants.XSD_NS_URI -> ctx.withExprContext(this) { CastFunctions.createFromSchemaType(name) }
             else -> throw EvaluationException("No builtin function from namespace: '${name.namespaceURI}'")
         }
         if (function == null) throw EvaluationException("Function with name ${name} not found")

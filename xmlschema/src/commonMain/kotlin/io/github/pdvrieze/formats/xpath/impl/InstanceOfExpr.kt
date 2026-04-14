@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 
 @XPathInternal
 class InstanceOfExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: SequenceType) : AbstractExprSingle() {
@@ -32,7 +31,7 @@ class InstanceOfExpr @NeedsXPath2 constructor(val expr: Expr, val sequenceType: 
         val exprValue = expr.eval()
         val result =  ctx.withExprContext(this) { sequenceType.eval().isInstance(exprValue) }
 
-        return XdmAtomic(XsdBoolean(result))
+        return XdmAtomic((result))
     }
 
     context(c: OutputContext)

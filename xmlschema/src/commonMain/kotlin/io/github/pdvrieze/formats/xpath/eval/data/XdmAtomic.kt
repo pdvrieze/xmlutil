@@ -32,6 +32,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
 
@@ -174,6 +175,8 @@ class XdmAtomic<out T : XsdAtomic>(
 
     companion object {
         val NaN = XdmAtomic(XsdDouble(Double.NaN))
+
+        operator fun invoke(value: Boolean): XdmAtomic<XsdBoolean> = XdmAtomic(XsdBoolean(value))
 
         fun unTyped(value: String): XdmAtomic<XsdAtomic> = XdmAtomic(UntypedAtomicType.Instance.fromString(value))
     }

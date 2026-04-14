@@ -79,7 +79,7 @@ sealed class Operator(
         @XPathInternal
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
             val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
-            return XdmAtomic(XsdBoolean(! eval.value))
+            return XdmAtomic((! eval.value))
         }
     }
 
@@ -172,9 +172,9 @@ sealed class Operator(
 
                 is XsdBoolean if rightVal is XsdBoolean -> leftVal.value == rightVal.value
 
-                else -> return XdmAtomic(XsdBoolean(leftVal.equals(rightVal)))
+                else -> return XdmAtomic((leftVal.equals(rightVal)))
             }
-            return XdmAtomic(XsdBoolean(result))
+            return XdmAtomic((result))
         }
 */
 
@@ -553,7 +553,7 @@ sealed class Operator(
 
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
         }
-        return XdmAtomic(XsdBoolean(result))
+        return XdmAtomic((result))
     }
 
 
@@ -625,7 +625,7 @@ abstract class ComparisonOperator(
             )
         }
 
-        return XdmAtomic(XsdBoolean(cmpAtomic(leftVal, rightVal)))
+        return XdmAtomic((cmpAtomic(leftVal, rightVal)))
     }
 
     context(ctx: ExprEvalContext)

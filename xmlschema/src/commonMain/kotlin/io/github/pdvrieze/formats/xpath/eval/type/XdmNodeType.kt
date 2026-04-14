@@ -59,6 +59,19 @@ class XdmNodeType(val nodeType: NodeType) : XdmSingleType() {
         }
     */
 
+    @OptIn(XPathInternal::class)
+    context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmSingleType): XdmSingleType  = when (other) {
+        ANY -> other
+
+        is XdmNodeType -> when {
+            nodeType == other.nodeType -> this
+            else -> XdmNodeType(NodeType.ANY_NODE)
+        }
+
+        else -> ANY
+    }
+
     @XPathInternal
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue<*> {

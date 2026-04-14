@@ -42,6 +42,12 @@ class XdmArrayType(
     override fun toTypeTest(): XdmArrayTypeTest.Typed = toTypeTest(OccurrenceType.SINGLE)
 
     context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmSingleType): XdmSingleType = when (other) {
+        is XdmArrayType -> XdmArrayType(elemType.sharedBaseType(other.elemType))
+        else -> super.sharedBaseType(other)
+    }
+
+    context(ctx: ExprEvalContext)
     @XPathInternal
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         return when (expectedType) {

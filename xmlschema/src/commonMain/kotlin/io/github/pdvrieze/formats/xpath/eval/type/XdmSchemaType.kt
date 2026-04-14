@@ -81,6 +81,12 @@ class XdmSchemaType(
         return XdmAtomic(xsdValue)
     }
 
+    context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmSingleType): XdmSingleType = when (other) {
+        is XdmSchemaType -> XdmSchemaType(schemaType.sharedBaseType(other.schemaType))
+        else -> ANY
+    }
+
     override fun toString(): String {
         return schemaType.name.toString()
     }

@@ -52,21 +52,26 @@ class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : 
             "NOTATION", "anySimpleType", "anyAtomicType" -> throw EvaluationException(ErrorCodes.XPST0080_INVALID_TARGET_TYPE, "The type $type cannot be a cast target")
         }
 
-        val schemaType = ctx.resolveTypeOrNull(type)
-            ?: throw EvaluationException(ErrorCodes.XQST0052_INVALID_TYPE_IN_CAST, "The type $type is not known")
-        if (schemaType !is AnySimpleType.AtomicOrUnion<*>) throw EvaluationException(ErrorCodes.XQST0052_INVALID_TYPE_IN_CAST, "The type $type is not simple")
+        val value = try { expr.eval().atomize() } catch (_: EvaluationException) {
+            // allow for capturing the error
+            return XdmAtomic((false))
+        }
+        if (value.isEmpty()) return XdmAtomic(allowsEmpty)
+
+
+        val (isList, schemaType) = castItemType(type)
+
+        // handles error type
+        if (schemaType !is AnySimpleType.AtomicOrUnion<*>) return XdmAtomic(false)
 
         // TODO deal with list types and sequences
 
-        val value = try { expr.eval().atomize() } catch (e: EvaluationException) {
-            // allow for capturing the error
-            return XdmAtomic(XsdBoolean(false))
+        if (value.size > 1) {
+            return XdmAtomic((false))
         }
-        if (value.isEmpty()) return XdmAtomic(XsdBoolean(allowsEmpty))
-        if (value.size > 1) return XdmAtomic(XsdBoolean(false))
 
         val r = ctx.withExprContext(this) { XdmSchemaType(schemaType).canCastFrom(value.staticType.single) }
-        if (!r) return XdmAtomic(XsdBoolean(false))
+        if (!r) return XdmAtomic((false))
 
         for (singleVal in value) {
             val s = when {
@@ -76,9 +81,9 @@ class CastableExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : 
                 else -> singleVal
             }
             val runs = runCatching { schemaType.castFrom(s.value) }.isSuccess
-            if (! runs) return XdmAtomic(XsdBoolean(false))
+            if (! runs) return XdmAtomic(false)
         }
-        return XdmAtomic(XsdBoolean(true))
+        return XdmAtomic(true)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -58,6 +58,9 @@ sealed class XdmType {
 
     abstract val single: XdmSingleType
 
+    context(ctx: ExprEvalContext)
+    abstract fun sharedBaseType(other: XdmType): XdmType
+
     companion object {
         val ATOMIC = XdmSchemaType(AnyAtomicType.Instance)
         val STRING = XdmSchemaType(StringType.Instance)

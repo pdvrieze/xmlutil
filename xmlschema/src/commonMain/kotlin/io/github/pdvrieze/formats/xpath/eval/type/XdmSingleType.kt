@@ -60,7 +60,19 @@ sealed class XdmSingleType : XdmType() {
         else -> XdmSequenceType(this, occurrence)
     }
 
-    object ANY: XdmSingleType() {
+    @OptIn(XPathInternal::class)
+    context(ctx: ExprEvalContext)
+    final override fun sharedBaseType(other: XdmType): XdmType = when (other) {
+        XdmEmptySequenceType -> XdmSequenceType(this, OccurrenceType.OPTIONAL)
+        is XdmSequenceType -> XdmSequenceType(sharedBaseType(other.baseType), other.cardinality)
+        is XdmSingleType -> sharedBaseType(other)
+    }
+
+    @OptIn(XPathInternal::class)
+    context(ctx: ExprEvalContext)
+    abstract fun sharedBaseType(other: XdmSingleType): XdmSingleType
+
+    object ANY : XdmSingleType() {
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
@@ -72,6 +84,10 @@ sealed class XdmSingleType : XdmType() {
         }
 
         override fun toTypeTest(): XdmTypeTest.AnyItem = toTypeTest(OccurrenceType.SINGLE)
+
+        @OptIn(XPathInternal::class)
+        context(ctx: ExprEvalContext)
+        override fun sharedBaseType(other: XdmSingleType): ANY = this
 
         @XPathInternal
         context(ctx: ExprEvalContext)

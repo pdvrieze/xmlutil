@@ -75,6 +75,16 @@ open class XdmFunctionType(
             .all { (a, b) -> b.isAssignableTo(a) }
     }
 
+    @OptIn(XPathInternal::class)
+    context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmSingleType): XdmSingleType = when (other) {
+        !is XdmFunctionType -> ANY
+        else -> {
+            val sharedTypeTest = toTypeTest().sharedBaseType(other.toTypeTest())
+            sharedTypeTest.toValueType() as? XdmSingleType ?: ANY
+        }
+    }
+
     @XPathInternal
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue<*> {

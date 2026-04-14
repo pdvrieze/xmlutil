@@ -178,7 +178,7 @@ abstract class AbstractFunctionObject() {
     protected fun atomic(value: ULong): XdmAtomic<XsdUnsignedLong> = XdmAtomic(XsdUnsignedLong(value))
     protected fun atomic(value: Float): XdmAtomic<XsdFloat> = XdmAtomic(XsdFloat(value))
     protected fun atomic(value: Double): XdmAtomic<XsdDouble> = XdmAtomic(XsdDouble(value))
-    protected fun atomic(value: Boolean): XdmAtomic<XsdBoolean> = XdmAtomic(XsdBoolean(value))
+    protected fun atomic(value: Boolean): XdmAtomic<XsdBoolean> = XdmAtomic((value))
 
     companion object {
         val BOOLEAN = XdmSchemaTypeTest(BooleanType.Instance, SINGLE)

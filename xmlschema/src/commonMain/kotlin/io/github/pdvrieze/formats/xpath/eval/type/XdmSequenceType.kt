@@ -55,13 +55,19 @@ class XdmSequenceType(val baseType: XdmSingleType, val cardinality: OccurrenceTy
                 baseType.isAssignableTo(expectedType)
     }
 
-    /*
     context(ctx: ExprEvalContext)
-    override fun isAssignableTo(expectedType: XdmType): Boolean {
-        return expectedType is XdmSequenceType && isCardinalSubtype(expectedType.cardinality) && baseType.isAssignableTo(
-            expectedType.baseType)
+    override fun sharedBaseType(other: XdmType): XdmType = when (other) {
+        is XdmSequenceType -> XdmSequenceType(single.sharedBaseType(other.single), cardinality.union(other.cardinality))
+        is XdmSingleType -> XdmSequenceType(single.sharedBaseType(other), cardinality)
+        is XdmEmptySequenceType -> XdmSequenceType(other.single, cardinality.union(OccurrenceType.OPTIONAL))
     }
-*/
+    /*
+        context(ctx: ExprEvalContext)
+        override fun isAssignableTo(expectedType: XdmType): Boolean {
+            return expectedType is XdmSequenceType && isCardinalSubtype(expectedType.cardinality) && baseType.isAssignableTo(
+                expectedType.baseType)
+        }
+    */
 
     context(ctx: ExprEvalContext)
     override fun fromString(value: String): XdmValue<*> {

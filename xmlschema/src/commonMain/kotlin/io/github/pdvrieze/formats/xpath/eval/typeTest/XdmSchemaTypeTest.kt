@@ -57,12 +57,7 @@ class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : 
             other !is XdmSchemaTypeTest -> return AnyItem(neededCardinality)
         }
 
-        var neededType = schemaType
-        val otherType = other.schemaType
-        while (! otherType.derivesFrom(neededType)) {
-            neededType = neededType.baseType
-        }
-        return XdmSchemaTypeTest(neededType, neededCardinality)
+        return XdmSchemaTypeTest(schemaType.sharedBaseType(other.schemaType), neededCardinality)
     }
 
     @OptIn(XPathInternal::class)

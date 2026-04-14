@@ -21,6 +21,11 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.data.XdmArray
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmEmptySequenceType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmType
 
 @XPathInternal
 sealed class ArrayConstructor @NeedsXPath3_1 constructor(): AbstractExprSingle() {
@@ -42,6 +47,17 @@ sealed class ArrayConstructor @NeedsXPath3_1 constructor(): AbstractExprSingle()
         ) {
             if (xPathVersion < XPathVersion.XPath3_1) collector.add(this)
             values.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+        }
+
+        context(ctx: EvalContext)
+        @XPathInternal
+        override fun eval(): XdmValue<*> = ctx.withExprContext(this) {
+            val values = values.map { it.eval() }
+            val staticItemType = values.fold(XdmEmptySequenceType) { acc: XdmType, r: XdmValue<*> ->
+                acc.sharedBaseType(r.staticType)
+            }
+            val staticType = XdmArrayType(staticItemType.toTypeTest())
+            return XdmArray(values, staticType, staticType)
         }
     }
 
@@ -65,5 +81,15 @@ sealed class ArrayConstructor @NeedsXPath3_1 constructor(): AbstractExprSingle()
             expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
         }
 
+        context(ctx: EvalContext)
+        @XPathInternal
+        override fun eval(): XdmValue<*> = ctx.withExprContext(this) {
+            val values = expr.eval()
+            val staticItemType = values.fold(XdmEmptySequenceType) { acc: XdmType, r ->
+                acc.sharedBaseType(r.staticType)
+            }
+            val staticType = XdmArrayType(staticItemType.toTypeTest())
+            return XdmArray(values.toList(), staticType, staticType)
+        }
     }
 }

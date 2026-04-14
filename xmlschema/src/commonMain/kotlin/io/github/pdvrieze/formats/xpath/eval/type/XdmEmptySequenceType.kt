@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 object XdmEmptySequenceType : XdmType() {
@@ -39,6 +40,16 @@ object XdmEmptySequenceType : XdmType() {
         get() = throw UnsupportedOperationException("EmptySequence is not a single type")
 
     override fun toTypeTest(): XdmSequenceTypeTest = XdmSequenceTypeTest.EMPTY
+
+    context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmType): XdmType = when (other) {
+        XdmEmptySequenceType -> this
+
+        is XdmSequenceType ->
+            XdmSequenceType(other.baseType, other.cardinality.union(SequenceType.OccurrenceType.OPTIONAL))
+
+        is XdmSingleType -> XdmSequenceType(other, SequenceType.OccurrenceType.OPTIONAL)
+    }
 
     override fun toString(): String = "EmptySequence()"
 

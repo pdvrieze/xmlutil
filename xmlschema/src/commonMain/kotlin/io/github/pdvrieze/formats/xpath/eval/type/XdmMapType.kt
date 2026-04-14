@@ -48,6 +48,21 @@ class XdmMapType(
     override fun toTypeTest(): XdmMapTypeTest.Typed = toTypeTest(OccurrenceType.SINGLE)
 
     context(ctx: ExprEvalContext)
+    override fun sharedBaseType(other: XdmSingleType): XdmSingleType {
+        return when {
+            other !is XdmMapType -> super.sharedBaseType(other)
+
+            other.keyType.isAssignableTo(keyType) ->
+                XdmMapType(keyType, returnType.sharedBaseType(other.returnType))
+
+            keyType.isAssignableTo(other.keyType) ->
+                XdmMapType(other.keyType, returnType.sharedBaseType(other.returnType))
+
+            else -> ANY
+        }
+    }
+
+    context(ctx: ExprEvalContext)
     @XPathInternal
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         val receiver = expectedType

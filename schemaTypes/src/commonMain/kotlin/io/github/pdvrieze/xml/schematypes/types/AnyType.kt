@@ -38,6 +38,14 @@ interface AnyType {
         return false
     }
 
+    fun sharedBaseType(other: AnyType): AnyType {
+        var sharedType = this
+        while (!other.derivesFrom(sharedType)) {
+            sharedType = sharedType.baseType
+        }
+        return sharedType
+    }
+
     val name: XsdQName?
     val baseType: AnyType
 
