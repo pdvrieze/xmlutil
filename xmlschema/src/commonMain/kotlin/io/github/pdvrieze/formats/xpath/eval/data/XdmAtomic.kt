@@ -24,7 +24,6 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
-import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.functions.Fn
@@ -32,14 +31,13 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
-import io.github.pdvrieze.xml.schematypes.types.BooleanType
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
 
 @OptIn(XPathInternal::class)
 class XdmAtomic<out T : XsdAtomic>(
     val value: T,
-    override val staticType: XdmSingleType = XdmSchemaType(value.schemaType)
+    override val staticType: XdmSchemaType = XdmSchemaType(value.schemaType)
 ) : XdmSingleValue<XdmAtomic<T>>(), XdmAtomicOrEmpty<XdmAtomic<T>>, XdmAtomicOrSequence<XdmAtomic<T>> {
 
     override fun asT(): XdmAtomic<T> = this

@@ -20,6 +20,18 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmMap
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.type.XdmEmptySequenceType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
+import io.github.pdvrieze.formats.xpath.eval.type.XdmType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
+
 @XPathInternal
 internal class MapConstructor @NeedsXPath3_1 constructor(val entries: List<Entry>): AbstractExprSingle() {
 
@@ -33,5 +45,35 @@ internal class MapConstructor @NeedsXPath3_1 constructor(val entries: List<Entry
         }
     }
 
-    class Entry(val key: ExprSingle, val value: ExprSingle)
+    data class Entry(val key: ExprSingle, val value: ExprSingle)
+
+    @XPathInternal
+    context(ctx: EvalContext)
+    override fun eval(): XdmValue<*> = ctx.withExprContext(this) {
+        val content = mutableMapOf<XdmAtomic<*>, XdmValue<*>>()
+        var keyType: XdmSchemaType? = null
+        var valueType: XdmType = XdmEmptySequenceType
+
+        for ((kExpr, vExpr) in entries) {
+            val key = kExpr.eval()
+            if (key !is XdmAtomic<*>) throw EvaluationException(
+                ErrorCodes.XPTY0004_TYPE_ERROR,
+                "Key is not a single atomic value: $key"
+            )
+
+            val value = vExpr.eval()
+
+            keyType = keyType?.sharedBaseType(key.staticType) ?: key.staticType
+            valueType = valueType.sharedBaseType(value.staticType)
+
+            content[key] = value
+        }
+
+
+        val keyTypeTest = keyType?.toTypeTest()
+            ?: XdmSchemaTypeTest(UntypedAtomicType.Instance, SequenceType.OccurrenceType.SINGLE)
+
+        val type = XdmMapType(keyTypeTest, valueType.toTypeTest())
+        return XdmMap.invoke(content, type)
+    }
 }
