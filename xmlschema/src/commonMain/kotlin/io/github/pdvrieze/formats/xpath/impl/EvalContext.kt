@@ -28,11 +28,13 @@ import io.github.pdvrieze.xml.schematypes.types.builtinType
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdDateTimeStamp
 import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
+import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import kotlinx.datetime.FixedOffsetTimeZone
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.asTimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.internal.QNameMap
 import nl.adaptivity.xmlutil.dom2.Document
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -74,6 +76,12 @@ open class EvalContext(
 
     fun resolveTypeOrNull(name: QName): AnyType? {
         return builtinType(name.localPart, name.namespaceURI)
+    }
+
+    val defaultDecimalFormat: DecimalFormat get() = deterministicState.defaultDecimalFormat
+
+    fun resolveDecimalFormat(name: QName): DecimalFormat? {
+        return deterministicState.resolveDecimalFormat(name)
     }
 
     open fun copy(contextValue: XdmValue<*>, contextPos: Int, contextSize: Int): EvalContext {
@@ -118,6 +126,8 @@ open class EvalContext(
 
     class DeterministicState(
         val baseURI: XsdAnyURI? = null,
+        val defaultDecimalFormat: DecimalFormat = DecimalFormat(),
+        decimalFormats: List<DecimalFormat.Named> = emptyList()
     ) {
         private val _traces: MutableList<Trace> = mutableListOf()
 
@@ -125,6 +135,16 @@ open class EvalContext(
 
         fun addTrace(trace: Trace) {
             _traces.add(trace)
+        }
+
+        private val decimalFormats = QNameMap<DecimalFormat>().also { map ->
+            for (df in decimalFormats) {
+                map[df.name] = df
+            }
+        }
+
+        fun resolveDecimalFormat(name: QName): DecimalFormat? {
+            return decimalFormats[name]
         }
 
         private val _timeData by lazy {
