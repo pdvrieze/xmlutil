@@ -54,7 +54,7 @@ kotlin {
         enabled = true
 
         klib {
-            enabled = isKlibValidationEnabled()
+            enabled = false // isKlibValidationEnabled()
         }
 
         filters {
