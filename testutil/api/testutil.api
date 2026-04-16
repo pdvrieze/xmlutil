@@ -1,3 +1,25 @@
+public final class io/github/pdvrieze/formats/xmlschemaTests/JvmResource : io/github/pdvrieze/formats/xmlschemaTests/Resource {
+	public fun <init> (Ljava/net/URL;)V
+	public fun getPath ()Ljava/lang/String;
+	public fun getText ()Ljava/lang/String;
+	public final fun getUrl ()Ljava/net/URL;
+	public fun resolve (Ljava/lang/String;)Lio/github/pdvrieze/formats/xmlschemaTests/Resource;
+	public fun withXmlReader (ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public abstract interface class io/github/pdvrieze/formats/xmlschemaTests/Resource {
+	public abstract fun getPath ()Ljava/lang/String;
+	public abstract fun getText ()Ljava/lang/String;
+	public abstract fun resolve (Ljava/lang/String;)Lio/github/pdvrieze/formats/xmlschemaTests/Resource;
+	public abstract fun withXmlReader (ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun withXmlReader$default (Lio/github/pdvrieze/formats/xmlschemaTests/Resource;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/github/pdvrieze/formats/xmlschemaTests/Resource_jvmKt {
+	public static final fun getResource (Ljava/lang/String;)Lio/github/pdvrieze/formats/xmlschemaTests/Resource;
+	public static final fun openStream (Lio/github/pdvrieze/formats/xmlschemaTests/Resource;)Ljava/io/InputStream;
+}
+
 public final class io/github/pdvrieze/xmlutil/testutil/AssertXmlEqualsKt {
 	public static final fun assertQNameEquivalent (Ljavax/xml/namespace/QName;Ljavax/xml/namespace/QName;)V
 	public static final fun assertQNameEquivalent (Ljavax/xml/namespace/QName;Ljavax/xml/namespace/QName;Lkotlin/jvm/functions/Function0;)V

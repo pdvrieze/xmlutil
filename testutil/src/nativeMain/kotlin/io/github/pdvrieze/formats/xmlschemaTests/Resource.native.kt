@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschemaTests
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
+import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.FileInputStream
 import nl.adaptivity.xmlutil.core.impl.multiplatform.InputStreamReader
@@ -66,7 +63,7 @@ actual fun getResource(path: String): Resource {
             val fullPath = "$target/$pathBase"
             val statResult = alloc<stat>()
             val r = stat(fullPath, statResult.ptr)
-            if (r == 0 && (statResult.st_mode.toInt() and S_IFMT == S_IFREG)) {
+            if (r == 0 && (isRegularFile(statResult))) {
                 println("Found resource $fullPath")
                 finalPath = fullPath
                 break
@@ -75,4 +72,15 @@ actual fun getResource(path: String): Resource {
     }
 
     return NativeResource(finalPath ?: error("Could not find resource $path"))
+}
+
+@UnsafeNumber(["linux_x64: Kotlin.UInt", ])
+private fun stat.getMode(): UInt {
+    @Suppress("REDUNDANT_CALL_OF_CONVERSION_METHOD")
+    return st_mode.toUInt()
+}
+
+@OptIn(ExperimentalForeignApi::class, UnsafeNumber::class)
+private fun isRegularFile(statResult: stat): Boolean {
+    return statResult.getMode() and S_IFMT.toUInt() == S_IFREG.toUInt()
 }
