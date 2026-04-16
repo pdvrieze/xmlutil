@@ -21,6 +21,7 @@
 @file:Suppress("OPT_IN_USAGE")
 
 import net.devrieze.gradle.ext.addNativeTargets
+import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
