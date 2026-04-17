@@ -37,8 +37,28 @@ class TestBigDecimal {
     }
 
     @Test
+    fun testNegDecimal() {
+        val bigInt = BigDecimal(1234567890, -2)
+        assertEquals("12345678.90", bigInt.xmlString)
+    }
+
+    @Test
+    fun testPosDecimal() {
+        val bigInt = BigDecimal(1234567890, 2)
+        assertEquals("123456789000", bigInt.xmlString)
+        assertEquals(123456789000L, bigInt.toLong())
+    }
+
+    @Test
     fun testAddLong() {
         val nanos = BigDecimal(563464971, 9)
+        val sum = nanos + XsdInt(26)
+        assertEquals("563464971000000026", sum.xmlString)
+    }
+
+    @Test
+    fun testAddNegLong() {
+        val nanos = BigDecimal(563464971, -9)
         val sum = nanos + XsdInt(26)
         assertEquals("26.563464971", sum.xmlString)
     }
@@ -59,7 +79,7 @@ class TestBigDecimal {
 
     @Test
     fun testIntLargerDiv() {
-        val main = BigDecimal(0xFF00000000L, 5L)
+        val main = BigDecimal(0xFF00000000L, 5)
         val divisor = BigDecimal(1, 0)
         val result = main.divRem(divisor)
         assertEquals(4, result.quotient.toLong())

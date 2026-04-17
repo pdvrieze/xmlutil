@@ -26,37 +26,34 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class BigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
-    AbstractBigDecimal<BigDecimal>(sign, ints, decimalPositions) {
+class BigDecimal(ints: UIntArray, decimalPositions: Int) :
+    AbstractBigDecimal<BigDecimal>(ints, decimalPositions) {
 
     init {
-        val specialSign = _sign ushr 29
-        requireRange(specialSign == 0b000 || specialSign == 0b111) {
-            ""
+        val specialSign = ints[0] and SPECIAL_BIT.toUInt()
+        requireRange(specialSign == 0u) {
+            "BigDecimal does not support special values (INF, -INF, NaN)"
         }
-        if (! (specialSign == 0b000 || specialSign == 0b111)) throw NumberFormatException("Invalid special value")
     }
 
-    constructor(value: CharSequence): this(parse(value))
+    constructor(value: CharSequence) : this(parse(value))
 
-    constructor(bigDecimal: InfBigDecimal): this(bigDecimal._sign, bigDecimal.ints, bigDecimal.decimalPositions)
+    constructor(bigDecimal: InfBigDecimal): this(bigDecimal.ints, bigDecimal.exponent)
 
     private constructor(parseResult: ParseResult) :
-            this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
+            this(parseResult.ints, parseResult.decimalDigits)
 
     constructor(value: UInt): this(
-        sign = if (value == 0u) 0 else 1,
         ints = uintArrayOf(value),
-        decimalPositions = 0L
+        decimalPositions = 0
     )
 
     constructor(value: ULong) : this(
-        sign = if (value == 0uL) 0 else 1,
         ints = when {
             value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
             else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
         },
-        decimalPositions = 0L
+        decimalPositions = 0
     )
 
     override val self: BigDecimal get() = this
@@ -70,22 +67,22 @@ class BigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
         is BigDecimal -> this
         is AbstractBigDecimal<*> -> {
             requireRange(isFinite) { "Cannot convert non-finite XsdBigDecimal to BigDecimal" }
-            BigDecimal(sign, ints, decimalPositions)
+            BigDecimal(ints, exponent)
         }
-        is XsdInteger -> BigDecimal(sign, UIntArray(size.toInt()) { get(it) }, 0L)
+        is XsdInteger -> BigDecimal(UIntArray(size.toInt()) { get(it) }, 0)
         else -> BigDecimal(xmlString) // fallback to parsing
     }
 
     companion object : CompanionBase<BigDecimal>() {
-        override val ZERO = BigDecimal(0, uintArrayOf(0u), 0)
-        override val ONE = BigDecimal(1, uintArrayOf(1u), 0)
-        override val MINUSONE = BigDecimal(-1, uintArrayOf(1u), 0)
+        override val ZERO = BigDecimal(uintArrayOf(0u), 0)
+        override val ONE = BigDecimal(uintArrayOf(1u), 0)
+        override val MINUSONE = BigDecimal(uintArrayOf(1u), 0)
 //        val NaN = BigDecimal(NAN_BIT, UIntArray(0), 0)
 //        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, NaN.ints, 0)
 //        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
 
-        override fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): BigDecimal {
-            return BigDecimal(sign, ints, decimalPositions)
+        override fun newInstance(ints: UIntArray, decimalPositions: Int): BigDecimal {
+            return BigDecimal(ints, decimalPositions)
         }
 
 

@@ -63,7 +63,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
     override fun toBigDecimal(): BigDecimal {
         val ints = if (exp==0uL) this.ints else expandExp().ints
-        return BigDecimal(sign, ints, 0)
+        return BigDecimal(ints, 0)
     }
 
     override fun get(index: ULong): UInt {

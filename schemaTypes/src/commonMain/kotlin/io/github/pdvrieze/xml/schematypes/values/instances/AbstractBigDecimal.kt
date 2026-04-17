@@ -21,36 +21,43 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.RangeException
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
-import kotlin.math.abs
-import kotlin.math.absoluteValue
+import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 
 @OptIn(ExperimentalUnsignedTypes::class)
+/**
+ * @property ints A packed array of sequences of 32-bit integers that contains a sequence of 10-bit
+ *           numbers
+ *
+ * @property exponent the Base 10 exponent
+ */
 abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor(
-    sign: Int,
     internal val ints: UIntArray,
-    internal val decimalPositions: Long
+    internal val exponent: Int
 ) : XsdBigDecimal {
 
     init {
-        when {
-            ints.size == 1 && ints[0] == 0u -> require(sign == 0) {
-                "Zero value must have a 0 sign"
+        require(ints.size >0) { "There must be at least one int"}
+        if (ints.size > 1) {
+            require(ints.any { it != 0u }) { "Zero sign must have a single int" }
+            val valZero = ints[0]
+            if (valZero and SPECIAL_BIT.toUInt() != 0u) {
+                throw IllegalArgumentException(
+                    "Special values must have a single int with the special bit"
+                )
             }
-
-            sign == 0 -> throw IllegalArgumentException("Zero sign must have a single int")
         }
-
-        require(ints.size != 2 || ints[1] != 0u) { "The second int must not be zero" }
     }
 
     /*
-     * The way the sign stores special values is that (special bits are sign sensitive):
+     * The sign and special values are stored in bits 31 and 32 of the first int:
      *  - Bit 32 represents the sign
-     *  - Bit 31 represents NaN. If it is equal to the sign bit it is a regular number, otherwise a NaN
-     *  - Bit 30 represents infinity (together with the sign). If NaN this value is meaningless
+     *  - Bit 31 represents the fact that this is one of the special value
+     *  - Bit 30 represents NaN. If it is equal to the sign bit it is a regular number, otherwise a NaN
+     *  - Bit 29 represents infinity (together with the sign). If NaN this value is meaningless
      *  - Bits 2-29 should be equal to the sign bit (although for NaN they could carry information
      *  - Bit 1 represents the positive or zero value
      * A consequence is that normal numbers work:
@@ -58,107 +65,189 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
      * 0 is zero (00000...000)
      * -1 is negative (11111...111)
      */
-    internal val _sign = when (sign ushr 29) {
-        0 -> {
-            require(ints.isNotEmpty()) { "Non-special values must have an int" }
-            sign and 1 // positive or zero
-        }
-
-        0b111 -> {
-            require(ints.isNotEmpty()) { "Non-special values must have an int" }
-            -1 // negative
-        }
-
-        0b001 -> {
-            require(ints.isEmpty()) { "Special values have no ints" }
-            INFINITY_BIT
-        }
-
-        0b101 -> {
-            require(ints.isEmpty()) { "Special values have no ints" }
-            -1 xor INFINITY_BIT
-        }
-
-        else -> {
-            require(ints.size == 0) { "Special values have no ints" }
-            sign // Some form of NaN
-        }
-    }
-
     override val sign: Int
-        get() = when (_sign.ushr(29)) {
-            0b000, 0b001 -> _sign and 1
-            0b111, 0b110 -> -1
-            else -> throw ArithmeticException("NaN value")
+        get() {
+            val int0 = ints[0].toInt()
+            return when {
+                ints.size == 1 && int0 == 0 -> 0
+
+                int0 and (SPECIAL_BIT or NAN_BIT) == (SPECIAL_BIT or NAN_BIT) -> throw ArithmeticException("NaN value")
+
+                else -> int0.shr(31).or(1)
+            }
         }
 
-    override val isFinite: Boolean get() = ints.isNotEmpty()
+    val intDigitSize: Int
+        get() = (ints.size * 9) + exponent
+
+    val decimalDigitSize: Int
+        get() = (-exponent).coerceAtLeast(0)
+
+
+
+    override val isFinite: Boolean
+        get() = ints[0].toInt() and SPECIAL_BIT == 0
 
     abstract val self: T
 
     override fun exp10(n: Int): T {
-        val newDecimalPosition = decimalPositions - n
-        return newInstance(sign, ints, newDecimalPosition)
+        val newDecimalPosition = exponent - n
+        return newInstance(ints, newDecimalPosition)
     }
 
     override val isInteger: Boolean
-        get() = ints.isNotEmpty() && decimalPositions <= 0
+        get() = exponent <= 0
 
     abstract protected val companion: CompanionBase<T>
 
-    private fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): T =
-        companion.newInstance(sign, ints, decimalPositions)
+    private fun newInstance(ints: UIntArray, decimalPositions: Int): T =
+        companion.newInstance(ints, decimalPositions)
 
-    private fun newInstance(value: Int, decimalPositions: Long = 0L): T =
+    private fun newInstance(value: Int, decimalPositions: Int = 0): T =
         companion.invoke(value, decimalPositions)
 
-    private fun newInstance(value: Long, decimalPositions: Long = 0L): T =
+    private fun newInstance(value: Long, decimalPositions: Int = 0): T =
         companion.invoke(value, decimalPositions)
 
     abstract protected fun XsdDecimal.asT(): T
 
-    override fun toULong(): ULong {
-        if (sign == 0) return 0uL
-        check(sign > 0) { "Negative value cannot be converted to unsigned long" }
-        val base = floor().arrayWithEffectiveDecimalPosition(0)
-        return when (base.size) {
-            1 -> base[0].toULong()
-            2 -> base[0].toULong() or (base[1].toULong() shl 32)
-            else -> throw RangeException("Value too large to fit in an unsigned long")
+    /**
+     * Retrieve the "digit" stored at the given position
+     */
+    private fun getStoredDigit(pos:Int): UInt {
+        val intPos = pos /3
+        val rightShift = (pos % 3) * BITS_PER_DIGIT
+
+        return ints[intPos].shr(rightShift).and(DIGIT_MASK.toUInt())
+    }
+
+    /**
+     * Retrieve digits as they would be if base 0
+     */
+    private fun pseudoDigitFromZero(pos: Int): UInt {
+        // check correct for small positive exponents
+        val expCorrection = -exponent / 3
+        val inDigitCorrection = (-exponent).rem(3)
+        val newPos = (pos + expCorrection)
+        if (newPos !in -1..<(ints.size * 3)) return 0u
+        return when (inDigitCorrection) {
+            0 -> when {
+                newPos >= 0 -> getStoredDigit(newPos)
+                else -> 0u
+            }
+            1 -> {
+                val leastSig = if (newPos < 0) 0u else getStoredDigit(newPos) / 100u
+                val mostSig = if (newPos + 1 >= ints.size) 0u else (getStoredDigit(newPos + 1) * 10u).mod(MAX_DIGIT.toUInt())
+                leastSig + mostSig
+            }
+            else -> { // 2
+                val leastSig = if (newPos < 0) 0u else getStoredDigit(newPos) / 10u
+                val mostSig = if (newPos + 1 >= ints.size) 0u else (getStoredDigit(newPos + 1) * 100u).mod(MAX_DIGIT.toUInt())
+                leastSig + mostSig
+            }
         }
     }
 
-    override fun toUInt(): UInt {
-        if (sign == 0) return 0u
-        check(sign > 0) { "Negative value cannot be converted to unsigned long" }
-        val base = floor().arrayWithEffectiveDecimalPosition(0)
-        return when (base.size) {
-            1 -> base[0]
-            else -> throw RangeException("Value too large to fit in an unsigned int")
+    private fun toULongHelper(maxDigitCount: Int): ULong {
+        if (exponent > 19) throw RangeException("Value too large to fit in an unsigned long")
+
+        val int0 = ints[0].toInt()
+        if (int0 and SPECIAL_BIT != 0) throw IllegalStateException("Non-finite value cannot be converted to integer")
+        if (int0 == 0) return 0uL
+
+        var currentValue: ULong = 0u
+        var digitPos = ((-exponent)/3)
+
+        var correction: ULong
+        when ((-exponent).mod(3)) {
+            0 -> correction = 0uL
+
+            1 -> { // get one digit from the right (divide by 100)
+                if (digitPos>=0) currentValue += getStoredDigit(digitPos) / 100u
+                digitPos += 1
+                correction = 10uL
+            }
+
+            else -> { // get two digits from the right (divide by 10)
+                if (digitPos>=0) currentValue += getStoredDigit(digitPos) / 10u
+                digitPos += 1
+                correction = 100uL
+            }
         }
+
+        val end = minOf(ints.size * 3, digitPos + maxDigitCount)
+
+        while (digitPos < end) {
+            val storedDigit = getStoredDigit(digitPos)
+            when {
+                // maxULOng is: 18_446_744_073_709_551_615
+
+                correction > 10_000_000_000_000_000_000uL -> error("Unexpected correction")
+
+                correction == 10_000_000_000_000_000_000uL -> {
+                    requireRange(storedDigit < 1u ||
+                            (storedDigit == 1u && currentValue<=8_446_744_073_709_551_615uL)) { "Value out of range of ULong" }
+
+                    currentValue += storedDigit * correction
+                    break
+                }
+
+                correction == 1_000_000_000_000_000_000uL -> {
+                    requireRange(storedDigit < 18u ||
+                            (storedDigit == 18u && currentValue<=446_744_073_709_551_615uL)) { "Value out of range of ULong" }
+
+                    currentValue += storedDigit * correction
+                    break
+                }
+
+                correction == 100_000_000_000_000_000uL -> {
+                    requireRange(storedDigit < 184u ||
+                            (storedDigit == 184u && currentValue<=46_744_073_709_551_615uL)) { "Value out of range of ULong" }
+
+                    currentValue += storedDigit * correction
+                    break
+                }
+            }
+            currentValue += storedDigit * correction
+            correction *= MAX_DIGIT.toULong()
+            digitPos += 1
+        }
+        return currentValue
+    }
+
+
+    override fun toULong(): ULong {
+        val int0 = ints[0].toInt()
+        check(int0 and SIGN_BIT == 0) { "Negative value cannot be converted to unsigned long" }
+        return toULongHelper(7)
+    }
+
+    override fun toUInt(): UInt {
+        val int0 = ints[0].toInt()
+        check(int0 and SIGN_BIT == 0) { "Negative value cannot be converted to unsigned int" }
+        val r =  toULongHelper(4)
+
+        if (r > UInt.MAX_VALUE) throw RangeException("Value too large to fit in an unsigned int")
+        return r.toUInt()
     }
 
 
     override fun toLong(): Long {
-        val base = floor().arrayWithEffectiveDecimalPosition(0)
-        return when (base.size) {
-            1 -> base[0].toLong() * sign
+        val int0 = ints[0].toInt()
+        val isNegative = int0 and SIGN_BIT == SIGN_BIT
+        val r =  toULongHelper(7)
 
-            2 if (base[1] and 0x8000_0000u == 0u) -> {
-                val uLongValue = base[0].toULong() or (base[1].toULong() shl 32)
-                uLongValue.toLong() * sign
-            }
-
-            else -> throw RangeException("Value too large to fit in a Long")
-        }
+        requireRange(r shr 63 == 0uL) { "Value too large to fit in a long" }
+        return if (isNegative) -(r.toLong()) else r.toLong()
     }
 
     override fun toInt(): Int {
-        val base = floor().arrayWithEffectiveDecimalPosition(0)
-        return when (base.size) {
-            1 if (base[0] and 0x8000_0000u == 0u) -> base[0].toInt() * sign
-            else -> throw RangeException("Value too large to fit in an Int: ${this.xmlString}")
-        }
+        val int0 = ints[0].toInt()
+        val isNegative = int0 and SIGN_BIT == SIGN_BIT
+        val r = toULongHelper(4)
+
+        requireRange(r shr 31 == 0uL) { "Value too large to fit in an int" }
+        return if (isNegative) -(r.toInt()) else r.toInt()
     }
 
     override fun toBigDecimal(): T {
@@ -167,15 +256,15 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     override fun floor(): T {
         when {
-            sign == 0 || decimalPositions == 0L || !isFinite -> return unaryPlus()
-            decimalPositions < 0 -> {
+            sign == 0 || exponent == 0 || !isFinite -> return unaryPlus()
+            exponent < 0 -> {
                 val expanded = expandWithEffectiveDecimalPositionsToArray(0)
-                return newInstance(sign, expanded, 0L)
+                return newInstance(expanded, 0)
             }
         }
 
-        val divisor = newInstance(1, uintArrayOf(1u), 0)
-            .expandWithEffectiveDecimalPositions(decimalPositions)
+        val divisor = newInstance(uintArrayOf(1u), 0)
+            .expandWithEffectiveDecimalPositions(exponent)
 
         val (quotient, _) = divRem(divisor)
         if (sign > 0) return quotient
@@ -200,8 +289,13 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     override fun roundToInteger(): XsdInteger {
+        val lower = getStoredDigit(-1) < 500u
+
+
+
+
         val dec = round(0)
-        check(dec.decimalPositions == 0L)
+        check(dec.exponent == 0)
         return when (dec.ints.size) {
             1 -> XsdInt.Companion(dec.toInt())
             2 -> XsdLong.Companion(dec.toLong())
@@ -213,14 +307,14 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     private fun roundImpl(precision: Int, halfEven: Boolean): T {
-        if (sign == 0 || decimalPositions == precision.toLong() || !isFinite) return unaryPlus()
+        if (sign == 0 || exponent == precision || !isFinite) return unaryPlus()
 
-        if (decimalPositions < precision) {
-            val expanded = expandWithEffectiveDecimalPositionsToArray(precision.toLong())
-            return newInstance(sign, expanded, 0)
+        if (exponent < precision) {
+            val expanded = expandWithEffectiveDecimalPositionsToArray(precision)
+            return newInstance(expanded, 0)
         }
-        val divisor = newInstance(1, uintArrayOf(1u), 0)
-            .expandWithEffectiveDecimalPositions(decimalPositions - precision.toLong())
+        val divisor = newInstance(uintArrayOf(1u), 0)
+            .expandWithEffectiveDecimalPositions(exponent - precision)
 
         val (quotient, remainder) = divRem(divisor)
 
@@ -269,7 +363,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     override fun unaryMinus(): T {
         // Note that flipping the sign works as the "special" bits are opposite to the sign bit
-        return newInstance(-sign, ints, decimalPositions)
+        return newInstance(ints, exponent)
     }
 
     override fun unaryPlus(): T = self
@@ -289,17 +383,18 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     /**
      * @param elems The base elements for the integer
-     * @params exp The exponent of the base elements. This  may not be the final value
+     * @params exp The exponent of the base elements. This may not be the final value
      */
-    protected open fun createOptimizedInstance(sign: Int, elems: UIntArray, decimalPositions: Long): T {
-        var lastIdx = elems.size - 1
-        while (lastIdx > 0 && elems[lastIdx] == 0u) lastIdx -= 1
+    protected open fun createOptimizedInstance(elems: UIntArray, exp: Int): T {
+        val startIndex = elems.indexOfFirst { it != 0u }
+        val newExp = exp + startIndex * 9
+        // must be zero
+        if (startIndex < 0) return newInstance(uintArrayOf(0u), newExp)
+        val endIndex = elems.indexOfLast { it != 0u }.let { if (it < 0) elems.size else it}
+        if (endIndex - startIndex == elems.size) return newInstance(elems, exp)
 
-        val newSize = lastIdx + 1
-        val newElems  = if (newSize<elems.size) elems.copyOfRange(0, newSize) else elems
-
-
-        return newInstance(sign, newElems, decimalPositions)
+        val newElems = elems.copyOfRange(startIndex, endIndex)
+        return newInstance(newElems, newExp)
     }
 
     override fun plus(other: XsdDecimal): T = plus(other.asT())
@@ -313,46 +408,47 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             sign > 0 && other.sign < 0 -> return minus(other.abs())
 
             sign < 0 && other.sign > 0 -> return other.asT().minus(abs())
-
-            decimalPositions < other.decimalPositions ->
-                return expandWithEffectiveDecimalPositions(other.decimalPositions).plus(other)
-
-            decimalPositions > other.decimalPositions ->
-                return plus(other.expandWithEffectiveDecimalPositions(decimalPositions))
         }
-        val shorter: UIntArray
-        val longer: UIntArray
-        when {
-            ints.size <= other.ints.size -> { shorter = ints; longer = other.ints }
 
-            else -> { shorter = other.ints; longer = ints }
-        }
-        val newInts = UIntArray(longer.size + 1)
+        val newExp: Int = (minOf(exponent, other.exponent) / 3) * 3
+
+        val maxDecimalDigitCount = maxOf(ints.size *9 + exponent - newExp, other.ints.size *9 + other.exponent - newExp)
+        val maxDigitCount = 1 + (2+maxDecimalDigitCount) / 3 // up to 3 decimal digits per "digit"
+
+        // allocate extra int for overflow
+        val resultInts = UIntArray((2 + maxDigitCount) / 3)
 
         var carry = 0u
-        for (i in 0 until shorter.size) {
-            val x = shorter[i].toULong() + longer[i].toULong() + carry
-            newInts[i] = x.toUInt()
-            carry = x.shr(32).toUInt()
+
+        for (i in resultInts.indices) {
+            var tmpTotal = 0u
+            val posBase = i * 3 + newExp / 3
+            for (j in 0..2) {
+                val digitPos = posBase + j
+                val a = pseudoDigitFromZero(digitPos) + other.pseudoDigitFromZero(digitPos) + carry
+                tmpTotal += (a.rem(MAX_DIGIT.toUInt())) shl (BITS_PER_DIGIT * j)
+                carry = a / MAX_DIGIT.toUInt()
+            }
+            resultInts[i] = tmpTotal
         }
 
-        for (i in shorter.size until longer.size) {
-            val x = longer[i].toULong() + carry
-            newInts[i] = x.toUInt()
-            carry = x.shr(32).toUInt()
+        val ints = when {
+            resultInts[resultInts.lastIndex] == 0u -> resultInts.copyOf(resultInts.size - 1)
+            else -> resultInts
         }
-        return createOptimizedInstance(sign, newInts, decimalPositions)
+
+        return newInstance(ints, newExp)
     }
 
     override fun minus(other: XsdDecimal): T = minus(other.toBigDecimal())
 
     open operator fun minus(other: AbstractBigDecimal<*>): T {
         when {
-            decimalPositions < other.decimalPositions ->
-                return expandWithEffectiveDecimalPositions(other.decimalPositions).minus(other)
+            exponent < other.exponent ->
+                return expandWithEffectiveDecimalPositions(other.exponent).minus(other)
 
-            decimalPositions > other.decimalPositions ->
-                return minus(other.expandWithEffectiveDecimalPositions(decimalPositions))
+            exponent > other.exponent ->
+                return minus(other.expandWithEffectiveDecimalPositions(exponent))
 
             sign == 0 -> return -other.asT()
             other.sign == 0 -> return self
@@ -364,7 +460,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val larger: UIntArray
         val smaller: UIntArray
         val newSign = when {
-            cmp == 0 -> return newInstance(0, uintArrayOf(0u), decimalPositions)
+            cmp == 0 -> return newInstance(uintArrayOf(0u), exponent)
             cmp < 0 -> { larger = other.ints; smaller = ints; -1 }
             else -> { larger = ints; smaller = other.ints; 1 }
         }
@@ -397,7 +493,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             }
         }
 
-        return createOptimizedInstance(newSign, newInts, decimalPositions)
+        return createOptimizedInstance(newInts, exponent)
     }
 
     override fun times(other: XsdDecimal): T = times(other.asT())
@@ -407,7 +503,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         if (other.ints.size> ints.size) return other.asT().times(self)
 
         val newInts = UIntArray(size.toInt() + other.size.toInt() + 1)
-        val newDecimalPositions = decimalPositions + other.decimalPositions
+        val newDecimalPositions = exponent + other.exponent
 
         for (otherIdx in other.ints.indices) {
             var carry = 0u
@@ -426,7 +522,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             }
         }
 
-        return createOptimizedInstance(sign * other.sign, newInts, newDecimalPositions)
+        return createOptimizedInstance(newInts, newDecimalPositions)
     }
 
     override operator fun times(multiplier: UInt): T {
@@ -448,7 +544,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         newInts[ints.size] = m.toUInt()
         assert(m.shr(32).toUInt() == 0u)
 
-        return createOptimizedInstance(sign, newInts, decimalPositions)
+        return createOptimizedInstance(newInts, exponent)
     }
 
     infix fun shl(shift: Int): T {
@@ -459,62 +555,60 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     infix fun shl(shift: ULong): T {
         if (shift == 0uL || !isFinite) return self
         val newInts = BigUnsignedInt(ints, shift).expandExp().ints
-        return newInstance(sign, newInts, decimalPositions)
+        return newInstance(newInts, exponent)
     }
 
     /**
      * Get the absolute value of this value.
      */
     override fun abs(): T {
-        val s = _sign
-        return when (s) {
-            0 -> companion.ZERO
-            1 -> self
-            // Will preserve "special" bits except with flipped sign
-            else -> newInstance(-_sign, ints, decimalPositions)
-        }
+        val newInts = ints.copyOf()
+        newInts[0] = newInts[0] and 0x7FFFFFFFu
+        return newInstance(newInts, exponent)
     }
 
     /**
      * Helper function to ensure decimal positions.
      * @param newDecimalPosition The new decimal position. If positive the value had decimal digits, if negative it is larger
      */
-    private fun expandWithEffectiveDecimalPositions(newDecimalPosition: Long): T = when {
+    private fun expandWithEffectiveDecimalPositions(newDecimalPosition: Int): T = when {
         !isFinite -> self
         else -> newInstance(
-            sign,
             expandWithEffectiveDecimalPositionsToArray(newDecimalPosition),
             newDecimalPosition
         )
     }
 
-    private fun arrayWithEffectiveDecimalPosition(newDecimalPosition: Long): UIntArray {
+    private fun arrayWithEffectiveDecimalPosition(newDecimalPosition: Int): UIntArray {
         if (!isFinite) return ints
-        if (newDecimalPosition == decimalPositions || ints.isEmpty()) return ints
-        var shiftNeeded = newDecimalPosition - decimalPositions
+        if (newDecimalPosition == exponent || ints.isEmpty()) return ints
+        var shiftNeeded = newDecimalPosition - exponent
+        if (shiftNeeded % 3 == 0) return ints
+
+
         var current = BigUnsignedInt(ints, 0uL)
         do {
             // Note that the target exp must be 0 as we are only retaining the ints.
             when (shiftNeeded) {
-                -9L -> return (current.div(1_000_000_000u, 0uL)).ints
-                -8L -> return (current.div(100_000_000u, 0uL)).ints
-                -7L -> return (current.div(10_000_000u, 0uL)).ints
-                -6L -> return (current.div(1_000_000u, 0uL)).ints
-                -5L -> return (current.div(100_000u, 0uL)).ints
-                -4L -> return (current.div(10_000u, 0uL)).ints
-                -3L -> return (current.div(1_000u, 0uL)).ints
-                -2L -> return (current.div(100u, 0uL)).ints
-                -1L -> return (current.div(10u, 0uL)).ints
-                0L -> return current.ints
-                1L -> return (current.times(10u, 0uL)).ints
-                2L -> return (current.times(100u, 0uL)).ints
-                3L -> return (current.times(1_000u, 0uL)).ints
-                4L -> return (current.times(10_000u, 0uL)).ints
-                5L -> return (current.times(100_000u, 0uL)).ints
-                6L -> return (current.times(1_000_000u, 0uL)).ints
-                7L -> return (current.times(10_000_000u, 0uL)).ints
-                8L -> return (current.times(100_000_000u, 0uL)).ints
-                9L -> return (current.times(1_000_000_000u, 0uL)).ints
+                -9 -> return (current.div(1_000_000_000u, 0uL)).ints
+                -8 -> return (current.div(100_000_000u, 0uL)).ints
+                -7 -> return (current.div(10_000_000u, 0uL)).ints
+                -6 -> return (current.div(1_000_000u, 0uL)).ints
+                -5 -> return (current.div(100_000u, 0uL)).ints
+                -4 -> return (current.div(10_000u, 0uL)).ints
+                -3 -> return (current.div(1_000u, 0uL)).ints
+                -2 -> return (current.div(100u, 0uL)).ints
+                -1 -> return (current.div(10u, 0uL)).ints
+                0 -> return current.ints
+                1 -> return (current.times(10u, 0uL)).ints
+                2 -> return (current.times(100u, 0uL)).ints
+                3 -> return (current.times(1_000u, 0uL)).ints
+                4 -> return (current.times(10_000u, 0uL)).ints
+                5 -> return (current.times(100_000u, 0uL)).ints
+                6 -> return (current.times(1_000_000u, 0uL)).ints
+                7 -> return (current.times(10_000_000u, 0uL)).ints
+                8 -> return (current.times(100_000_000u, 0uL)).ints
+                9 -> return (current.times(1_000_000_000u, 0uL)).ints
 
                 else if newDecimalPosition > 9L-> {
                     current *= 1_000_000_000u
@@ -529,24 +623,24 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     }
 
-    private fun expandWithEffectiveDecimalPositionsToArray(newDecimalPosition: Long): UIntArray {
+    private fun expandWithEffectiveDecimalPositionsToArray(newDecimalPosition: Int): UIntArray {
         if (!isFinite) return ints
-        var additionalDecimalNeeded = newDecimalPosition - decimalPositions
+        var additionalDecimalNeeded = newDecimalPosition - exponent
         check(additionalDecimalNeeded>=0)
         var current = BigUnsignedInt(ints, 0uL)
         do {
             // Note that the target exp must be 0 as we are only retaining the ints.
             when (additionalDecimalNeeded) {
-                0L -> return current.ints
-                1L -> return (current.times(10u, 0uL)).ints
-                2L -> return (current.times(100u, 0uL)).ints
-                3L -> return (current.times(1_000u, 0uL)).ints
-                4L -> return (current.times(10_000u, 0uL)).ints
-                5L -> return (current.times(100_000u, 0uL)).ints
-                6L -> return (current.times(1_000_000u, 0uL)).ints
-                7L -> return (current.times(10_000_000u, 0uL)).ints
-                8L -> return (current.times(100_000_000u, 0uL)).ints
-                9L -> return (current.times(1_000_000_000u, 0uL)).ints
+                0 -> return current.ints
+                1 -> return (current.times(10u, 0uL)).ints
+                2 -> return (current.times(100u, 0uL)).ints
+                3 -> return (current.times(1_000u, 0uL)).ints
+                4 -> return (current.times(10_000u, 0uL)).ints
+                5 -> return (current.times(100_000u, 0uL)).ints
+                6 -> return (current.times(1_000_000u, 0uL)).ints
+                7 -> return (current.times(10_000_000u, 0uL)).ints
+                8 -> return (current.times(100_000_000u, 0uL)).ints
+                9 -> return (current.times(1_000_000_000u, 0uL)).ints
 
                 else -> {
                     current *= 1_000_000_000u
@@ -568,7 +662,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             sign > other.sign -> 1
 
             // Optimization when this BigDecimal could be a BigInt.
-            decimalPositions == 0L && other !is AbstractBigDecimal<*> -> BigInt(sign, ints, 0uL).compareTo(other)
+            exponent == 0 && other !is AbstractBigDecimal<*> -> BigInt(sign, ints, 0uL).compareTo(other)
 
             // compareBDInts compares positive ints only
             sign < 0 -> other.unaryMinus().compareTo(unaryMinus())
@@ -579,11 +673,11 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     private fun compareBDInts(other: AbstractBigDecimal<*>): Int {
         val otherInts = when {
-            decimalPositions < other.decimalPositions ->
-                return expandWithEffectiveDecimalPositions(other.decimalPositions).compareBDInts(other)
+            exponent < other.exponent ->
+                return expandWithEffectiveDecimalPositions(other.exponent).compareBDInts(other)
 
-            decimalPositions > other.decimalPositions ->
-                other.expandWithEffectiveDecimalPositions(decimalPositions).ints
+            exponent > other.exponent ->
+                other.expandWithEffectiveDecimalPositions(exponent).ints
 
             else -> other.ints
         }
@@ -606,31 +700,25 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             appendable.append('0')
             return
         }
-        when (decimalPositions) {
-            0L -> BigInt(sign, ints, 0uL).appendTo(appendable)
 
-            else -> {
-                val baseString = BigInt(sign, ints, 0uL).toString()
-
-                (appendable as? StringBuilder)?.ensureCapacity((baseString.length + if (decimalPositions < 0) decimalPositions + 1 else 0).toInt())
-
-                when {
-                    decimalPositions < 0 -> appendable
-                        .append(baseString).append('.')
-                        .append(RepeatSequence(' ', -decimalPositions.toInt()))
-
-                    else -> {
-                        val split = baseString.length - decimalPositions.toInt()
-                        when {
-                            split < 0 -> appendable.append('0')
-                            else -> appendable.appendRange(baseString, 0, split)
-                        }
-
-                        appendable.append('.')
-                        if (split < 0) repeat(-split) { appendable.append('0') }
-                        appendable.appendRange(baseString, split.coerceAtLeast(0), baseString.length)
-                    }
+        val intDigits = intDigitSize
+        var seenNonZero = false
+        var digitsSeen = 0
+        for (d9pack in ints.reversed()) {
+            for (j in 8 downTo 0) {
+                if (digitsSeen == intDigits) appendable.append('.')
+                val d3pack = (d9pack shr (BITS_PER_DIGIT * (j/3))) and 0x3ffu
+                val d = when (j % 3) {
+                    0 -> d3pack % 10u
+                    1 -> (d3pack / 10u) % 10u
+                    else -> (d3pack / 100u) % 10u
                 }
+
+                if (d != 0u || seenNonZero || digitsSeen >= intDigits) {
+                    seenNonZero = true
+                    appendable.appendCodepoint(d.toInt() + '0'.code)
+                }
+                digitsSeen += 1
             }
         }
     }
@@ -648,22 +736,22 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     override fun divRem(divider: UInt): DivRem<T> {
         when (divider) {
             0u -> throw ArithmeticException("Division by zero")
-            1u if decimalPositions <= 0L -> return DivRem<T>(self, newInstance(0, companion.ZERO.ints, 0))
-            else if (_sign == 0) -> return DivRem(self, companion.ZERO)
+            1u if exponent <= 0L -> return DivRem<T>(self, newInstance(companion.ZERO.ints, 0))
+            else if (ints.size == 1 && ints[0] == 0u) -> return DivRem(self, companion.ZERO)
         }
         // If we can just extend from UInt to ULong do that here
-        val divider = when (decimalPositions) {
-            0L -> divider.toULong()
-            1L -> divider.toULong() * 10u
-            2L -> divider.toULong() * 100u
-            3L -> divider.toULong() * 1_000u
-            4L -> divider.toULong() * 10_000u
-            5L -> divider.toULong() * 100_000u
-            6L -> divider.toULong() * 1_000_000u
-            7L -> divider.toULong() * 10_000_000u
-            8L -> divider.toULong() * 100_000_000u
-            9L -> divider.toULong() * 1_000_000_000u
-            else -> return divRem(newInstance(1, uintArrayOf(divider), 0L))
+        val divider = when (exponent) {
+            0 -> divider.toULong()
+            1 -> divider.toULong() * 10u
+            2 -> divider.toULong() * 100u
+            3 -> divider.toULong() * 1_000u
+            4 -> divider.toULong() * 10_000u
+            5 -> divider.toULong() * 100_000u
+            6 -> divider.toULong() * 1_000_000u
+            7 -> divider.toULong() * 10_000_000u
+            8 -> divider.toULong() * 100_000_000u
+            9 -> divider.toULong() * 1_000_000_000u
+            else -> return divRem(newInstance(uintArrayOf(divider), 0))
         }
         val v = BigUnsignedInt(ints, 0uL)
         val quotient: BigUnsignedInt
@@ -689,9 +777,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val newSign = if(quotient.sign == 0) 0 else sign
 
         // We "Fixed" the position so the decimal position difference is 0
-        val quotientDec = newInstance(newSign, quotient.ints, 0)
+        val quotientDec = newInstance(quotient.ints, 0)
 
-        val remainderDec = newInstance(newRemSign, remainder, decimalPositions)
+        val remainderDec = newInstance(remainder, exponent)
 
         return DivRem(quotientDec, remainderDec)
 
@@ -702,15 +790,15 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     open fun divRem(divider: T): DivRem<T> { // will (initially) expand exponents
         when {
-            divider._sign == 0 -> throw ArithmeticException("Division by zero")
-            _sign == 0 -> return DivRem(self, companion.ZERO)
+            divider.sign == 0 -> throw ArithmeticException("Division by zero")
+            sign == 0 -> return DivRem(self, companion.ZERO)
         }
 
         if (divider.sign == 0) throw ArithmeticException("Division by zero")
         else if (sign == 0) return DivRem(self, companion.ZERO)
 
         // Extend decimal positions to avoid losing digits in the remainder.
-        if (decimalPositions > divider.decimalPositions) return divRem(divider.expandWithEffectiveDecimalPositions(decimalPositions))
+        if (exponent > divider.exponent) return divRem(divider.expandWithEffectiveDecimalPositions(exponent))
 
         // use BigUnsignedInts to actually perform the division
         val v = BigUnsignedInt(ints, 0uL)
@@ -722,36 +810,39 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             sign == divider.sign -> 1
             else -> -1
         }
-        val newDecimalPositions = decimalPositions - divider.decimalPositions
-        val quotient = newInstance(newSign, unsignedDivRem.quotient.ints, newDecimalPositions)
+        val newDecimalPositions = exponent - divider.exponent
+        val quotient = newInstance(unsignedDivRem.quotient.ints, newDecimalPositions)
 
         val remainderSign = if (unsignedDivRem.remainder.sign == 0) 0 else sign
-        val remainder = newInstance(remainderSign, unsignedDivRem.remainder.ints, decimalPositions)
+        val remainder = newInstance(unsignedDivRem.remainder.ints, exponent)
 
         return DivRem(quotient, remainder)
     }
 
 
     override fun equals(other: Any?): Boolean {
-        return when (other) {
-            !is XsdDecimal -> false
+        return when {
+            other !is XsdDecimal -> false
 
-            else -> when (_sign ushr 29) {
-                0b001 -> other.isInfinity
-                0b110 -> other.isNegativeInfinity
-                0b000, 0b111 -> other.isFinite && compareTo(other) == 0
-                else -> false // NaN
+            this.isFinite -> other.isFinite && compareTo(other) == 0
+
+            other.isFinite -> false
+
+            else -> when (ints[0] shr 28) {
+                0b0101u -> other.isInfinity
+                0b1101u -> other.isNegativeInfinity
+                else -> false // NaN is never equal to NaN
             }
         }
 
     }
 
     override fun hashCode(): Int {
-        var result = _sign.hashCode()
-        if (ints.isEmpty()) return result
-        result = 31 * result + decimalPositions.hashCode()
+        var result = exponent.hashCode()
         var i = ints.lastIndex
-        while (i>= 0 && ints[i]==0u) { i-=1 }
+        while (i >= 0 && ints[i] == 0u) {
+            i -= 1
+        }
         for (j in 0..i) {
             result = 31 * result + ints[j].hashCode()
         }
@@ -761,10 +852,17 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     override fun toString(): String = buildString {
         append("BigDecimal(")
-        ints.reversed().joinTo(this, "_") {
-            it.toString(16).padStart(8, '0')
+        if (sign < 0) append('-')
+        for (i in ints.reversed()) {
+            append(((i shr 20) and DIGIT_MASK.toUInt()).toString().padStart(3, '0')).append('_')
+            append(((i shr 10) and DIGIT_MASK.toUInt()).toString().padStart(3, '0')).append('_')
+            append((i and DIGIT_MASK.toUInt()).toString().padStart(3, '0')).append('_')
         }
-        if (decimalPositions != 0L) append("×10^").append(-decimalPositions)
+        if (isNotEmpty()) deleteAt(lastIndex)
+
+        if (exponent != 0) {
+            append(" e").append(exponent)
+        }
         append(')')
     }
 
@@ -790,7 +888,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             RepeatSequence(char, endIndex - startIndex)
     }
 
-    internal class ParseResult(val sign: Int, val ints: UIntArray, val decimalDigits: Long)
+    internal class ParseResult(val ints: UIntArray, val decimalDigits: Int)
 
     abstract class CompanionBase<T: AbstractBigDecimal<T>> {
 
@@ -798,7 +896,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         abstract val ONE: T
         abstract val MINUSONE: T
 
-        internal abstract fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): T
+        internal abstract fun newInstance(ints: UIntArray, decimalPositions: Int): T
 
         @XmlUtilInternal
         internal fun parse(s: CharSequence): ParseResult {
@@ -821,123 +919,162 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             normalised: CharSequence,
             sign: Int
         ): ParseResult {
-            var normalised1 = normalised
-            var sign1 = sign
-            val decimalDigits: Long
-            val signPos = normalised1.lastIndexOf('.')
-            if (signPos >= 0) {
-                if (normalised1.lastIndexOf('.', signPos - 1) >= 0) {
+            val digitsOnly: CharSequence
+            val sign1 = sign
+            val decimalDigits: Int
+            val decPos = normalised.lastIndexOf('.')
+            if (decPos >= 0) {
+                if (normalised.lastIndexOf('.', decPos - 1) >= 0) {
                     throw NumberFormatException("Multiple decimal points")
                 }
-                decimalDigits = (normalised1.length - signPos - 1).toLong()
-                normalised1 = normalised1.substring(0, signPos) + normalised1.substring(signPos + 1)
+                decimalDigits = (normalised.length - decPos - 1)
+                digitsOnly = normalised.substring(0, decPos) + normalised.substring(decPos + 1)
             } else {
-                decimalDigits = 0L
+                digitsOnly = normalised
+                decimalDigits = 0
             }
 
-            val intsNeeded = 1 + normalised1.length / 9 // not very accurate but good enough for now
+            val intsNeeded = (digitsOnly.length + 8) / 9
+            val result = UIntArray(intsNeeded)
 
-            val last = normalised1.length
+            var i = 0
 
-            var numbers = UIntArray(intsNeeded)
-            var tmp = UIntArray(intsNeeded)
-            var intsUsed = 1
-
-            var first = normalised1.length.rem(9) // actually initialise it after the first substring
-
-            if (first > 0) {
-                numbers[0] = normalised1.substring(0, minOf(first, last)).toUInt()
+            while (i > 0) {
+                val d = when (i) {
+                    1 -> digitsOnly[0] - '0'
+                    2 -> (digitsOnly[0] - '0') * 10 + (digitsOnly[1] - '0')
+                    else -> (digitsOnly[0] - '0') * 100 + (digitsOnly[1] - '0') * 10 + (digitsOnly[2] - '0')
+                }
+                val shift = ((i % 9)/3) * BITS_PER_DIGIT
+                result[i / 9] += d.shl(shift).toUInt()
+                i -= 3
             }
 
-            while (first < last) {
-                val nextInt = normalised1.substring(first, minOf(first + 9, last)).toULong()
-
-                val m = numbers[0].toULong() * 1_000_000_000uL + nextInt
-                tmp[0] = m.toUInt()
-                var carry: UInt = m.shr(32).toUInt()
-
-                for (i in 1 until intsUsed) {
-                    val m = numbers[i].toULong() * 1_000_000_000uL + carry
-
-                    tmp[i] = m.toUInt()
-                    carry = m.shr(32).toUInt()
-                }
-
-                if (carry != 0u) {
-                    tmp[intsUsed] = carry
-                    intsUsed += 1
-                }
-
-                for (i in intsUsed until tmp.size) {
-                    tmp[i] = 0u
-                }
-
-                val x = numbers
-                numbers = tmp
-                tmp = x
-
-                first += 9
+            if (sign < 0) {
+                result[0] = result[0] or SIGN_BIT.toUInt()
             }
-
-            var lastByteToKeep = numbers.lastIndex
-            while (lastByteToKeep > 0 && numbers[lastByteToKeep] == 0u) lastByteToKeep -= 1
-
-            val array = if (lastByteToKeep + 1 == numbers.size) numbers else numbers.copyOf(lastByteToKeep + 1)
-
-            // Make sure that the sign field is accurate.
-            if (array.size == 1 && array[0] == 0u) sign1 = 0
-
-            return ParseResult(sign1, array, decimalDigits)
+            return ParseResult(result, -decimalDigits)
         }
 
-        operator fun invoke(value: Int, decimalPositions: Long = 0L): T = when {
+        protected fun valToUInts(value: UInt): UIntArray {
+            var v = value
+            val part0 = v % MAX_DIGIT.toUInt()
+            v /= MAX_DIGIT.toUInt()
+            val part1 = v % MAX_DIGIT.toUInt()
+            v /= MAX_DIGIT.toUInt()
+            val part2 = v % MAX_DIGIT.toUInt()
+            v /= MAX_DIGIT.toUInt()
+            val uint0 = part0 + (part1 shl BITS_PER_DIGIT) + (part2 shl (2 * BITS_PER_DIGIT))
+            return when (v) {
+                0u -> uintArrayOf(uint0)
+                else -> uintArrayOf(uint0, v)
+            }
+        }
+
+        protected fun valToUInts(value: ULong): UIntArray {
+            var v = value
+            val part0 = v % MAX_DIGIT.toULong()
+            v /= MAX_DIGIT.toULong()
+            val part1 = v.toUInt() % MAX_DIGIT.toULong()
+            v /= MAX_DIGIT.toULong()
+            val part2 = v % MAX_DIGIT.toULong()
+            v /= MAX_DIGIT.toULong()
+            val part3 = v % MAX_DIGIT.toULong()
+            v /= MAX_DIGIT.toULong()
+            val part4 = v % MAX_DIGIT.toULong()
+            v /= MAX_DIGIT.toULong()
+            val part5 = v % MAX_DIGIT.toULong()
+            v /= MAX_DIGIT.toULong()
+            val uint0 = (part0 + (part1 shl BITS_PER_DIGIT) + (part2 shl (2 * BITS_PER_DIGIT))).toUInt()
+            val uint1 = (part3 + (part4 shl BITS_PER_DIGIT) + (part5 shl (2 * BITS_PER_DIGIT))).toUInt()
+            return when (v) {
+                0uL -> uintArrayOf(uint0, uint1)
+                else -> uintArrayOf(uint0, uint1, v.toUInt())
+            }
+        }
+
+        operator fun invoke(value: XsdInteger): T {
+            when (value) { // shortcut simple ints
+                is XsdInt -> return invoke(value.intValue, 0)
+                is XsdLong -> return invoke(value.longValue, 0)
+                is XsdUnsignedInt -> return invoke(value.uIntValue, 0)
+                is XsdUnsignedLong -> return invoke(value.uLongValue, 0)
+            }
+            // 30 bits is a bit more than can be stored in new ints. So this array is never too small
+            // and fairly accurate
+            val resultInts = UIntArray(((value.significantBitsFromZero()+29u)/30u).toInt().coerceAtLeast(1))
+            var r = value.divRem(1_000_000_000u)
+            // we can just take the first int as the remainder means we never need the follow up int
+            resultInts[0] = valToUInts(r.intRemainder.toUInt())[0]
+
+            var i = 1
+            while (r.quotient.sign != 0) {
+                r = r.quotient.divRem(1_000_000_000u)
+                resultInts[i++] = valToUInts(r.intRemainder.toUInt())[0]
+            }
+
+            val ints = when (resultInts.size) {
+                i -> resultInts
+                else -> resultInts.copyOf(i)
+            }
+            return newInstance(ints, 0)
+        }
+
+        operator fun invoke(value: Int, decimalPositions: Int = 0): T = when {
             value < 0 -> {
-                val absValue = abs(value)
-                newInstance(-1, uintArrayOf(absValue.toUInt()), decimalPositions)
+                val uints = valToUInts((-value).toUInt())
+                uints[0] = uints[0] or SIGN_BIT.toUInt()
+                newInstance(uints, decimalPositions)
             }
+
             value == 0 -> ZERO
-            else -> newInstance(1, uintArrayOf(value.toUInt()), decimalPositions)
+
+            else -> newInstance(valToUInts(value.toUInt()), decimalPositions)
         }
 
-        operator fun invoke(value: UInt, decimalPositions: Long = 0L): T = when {
+        operator fun invoke(value: UInt, decimalPositions: Int = 0): T = when {
             value == 0u -> ZERO
-            else -> newInstance(1, uintArrayOf(value), decimalPositions)
+            else -> newInstance(valToUInts(value), decimalPositions)
         }
 
-        operator fun invoke(value: Long, decimalPositions: Long = 0L): T {
-            if (value == 0L) return ZERO
-            val absValue = value.absoluteValue.toULong()
-            val array = when {
-                absValue <= UInt.MAX_VALUE -> uintArrayOf(absValue.toUInt())
-                else -> uintArrayOf(absValue.toUInt(), (absValue shr 32).toUInt())
+        operator fun invoke(value: Long, decimalPositions: Int = 0): T = when {
+            value < 0 -> {
+                val uints = valToUInts((-value).toUInt())
+                uints[0] = uints[0] or SIGN_BIT.toUInt()
+                newInstance(uints, decimalPositions)
             }
-            return when {
-                value < 0L -> newInstance(-1, array, decimalPositions)
-                else -> newInstance(1, array, decimalPositions)
-            }
+
+            value == 0L -> ZERO
+
+            else -> newInstance(valToUInts(value.toULong()), decimalPositions)
         }
 
-        operator fun invoke(value: ULong, decimalPositions: Long = 0L): T {
-            if (value == 0uL) return ZERO
-            val array = when {
-                value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
-                else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
-            }
-            return newInstance(1, array, decimalPositions)
+        operator fun invoke(value: ULong, decimalPositions: Int = 0): T = when {
+            value == 0uL -> ZERO
+            else -> newInstance(valToUInts(value), decimalPositions)
         }
 
     }
 
     companion object {
+        private const val MAX_DIGIT= 1_000
+        private const val MAX_DIGIT2 = MAX_DIGIT * MAX_DIGIT
+        private const val MAX_DIGIT3 = MAX_DIGIT.toLong() * MAX_DIGIT.toLong() * MAX_DIGIT.toLong()
+        private const val MAX_DIGIT4 = MAX_DIGIT.toLong() * MAX_DIGIT.toLong() * MAX_DIGIT.toLong() * MAX_DIGIT.toLong()
+        private const val MAX_DIGIT5 = MAX_DIGIT.toLong() * MAX_DIGIT.toLong() * MAX_DIGIT.toLong() * MAX_DIGIT.toLong() * MAX_DIGIT.toLong()
+        private const val BITS_PER_DIGIT = 10
+        private const val DIGIT_MASK = (1 shl BITS_PER_DIGIT) - 1
 
         @XmlUtilInternal
         protected const val SIGN_BIT = 1 shl 31
         @XmlUtilInternal
-        protected const val NAN_BIT = 1 shl 30
+        protected const val SPECIAL_BIT = 1 shl 30
         @XmlUtilInternal
-        protected const val INFINITY_BIT = 1 shl 29
+        protected const val NAN_BIT = 1 shl 29
         @XmlUtilInternal
-        protected const val SPECIAL_MASK = SIGN_BIT or NAN_BIT or INFINITY_BIT
+        protected const val INFINITY_BIT = 1 shl 28
+        @XmlUtilInternal
+        protected const val SPECIAL_MASK = SIGN_BIT or SPECIAL_BIT or NAN_BIT or INFINITY_BIT
 
     }
 

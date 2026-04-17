@@ -75,7 +75,7 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
             val millis = millis
             return when {
                 millis % 1000u == 0u -> XsdUnsignedInt(millis / 1000u)
-                else -> BigDecimal(millis.toLong(), 3L)
+                else -> BigDecimal(millis, 3)
             }
         }
 
@@ -101,8 +101,6 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
 
     override val xmlString: String get() = "${hourFrag()}:${minuteFrag()}:${secondFrag()}${timeZoneFrag()}"
     override val schemaType: TimeType<*> get() = TimeType.Instance
-
-
 
     override fun toString(): String = xmlString
 

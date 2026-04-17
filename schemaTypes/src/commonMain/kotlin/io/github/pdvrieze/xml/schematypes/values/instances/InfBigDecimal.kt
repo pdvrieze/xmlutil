@@ -24,23 +24,24 @@ import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
-    AbstractBigDecimal<InfBigDecimal>(sign, ints, decimalPositions) {
+class InfBigDecimal(ints: UIntArray, decimalPositions: Int) :
+    AbstractBigDecimal<InfBigDecimal>(ints, decimalPositions) {
 
-    private constructor(parseResult: ParseResult) : this(parseResult.sign, parseResult.ints, parseResult.decimalDigits)
+    private constructor(parseResult: ParseResult) : this(parseResult.ints, parseResult.decimalDigits)
 
     constructor(value: CharSequence): this(parse(value))
 
     override val self: InfBigDecimal get() = this
 
     override val isNaN: Boolean
-        get() = ((_sign and SIGN_BIT).ushr(1) xor (_sign and NAN_BIT)) != 0
+        get() = ints[0] and SPECIAL_BIT.toUInt() != 0u
+                && (ints[0] and NAN_BIT.toUInt()) == 1u
 
     override val isInfinity: Boolean
-        get() = sign and (SPECIAL_MASK) == INFINITY_BIT
+        get() = ints[0] and (SPECIAL_MASK.toUInt()) == (INFINITY_BIT or SPECIAL_BIT).toUInt()
 
     override val isNegativeInfinity: Boolean
-        get() = sign xor (SPECIAL_MASK) == INFINITY_BIT
+        get() = ints[0] and (SPECIAL_MASK.toUInt()) == (SIGN_BIT or INFINITY_BIT or SPECIAL_BIT).toUInt()
 
 
     override val companion: Companion get() = Companion
@@ -74,22 +75,21 @@ class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
         }
     }
 
-    override fun toDouble(): Double = when (_sign ushr 29) {
-        0b000, 0b111 -> super.toDouble()
-        0b001 -> Double.POSITIVE_INFINITY
-        0b110 -> Double.NEGATIVE_INFINITY
-        else -> Double.NaN
+    override fun toDouble(): Double = when (ints[0] shr 28) {
+        in 0b0000u.. 0b0011u, in 0b1000u..0b1011u -> super.toDouble()
+        0b0110u, 0b0111u, 0b1110u, 0b1111u -> Double.NaN
+        0b0101u -> Double.POSITIVE_INFINITY
+        else -> Double.NEGATIVE_INFINITY
     }
 
     override fun createOptimizedInstance(
-        sign: Int,
         elems: UIntArray,
-        decimalPositions: Long
+        exp: Int
     ): InfBigDecimal = when (sign ushr 29) {
         0b001 -> POSITIVE_INFINITY
         0b110 -> NEGATIVE_INFINITY
-        0b000, 0b111 -> super.createOptimizedInstance(sign, elems, decimalPositions)
-        else -> newInstance(sign, NaN.ints, NaN.decimalPositions)
+        0b000, 0b111 -> super.createOptimizedInstance(elems, exp)
+        else -> newInstance(NaN.ints, NaN.exponent)
     }
 
     override fun roundToInteger(): XsdInteger {
@@ -99,8 +99,8 @@ class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
 
     override fun XsdDecimal.asT(): InfBigDecimal = when (this) {
         is InfBigDecimal -> this
-        is AbstractBigDecimal<*> -> InfBigDecimal(sign, ints, decimalPositions)
-        is XsdInteger -> InfBigDecimal(sign, UIntArray(size.toInt()) { get(it) }, 0L)
+        is AbstractBigDecimal<*> -> InfBigDecimal(ints, exponent)
+        is XsdInteger -> InfBigDecimal(this)
         else -> InfBigDecimal(xmlString) // fallback to parsing
     }
 
@@ -200,14 +200,14 @@ class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
 
     override fun divRem(divider: InfBigDecimal): DivRem<InfBigDecimal> {
         // will (initially) expand exponents
-        when {
-            divider._sign == 0 -> throw ArithmeticException("Division by zero")
-            isFinite -> return super.divRem(divider)
-            _sign == 0 -> return DivRem(self, ZERO)
-            isNaN || divider.isNaN -> return DivRem(self, NaN)
-            !divider.isFinite -> return DivRem(NaN, NaN)
-            sign > 0 == divider.sign > 0 -> return DivRem(self, NaN)
-            else -> return DivRem(NEGATIVE_INFINITY, ZERO)
+        return when {
+            divider.sign == 0 -> throw ArithmeticException("Division by zero")
+            isFinite -> super.divRem(divider)
+            sign == 0 -> DivRem(self, ZERO)
+            isNaN || divider.isNaN -> DivRem(self, NaN)
+            !divider.isFinite -> DivRem(NaN, NaN)
+            sign > 0 == divider.sign > 0 -> DivRem(self, NaN)
+            else -> DivRem(NEGATIVE_INFINITY, ZERO)
         }
     }
 
@@ -222,26 +222,29 @@ class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
     }
 
     override fun appendTo(appendable: Appendable) {
-        when (_sign) {
-            0 -> appendable.append('0')
+        val int0 = ints[0]
+        when {
+            int0 == 0u -> appendable.append('0')
+            int0 and SPECIAL_BIT.toUInt() != 0u -> when {
+                int0 and NAN_BIT.toUInt() != 0u -> appendable.append("NaN")
+                int0 and SIGN_BIT.toUInt() != 0u -> appendable.append("-INF")
+                else -> appendable.append("INF")
+            }
 
-            -1, 1 -> super.appendTo(appendable)
-            0x2000_0000 -> appendable.append("INF")
-            0xDFFF_FFFFu.toInt() -> appendable.append("-INF")
-            else -> appendable.append("NaN")
+            else -> super.appendTo(appendable)
         }
     }
 
     companion object: CompanionBase<InfBigDecimal>() {
-        override val ZERO = InfBigDecimal(0, uintArrayOf(0u), 0)
-        override val ONE = InfBigDecimal(1, uintArrayOf(1u), 0)
-        override val MINUSONE = InfBigDecimal(-1, uintArrayOf(1u), 0)
-        val NaN = InfBigDecimal(NAN_BIT, UIntArray(0), 0)
-        val POSITIVE_INFINITY = InfBigDecimal(INFINITY_BIT, NaN.ints, 0)
-        val NEGATIVE_INFINITY = InfBigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
+        override val ZERO = InfBigDecimal(uintArrayOf(0u), 0)
+        override val ONE = InfBigDecimal(uintArrayOf(1u), 0)
+        override val MINUSONE = InfBigDecimal(uintArrayOf(1u or SIGN_BIT.toUInt()), 0)
+        val NaN = InfBigDecimal(uintArrayOf((SPECIAL_BIT or NAN_BIT).toUInt()), 0)
+        val POSITIVE_INFINITY = InfBigDecimal(uintArrayOf((SPECIAL_BIT or INFINITY_BIT).toUInt()), 0)
+        val NEGATIVE_INFINITY = InfBigDecimal(uintArrayOf((SPECIAL_BIT or INFINITY_BIT or SIGN_BIT).toUInt()), 0)
 
-        override fun newInstance(sign: Int, ints: UIntArray, decimalPositions: Long): InfBigDecimal {
-            return InfBigDecimal(sign, ints, decimalPositions)
+        override fun newInstance(ints: UIntArray, decimalPositions: Int): InfBigDecimal {
+            return InfBigDecimal(ints, decimalPositions)
         }
 
         override fun parseNormalised(
@@ -250,9 +253,10 @@ class InfBigDecimal(sign: Int, ints: UIntArray, decimalPositions: Long) :
         ): ParseResult {
             if (normalised == "INF") {
                 val ref = if (sign > 0) POSITIVE_INFINITY else NEGATIVE_INFINITY
-                return ParseResult(ref._sign, ref.ints, ref.decimalPositions)
+
+                return ParseResult(ref.ints, ref.exponent)
             } else if (normalised == "NaN") {
-                return ParseResult(NaN._sign, NaN.ints, NaN.decimalPositions)
+                return ParseResult(NaN.ints, NaN.exponent)
             }
 
             return super.parseNormalised(normalised, sign)
