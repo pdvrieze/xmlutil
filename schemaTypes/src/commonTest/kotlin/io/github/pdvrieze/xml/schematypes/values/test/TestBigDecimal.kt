@@ -27,6 +27,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TestBigDecimal {
+    @Test
+    fun testExpToULong() {
+        val sub = BigDecimal(1234567890, 10)
+        val uLong = sub.toULong()
+        assertEquals(12_345_678_900_000_000_000uL, uLong)
+    }
 
     @Test
     fun testSimpleInteger() {
@@ -35,6 +41,55 @@ class TestBigDecimal {
         assertEquals(1234567890, bigInt.toInt())
         assertEquals("1234567890", bigInt.xmlString)
     }
+
+    @Test
+    fun testMaxLongStr() {
+        val bigInt = BigDecimal(Long.MAX_VALUE.toString())
+        assertEquals(Long.MAX_VALUE, bigInt.toLong())
+        assertEquals(Long.MAX_VALUE.toString(), bigInt.xmlString)
+    }
+
+    @Test
+    fun testMinLongStr() {
+        val bigInt = BigDecimal(Long.MIN_VALUE.toString())
+        assertEquals(Long.MIN_VALUE, bigInt.toLong())
+        assertEquals(Long.MIN_VALUE.toString(), bigInt.xmlString)
+    }
+
+    @Test
+    fun testMaxULongStr() {
+        val bigInt = BigDecimal(Long.MAX_VALUE.toString())
+        assertEquals(Long.MAX_VALUE, bigInt.toLong())
+        assertEquals(Long.MAX_VALUE.toString(), bigInt.xmlString)
+    }
+
+    @Test
+    fun testSimpleInteger2() {
+        val bigInt = BigDecimal("12345678901")
+        assertEquals(12345678901, bigInt.toLong())
+        assertEquals("12345678901", bigInt.xmlString)
+    }
+
+    @Test
+    fun testExp1() {
+        assertEquals(1234560, BigDecimal(123456, 1).toLong())
+    }
+
+    @Test
+    fun testExp2() {
+        assertEquals(12345600, BigDecimal(123456, 2).toLong())
+    }
+
+    @Test
+    fun testExpM1() {
+        assertEquals(123456, BigDecimal(1234560, -1).toLong())
+    }
+
+    @Test
+    fun testExpM2() {
+        assertEquals(123456, BigDecimal(12345600, -2).toLong())
+    }
+
 
     @Test
     fun testNegDecimal() {
@@ -64,8 +119,16 @@ class TestBigDecimal {
     }
 
     @Test
+    fun testSub() {
+        val base = BigDecimal(1234567890, 17)
+        val sub = BigDecimal(1234567890, 13)
+        val diff = base - sub
+        assertEquals("123444443321100000000000000", diff.xmlString)
+    }
+
+    @Test
     fun testFixToString() {
-        assertEquals("0.000012", BigDecimal(12, 6).xmlString)
+        assertEquals("0.000012", BigDecimal(12, -6).xmlString)
     }
 
     @Test

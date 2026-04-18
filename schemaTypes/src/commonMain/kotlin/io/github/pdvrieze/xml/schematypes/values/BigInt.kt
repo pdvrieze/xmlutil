@@ -51,9 +51,9 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
 
     constructor(long: Long) : this(
         long.compareTo(0L),
-        when (long) {
-            in Int.MIN_VALUE..<Int.MAX_VALUE -> uintArrayOf(long.absoluteValue.toUInt())
-            else -> long.absoluteValue.toULong().let { uintArrayOf(it.toUInt(), (it shr 32).toUInt()) }
+        when (val a = long.absoluteValue.toULong()) {
+            in 0uL..<UInt.MAX_VALUE.toULong() -> uintArrayOf(a.toUInt())
+            else -> uintArrayOf(a.toUInt(), (a shr 32).toUInt())
         },
         0uL
     )
