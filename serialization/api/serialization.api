@@ -45,7 +45,7 @@ public class nl/adaptivity/xmlutil/serialization/DefaultXmlSerializationPolicy :
 	public final fun getVerifyElementOrder ()Z
 	public fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
 	public fun hashCode ()I
-	public fun ignoredSerialInfo (Ljava/lang/String;)V
+	public fun ignoredSerialInfo (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public fun initialChildReorderMap (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
 	public fun isInlineCollapsed (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public final fun isInlineCollapsedDefault ()Z
@@ -661,10 +661,10 @@ public final synthetic class nl/adaptivity/xmlutil/serialization/XmlOtherAttribu
 }
 
 public final class nl/adaptivity/xmlutil/serialization/XmlParsingException : nl/adaptivity/xmlutil/serialization/XmlSerialException {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/Exception;)V
-	public synthetic fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/Exception;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Exception;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getMessage ()Ljava/lang/String;
 }
 
@@ -678,10 +678,12 @@ public final synthetic class nl/adaptivity/xmlutil/serialization/XmlPolyChildren
 }
 
 public class nl/adaptivity/xmlutil/serialization/XmlSerialException : kotlinx/serialization/SerializationException {
-	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/Throwable;)V
-	public synthetic fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addErrorContext (Ljava/lang/String;)V
+	public final fun getErrContext ()Ljava/lang/String;
 	public final fun getExtLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
 	public fun getMessage ()Ljava/lang/String;
 	public final fun getRawMessage ()Ljava/lang/String;
@@ -715,9 +717,11 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/XmlSerializa
 	public fun getVerifyElementOrder ()Z
 	public fun handleAttributeOrderConflict (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/OutputKind;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public abstract fun handleUnknownContentRecovering (Lnl/adaptivity/xmlutil/XmlReader;Lnl/adaptivity/xmlutil/serialization/InputKind;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;Ljavax/xml/namespace/QName;Ljava/util/Collection;)Ljava/util/List;
-	public abstract fun ignoredSerialInfo (Ljava/lang/String;)V
+	public fun ignoredSerialInfo (Ljava/lang/String;)V
+	public fun ignoredSerialInfo (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public fun initialChildReorderMap (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Collection;
 	public fun invalidOutputKind (Ljava/lang/String;)V
+	public fun invalidOutputKind (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public fun isInlineCollapsed (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public abstract fun isListEluded (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;)Z
 	public fun isMapValueCollapsed (Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;Lnl/adaptivity/xmlutil/serialization/structure/XmlDescriptor;)Z

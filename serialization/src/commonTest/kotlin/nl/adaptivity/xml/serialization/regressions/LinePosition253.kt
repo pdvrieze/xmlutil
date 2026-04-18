@@ -51,6 +51,7 @@ class LinePosition253 {
         val location = e.extLocationInfo
         assertNotNull(location)
         assertEquals("For input string: \"abc\"", e.rawMessage)
+        assertEquals("item/price", e.errContext)
         assertIs<NumberFormatException>(e.cause,  "The underlying exception should be a NumberFormatException")
         val extLocationInfo = location as XmlReader.ExtLocationInfo
         assertEquals(2, extLocationInfo.line)
