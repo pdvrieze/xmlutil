@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.xml.schematypes.values.test
 
-import io.github.pdvrieze.xml.schematypes.values.BigInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import kotlin.test.Test
@@ -41,6 +40,15 @@ class TestBigDecimal {
         assertEquals(1234567890, bigInt.toInt())
         assertEquals("1234567890", bigInt.xmlString)
     }
+
+    @Test
+    fun testLongInteger() {
+        val l = -1917194577280790444L
+        val bigInt = BigDecimal(l)
+        assertEquals(l, bigInt.toLong())
+        assertEquals(l.toString(), bigInt.xmlString)
+    }
+
 
     @Test
     fun testMaxLongStr() {
@@ -133,7 +141,7 @@ class TestBigDecimal {
 
     @Test
     fun testDiv() {
-        val main = BigDecimal(412, 2)
+        val main = BigDecimal(412, -2)
         val divisor = BigDecimal(1, 0)
         val result = main.divRem(divisor)
         assertEquals(4, result.quotient.toLong())
@@ -153,20 +161,20 @@ class TestBigDecimal {
         a: Int,
         b: Int,
         expectedOperator: (Long, Long) -> Long,
-        actualOperator: (BigInt, BigInt) -> BigInt,
+        actualOperator: (BigDecimal, BigDecimal) -> BigDecimal,
     ) {
         val expected = expectedOperator(a.toLong(), b.toLong())
-        val bigA = BigInt(a)
-        val bigB = BigInt(b)
+        val bigA = BigDecimal(a)
+        val bigB = BigDecimal(b)
         val bigResult = actualOperator(bigA, bigB)
 
-        assertEquals(BigInt(expected), bigResult)
+        assertEquals(BigDecimal(expected), bigResult)
         assertEquals(expected, bigResult.toLong())
         assertEquals(expected.toString(), bigResult.xmlString)
     }
 
     private fun testMultiply(a: Int, b: Int) {
-        testBinaryOperator(a, b, Long::times, BigInt::times)
+        testBinaryOperator(a, b, Long::times, BigDecimal::times)
     }
 
     @Test

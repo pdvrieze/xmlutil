@@ -121,8 +121,8 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     abstract protected val companion: CompanionBase<T>
 
-    private fun newInstance(ints: UIntArray, decimalPositions: Int): T =
-        companion.newInstance(ints, decimalPositions)
+    private fun newInstance(ints: UIntArray, exponent: Int): T =
+        companion.newInstance(ints, exponent)
 
     private fun newInstance(value: Int, decimalPositions: Int = 0): T =
         companion.invoke(value, decimalPositions)
@@ -409,7 +409,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     override fun unaryMinus(): T {
         // Note that flipping the sign works as the "special" bits are opposite to the sign bit
-        return newInstance(ints, exponent)
+        val newInts = ints.copyOf()
+        newInts[0] = newInts[0] xor SIGN_BIT.toUInt()
+        return newInstance(newInts, exponent)
     }
 
     override fun unaryPlus(): T = self
@@ -432,7 +434,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
      * @params exp The exponent of the base elements. This may not be the final value
      */
     protected open fun createOptimizedInstance(elems: UIntArray, exp: Int): T {
-        val startIndex = elems.indexOfFirst { it != 0u }
+        val startIndex = 0 // elems.indexOfFirst { it != 0u }
         val newExp = exp + startIndex * 9
         // must be zero
         if (startIndex < 0) return newInstance(uintArrayOf(0u), newExp)
@@ -446,14 +448,16 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     override fun plus(other: XsdDecimal): T = plus(other.asT())
 
     open operator fun plus(other: AbstractBigDecimal<*>): T {
+        val lSign = sign
+        val rSign = other.sign
         when {
-            sign == 0 -> return other.asT()
+            lSign == 0 -> return other.asT()
 
-            other.sign == 0 -> return self
+            rSign == 0 -> return self
 
-            sign > 0 && other.sign < 0 -> return minus(other.abs())
+            lSign > 0 && rSign < 0 -> return minus(other.abs())
 
-            sign < 0 && other.sign > 0 -> return other.asT().minus(abs())
+            lSign < 0 && rSign > 0 -> return other.asT().minus(abs())
         }
 
         val newExp: Int = (minOf(exponent, other.exponent) / 3) * 3
@@ -480,13 +484,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             resultInts[i] = tmpTotal
         }
 
-        val targetSize = resultInts.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
-        val ints = when (resultInts.size) {
-            targetSize -> resultInts
-            else -> resultInts.copyOf(targetSize)
-        }
+        if (lSign < 0) resultInts[0] = resultInts[0] or SIGN_BIT.toUInt()
 
-        return newInstance(ints, newExp)
+        return createOptimizedInstance(resultInts, newExp)
     }
 
     override fun minus(other: XsdDecimal): T = minus(other.toBigDecimal())
@@ -607,29 +607,50 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     open operator fun times(other: AbstractBigDecimal<*>): T {
         @Suppress("UNCHECKED_CAST")
-        if (other.ints.size> ints.size) return other.asT().times(self)
+        if (other.precisionDigits > precisionDigits) return other.asT().times(self)
+        val newSign = sign * other.sign
+        val newExponent = exponent + other.exponent
+        if (newSign == 0) return newInstance(uintArrayOf(0u), newExponent)
 
-        val newInts = UIntArray(size.toInt() + other.size.toInt() + 1)
-        val newDecimalPositions = exponent + other.exponent
+        val intsNeeded = (precisionDigits + other.precisionDigits +8)/9
+        val newInts = UIntArray(intsNeeded)
 
-        for (otherIdx in other.ints.indices) {
+        val lDigits = (precisionDigits + 2) / 3
+        val rDigits = (other.precisionDigits + 2) / 3
+
+        for (rPos in 0..<rDigits) {
+            val right = other.getStoredDigit(rPos)
+            if (right == 0u) continue // no need to attempt to multiply
             var carry = 0u
-            for (idx in ints.indices) {
-                val newIdx = idx + otherIdx
-                val m = ints[idx].toULong() * other.ints[otherIdx].toULong() + carry + newInts[newIdx]
-                newInts[newIdx] = m.toUInt()
-                carry = m.shr(32).toUInt()
+            for (lPos in 0..< lDigits) {
+                val targetPos = rPos + lPos
+                val targetIntIdx = targetPos / 3
+                val shiftInInt = targetPos.mod(3)*BITS_PER_DIGIT
+
+                val cur = newInts[targetIntIdx].shr(shiftInInt) and 0x3ffu
+                val left = getStoredDigit(lPos)
+                val mult = left * right + carry + cur
+                val base = newInts[targetIntIdx] and (0x3ffu.shl(shiftInInt)).inv()
+                newInts[targetIntIdx] = base + mult.mod(1000u).shl(shiftInInt)
+                carry = mult /1000u
             }
-            for (idx in ints.size until newInts.size) {
-                val newIdx = idx + otherIdx
-                val m = carry.toULong() + newInts[newIdx]
-                newInts[newIdx] = m.toUInt()
-                carry = m.shr(32).toUInt()
+            for (i in lDigits..< (lDigits + rDigits)) {
                 if (carry == 0u) break // no carry, we are done
+                val targetPos = rPos + i
+                val targetIntIdx = targetPos / 3
+                val shiftInInt = targetPos.mod(3)*BITS_PER_DIGIT
+
+                val cur = newInts[targetIntIdx].shr(shiftInInt)
+                val sum = carry + cur
+                val base = newInts[targetIntIdx] and (0x3ffu.shl(shiftInInt)).inv()
+                newInts[targetIntIdx] = base + sum.mod(1000u).shl(shiftInInt)
+                carry = sum /1000u
             }
         }
 
-        return createOptimizedInstance(newInts, newDecimalPositions)
+        if (newSign< 0) newInts[0] = newInts[0] or SIGN_BIT.toUInt()
+
+        return createOptimizedInstance(newInts, newExponent)
     }
 
     override operator fun times(multiplier: UInt): T {
@@ -1029,7 +1050,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         abstract val ONE: T
         abstract val MINUSONE: T
 
-        internal abstract fun newInstance(ints: UIntArray, decimalPositions: Int): T
+        internal abstract fun newInstance(ints: UIntArray, exponent: Int): T
 
         @XmlUtilInternal
         internal fun parse(s: CharSequence): ParseResult {
@@ -1110,19 +1131,20 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             var v = value
             val part0 = v % MAX_DIGIT.toULong()
             v /= MAX_DIGIT.toULong()
-            val part1 = v.toUInt() % MAX_DIGIT.toULong()
+            val part1 = v % MAX_DIGIT.toUInt()
             v /= MAX_DIGIT.toULong()
-            val part2 = v % MAX_DIGIT.toULong()
+            val part2 = v % MAX_DIGIT.toUInt()
             v /= MAX_DIGIT.toULong()
-            val part3 = v % MAX_DIGIT.toULong()
+            val part3 = v % MAX_DIGIT.toUInt()
             v /= MAX_DIGIT.toULong()
-            val part4 = v % MAX_DIGIT.toULong()
+            val part4 = v % MAX_DIGIT.toUInt()
             v /= MAX_DIGIT.toULong()
-            val part5 = v % MAX_DIGIT.toULong()
+            val part5 = v % MAX_DIGIT.toUInt()
             v /= MAX_DIGIT.toULong()
             val uint0 = (part0 + (part1 shl BITS_PER_DIGIT) + (part2 shl (2 * BITS_PER_DIGIT))).toUInt()
             val uint1 = (part3 + (part4 shl BITS_PER_DIGIT) + (part5 shl (2 * BITS_PER_DIGIT))).toUInt()
             return when (v) {
+                0uL if uint1 == 0u -> uintArrayOf(uint0)
                 0uL -> uintArrayOf(uint0, uint1)
                 else -> uintArrayOf(uint0, uint1, v.toUInt())
             }
@@ -1174,7 +1196,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
         operator fun invoke(value: Long, decimalPositions: Int = 0): T = when {
             value < 0 -> {
-                val uints = valToUInts(value.toULong().inv())
+                val uints = valToUInts((-value).toULong())
                 uints[0] = uints[0] or SIGN_BIT.toUInt()
                 newInstance(uints, decimalPositions)
             }

@@ -245,6 +245,10 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         @Suppress("UNCHECKED_CAST")
         if (other.ints.size> ints.size) return other.times(self)
 
+        val lSign = sign
+        val rSign = other.sign
+        if (lSign == 0 || rSign == 0) return newInstance(0L)
+
         val newInts = UIntArray(size.toInt() + other.size.toInt() + 1)
         val newExp = exp + other.exp
 

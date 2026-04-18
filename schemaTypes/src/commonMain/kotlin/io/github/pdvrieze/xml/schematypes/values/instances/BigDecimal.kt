@@ -26,8 +26,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class BigDecimal(ints: UIntArray, decimalPositions: Int) :
-    AbstractBigDecimal<BigDecimal>(ints, decimalPositions) {
+class BigDecimal(ints: UIntArray, exponent: Int) :
+    AbstractBigDecimal<BigDecimal>(ints, exponent) {
 
     init {
         val specialSign = ints[0] and SPECIAL_BIT.toUInt()
@@ -45,7 +45,7 @@ class BigDecimal(ints: UIntArray, decimalPositions: Int) :
 
     constructor(value: UInt): this(
         ints = uintArrayOf(value),
-        decimalPositions = 0
+        exponent = 0
     )
 
     constructor(value: ULong) : this(
@@ -53,7 +53,7 @@ class BigDecimal(ints: UIntArray, decimalPositions: Int) :
             value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
             else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
         },
-        decimalPositions = 0
+        exponent = 0
     )
 
     override val self: BigDecimal get() = this
@@ -81,8 +81,8 @@ class BigDecimal(ints: UIntArray, decimalPositions: Int) :
 //        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, NaN.ints, 0)
 //        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)
 
-        override fun newInstance(ints: UIntArray, decimalPositions: Int): BigDecimal {
-            return BigDecimal(ints, decimalPositions)
+        override fun newInstance(ints: UIntArray, exponent: Int): BigDecimal {
+            return BigDecimal(ints, exponent)
         }
 
 

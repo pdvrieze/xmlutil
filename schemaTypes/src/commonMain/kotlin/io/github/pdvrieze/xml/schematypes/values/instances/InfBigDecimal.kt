@@ -243,8 +243,8 @@ class InfBigDecimal(ints: UIntArray, decimalPositions: Int) :
         val POSITIVE_INFINITY = InfBigDecimal(uintArrayOf((SPECIAL_BIT or INFINITY_BIT).toUInt()), 0)
         val NEGATIVE_INFINITY = InfBigDecimal(uintArrayOf((SPECIAL_BIT or INFINITY_BIT or SIGN_BIT).toUInt()), 0)
 
-        override fun newInstance(ints: UIntArray, decimalPositions: Int): InfBigDecimal {
-            return InfBigDecimal(ints, decimalPositions)
+        override fun newInstance(ints: UIntArray, exponent: Int): InfBigDecimal {
+            return InfBigDecimal(ints, exponent)
         }
 
         override fun parseNormalised(
