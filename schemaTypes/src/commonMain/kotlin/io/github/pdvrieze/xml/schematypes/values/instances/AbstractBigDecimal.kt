@@ -301,25 +301,44 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     override fun floor(): T {
-        when {
-            sign == 0 || exponent == 0 || !isFinite -> return unaryPlus()
-            exponent < 0 -> {
-                val expanded = expandWithEffectiveDecimalPositionsToArray(0)
-                return newInstance(expanded, 0)
+        if (exponent >= 0 || sign == 0 || !isFinite) return unaryPlus()
+
+
+        if ((-exponent) %9 ==0) {
+            val newInts = ints.copyOfRange((-exponent)/9, ints.size)
+            return newInstance(newInts, 0)
+        }
+
+        val intDigits = ((precisionDigits+exponent)+2)/3
+
+        val newInts = UIntArray((intDigits+2)/3)
+        for (i in 0 until intDigits step 3) {
+            val intIdx = i/3
+            newInts[intIdx] = pseudoDigitFromZero(i + 2) * 1_000_000u + pseudoDigitFromZero(i + 1) * 1_000u + pseudoDigitFromZero(i)
+        }
+
+
+        if (sign < 0) {
+            val negDigits = (2 - exponent) / 3
+            if ((-1..negDigits).any { pseudoDigitFromZero(it)==0u }) {
+                val int0 = newInts[0]
+                // subtract one
+                when {
+                    int0.and(0x3ffu) != 0x3e7u -> newInts[0] = int0 + 1u
+
+                    int0.shr(10).and(0x3ffu) < 0x3e7u ->
+                        newInts[0] = (int0 and 0x3fff_fC00u) + 1000u
+
+                    int0.shr(20).and(0x3ffu) != 0x3e7u ->
+                        newInts[0] = (int0 and 0x3ff0_0000u) + 1_000_000u
+
+                    else -> return (newInstance(newInts, 0) + BigDecimal(1u)).unaryMinus()
+                }
             }
-        }
 
-        val divisor = newInstance(uintArrayOf(1u), 0)
-            .expandWithEffectiveDecimalPositions(exponent)
-
-        val (quotient, _) = divRem(divisor)
-        if (sign > 0) return quotient
-        else if (quotient[0] < UInt.MAX_VALUE) {
-            quotient.ints[0]+=1u
-            return quotient
-        } else {
-            return quotient.plus(newInstance(1))
+            newInts[0] = newInts[0] or SIGN_BIT.toUInt() // copy the sign bit
         }
+        return newInstance(newInts, 0)
     }
 
     override fun ceiling(): T {
@@ -707,50 +726,6 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         )
     }
 
-    private fun arrayWithEffectiveDecimalPosition(newDecimalPosition: Int): UIntArray {
-        if (!isFinite) return ints
-        if (newDecimalPosition == exponent || ints.isEmpty()) return ints
-        var shiftNeeded = newDecimalPosition - exponent
-        if (shiftNeeded % 3 == 0) return ints
-
-
-        var current = BigUnsignedInt(ints, 0uL)
-        do {
-            // Note that the target exp must be 0 as we are only retaining the ints.
-            when (shiftNeeded) {
-                -9 -> return (current.div(1_000_000_000u, 0uL)).ints
-                -8 -> return (current.div(100_000_000u, 0uL)).ints
-                -7 -> return (current.div(10_000_000u, 0uL)).ints
-                -6 -> return (current.div(1_000_000u, 0uL)).ints
-                -5 -> return (current.div(100_000u, 0uL)).ints
-                -4 -> return (current.div(10_000u, 0uL)).ints
-                -3 -> return (current.div(1_000u, 0uL)).ints
-                -2 -> return (current.div(100u, 0uL)).ints
-                -1 -> return (current.div(10u, 0uL)).ints
-                0 -> return current.ints
-                1 -> return (current.times(10u, 0uL)).ints
-                2 -> return (current.times(100u, 0uL)).ints
-                3 -> return (current.times(1_000u, 0uL)).ints
-                4 -> return (current.times(10_000u, 0uL)).ints
-                5 -> return (current.times(100_000u, 0uL)).ints
-                6 -> return (current.times(1_000_000u, 0uL)).ints
-                7 -> return (current.times(10_000_000u, 0uL)).ints
-                8 -> return (current.times(100_000_000u, 0uL)).ints
-                9 -> return (current.times(1_000_000_000u, 0uL)).ints
-
-                else if newDecimalPosition > 9L-> {
-                    current *= 1_000_000_000u
-                    shiftNeeded -= 9
-                }
-                else -> {
-                    current /= 1_000_000_000u
-                    shiftNeeded++
-                }
-            }
-        } while (true)
-
-    }
-
     private fun expandWithEffectiveDecimalPositionsToArray(newDecimalPosition: Int): UIntArray {
         if (!isFinite) return ints
         var additionalDecimalNeeded = newDecimalPosition - exponent
@@ -949,9 +924,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         if (divider.sign == 0) throw ArithmeticException("Division by zero")
         else if (sign == 0) return DivRem(self, companion.ZERO)
 
-        // Extend decimal positions to avoid losing digits in the remainder.
-        if (exponent > divider.exponent) return divRem(divider.expandWithEffectiveDecimalPositions(exponent))
-
+        val resultPrecision = maxOf(precisionDigits, divider.precisionDigits)
 
 
         // use BigUnsignedInts to actually perform the division
