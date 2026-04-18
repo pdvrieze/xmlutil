@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -41,8 +41,8 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
         else -> basePolicy
     }
 
-    override fun ignoredSerialInfo(message: String) {
-        return basePolicy.ignoredSerialInfo(message)
+    override fun ignoredSerialInfo(message: String, errContext: () -> String) {
+        return basePolicy.ignoredSerialInfo(message, errContext)
     }
 
     override fun effectiveName(
@@ -89,8 +89,8 @@ internal class ShadowPolicy(basePolicy: XmlSerializationPolicy, internal val cac
         return basePolicy.defaultOutputKind(serialKind)
     }
 
-    override fun invalidOutputKind(message: String) {
-        basePolicy.invalidOutputKind(message)
+    override fun invalidOutputKind(message: String, errContext: () -> String) {
+        basePolicy.invalidOutputKind(message, errContext)
     }
 
     override fun serialTypeNameToQName(

@@ -386,11 +386,11 @@ internal open class XmlEncoderBase internal constructor(
             OutputKind.Attribute -> {
                 val valueType = xmlDescriptor.getElementDescriptor(1)
                 if (!valueType.effectiveOutputKind.isTextual) {
-                    throw XmlSerialException("Values of an attribute map must be textual or a qname")
+                    throw XmlSerialException("Values of an attribute map must be textual or a qname", xmlDescriptor.friendlyChildName(elementIndex))
                 }
                 val keyType = xmlDescriptor.getElementDescriptor(0)
                 if (!keyType.effectiveOutputKind.isTextual) {
-                    throw XmlSerialException("The keys of an attribute map must be string or qname")
+                    throw XmlSerialException("The keys of an attribute map must be string or qname", xmlDescriptor.friendlyChildName(elementIndex))
                 }
                 AttributeMapEncoder(xmlDescriptor)
             }
@@ -909,7 +909,10 @@ internal open class XmlEncoderBase internal constructor(
                             }
 
                             OutputKind.Text ->
-                                throw XmlSerialException("the type for a polymorphic child cannot be a text")
+                                throw XmlSerialException(
+                                    "the type for a polymorphic child cannot be a text",
+                                    xmlDescriptor.friendlyChildName(index)
+                                )
                         }
                     } // else if (index == 0) { } // do nothing
                 }

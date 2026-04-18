@@ -14,6 +14,10 @@ Features:
   entities containing tags).
 
 Changes:
+- Add new context element to xml exception that should allow for more detailed
+  context to be provided in exceptions. This generally covers element names. This
+  helps in cases of attributes where the location information is insufficient 
+  (it is positioned at the start or end of the containing tag).
 - Parsing of single characters now allows for xml Whitespace and will collapse the
   whitespace if there are more than 2 characters. It should be noted that to parse
   a single space character this must not be surrounded by whitespace (collapsing

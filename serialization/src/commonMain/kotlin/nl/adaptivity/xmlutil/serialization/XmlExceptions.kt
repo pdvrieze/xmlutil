@@ -28,12 +28,23 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 public open class XmlSerialException(
     message: String,
     extLocationInfo: XmlReader.LocationInfo?,
-    cause: Throwable? = null
+    errContext: String,
+    cause: Throwable? = null,
 ) : SerializationException(message, cause) {
     public var extLocationInfo: XmlReader.LocationInfo? = extLocationInfo
         private set
 
-    public constructor(message: String, cause: Throwable? = null) : this(message, null, cause)
+    public var errContext: String? = errContext
+        private set
+
+    public constructor(message: String, errContext: String, cause: Throwable? = null) : this(message, null, errContext, cause)
+
+    public fun addErrorContext(errContext: String) {
+        this.errContext = when (val c = this.errContext) {
+            null, "" -> errContext
+            else -> "$errContext/$c"
+        }
+    }
 
     @XmlUtilInternal
     public fun setFileLocation(fileName: String) {
@@ -49,7 +60,7 @@ public open class XmlSerialException(
     override val message: String?
         get() = when (extLocationInfo) {
             null -> rawMessage
-            else ->"Serialization exception at [$extLocationInfo]: $rawMessage"
+            else -> "Serialization exception at [$extLocationInfo]: $rawMessage"
         }
 
     @XmlUtilInternal
@@ -62,11 +73,12 @@ public open class XmlSerialException(
 
 public class XmlParsingException(
     extLocationInfo: XmlReader.LocationInfo?,
+    errContext: String,
     message: String,
     cause: Exception? = null
-) : XmlSerialException(message, extLocationInfo, cause) {
-    public constructor(locationInfo: String?, message: String, cause: Exception? = null) :
-            this(locationInfo?.let(XmlReader::StringLocationInfo), message, cause)
+) : XmlSerialException(message, extLocationInfo, errContext, cause) {
+    public constructor(locationInfo: String?, errContext: String, message: String, cause: Exception? = null) :
+            this(locationInfo?.let(XmlReader::StringLocationInfo), errContext, message, cause)
 
     init {
         require("Unknown position" !in message) { "Position information should not be in the stored message" }
@@ -78,15 +90,9 @@ public class XmlParsingException(
         }
 }
 
-public class UnknownXmlFieldException private constructor(
-    message: String,
-    extLocationInfo: XmlReader.LocationInfo?,
-    cause: Throwable? = null
-) : XmlSerialException(
-    message,
-    extLocationInfo,
-    cause
-) {
+public class UnknownXmlFieldException
+private constructor(message: String, extLocationInfo: XmlReader.LocationInfo?, errContext: String, cause: Throwable? = null) :
+    XmlSerialException(message, extLocationInfo, errContext, cause) {
 
     public constructor(
         xmlName: String,
@@ -95,6 +101,7 @@ public class UnknownXmlFieldException private constructor(
     ) : this(
         "Could not find a field for name $xmlName${candidateString(candidates)}",
         extLocationInfo,
+        xmlName,
         null
     )
 

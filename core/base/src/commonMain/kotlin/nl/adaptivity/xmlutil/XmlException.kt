@@ -32,12 +32,22 @@ public open class XmlException : IOException {
     public var locationInfo: XmlReader.LocationInfo?
         private set
 
+    public var errContext: String? = null
+        private set
+
     public val rawMessage: String? get() = super.message
 
     @XmlUtilInternal
     public fun setFileLocation(fileName: String) {
         val locationInfo = locationInfo?.withFileName(fileName) ?: FileNameLocationInfo(fileName)
         if (locationInfo !== locationInfo) this.locationInfo = locationInfo
+    }
+
+    public fun addErrorContext(errContext: String) {
+        when (val c = this.errContext) {
+            null -> errContext
+            else -> "$errContext/$c"
+        }
     }
 
     @JvmOverloads

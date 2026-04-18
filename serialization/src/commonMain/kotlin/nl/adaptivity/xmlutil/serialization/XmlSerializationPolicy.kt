@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.serialization.structure.*
 
 /**
- * Policies allow for customizing the behaviour of the xml serialization
+ * Policies allow for customizing the behaviour of the XML serialization
  */
 @OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(ExperimentalXmlUtilApi::class)
@@ -73,9 +73,26 @@ public interface XmlSerializationPolicy {
             else -> OutputKind.Element
         }
 
-    public fun invalidOutputKind(message: String): Unit = ignoredSerialInfo(message)
+    public fun invalidOutputKind(message: String, errContext: () -> String) {
+        ignoredSerialInfo(message, errContext)
+    }
 
-    public fun ignoredSerialInfo(message: String)
+    @Deprecated("Use/implement the overload that takes an error context")
+    public fun invalidOutputKind(message: String) {
+        ignoredSerialInfo(message) { "unknown context" }
+    }
+
+    public fun ignoredSerialInfo(message: String, errContext: () -> String) {
+        val context = errContext()
+        if (context == "unknown context") throw XmlSerialException(message, errContext = context)
+        @Suppress("DEPRECATION")
+        ignoredSerialInfo(message)
+    }
+
+    @Deprecated("Use/implement the overload that takes an error context")
+    public fun ignoredSerialInfo(message: String) {
+        ignoredSerialInfo(message) { "unknown context" }
+    }
 
     public fun effectiveName(
         serializerParent: SafeParentInfo,
@@ -137,10 +154,14 @@ public interface XmlSerializationPolicy {
         val isDefaultNamespace: Boolean/* = false*/
     ) {
         internal constructor(serialName: String) : this(serialName, null, false)
-        internal constructor(name: QName): this(name.localPart, name, false)
+        internal constructor(name: QName) : this(name.localPart, name, false)
 
         @OptIn(ExperimentalSerializationApi::class)
-        internal constructor(descriptor: SerialDescriptor) : this(descriptor.serialName, (descriptor as? XmlSerialDescriptor)?.serialQName, false)
+        internal constructor(descriptor: SerialDescriptor) : this(
+            descriptor.serialName,
+            (descriptor as? XmlSerialDescriptor)?.serialQName,
+            false
+        )
 
         init {
             check(!(isDefaultNamespace && annotatedName == null)) { "Default namespace requires there to be an annotated name" }

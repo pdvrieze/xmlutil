@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class InvalidValueContainerTest {
@@ -51,28 +52,25 @@ class InvalidValueContainerTest {
 
     @Test
     fun testDeserializeInvalid1() {
-        val e = assertFails {
+        val e = assertFailsWith<XmlSerialException> {
             format.decodeFromString(serializer, invalidXML1)
         }
-        assertTrue(e is XmlSerialException)
         assertTrue(e.message?.contains("@XmlValue") == true)
     }
 
     @Test
     fun testDeserializeInvalid2() {
-        val e = assertFails {
+        val e = assertFailsWith<XmlSerialException> {
             format.decodeFromString(serializer, invalidXML2)
         }
-        assertTrue(e is XmlSerialException)
         assertTrue(e.message?.contains("@XmlValue") == true)
     }
 
     @Test
     fun testDeserializeInvalid3() {
-        val e = assertFails {
+        val e = assertFailsWith<XmlSerialException> {
             format.decodeFromString(serializer, invalidXML3)
         }
-        assertTrue(e is XmlSerialException)
         assertTrue(e.message?.contains("@XmlValue") == true)
     }
 
