@@ -145,16 +145,16 @@ class TestBigDecimal {
         val divisor = BigDecimal(1, 0)
         val result = main.divRem(divisor)
         assertEquals(4, result.quotient.toLong())
-        assertEquals(12, (result.remainder * 100).toLong())
+        assertEquals(12, result.remainder.exp10(2).toLong())
     }
 
     @Test
     fun testIntLargerDiv() {
-        val main = BigDecimal(0xFF00000000L, 5)
-        val divisor = BigDecimal(1, 0)
+        val main = BigDecimal(Long.MAX_VALUE, -5)
+        val divisor = BigDecimal(2, 0)
         val result = main.divRem(divisor)
-        assertEquals(4, result.quotient.toLong())
-        assertEquals(12, (result.remainder * 100).toLong())
+        assertEquals(Long.MAX_VALUE / 200_000, result.quotient.toLong())
+        assertEquals(Long.MAX_VALUE % 200_000, (result.remainder.exp10(5)).toLong())
     }
 
     private fun testBinaryOperator(
