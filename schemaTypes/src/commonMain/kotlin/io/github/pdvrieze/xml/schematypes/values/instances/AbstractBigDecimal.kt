@@ -829,6 +829,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
     private fun withNewExp(newExp: Int): T {
         val newDecDigitCount = D10Pos(precisionDigits - newExp + exponent)
+        if (newDecDigitCount.p == 0) return companion.ZERO
 
         val newInts = UIntArray(newDecDigitCount.intSize)
         for (i in newInts.indices) {
@@ -862,10 +863,21 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val dividerSize_n = D10Pos(divider.precisionDigits).toStoredD1000Size()
         val divMSD = divider.getStoredDigit(dividerSize_n - 1) // we use this to determine the approximate quotient
         if (divMSD < 100u) {
-            val (q, r) = when {
-                divMSD < 10u -> withNewExp(exponent - 2).divRem(divider.withNewExp(divider.exponent - 2))
-                else -> withNewExp(exponent - 1).divRem(divider.withNewExp(divider.exponent - 1))
+            val expCorrect = when {
+                divMSD < 10u -> -2
+                else -> -1
             }
+            if (exponent < divider.exponent) {
+                val (newDivident, remPart) = splitAtExponent(divider.exponent+expCorrect)
+
+                val (q, r) = newDivident
+                    .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), lSign=sign, dSign = dSign)
+                val newQ = newInstance(q.ints, divider.exponent)
+                return DivRem(newQ, remPart + r)
+            }
+
+            val (q, r) = withNewExp(exponent + expCorrect)
+                .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), dividerSize_n, divMSD, lSign, dSign)
             val newQ = newInstance(q.ints, divider.exponent)
             val newR = r.withNewExp(exponent)
 
@@ -876,29 +888,32 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         // equalizing both and then dividing it
         if (exponent < divider.exponent) {
             val (newDivident, remPart) = splitAtExponent(divider.exponent)
-            val actualDivRem = newDivident.divRem(divider)
+            val actualDivRem = newDivident.unsafeDivRemImpl(divider, dividerSize_n, divMSD, lSign, dSign)
             return DivRem(actualDivRem.quotient, remPart + actualDivRem.remainder)
         }
 
 
+        return unsafeDivRemImpl(divider, dividerSize_n, divMSD, lSign, dSign)
+    }
 
-        // For now needed for long multiplication
-        // Note that d can be anything that makes MSI[quotient]*d leq to 0x8000_0000
-        // this could
-
-        // only normalize divider after we have decided no shortcuts apply
-        // TODO optimize this into a single function that combines both
-
-        // the amount of base1000 dividers
-
-        val divMSD2 = divider.ints.getStoredDigitOrZero(dividerSize_n - 2) // we use this to determine the approximate quotient
+    /**
+     * Implementation of divRem that assumes that the msd for the divider is large (3 decimal digits)
+     * and that the exponent is larger or equal to the divider exponent.
+     */
+    private fun unsafeDivRemImpl(
+        divider: T,
+        dividerSize_n: D1000StoredPos = D10Pos(divider.precisionDigits).toStoredD1000Size(),
+        divMSD: UInt = divider.getStoredDigit(dividerSize_n - 1),
+        lSign: Int = sign,
+        dSign: Int = divider.sign,
+    ): DivRem<T> {
+        val divMSD2 = divider.ints.getStoredDigitOrZero(dividerSize_n - 2)
+        // we use this to determine the approximate quotient
 
 
         val leftSize_n = D10Pos(precisionDigits).toStoredD1000Size()
 
         val growth_m = leftSize_n - dividerSize_n
-
-
 
         val mutableDivident = ints.copyOf()
 
