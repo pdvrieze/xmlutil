@@ -853,7 +853,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             lSign == 0 -> return DivRem(self, companion.ZERO)
 
             // the divident has fewer digits than the divider (is thus smaller)
-            precisionDigits + (exponent - divider.exponent) < divider.exponent -> {
+            precisionDigits + exponent < divider.precisionDigits + divider.exponent -> {
                 // We are certain the divider is bigger than the dividend so we will have 0 quotient and
                 // dividend as remainder.
                 return DivRem(companion.ZERO, self)
