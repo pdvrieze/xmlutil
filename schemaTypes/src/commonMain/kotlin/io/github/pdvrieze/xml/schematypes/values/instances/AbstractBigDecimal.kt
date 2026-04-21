@@ -273,7 +273,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             return newInstance(newInts, 0)
         }
 
-        val intDigits = D10Pos(precisionDigits+exponent).toD1000()
+        val intDigits = D10Pos(precisionDigits+exponent).toD1000Size()
 
         val newInts = UIntArray(intDigits.intSize)
         for (j in 0 until intDigits.p step 3) {
@@ -320,7 +320,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     override fun roundToInteger(): XsdInteger {
         val lower = pseudoDigitFromZero(D1000Pos(-1)) < 500u
 
-        val pseudoDigitCount = D10Pos(precisionDigits+exponent).toD1000()
+        val pseudoDigitCount = D10Pos(precisionDigits+exponent).toD1000Size()
 
         val isNeg = sign < 0
         if (pseudoDigitCount.p <= 6) {
@@ -535,8 +535,8 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val intsNeeded = (precisionDigits + other.precisionDigits +8)/9
         val newInts = UIntArray(intsNeeded)
 
-        val lDigits = D10Pos(precisionDigits).toStoredD1000()
-        val rDigits = D10Pos(other.precisionDigits).toStoredD1000()
+        val lDigits = D10Pos(precisionDigits).toStoredD1000Size()
+        val rDigits = D10Pos(other.precisionDigits).toStoredD1000Size()
 
         for (rPosRaw in 0..<rDigits.p) {
             val rPos = D1000StoredPos(rPosRaw)
@@ -752,7 +752,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         var carry = 0u
         var borrow = 0u
         val aDigits = D10Pos(a.precisionDigits)
-        for (rawI in 0 until aDigits.toD1000().p) {
+        for (rawI in 0 until aDigits.toD1000Size().p) {
             val i = D1000StoredPos(rawI)
             val mFull = (a.getStoredDigit(i) * multiplier + carry)
             carry = mFull/1000u
@@ -772,7 +772,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
         if (toReduce == 0u) return false
 
-        val tPos = aDigits.toStoredD1000() + leftOffset
+        val tPos = aDigits.toStoredD1000Size() + leftOffset
         val t = target.getStoredDigitOrZero(tPos)
         if (t >= toReduce) {
             target.setStoredDigit(tPos, t - toReduce)
@@ -780,7 +780,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         }
         // Else Step D6 - Add a again
         carry = 0u
-        for(iRaw in 0 until aDigits.toStoredD1000().p) {
+        for(iRaw in 0 until aDigits.toStoredD1000Size().p) {
             val i = D1000StoredPos(iRaw)
             target.updateDigit(i+leftOffset) {
                 val add = it + a.getStoredDigit(i)
@@ -798,12 +798,12 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
         val intsInRem = extraExp.intSize.coerceAtMost(ints.size)
         val remInts = ints.copyOf(intsInRem)
-        when (intsInRem %3) {
-            1 -> remInts.updateDigit(D1000StoredPos(intsInRem/3)) { it % 10u }
-            2 -> remInts.updateDigit(D1000StoredPos(intsInRem/3)) { it % 100u }
+        when (val pseudoDigit = extraExp.p %3) {
+            1 -> remInts.updateDigit(extraExp.toStoredD1000Pos()) { it % 10u }
+            2 -> remInts.updateDigit(extraExp.toStoredD1000Pos()) { it % 100u }
         }
-        val digitsInLast = D10Pos(intsInRem % 9)
-        val mask = 1u.shl(digitsInLast.toD1000().shift) - 1u
+        val digitsInLast = D1000Pos((extraExp.p +2) / 3)
+        val mask = 1u.shl(digitsInLast.shift) - 1u
         remInts[remInts.lastIndex] = remInts[remInts.lastIndex] and mask
 //        if (digitsInLast.p <=3) remInts.setStoredDigit(D1000StoredPos(intsInRem/3) + 1, 0u)
 
@@ -857,7 +857,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             }
         }
 
-        val dividerSize_n = D10Pos(divider.precisionDigits).toStoredD1000()
+        val dividerSize_n = D10Pos(divider.precisionDigits).toStoredD1000Size()
         val divMSD = divider.getStoredDigit(dividerSize_n - 1) // we use this to determine the approximate quotient
         if (divMSD < 100u) {
             val (q, r) = when {
@@ -870,14 +870,12 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             return DivRem(newQ, newR)
         }
 
-        when {
-            // Deal with the divident having a smaller exponent than the divider by
-            // equalizing both and then dividing it
-            exponent < divider.exponent -> {
-                val (newDivident, remPart) = splitAtExponent(divider.exponent)
-                val actualDivRem = newDivident.divRem(divider)
-                return DivRem(actualDivRem.quotient, remPart + actualDivRem.remainder)
-            }
+        // Deal with the divident having a smaller exponent than the divider by
+        // equalizing both and then dividing it
+        if (exponent < divider.exponent) {
+            val (newDivident, remPart) = splitAtExponent(divider.exponent)
+            val actualDivRem = newDivident.divRem(divider)
+            return DivRem(actualDivRem.quotient, remPart + actualDivRem.remainder)
         }
 
 
@@ -894,7 +892,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val divMSD2 = divider.ints.getStoredDigitOrZero(dividerSize_n - 2) // we use this to determine the approximate quotient
 
 
-        val leftSize_n = D10Pos(precisionDigits).toStoredD1000()
+        val leftSize_n = D10Pos(precisionDigits).toStoredD1000Size()
 
         val growth_m = leftSize_n - dividerSize_n
 
@@ -1231,10 +1229,13 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val intSize: Int get() = (p + 8) / 9
         val intPos get() = p.floorDiv(9)
 
-        fun toD1000() = D1000Pos((p + 2) / 3)
-        fun toStoredD1000() = D1000StoredPos((p + 2) / 3)
+        fun toD1000Size() = D1000Pos((p + 2) / 3)
+        fun toStoredD1000Size() = D1000StoredPos((p + 2) / 3)
 
-        operator fun plus(other: D10Pos): D10Pos = D10Pos(p+other.p)
+        fun toD1000Pos() = D1000Pos(p / 3)
+        fun toStoredD1000Pos() = D1000StoredPos(p / 3)
+
+        operator fun plus(other: D10Pos): D10Pos = D10Pos(p + other.p)
     }
 
     companion object {
