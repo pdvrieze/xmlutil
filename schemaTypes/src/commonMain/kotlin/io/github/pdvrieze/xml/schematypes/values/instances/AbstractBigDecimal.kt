@@ -915,7 +915,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
 
         val maxQuotientSize = D10Pos((precisionDigits - exponent + divider.exponent) -
-            (divider.precisionDigits - divider.exponent) + 1)
+            (divider.precisionDigits) + 1)
         val leftSize_n = D10Pos(precisionDigits).toStoredD1000Size()
 
 
