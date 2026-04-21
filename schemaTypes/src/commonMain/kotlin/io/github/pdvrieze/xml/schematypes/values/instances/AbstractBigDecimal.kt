@@ -433,9 +433,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             lSign < 0 && rSign > 0 -> return other.asT().minus(abs())
         }
 
-        val newExp: Int = (minOf(exponent, other.exponent) / 3) * 3
+        val newExp: Int = minOf(exponent, other.exponent)//.floorDiv(3)) * 3
 
-        val maxDecimalDigitCount = maxOf(precisionDigits + exponent - newExp, precisionDigits *9 + other.exponent - newExp)
+        val maxDecimalDigitCount = maxOf(precisionDigits + exponent - newExp, other.precisionDigits + other.exponent - newExp)
         // add 1 to allow for addition overflow
         // add 2 to get ceilDiv functionality
         val maxDigitCount = (1 + 2 + maxDecimalDigitCount) / 3
@@ -447,11 +447,11 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
 
         for (i in resultInts.indices) {
             var tmpTotal = 0u
-            val posBase = D1000Pos(i * 3 + newExp / 3)
+            val posBase = D10Pos(i * 9 + newExp)
             for (j in 0..2) {
-                val digitPos = posBase + j
-                val left = pseudoDigitFromZero(digitPos)
-                val right = other.pseudoDigitFromZero(digitPos)
+                val digitPos = posBase + D10Pos(j * 3)
+                val left = pseudoDigitFromZeroDec(digitPos)
+                val right = other.pseudoDigitFromZeroDec(digitPos)
                 val a = left + right + carry
                 tmpTotal += a.rem(MAX_DIGIT.toUInt()) shl (10 * j)
                 carry = a / MAX_DIGIT.toUInt()
@@ -913,13 +913,13 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
                 rX += 1u
             }
 
-            if(multiplySubtractInPlace(mutableDivident, divider, qX, j)) {
+            if (multiplySubtractInPlace(mutableDivident, divider, qX, j)) {
                 qX -= 1u
             }
-            quotient.setStoredDigit(leftSize_n-1, qX)
+            quotient.setStoredDigit(leftSize_n - 1, qX)
         }
 
-        for (jRaw in (growth_m -1).p downTo 0) {
+        for (jRaw in (growth_m - 1).p downTo 0) {
             val j = D1000StoredPos(jRaw)
             val divident = (mutableDivident.getStoredDigit(dividerSize_n + j) * MAX_DIGIT.toUInt() +
                     mutableDivident.getStoredDigit(dividerSize_n + j - 1))
@@ -936,7 +936,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
                 }
             } while (rX < 0x1_0000_0000uL)
 
-            if(multiplySubtractInPlace(mutableDivident, divider, qX, j)) {
+            if (multiplySubtractInPlace(mutableDivident, divider, qX, j)) {
                 qX -= 1u
             }
             quotient.setStoredDigit(j, qX)
@@ -947,7 +947,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         val remainder = newInstance(mutableDivident.copyOfRange(0, remainderSize), exponent)
 
         if (lSign < 0) mutableDivident[0] = mutableDivident[0] or SIGN_BIT.toUInt()
-        val quotientSize = quotient.indexOfLast { it != 0u }.coerceAtLeast(0)+1
+        val quotientSize = quotient.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
 
 
         when {
