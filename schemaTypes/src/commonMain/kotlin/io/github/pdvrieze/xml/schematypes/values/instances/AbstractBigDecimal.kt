@@ -761,7 +761,10 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             target.updateDigit(i + leftOffset) { cur ->
                 val t = cur - borrow
                 when {
-                    t < m -> (1000u + t - borrow).also { borrow = (m-t)/1000u }
+                    t < m -> {
+                        borrow = 1u
+                        1000u + t - m
+                    }
                     else -> (t - m).also { borrow = 0u }
                 }
             }
@@ -911,13 +914,16 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         // we use this to determine the approximate quotient
 
 
+        val maxQuotientSize = D10Pos((precisionDigits - exponent + divider.exponent) -
+            (divider.precisionDigits - divider.exponent) + 1)
         val leftSize_n = D10Pos(precisionDigits).toStoredD1000Size()
+
 
         val growth_m = leftSize_n - dividerSize_n
 
         val mutableDivident = ints.copyOf()
 
-        val quotient = UIntArray(leftSize_n.intSize) // note this can be negative if there
+        val quotient = UIntArray(maxQuotientSize.intSize) // note this can be negative if there
 
         run {//
             val j = growth_m
@@ -933,7 +939,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             if (multiplySubtractInPlace(mutableDivident, divider, qX, j)) {
                 qX -= 1u
             }
-            quotient.setStoredDigit(leftSize_n - 1, qX)
+            quotient.setStoredDigit(maxQuotientSize.toStoredD1000Pos(), qX)
         }
 
         for (jRaw in (growth_m - 1).p downTo 0) {
@@ -945,9 +951,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             var rX: UInt = divident - (qX * divMSD) // approximate remainder
 
             do {
-                if (qX * divMSD2 > (rX shl 32) + mutableDivident.getStoredDigitOrZero(dividerSize_n + j - 2)) {
+                if (qX * divMSD2 > (rX *1000u) + mutableDivident.getStoredDigitOrZero(dividerSize_n + j - 2)) {
                     qX -= 1u
-                    rX += 1u
+                    rX += divMSD
                 } else {
                     break
                 }
