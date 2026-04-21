@@ -802,9 +802,11 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             1 -> remInts.updateDigit(extraExp.toStoredD1000Pos()) { it % 10u }
             2 -> remInts.updateDigit(extraExp.toStoredD1000Pos()) { it % 100u }
         }
-        val digitsInLast = D1000Pos((extraExp.p +2) / 3)
-        val mask = 1u.shl(digitsInLast.shift) - 1u
-        remInts[remInts.lastIndex] = remInts[remInts.lastIndex] and mask
+        val digitsInLast = D1000Pos(((extraExp.p +2) / 3))
+        if (digitsInLast.shift != 0) {
+            val mask = 1u.shl(digitsInLast.shift) - 1u
+            remInts[remInts.lastIndex] = remInts[remInts.lastIndex] and mask
+        }
 //        if (digitsInLast.p <=3) remInts.setStoredDigit(D1000StoredPos(intsInRem/3) + 1, 0u)
 
         val qInts = UIntArray(D10Pos(precisionDigits - newExponent).intSize)
