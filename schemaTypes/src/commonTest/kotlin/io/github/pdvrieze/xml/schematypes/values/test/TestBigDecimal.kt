@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.test
 
+import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import kotlin.test.Test
@@ -149,6 +150,14 @@ class TestBigDecimal {
     }
 
     @Test
+    fun testDivFrac() {
+        val main = BigDecimal(412)
+        val divisor = BigDecimal(3, 0)
+        val result = main.div(divisor)
+        assertEquals(BigDecimal(137333333333, -9), result)
+    }
+
+    @Test
     fun testIntLargerDiv() {
         val main = BigDecimal(Long.MAX_VALUE, -5)
         val divisor = BigDecimal(2, 0)
@@ -161,7 +170,7 @@ class TestBigDecimal {
         a: Int,
         b: Int,
         expectedOperator: (Long, Long) -> Long,
-        actualOperator: (BigDecimal, BigDecimal) -> BigDecimal,
+        actualOperator: (BigDecimal, BigDecimal) -> XsdDecimal,
     ) {
         val expected = expectedOperator(a.toLong(), b.toLong())
         val bigA = BigDecimal(a)
@@ -217,28 +226,34 @@ class TestBigDecimal {
         testBinaryOperator(-0x34FE4fe2, -0x3514BEEF, Long::plus, { a, b -> a.plus(b) })
     }
 
+
+    private fun testDiv(x: Int, y: Int) {
+        testBinaryOperator(x, y, Long::div, { a, b -> a.divRem(b).quotient })
+        testBinaryOperator(x, y, Long::div, { a, b -> a.div(b).roundToInteger() })
+    }
+
     @Test
     fun testDivPosPos() {
-        testBinaryOperator(0x34151717, 0x7EADBEEF, Long::div, { a, b -> a.div(b) })
-        testBinaryOperator(0x7EADBEEF, 0x34151717, Long::div, { a, b -> a.div(b) })
+        testDiv(0x34151717, 0x7EADBEEF)
+        testDiv(0x7EADBEEF, 0x34151717)
     }
 
     @Test
     fun testDivNegPos() {
-        testBinaryOperator(-0x34158fe2, 0x7EAD2556, Long::div, { a, b -> a.div(b) })
-        testBinaryOperator(-0x7EAD2556, 0x34158fe2, Long::div, { a, b -> a.div(b) })
+        testDiv(-0x34158fe2, 0x7EAD2556)
+        testDiv(-0x7EAD2556, 0x34158fe2)
     }
 
     @Test
     fun testDivPosNeg() {
-        testBinaryOperator(0x34151717, -0x7EADBEEF, Long::div, { a, b -> a.div(b) })
-        testBinaryOperator(0x7EADBEEF, -0x34151717, Long::div, { a, b -> a.div(b) })
+        testDiv(0x34151717, -0x7EADBEEF)
+        testDiv(0x7EADBEEF, -0x34151717)
     }
 
     @Test
     fun testDivNegNegs() {
-        testBinaryOperator(-0x34FE4fe2, -0x3514BEEF, Long::div, { a, b -> a.div(b) })
-        testBinaryOperator(-0x3514BEEF, -0x34FE4fe2, Long::div, { a, b -> a.div(b) })
+        testDiv(-0x34FE4fe2, -0x3514BEEF)
+        testDiv(-0x3514BEEF, -0x34FE4fe2)
     }
 
 }

@@ -24,6 +24,8 @@ import io.github.pdvrieze.xml.schematypes.RangeException
 import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import kotlin.jvm.JvmInline
 
@@ -34,7 +36,7 @@ import kotlin.jvm.JvmInline
  *
  * @property exponent the Base 10 exponent
  */
-abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor(
+abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructor(
     internal val ints: UIntArray,
     internal val exponent: Int
 ) : XsdBigDecimal {
@@ -147,11 +149,16 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     private fun UIntArray.getStoredDigitOrZero(pos: D1000StoredPos): UInt {
-        if (pos.intPos !in ints.indices) return 0u
+        if (pos.intPos !in this.indices) return 0u
         return get(pos.intPos).shr(pos.shift).and(DIGIT_MASK.toUInt())
     }
 
     private fun UIntArray.setStoredDigit(pos: D1000StoredPos, value: UInt) {
+        ifAssertions {
+            assert(value in 0u..<MAX_DIGIT.toUInt()) {
+                "Value $value out of range"
+            }
+        }
         val intPos = pos.intPos
         val shift = pos.shift
         val otherBaseDigits = DIGIT_MASK.toUInt().shl(shift).inv().and(get(intPos))
@@ -351,8 +358,10 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         }
 
         return when {
+            isNeg && lower -> BigInt(-1, runningDigit.ints, runningDigit.exp) + XsdInt(1)
             isNeg -> BigInt(-1, runningDigit.ints, runningDigit.exp)
-            else -> runningDigit
+            lower -> runningDigit
+            else -> runningDigit + XsdInt(1)
         }
     }
 
@@ -398,7 +407,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     open operator fun div(divider: AbstractBigDecimal<*>): T {
-        return divRem(divider).quotient.asT()
+        val factor = divider.precisionDigits.coerceAtLeast(9)
+        val scaled = exp10(factor).divRem(divider).quotient.asT()
+        return scaled.exp10(-factor)
     }
 
 
@@ -680,55 +691,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
     }
 
     override fun divRem(divider: UInt): DivRem<T> {
-        when (divider) {
-            0u -> throw ArithmeticException("Division by zero")
-            1u if exponent <= 0L -> return DivRem<T>(self, newInstance(companion.ZERO.ints, 0))
-            else if (ints.size == 1 && ints[0] == 0u) -> return DivRem(self, companion.ZERO)
-        }
-        // If we can just extend from UInt to ULong do that here
-        val divider = when (exponent) {
-            0 -> divider.toULong()
-            1 -> divider.toULong() * 10u
-            2 -> divider.toULong() * 100u
-            3 -> divider.toULong() * 1_000u
-            4 -> divider.toULong() * 10_000u
-            5 -> divider.toULong() * 100_000u
-            6 -> divider.toULong() * 1_000_000u
-            7 -> divider.toULong() * 10_000_000u
-            8 -> divider.toULong() * 100_000_000u
-            9 -> divider.toULong() * 1_000_000_000u
-            else -> return divRem(newInstance(uintArrayOf(divider), 0))
-        }
-        val v = BigUnsignedInt(ints, 0uL)
-        val quotient: BigUnsignedInt
-        val remainder: UIntArray
-        val newRemSign: Int
-        when {
-            divider <= UInt.MAX_VALUE -> {
-                val (q, _, r) = v.divRem(divider.toUInt())
-                quotient = q
-
-                newRemSign = if(r == 0u) 0 else sign
-                remainder = uintArrayOf(r)
-            }
-            else -> {
-                val (q, r) = v.divRem(divider)
-                quotient = q
-
-                newRemSign = if(r.sign == 0) 0 else sign
-                remainder = r.ints
-            }
-        }
-
-        val newSign = if(quotient.sign == 0) 0 else sign
-
-        // We "Fixed" the position so the decimal position difference is 0
-        val quotientDec = newInstance(quotient.ints, 0)
-
-        val remainderDec = newInstance(remainder, exponent)
-
-        return DivRem(quotientDec, remainderDec)
-
+        return divRem(BigDecimal(divider))
     }
 
     fun divRem(other: XsdUnsignedInt): DivRem<T> = divRem(other.uIntValue)
@@ -749,49 +712,45 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         leftOffset: D1000StoredPos
     ): Boolean {
         if (multiplier == 0u) return false
-        var carry = 0u
         var borrow = 0u
         val aDigits = D10Pos(a.precisionDigits)
         for (rawI in 0 until aDigits.toD1000Size().p) {
             val i = D1000StoredPos(rawI)
-            val mFull = (a.getStoredDigit(i) * multiplier + carry)
-            carry = mFull/1000u
-            val m = mFull %1000u
+            val partMult = a.getStoredDigit(i) * multiplier + borrow
+            borrow = partMult / 1000u
+            val toSubtract = partMult % 1000u
 
             target.updateDigit(i + leftOffset) { cur ->
-                val t = cur - borrow
                 when {
-                    t < m -> {
-                        borrow = 1u
-                        1000u + t - m
+                    cur < toSubtract -> {
+                        borrow += 1u
+                        1000u + cur - toSubtract
                     }
-                    else -> (t - m).also { borrow = 0u }
+                    else -> (cur - toSubtract)
                 }
             }
         }
 
 
-        val toReduce = borrow + carry
-
-        if (toReduce == 0u) return false
+        if (borrow == 0u) return false
 
         val tPos = aDigits.toStoredD1000Size() + leftOffset
         val t = target.getStoredDigitOrZero(tPos)
-        if (t >= toReduce) {
-            target.setStoredDigit(tPos, t - toReduce)
+        if (t >= borrow) {
+            target.setStoredDigit(tPos, t - borrow)
             return false
         }
         // Else Step D6 - Add a again
-        carry = 0u
+        borrow = 0u
         for(iRaw in 0 until aDigits.toStoredD1000Size().p) {
             val i = D1000StoredPos(iRaw)
             target.updateDigit(i+leftOffset) {
                 val add = it + a.getStoredDigit(i)
-                carry = add / MAX_DIGIT.toUInt()
+                borrow = add / MAX_DIGIT.toUInt()
                 add.mod(MAX_DIGIT.toUInt())
             }
         }
-        target.setStoredDigit(D1000StoredPos(a.ints.size / 3) + leftOffset, (t + carry - toReduce) and 0x3ffu)
+        target.setStoredDigit(D1000StoredPos(a.ints.size / 3) + leftOffset, (t + borrow - borrow) and 0x3ffu)
         return true
     }
 
@@ -844,6 +803,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             }
             newInts[i] = tmp
         }
+        if (ints[0] and SIGN_BIT.toUInt() != 0u) {
+            newInts[0] = newInts[0] or SIGN_BIT.toUInt()
+        }
         return newInstance(newInts, newExp)
     }
 
@@ -874,15 +836,16 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
                 val (newDivident, remPart) = splitAtExponent(divider.exponent+expCorrect)
 
                 val (q, r) = newDivident
-                    .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), lSign=sign, dSign = dSign)
+                    .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), dSign = dSign)
                 val newQ = newInstance(q.ints, divider.exponent)
                 return DivRem(newQ, remPart + r)
             }
 
-            val (q, r) = withNewExp(exponent + expCorrect)
-                .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), dividerSize_n, divMSD, lSign, dSign)
+            val (q, r) = withNewExp(divider.exponent + expCorrect)
+                .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), lSign, dSign)
             val newQ = newInstance(q.ints, divider.exponent)
-            val newR = r.withNewExp(exponent)
+
+            val newR = r.withNewExp(r.exponent - expCorrect)
 
             return DivRem(newQ, newR)
         }
@@ -891,12 +854,12 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         // equalizing both and then dividing it
         if (exponent < divider.exponent) {
             val (newDivident, remPart) = splitAtExponent(divider.exponent)
-            val actualDivRem = newDivident.unsafeDivRemImpl(divider, dividerSize_n, divMSD, lSign, dSign)
+            val actualDivRem = newDivident.unsafeDivRemImpl(divider, lSign, dSign)
             return DivRem(actualDivRem.quotient, remPart + actualDivRem.remainder)
         }
 
 
-        return unsafeDivRemImpl(divider, dividerSize_n, divMSD, lSign, dSign)
+        return unsafeDivRemImpl(divider, lSign, dSign)
     }
 
     /**
@@ -905,38 +868,35 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
      */
     private fun unsafeDivRemImpl(
         divider: T,
-        dividerSize_n: D1000StoredPos = D10Pos(divider.precisionDigits).toStoredD1000Size(),
-        divMSD: UInt = divider.getStoredDigit(dividerSize_n - 1),
         lSign: Int = sign,
         dSign: Int = divider.sign,
     ): DivRem<T> {
+        val dividerSize_n = D10Pos(divider.precisionDigits).toStoredD1000Size()
+        val divMSD = divider.getStoredDigit(dividerSize_n - 1)
         val divMSD2 = divider.ints.getStoredDigitOrZero(dividerSize_n - 2)
         // we use this to determine the approximate quotient
 
 
-        val maxQuotientSize = D10Pos((precisionDigits - exponent + divider.exponent) -
-            (divider.precisionDigits) + 1)
-        val leftSize_n = D10Pos(precisionDigits).toStoredD1000Size()
+        val maxQuotientSize = D10Pos((precisionDigits - divider.precisionDigits) + (exponent - divider.exponent) + 1)
 
+        val mutableDivident = withNewExp(divider.exponent).ints
+        val leftSize = D10Pos(precisionDigits+(exponent - divider.exponent)).toStoredD1000Size()
 
-        val growth_m = leftSize_n - dividerSize_n
-
-        val mutableDivident = ints.copyOf()
+        val growth_m = leftSize - dividerSize_n
 
         val quotient = UIntArray(maxQuotientSize.intSize) // note this can be negative if there
 
         run {//
-            val j = growth_m
-            val divident = getStoredDigit(leftSize_n - 1)
+            val divident = mutableDivident.getStoredDigit(leftSize-1)
             var qX: UInt = divident / divMSD // never too big
             var rX: UInt = divident - (qX * divMSD) // approximate remainder
 
-            while (rX < 0x1000u && qX * divMSD2 > (rX shl 32) + (ints.getStoredDigitOrZero(growth_m + dividerSize_n - 2))) {
+            while (rX < 0x1000u && qX * divMSD2 > (rX * 1000u) + mutableDivident.getStoredDigitOrZero(leftSize - 2)) {
                 qX -= 1u
                 rX += 1u
             }
 
-            if (multiplySubtractInPlace(mutableDivident, divider, qX, j)) {
+            if (multiplySubtractInPlace(mutableDivident, divider, qX, growth_m)) {
                 qX -= 1u
             }
             quotient.setStoredDigit(maxQuotientSize.toStoredD1000Pos(), qX)
@@ -978,7 +938,7 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
             lSign != dSign -> quotient[0] = quotient[0] or SIGN_BIT.toUInt()
         }
 
-        val quotientX = newInstance(quotient.copyOf(quotientSize), exponent - divider.exponent)
+        val quotientX = newInstance(quotient.copyOf(quotientSize), 0)
 
         return DivRem(quotientX, remainder)
     }
@@ -1259,6 +1219,9 @@ abstract class AbstractBigDecimal<T: AbstractBigDecimal<T>> internal constructor
         fun toStoredD1000Pos() = D1000StoredPos(p / 3)
 
         operator fun plus(other: D10Pos): D10Pos = D10Pos(p + other.p)
+        operator fun plus(other: Int): D10Pos = D10Pos(p + other)
+        operator fun minus(other: D10Pos): D10Pos = D10Pos(p - other.p)
+        operator fun minus(other: Int): D10Pos = D10Pos(p - other)
     }
 
     companion object {
