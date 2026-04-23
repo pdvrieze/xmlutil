@@ -32,6 +32,8 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.formatters.IntegerFormatter
+import io.github.pdvrieze.xml.schematypes.values.formatters.NumberFormatter
+import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 object NumericFunctions: AbstractFunctionObject() {
@@ -126,6 +128,45 @@ object NumericFunctions: AbstractFunctionObject() {
             throw EvaluationException(ErrorCodes.FODF1310, "Invalid picture for format-integer: '$picture'", e)
         }
         atomic(formatter.format(value))
+    }
+    //endregion
+
+    //region Formatting numbers 4.7
+    val fnFormatNumber = BuiltinFunctionImpl("format-number", listOf(
+        functionType(STRING.opt, NUMERIC.opt, STRING),
+        functionType(STRING.opt, NUMERIC.opt, STRING, STRING.opt),
+    )) { args ->
+        val ctx = contextOf<ExprEvalContext>()
+        val value = args.atomicArgOrEmpty<XsdNumeric<*>>(0) ?: XsdDouble(Double.NaN)
+        val picture = args.atomicArgN<XsdString>(1).xmlString
+
+        val formatName = if (args.size==2) null else args.atomicArgOrEmpty<XsdString>(2)?.let {
+            val x = it.xmlString
+            if (x.startsWith("Q{")) {
+                val nsEndIdx = x.indexOf('}', 2)
+                if (nsEndIdx == -1) throw EvaluationException(ErrorCodes.FODF1280, "Invalid format name: '$x'")
+                val ns = x.substring(2, nsEndIdx)
+                val localName = x.substring(nsEndIdx+1)
+                QName(ns, localName)
+            } else if (':' in x) {
+                val prefix = x.substringBefore(':')
+                val localName = x.substringAfter(':')
+                val ns = ctx.namepaceContext.getNamespaceURI(prefix)
+                    ?: throw EvaluationException(ErrorCodes.FODF1280, "Namespace prefix '$prefix' not bound to namespace")
+
+                QName(ns, prefix, localName)
+            } else {
+                QName(x)
+            }
+        }
+        val decimalFormat = formatName?.let {
+            ctx.resolveDecimalFormat(it)
+                ?: throw EvaluationException(ErrorCodes.FODF1280, "Decimal format '$it' not known")
+        } ?: ctx.defaultDecimalFormat
+
+        val format = NumberFormatter(picture, decimalFormat)
+        atomic(format.format(value))
+
     }
     //endregion
 }

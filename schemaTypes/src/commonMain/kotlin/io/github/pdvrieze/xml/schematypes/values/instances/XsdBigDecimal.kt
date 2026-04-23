@@ -29,6 +29,15 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
     val isInteger: Boolean get() = '.' !in xmlString
     override val schemaType: DecimalType<*> get() = DecimalType.Instance
 
+    /**
+     * The base 10 exponent of this number
+     */
+    val exponent: Int
+    /**
+     * Determine the amount of decimal digits this number contains.
+     */
+    val precisionDigits: Int
+
     override fun round(precision: Int): XsdBigDecimal
 
     override fun roundToHalfEven(precision: Int): XsdBigDecimal
@@ -102,4 +111,6 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
         operator fun invoke(l: ULong): XsdBigDecimal = BigDecimal(l)
         operator fun invoke(s: String): XsdBigDecimal = BigDecimal(s)
     }
+
+    fun getDecimalDigit(pos: Int): Char
 }

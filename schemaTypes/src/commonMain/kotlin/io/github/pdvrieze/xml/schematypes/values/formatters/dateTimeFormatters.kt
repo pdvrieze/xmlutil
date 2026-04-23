@@ -453,7 +453,7 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
         for (i in formatedReversed.length-1 downTo start) {
             dest.append(formatedReversed[i])
         }
-        repeat(maxOf(0, widthModifier.minWidth - formatedReversed.length)) { dest.appendCodepoint(intFormat.digitFamily) }
+        repeat(maxOf(0, widthModifier.minWidth - formatedReversed.length)) { dest.appendUnicode(intFormat.digitFamily) }
     }
 
     companion object {

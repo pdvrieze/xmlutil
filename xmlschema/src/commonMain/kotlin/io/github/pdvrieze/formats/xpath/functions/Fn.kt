@@ -49,13 +49,6 @@ enum class Fn(
     trace(ErrorDiagnosticFunctions.fnTrace),
     //endregion
 
-    //region Boolean functions (7)
-    True(BooleanFunctions.fnTrue),
-    False(BooleanFunctions.fnFalse),
-    boolean(BooleanFunctions.fnBoolean),
-    not(BooleanFunctions.fnNot),
-    //endregion
-
     //region Number functions (4)
     abs(NumericFunctions.fnAbs),
     ceiling(NumericFunctions.fnCeiling),
@@ -66,6 +59,7 @@ enum class Fn(
     number(NumericFunctions.fnNumber),
 
     formatInteger(NumericFunctions.fnFormatInteger),
+    formatNumber(NumericFunctions.fnFormatNumber),
 
     //endregion
 
@@ -84,6 +78,13 @@ enum class Fn(
     translate(StringFunctions.fnTranslate),
 
     matches(StringFunctions.fnMatches),
+    //endregion
+
+    //region Boolean functions (7)
+    True(BooleanFunctions.fnTrue),
+    False(BooleanFunctions.fnFalse),
+    boolean(BooleanFunctions.fnBoolean),
+    not(BooleanFunctions.fnNot),
     //endregion
 
     //region Date/Time functions (9)

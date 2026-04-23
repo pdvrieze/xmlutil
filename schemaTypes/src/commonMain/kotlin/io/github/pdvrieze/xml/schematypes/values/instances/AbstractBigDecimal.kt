@@ -38,13 +38,13 @@ import kotlin.jvm.JvmInline
  */
 abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructor(
     internal val ints: UIntArray,
-    internal val exponent: Int
+    final override val exponent: Int
 ) : XsdBigDecimal {
 
     /**
      * Determine the amount of decimal digits this number contains.
      */
-    val precisionDigits: Int
+    final override val precisionDigits: Int
 
     init {
         require(ints.size >0) { "There must be at least one int"}
@@ -398,12 +398,18 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
     override fun unaryPlus(): T = self
 
-    operator fun get(index: ULong): UInt {
-        return ints[index.toInt()]
-    }
+    override fun getDecimalDigit(pos:Int): Char {
+        val d1000Pos = D1000StoredPos((pos-exponent).floorDiv(3))
+        // check correct for small positive exponents
+        val inDigitCorrection = (pos - exponent).mod(3)
+        if (d1000Pos.intPos !in ints.indices) return '0'
 
-    operator fun get(index: Int): UInt {
-        return ints[index]
+        val r = when (inDigitCorrection) {
+            0 -> getStoredDigit(d1000Pos) % 10u
+            1 -> (getStoredDigit(d1000Pos) / 10u) % 10u
+            else -> (getStoredDigit(d1000Pos) / 100u)
+        }
+        return Char((r.toInt() % 10) + '0'.code)
     }
 
     open operator fun div(divider: AbstractBigDecimal<*>): T {

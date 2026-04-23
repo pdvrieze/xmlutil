@@ -36,6 +36,7 @@ open class DecimalFormat(
     val infinity: String = "Infinity",
     val NaN: String = "NaN",
 ) {
+
     class Named(
         val name: QName,
         decimalSeparator: UnicodeChar = UnicodeChar('.'),
@@ -50,4 +51,50 @@ open class DecimalFormat(
         infinity: String = "Infinity",
         NaN: String = "NaN",
     ) : DecimalFormat(decimalSeparator, exponentSeparator, groupingSeparator, percent, perMille, zeroDigit, digit, minusSign, patternSeparator, infinity, NaN)
+
+    class Builder(
+        var decimalSeparator: UnicodeChar = UnicodeChar('.'),
+        var exponentSeparator: UnicodeChar = UnicodeChar('e'),
+        var groupingSeparator: UnicodeChar = UnicodeChar(','),
+        var percent: UnicodeChar = UnicodeChar('%'),
+        var perMille: UnicodeChar = UnicodeChar('\u2030'),
+        var zeroDigit: UnicodeChar = UnicodeChar('0'),
+        var digit: UnicodeChar = UnicodeChar('#'),
+        var minusSign: UnicodeChar = UnicodeChar('-'),
+        var patternSeparator: UnicodeChar = UnicodeChar(';'),
+        var infinity: String = "Infinity",
+        var NaN: String = "NaN",
+        var name: QName? = null,
+    ) {
+        fun build(): DecimalFormat = when (val n = name) {
+            null -> DecimalFormat(
+                decimalSeparator = decimalSeparator,
+                exponentSeparator = exponentSeparator,
+                groupingSeparator = groupingSeparator,
+                percent = percent,
+                perMille = perMille,
+                zeroDigit = zeroDigit,
+                digit = digit,
+                minusSign = minusSign,
+                patternSeparator = patternSeparator,
+                infinity = infinity,
+                NaN = NaN
+            )
+
+            else -> Named(
+                name = n,
+                decimalSeparator = decimalSeparator,
+                exponentSeparator = exponentSeparator,
+                groupingSeparator = groupingSeparator,
+                percent = percent,
+                perMille = perMille,
+                zeroDigit = zeroDigit,
+                digit = digit,
+                minusSign = minusSign,
+                patternSeparator = patternSeparator,
+                infinity = infinity,
+                NaN = NaN
+            )
+        }
+    }
 }

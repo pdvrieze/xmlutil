@@ -20,9 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.formatters
 
-import io.github.pdvrieze.xml.schematypes.values.XsdInt
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdLanguage
+import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
@@ -60,20 +58,13 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
         return r
     }
 
-    val digitFamily: Int get() = (format as? DecimalDigitPatternFormatter)?.digitFamily ?: '0'.code
+    val digitFamily: UnicodeChar get() = (format as? DecimalDigitPatternFormatter)?.digitFamily ?: UnicodeChar('0')
 
     override fun toString(): String {
         return format.toString() + (modifier?.let { ";$it" } ?: "")
     }
 
     companion object {
-
-        fun Int.toDigitFamily(): Int? = when (this) {
-            in '0'.code.. '9'.code -> '0'.code
-            in 0x660..0x669 -> 0x0660 // Arabic-Indic
-            in 0x104a0 .. 0x104a9 -> 0x104a0
-            else -> null
-        }
 
         private fun parseModifier(modifier: String): Modifier? {
             if (modifier.isEmpty()) return null
@@ -120,18 +111,18 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             val result = mutableListOf<IntFormatElem>()
             var i = 0
 
-            var seenDigit: Int = -1
+            var seenDigit: UnicodeChar = UnicodeChar.INVALID
 
             while (i < primary.length) {
-                val c = primary[i]
-                if (c.isHighSurrogate()) check(i + 1 < primary.length) {
+                val char = primary[i]
+                if (char.isHighSurrogate()) check(i + 1 < primary.length) {
                     "High surrogate must be followed by low surrogate"
                 }
-                val cp = primary.codepointAt(i)
-                val cpDigitFamily = cp.toDigitFamily()
-                when (cp) {
+                val cp = primary.unicodeChar(i)
+                val cpDigitFamily = cp.zeroDigitOrNull
+                when (cp.codePoint) {
                     '#'.code -> {
-                        require(seenDigit < 0) { "Picture must optional digits must precede mandatory digits" }
+                        require(!seenDigit.isValid) { "Picture must optional digits must precede mandatory digits" }
                         var j = i + 1
                         while (j < primary.length && primary[j] == '#') j++
                         result.add(OptDigits(j - i))
@@ -139,15 +130,15 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                     }
 
                     else if cpDigitFamily != null -> {
-                        if (seenDigit < 0) seenDigit = cpDigitFamily
+                        if (! seenDigit.isValid) seenDigit = cpDigitFamily
                         else if (cpDigitFamily != seenDigit) throw IllegalArgumentException("Digits of different families in picture")
 
                         var count = 1 // manual counting needed to deal with surrogates
                         var j = primary.nextCodePointPos(i)
                         while (j < primary.length && primary[j].isDigit()) {
                             count += 1
-                            if (primary.codepointAt(j)
-                                    .toDigitFamily() != seenDigit
+                            if (UnicodeChar(primary.codepointAt(j))
+                                    .zeroDigitOrNull != seenDigit
                             ) throw IllegalArgumentException("Digits of different families in picture")
                             j = primary.nextCodePointPos(j)
                         }
@@ -155,7 +146,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                         i = j
                     }
 
-                    else if !c.isLetter() -> {
+                    else if !cp.isLetter -> {
                         // early return to handle format-integer-38 if following groups
                         val prev = result.lastOrNull()// ?: return SimpleFormatter to modifier
                         //
@@ -164,7 +155,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                         i = primary.nextCodePointPos(i)
                     }
 
-                    else if (i == 0) -> when (c) {
+                    else if (i == 0) -> when (cp[0]) {
 
                         'A' -> {
                             require(primary.length == 1)
@@ -217,9 +208,9 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             require(result.last() !is GroupingSeparator) { "Picture must not end with grouping separator" }
 
             // This is a "recoverable" error by https://www.w3.org/Bugs/Public/show_bug.cgi?id=19004
-            if (seenDigit < 0) return SimpleFormatter to modifier
+            if (! seenDigit.isValid) return SimpleFormatter to modifier
 
-            if (seenDigit == '0'.code) { // this case can be optimized to a simple formatter
+            if (seenDigit[0] == '0') { // this case can be optimized to a simple formatter
                 result.singleOrNull()?.let {
                     if (it is ReqDigits && it.length == 1) return SimpleFormatter to modifier
                 }
@@ -397,7 +388,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
         override fun toString(): String = "1"
     }
 
-    private class DecimalDigitPatternFormatter(val pattern: List<IntFormatElem>, val digitFamily: Int) : FormatterImpl() {
+    private class DecimalDigitPatternFormatter(val pattern: List<IntFormatElem>, val digitFamily: UnicodeChar) : FormatterImpl() {
 
         override val minDigits: Int
         override val optionalDigitCount: Int
@@ -421,7 +412,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             var seenLenBeforeGroup = -1
             var i = pattern.lastIndex
             var lenBeforeGroup = 0
-            var groupMarker: Int = -1
+            var groupMarker: UnicodeChar = UnicodeChar.INVALID
             inner@do {
                 when (val elem = pattern[i]) {
                     is ReqDigits,
@@ -461,14 +452,14 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             when (val patternElem = pattern[patternPos]) {
                 is ReqDigits,
                 is OptDigits -> { // can be handled together as we already have the needed length
-                    val len = if (digitFamily >= 0x10000) patternElem.length shl 2 else patternElem.length
-                    if (stringPos > len) formatHelper(digitSource, stringPos-len, patternPos-1, appendable)
+                    val len = digitFamily.length
+                    if (stringPos > len) formatHelper(digitSource, stringPos - len, patternPos - 1, appendable)
                     appendable.appendRange(digitSource, (stringPos - len).coerceAtLeast(0), stringPos)
                 }
 
                 is GroupingSeparator -> {
                     formatHelper(digitSource, stringPos, patternPos - 1, appendable)
-                    appendable.appendCodepoint(patternElem.cp)
+                    appendable.appendUnicode(patternElem.cp)
                 }
             }
         }
@@ -478,7 +469,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             val signEnd: Int
             val extraDigits: Int
             val realMin = if (widthModifier.isSpecified) widthModifier.minWidth else minDigits
-            if(str[0] == '-') {
+            if (str[0] == '-') {
                 signEnd = 1
                 extraDigits = realMin - str.length + 1
             } else {
@@ -488,29 +479,30 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             val startPos = signEnd + maxOf(0, str.length - widthModifier.maxWidth)
 
             val base = when {
-                extraDigits <= 0 && startPos == signEnd && digitFamily == '0'.code -> str
+                extraDigits <= 0 && startPos == signEnd && digitFamily[0] == '0' -> str
                 else -> StringBuilder().apply {
                     if (signEnd > 0) receiver.append(str[0])
                     repeat(extraDigits) {
-                        appendCodepoint(digitFamily)
+                        appendUnicode(digitFamily)
                     }
-                    when (digitFamily) {
-                        '0'.code -> appendRange(str, startPos, str.length)
+                    when (digitFamily[0]) {
+                        '0' -> appendRange(str, startPos, str.length)
                         else -> for (i in startPos until str.length) {
-                            appendCodepoint((str[i].code - '0'.code + digitFamily))
+                            appendUnicode(UnicodeChar((str[i].code - '0'.code + digitFamily.codePoint)))
                         }
                     }
                 }
             }
 
             if (regularGroupingLength > 0) {
-                val utf16GroupLength = if (digitFamily >=0x10000) regularGroupingLength shl 1 else regularGroupingLength
+                val utf16GroupLength =
+                    if (digitFamily.isSingleChar) regularGroupingLength else regularGroupingLength shl 1
                 val groupMarkerCp = pattern.asSequence().filterIsInstance<GroupingSeparator>().first().cp
-                val offset = ((base.length -1) % utf16GroupLength) + 1
+                val offset = ((base.length - 1) % utf16GroupLength) + 1
                 receiver.appendRange(base, 0, offset)
                 for (s in offset until base.length step utf16GroupLength) {
-                    receiver.appendCodepoint(groupMarkerCp)
-                    receiver.appendRange(base, s, s+utf16GroupLength)
+                    receiver.appendUnicode(groupMarkerCp)
+                    receiver.appendRange(base, s, s + utf16GroupLength)
                 }
             } else {
                 formatHelper(base, base.length, pattern.lastIndex, receiver)
@@ -529,20 +521,27 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
     private class OptDigits(override val length: Int) : IntFormatElem() {
         override fun toString(): String = "#".repeat(length)
     }
+
     private class ReqDigits(override val length: Int) : IntFormatElem() {
         override fun toString(): String = "0".repeat(length)
     }
 
-    private class GroupingSeparator(val cp: Int) : IntFormatElem() {
+    private class GroupingSeparator(val cp: UnicodeChar) : IntFormatElem() {
+        init {
+            require(cp.isValid) { "Grouping separator must be a valid codepoint" }
+        }
+
         override val length: Int get() = 1
         override fun toString(): String = buildString {
-            append('\'').appendCodepoint(cp).append('\'')
+            append('\'').appendCodepoint(cp.codePoint).append('\'')
         }
     }
 
     internal sealed class Modifier(val variant: String?, val isAlphabetic: Boolean)
 
-    private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic) {
+    private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) :
+        Modifier(variant, isAlphabetic) {
+
         override fun toString(): String {
             return "c${variant ?: ""}${if (isAlphabetic) "a" else "t"}"
         }

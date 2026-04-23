@@ -24,8 +24,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class InfBigDecimal(ints: UIntArray, decimalPositions: Int) :
-    AbstractBigDecimal<InfBigDecimal>(ints, decimalPositions) {
+class InfBigDecimal(ints: UIntArray, exponent: Int) :
+    AbstractBigDecimal<InfBigDecimal>(ints, exponent) {
 
     private constructor(parseResult: ParseResult) : this(parseResult.ints, parseResult.decimalDigits)
 
@@ -99,7 +99,7 @@ class InfBigDecimal(ints: UIntArray, decimalPositions: Int) :
 
     override fun XsdDecimal.asT(): InfBigDecimal = when (this) {
         is InfBigDecimal -> this
-        is AbstractBigDecimal<*> -> InfBigDecimal(ints, exponent)
+        is AbstractBigDecimal<*> -> InfBigDecimal(ints, this@asT.exponent)
         is XsdInteger -> InfBigDecimal(this)
         else -> InfBigDecimal(xmlString) // fallback to parsing
     }
