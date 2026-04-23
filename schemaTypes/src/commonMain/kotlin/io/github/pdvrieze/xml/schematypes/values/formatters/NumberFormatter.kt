@@ -22,7 +22,6 @@ package io.github.pdvrieze.xml.schematypes.values.formatters
 
 import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
@@ -68,19 +67,16 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             var i = 0
 
             do {
-                var incI = false
                 while (i < pictureSegment.length) {
                     when (val cp = pictureSegment.unicodeChar(i)) {
                         decimalFormat.decimalSeparator -> {
                             require (state < PARSE_STATE_DECIMAL_MANDATORY) { "Decimal separator must only occur after integer part" }
-                            incI = true
                             nextState = PARSE_STATE_DECIMAL_MANDATORY
                             break
                         }
 
                         decimalFormat.exponentSeparator -> {
                             require(state < PARSE_STATE_EXP_MANDATORY) { "Exponent separator must only once (and excludes percent)" }
-                            incI = true
                             nextState = PARSE_STATE_EXP_MANDATORY
                             break
                         }
@@ -162,6 +158,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             }
                             i = pictureSegment.nextCodePointPos(i)
                             stateStart = i
+                            continue // skip default increase in position
                         }
 
                         decimalFormat.percent, decimalFormat.perMille -> {
@@ -200,10 +197,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 }
                 when (nextState) {
                     PARSE_STATE_DECIMAL_MANDATORY,
-                    PARSE_STATE_EXP_MANDATORY -> {
-                        assert(incI) { "Expected inc to be true in this case" }
-                        i = pictureSegment.nextCodePointPos(i)
-                    }
+                    PARSE_STATE_EXP_MANDATORY -> i = pictureSegment.nextCodePointPos(i)
                 }
 
                 stateStart = i
@@ -496,8 +490,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     stringPos <= 0 -> return
 
                     regularGrouping > 0 -> {
-                        val alreadyGrouped = intPattern.asSequence().takeWhile { it !is GroupingSeparator }.sumOf { it.length }
-                        val groupOffset = (stringPos - alreadyGrouped).mod(regularGrouping)
+                        val patternSizeBeforeLastGroup = intPattern.asSequence().takeWhile { it !is GroupingSeparator }.sumOf { it.length }
+                        val groupOffset = (stringPos - patternSizeBeforeLastGroup).mod(regularGrouping)
                         for (i in 0 until groupOffset) {
                             appendable.appendDigit(digitSource[i], decimalFormat)
                         }
@@ -529,9 +523,9 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         if (!canBeZero) appendable.appendUnicode(decimalFormat.groupingSeparator)
                     }
 
-                    is OptDigits if (canBeZero && digitSource[stringPos] == '0') -> {
+                    is OptDigits if (canBeZero && digitSource[stringPos - 1] == '0') -> {
                         val startPos = (stringPos - elem.length).coerceAtLeast(0)
-                        val containsNonZero = (startPos..stringPos).any { digitSource[it] != '0' }
+                        val containsNonZero = (startPos..<(stringPos - 1)).any { digitSource[it] != '0' }
 
                         formatHelper(
                             digitSource,
@@ -545,11 +539,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         if (containsNonZero) {
                             var lastPos = stringPos
 
-                            while (lastPos > startPos && digitSource[lastPos] == '0') lastPos -= 1
-                            // leading zeros if needed
-                            for (_ in 0 until (elem.length - (lastPos - startPos))) {
-                                appendable.appendUnicode(decimalFormat.zeroDigit)
-                            }
+                            while (lastPos > startPos && digitSource[lastPos - 1] == '0') lastPos -= 1
 
                             for (c in startPos until lastPos) {
                                 appendable.appendDigit(digitSource[c], decimalFormat)
@@ -588,8 +578,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             } else { // integer part
 
                 when (val elem = intPattern[patternPos]) {
-                    is GroupingSeparator if ((stringPos < 0 && patternPos == 0) ||
-                            (intPattern[patternPos - 1] !is ReqDigits)) -> return
+                    is GroupingSeparator if (stringPos < 0 && (patternPos == 0 ||
+                            intPattern[patternPos - 1] is OptDigits)) -> return
 
                     is GroupingSeparator -> {
                         formatHelper(digitSource, stringPos, patternPos - 1, appendable, decimalFormat, false)
@@ -602,7 +592,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                                 appendable.appendDigit(digitSource[i], decimalFormat)
                             }
                         } else {
-                            formatHelper(digitSource, stringPos, patternPos - 1, appendable, decimalFormat, false)
+                            formatHelper(digitSource, stringPos - elem.length, patternPos - 1, appendable, decimalFormat, false)
                             for (i in (stringPos - elem.length) until stringPos) {
                                 appendable.appendDigit(digitSource[i], decimalFormat)
                             }
