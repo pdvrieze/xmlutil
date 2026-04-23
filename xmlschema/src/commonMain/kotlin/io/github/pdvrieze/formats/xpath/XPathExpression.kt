@@ -37,18 +37,46 @@ interface XPathExpression: XQueryExpression {
     fun eval(
         contextValue: XdmValue<*>?,
         namespaceContext: NamespaceContext = SimpleNamespaceContext(),
-        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap()
+        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
     ): XdmValue<*> {
-        return eval(contextValue?.let { ContextItem(it, 1, 1) }, namespaceContext, vars)
+        @OptIn(XPathInternal::class)
+        return eval(contextValue, namespaceContext, vars, null)
+    }
+
+    @XPathInternal
+    fun eval(
+        contextValue: XdmValue<*>? = null,
+        namespaceContext: NamespaceContext = SimpleNamespaceContext(),
+        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
+        state: EvalContext.DeterministicState?,
+    ): XdmValue<*> {
+        return eval(contextValue?.let { ContextItem(it, 1, 1) }, namespaceContext, vars, state)
     }
 
     fun eval(
         contextItem: ContextItem? = null,
         namespaceContext: NamespaceContext = SimpleNamespaceContext(),
-        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap()
+        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
     ): XdmValue<*> {
         @OptIn(XPathInternal::class)
-        return context(EvalContext(namespaceContext, contextItem, variables = vars)){ expr.eval() }
+        return eval(contextItem, namespaceContext, vars, null)
+    }
+
+    @XPathInternal
+    fun eval(
+        contextItem: ContextItem? = null,
+        namespaceContext: NamespaceContext = SimpleNamespaceContext(),
+        vars: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
+        state: EvalContext.DeterministicState?,
+    ): XdmValue<*> {
+        return context(
+            EvalContext(
+                contextItem,
+                namespaceContext,
+                variables = vars,
+                deterministicState = state ?: EvalContext.DeterministicState()
+            )
+        ) { expr.eval() }
     }
 
     override val xmlString: String

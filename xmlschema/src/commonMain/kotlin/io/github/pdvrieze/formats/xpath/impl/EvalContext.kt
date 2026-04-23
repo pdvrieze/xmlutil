@@ -46,8 +46,8 @@ import kotlin.time.Clock
  */
 @XPathInternal
 open class EvalContext(
-    val namepaceContext: NamespaceContext,
     val contextItem: ContextItem?,
+    val namepaceContext: NamespaceContext,
     val isXPath1Compat: Boolean = false,
     val variables: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
     protected val deterministicState: DeterministicState = DeterministicState()
@@ -57,7 +57,7 @@ open class EvalContext(
         contextItem: ContextItem? = null,
         namepaceContext: NamespaceContext = SimpleNamespaceContext(),
         isXPath1Compat: Boolean = false,
-    ) : this(namepaceContext, contextItem, isXPath1Compat, emptyMap(), DeterministicState(baseURI))
+    ) : this(contextItem, namepaceContext, isXPath1Compat, deterministicState = DeterministicState(baseURI))
 
     val contextValue get() = contextItem?.value
     val currentTimeStamp: XsdDateTimeStamp get() = deterministicState.currentDateTimeStamp
@@ -89,13 +89,13 @@ open class EvalContext(
     }
 
     open fun copy(contextItem: ContextItem?): EvalContext =
-        EvalContext(namepaceContext, contextItem, isXPath1Compat, variables, deterministicState)
+        EvalContext(contextItem, namepaceContext, isXPath1Compat, variables, deterministicState)
 
     fun copyNoExpr(
         contextItem: ContextItem? = this.contextItem,
         namepaceContext: NamespaceContext = this.namepaceContext,
         isXPath1Compat: Boolean = this.isXPath1Compat
-    ): EvalContext = EvalContext(namepaceContext, contextItem, isXPath1Compat, variables, deterministicState)
+    ): EvalContext = EvalContext(contextItem, namepaceContext, isXPath1Compat, variables, deterministicState)
 
     @PublishedApi
     internal fun createExprContext(expr: Expr): ExprEvalContext = ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables, deterministicState)
@@ -110,7 +110,7 @@ open class EvalContext(
 
     open fun newVarScope(varName: QName, value: XdmValue<*>): EvalContext {
         val newVars = newVarMap(varName, value)
-        return EvalContext(namepaceContext, contextItem, isXPath1Compat, newVars, deterministicState)
+        return EvalContext(contextItem, namepaceContext, isXPath1Compat, newVars, deterministicState)
     }
 
     protected fun newVarMap(varName: QName, value: XdmValue<*>): MutableMap<String, Map<String, XdmValue<*>>> {
@@ -124,7 +124,8 @@ open class EvalContext(
 
     data class Trace(val label: String?, val value: String)
 
-    class DeterministicState(
+    @ExperimentalXmlUtilApi
+    public class DeterministicState(
         val baseURI: XsdAnyURI? = null,
         val defaultDecimalFormat: DecimalFormat = DecimalFormat(),
         decimalFormats: List<DecimalFormat.Named> = emptyList()

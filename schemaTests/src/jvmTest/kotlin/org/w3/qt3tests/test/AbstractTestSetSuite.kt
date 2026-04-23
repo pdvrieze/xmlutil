@@ -23,7 +23,9 @@ package org.w3.qt3tests.test
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.dom2.Document
 import org.junit.jupiter.api.Named
@@ -45,10 +47,21 @@ abstract class AbstractTestSetSuite {
 
         val context = contextDoc?.let { XdmNode(it.documentElement!!) }
 
+        var decimalFormat = DecimalFormat()
+        val namedDecimalFormats = mutableListOf<DecimalFormat.Named>()
         var nsContext: NamespaceContext = SimpleNamespaceContext()
         val vars = mutableMapOf<String, MutableMap<String, XdmValue<*>>>()
         if (environment != null) {
             nsContext = environment.getNsContext()
+
+            for (decFormat in environment.decimalFormats) {
+                val name = decFormat.name
+                if (name == null) {
+                    decimalFormat = decFormat.toDecimalFormat()
+                } else {
+                    namedDecimalFormats.add(decFormat.toDecimalFormat() as DecimalFormat.Named)
+                }
+            }
 
             for (param in environment.params) {
                 val select = param.select ?: continue
@@ -63,9 +76,16 @@ abstract class AbstractTestSetSuite {
             }
         }
 
+        val deterministicState = EvalContext.DeterministicState(
+            defaultDecimalFormat = decimalFormat,
+            decimalFormats = namedDecimalFormats
+        )
+
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
 
-        val evalResult = runCatching { testExpression.eval(context, nsContext, vars) }
+        val evalResult = runCatching {
+            testExpression.eval(context, nsContext, vars, deterministicState)
+        }
 
         if (testCase.result != null) {
             for (a in testCase.result.assertions) {

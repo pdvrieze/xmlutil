@@ -36,7 +36,7 @@ class ExprEvalContext(
     isXPath1compat: Boolean = false,
     variables: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
     deterministicState: DeterministicState
-) : EvalContext(namespaceContext, contextItem, isXPath1compat, variables, deterministicState) {
+) : EvalContext(contextItem, namespaceContext, isXPath1compat, variables, deterministicState) {
 
     @XPathInternal
     fun resolveType(name: QName): AnyType {
