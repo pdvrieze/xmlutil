@@ -156,6 +156,10 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                                     expPattern.add(GroupingSeparator)
                                 }
 
+                                PARSE_STATE_PREFIX -> {
+                                    intPattern.add(GroupingSeparator)
+                                    state = PARSE_STATE_INT_OPT // must be followed by optional or mandatory digits
+                                }
                                 else -> throw IllegalArgumentException("Unexpected grouping separator in state $state")
                             }
                             i = pictureSegment.nextCodePointPos(i)
