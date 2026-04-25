@@ -21,10 +21,12 @@
 package io.github.pdvrieze.xml.schematypes.values.formatters
 
 import io.github.pdvrieze.xml.schematypes.values.*
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
+import kotlin.math.sign
 
 @ExperimentalXmlUtilApi
 class NumberFormatter private constructor(internal val format: PosNegFormatter) {
@@ -382,7 +384,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             val str = when {
                 number !is XsdInteger -> {
                     val bd = number.toBigDecimal()
-                    val extraDecimalsNeeded = decimalDigits + bd.exponent
+                    val extraDecimalsNeeded = decimalDigits + bd.exponent.coerceAtLeast(0)
                     buildString(bd.precisionDigits + extraDecimalsNeeded) {
                         for (i in (bd.precisionDigits + bd.exponent - 1) downTo (-decimalDigits)) {
                             append(bd.getDecimalDigit(i))
@@ -770,7 +772,12 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             number: Float,
             decimalFormat: DecimalFormat
         ) {
-            TODO("not implemented")
+            when {
+                number.isNaN() -> receiver.append(decimalFormat.NaN)
+                number.isFinite() -> formatTo(receiver, BigDecimal(number), decimalFormat)
+                number.sign>0 -> receiver.append(decimalFormat.infinity)
+                else -> receiver.append(decimalFormat.minusSign).append(decimalFormat.infinity)
+            }
         }
 
         override fun formatTo(
@@ -778,7 +785,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             number: Double,
             decimalFormat: DecimalFormat
         ) {
-            TODO("not implemented")
+            formatTo(receiver, BigDecimal(number), decimalFormat)
         }
 
         override fun toString(): String = buildString {
