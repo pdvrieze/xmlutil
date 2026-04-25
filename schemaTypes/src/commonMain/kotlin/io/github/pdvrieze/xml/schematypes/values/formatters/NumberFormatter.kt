@@ -272,13 +272,15 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
                 is XsdDouble -> when {
                     value.isNaN -> receiver.append(decimalFormat.NaN)
-                    value.value >= 0f -> posFormatter.formatTo(receiver, value.value, decimalFormat)
+                    value.value >= 0.0 -> posFormatter.formatTo(receiver, value.value, decimalFormat)
+                    value.value.isInfinite() -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
                     else -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
                 }
 
                 is XsdFloat -> when {
                     value.isNaN -> receiver.append(decimalFormat.NaN)
                     value.value >= 0f -> posFormatter.formatTo(receiver, value.value, decimalFormat)
+                    value.value.isInfinite() -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
                     else -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
                 }
             }
