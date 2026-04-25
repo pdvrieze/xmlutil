@@ -34,6 +34,7 @@ import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.formatters.IntegerFormatter
 import io.github.pdvrieze.xml.schematypes.values.formatters.NumberFormatter
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.xmlTrimWhitespace
 
 @XPathInternal
 object NumericFunctions: AbstractFunctionObject() {
@@ -141,7 +142,7 @@ object NumericFunctions: AbstractFunctionObject() {
         val picture = args.atomicArgN<XsdString>(1).xmlString
 
         val formatName = if (args.size==2) null else args.atomicArgOrEmpty<XsdString>(2)?.let {
-            val x = it.xmlString
+            val x = xmlTrimWhitespace(it.xmlString)
             if (x.startsWith("Q{")) {
                 val nsEndIdx = x.indexOf('}', 2)
                 if (nsEndIdx == -1) throw EvaluationException(ErrorCodes.FODF1280, "Invalid format name: '$x'")

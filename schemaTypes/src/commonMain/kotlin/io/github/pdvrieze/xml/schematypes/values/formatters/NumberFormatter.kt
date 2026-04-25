@@ -528,7 +528,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         if (!canBeZero) appendable.appendUnicode(decimalFormat.groupingSeparator)
                     }
 
-                    is OptDigits if (canBeZero && digitSource[stringPos - 1] == '0') -> {
+                    is OptDigits if (canBeZero && stringPos > 0 && digitSource[stringPos - 1] == '0') -> {
                         val startPos = (stringPos - elem.length).coerceAtLeast(0)
                         val containsNonZero = (startPos..<stringPos).any { digitSource[it] != '0' }
 
@@ -610,7 +610,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     is ReqDigits -> {
                         if (stringPos < elem.length) {
                             formatHelper(digitSource, -1, patternPos - 1, appendable, decimalFormat, false)
-                            for (_ in 0 until (elem.length - stringPos)) {
+                            for (_ in 0 until (elem.length - stringPos.coerceAtLeast(0))) {
                                 appendable.appendDigit('0', decimalFormat)
                             }
                             for (i in 0 until stringPos) {
