@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:Suppress("OPT_IN_USAGE")
+
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
@@ -290,7 +292,7 @@ internal object FloatToDecimalConverter {
                 decimal_significand = format.compute_round_up_for_shorter_interval_case(cache, beta)
 
                 // When tie occurs, choose the even one.
-                if (decimal_significand.isEven() && rawExponent in SHORTER_INTERNVAL_TIE_RANGE) {
+                if (! decimal_significand.isEven() && rawExponent in SHORTER_INTERNVAL_TIE_RANGE) {
                     --decimal_significand
                 } else if (decimal_significand < xi) {
                     ++decimal_significand

@@ -56,7 +56,7 @@ private fun ULong.rotr(r: Int): ULong {
 }
 
 internal fun UInt.isEven() = this % 2u == 0u
-
+internal fun ULong.isEven() = this % 2uL == 0uL
 
 internal fun UInt.floorLog2(): Int = 31 - countLeadingZeroBits()
 
@@ -1154,46 +1154,50 @@ interface impl<F, I> {
 private object DoubleToDecimalConverter: impl<Double, ULong> {
     override val format = float_format_double
 
-    fun carrier_uint(i: Int): ULong = i.toULong()
-    fun carrier_uint(i: UInt): ULong = i.toULong()
-    fun carrier_uint(i: ULong): ULong = i
-
     //    static_assert(sizeof(carrier_uint) == sizeof(Float))
 
-    val min_exponent = -1022
-    val max_exponent = 1023
-    val significand_bits = 52
-    val carrier_bits = 64
-    val kappa = (carrier_bits - significand_bits - 2).floorLog10Pow2() - 1
+    const val MIN_EXPONENT = -1022
+    const val MAX_EXPONENT = 1023
+    const val SIGNIFICAND_BITS = 52
+    const val CARRIER_BITS = 64
+    val KAPPA = (CARRIER_BITS - SIGNIFICAND_BITS - 2).floorLog10Pow2() - 1
 
-    val min_k = minOf(-(max_exponent - significand_bits).floorLog10Pow2MinusLog10_4Over3(),
-        -(max_exponent - significand_bits).floorLog10Pow2() + kappa)
+    val MIN_K = minOf(-(MAX_EXPONENT - SIGNIFICAND_BITS).floorLog10Pow2MinusLog10_4Over3(),
+        -(MAX_EXPONENT - SIGNIFICAND_BITS).floorLog10Pow2() + KAPPA)
 
     // We do invoke shorter_interval_case for exponent == min_exponent case;
     // so we should not add 1 here.
-    val max_k = maxOf(-(min_exponent - significand_bits /*+ 1*/).floorLog10Pow2MinusLog10_4Over3(),
-        -(min_exponent - significand_bits).floorLog10Pow2() + kappa)
+    val MAX_K = maxOf(-(MIN_EXPONENT - SIGNIFICAND_BITS /*+ 1*/).floorLog10Pow2MinusLog10_4Over3(),
+        -(MIN_EXPONENT - SIGNIFICAND_BITS).floorLog10Pow2() + KAPPA)
 
-    val case_shorter_interval_left_endpoint_lower_threshold = 2
+    val CASE_SHORTER_INTERVAL_LEFT_ENDPOINT_LOWER_THRESHOLD = 2
 
-    val case_shorter_interval_left_endpoint_upper_threshold = 2 +
+    val CASE_SHORTER_INTERVAL_LEFT_ENDPOINT_UPPER_THRESHOLD = 2 +
             (computePower10(
                 k = count_factors(
-                    (carrier_uint(1) shl (significand_bits + 2)) - 1uL,
+                    (1uL shl (SIGNIFICAND_BITS + 2)) - 1uL,
                     5u
                 ) + 1u
             ) / 3u).floorLog2()
 
-    val case_shorter_interval_right_endpoint_lower_threshold = 0
+    val CASE_SHORTER_INTERVAL_LEFT_ENDPOINT_RANGE = CASE_SHORTER_INTERVAL_LEFT_ENDPOINT_LOWER_THRESHOLD..
+            CASE_SHORTER_INTERVAL_LEFT_ENDPOINT_UPPER_THRESHOLD
 
-    val case_shorter_interval_right_endpoint_upper_threshold = 2 +
+    val CASE_SHORTER_INTERVAL_RIGHT_ENDPOINT_LOWER_THRESHOLD = 0
+
+    val CASE_SHORTER_INTERVAL_RIGHT_ENDPOINT_UPPER_THRESHOLD = 2 +
             (computePower10(
-                count_factors((carrier_uint(1) shl (significand_bits + 1)) + 1u, 5u) + 1u
+                count_factors((1.toULong() shl (SIGNIFICAND_BITS + 1)) + 1u, 5u) + 1u
             ) / 3u).floorLog2()
 
-    val shorter_interval_tie_lower_threshold = -(significand_bits + 4).floorLog5Pow2MinusLog5_3() - 2 - significand_bits
+    val CASE_SHORTER_INTERVAL_RIGHT_ENDPOINT_RANGE = CASE_SHORTER_INTERVAL_RIGHT_ENDPOINT_LOWER_THRESHOLD..
+            CASE_SHORTER_INTERVAL_RIGHT_ENDPOINT_UPPER_THRESHOLD
 
-    val shorter_interval_tie_upper_threshold = -(significand_bits + 2).floorLog5Pow2() - 2 - significand_bits
+    val SHORTER_INTERVAL_TIE_LOWER_THRESHOLD = -(SIGNIFICAND_BITS + 4).floorLog5Pow2MinusLog5_3() - 2 - SIGNIFICAND_BITS
+
+    val SHORTER_INTERVAL_TIE_UPPER_THRESHOLD = -(SIGNIFICAND_BITS + 2).floorLog5Pow2() - 2 - SIGNIFICAND_BITS
+
+    val SHORTER_INTERVAL_TIE_RANGE = SHORTER_INTERVAL_TIE_LOWER_THRESHOLD..SHORTER_INTERVAL_TIE_UPPER_THRESHOLD
 
 //    static_assert(kappa >= 1)
 //    static_assert(carrier_bits >= significand_bits + 2 + floor_log2_pow10(kappa + 1))
@@ -1210,7 +1214,7 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
         val mask = 0xFFFFuL
         val result = ((prod and mask) < magic_number)
 
-        val n = carrier_uint(prod shr 16)
+        val n = prod shr 16
         return result
     }
 
@@ -1218,14 +1222,15 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
     // Precondition: n <= 10^(N+1)
     fun small_division_by_pow10(n: UInt, N: UInt): ULong {
         // Make sure the computation for max_n does not overflow.
-        assert(N.toInt() + 1 <= carrier_bits.floorLog10Pow2())
+        assert(N.toInt() + 1 <= CARRIER_BITS.floorLog10Pow2())
         assert(n <= computePower10Long(N+1u))
-        return carrier_uint((n * DIVIDE_MAGIC_NUMBER[N.toInt() - 1]) shr 16)
+        return ((n * DIVIDE_MAGIC_NUMBER[N.toInt() - 1]) shr 16).toULong()
     }
 
     @JvmInline
     value class binary_fp(private val bits: Long) {
         val significand: ULong get() = bits.toULong() and 0xF_FFFF_FFFF_FFFFuL
+        val rawExponent: Int get() = (((bits ushr 52) and 0x7ff).toInt())
         val exponent: Int get() = (((bits ushr 52) and 0x7ff).toInt() + -1023)
         val is_negative: Boolean get() = bits.ushr(63) != 0L
 
@@ -1242,16 +1247,13 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
         return binary_exponent != 0xff
     }
 
+    // The main algorithm assumes the input is a normal/subnormal finite number.
     fun to_decimal(d: Double): DecimalFP64 {
         val bin = binary_fp(d)
-        return to_decimal(bin.significand, bin.exponent, bin.is_negative)
-    }
-
-    // The main algorithm assumes the input is a normal/subnormal finite number.
-    fun to_decimal(binary_significand: ULong, binary_exponent: Int, is_negative: Boolean): DecimalFP64 {
-        var binary_exponent = binary_exponent
-        val is_even = binary_significand % 2uL == 0uL
-        var two_fc = binary_significand shl 1
+        var binary_exponent = bin.rawExponent
+        val isEven = bin.significand.isEven()
+        var twoFc = bin.significand shl 1
+        val isNegative = d < 0.0
 
         // Is the input a normal number?
         if (binary_exponent != 0) {
@@ -1286,7 +1288,7 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
             // length.
 
             // Shorter interval case.
-            if (two_fc == 0uL) {
+            if (twoFc == 0uL) {
                 // Compute k and beta.
                 val minus_k = binary_exponent.floorLog10Pow2MinusLog10_4Over3()
                 val beta = binary_exponent + (-minus_k).floorLog2Pow10()
@@ -1308,36 +1310,34 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
                 // Substituting f_c = 2^p and k0 = -floor(log10(3 * 2^(e-2))), we get
                 // zi <= floor((2^(p+1) + 1) * 20/3) <= ceil((2^(p+1) + 1)/3) * 20.
                 // This computation does not overflow for any of the formats I care about.
-                val decimal_significand = MutableULong(format.divide_by_pow10(zi,1u,  (((carrier_uint(2) shl significand_bits) + 1u) / 3u + 1u) * 20u))
+                val decimal_significand = MutableULong(format.divide_by_pow10(zi,1u,  (((2.toULong() shl SIGNIFICAND_BITS) + 1u) / 3u + 1u) * 20u))
 
                 // If succeed, remove trailing zeros if necessary and return.
                 if (decimal_significand * 10u >= xi) {
                     val decimal_exponent = MutableInt(minus_k + 1)
                     format.remove_trailing_zeros(decimal_significand, decimal_exponent)
-                    return DecimalFP64(decimal_significand.value, decimal_exponent.value, is_negative)
+                    return DecimalFP64(decimal_significand.value, decimal_exponent.value, isNegative)
                 }
 
                 // Otherwise, compute the round-up of y.
                 decimal_significand.value = format.compute_round_up_for_shorter_interval_case(cache, beta)
 
                 // When tie occurs, choose the even one.
-                if (decimal_significand.value % 2uL != 0uL &&
-                    binary_exponent >= shorter_interval_tie_lower_threshold &&
-                    binary_exponent <= shorter_interval_tie_upper_threshold) {
+                if (! decimal_significand.value.isEven() && binary_exponent in SHORTER_INTERVAL_TIE_RANGE) {
                     --decimal_significand.value
                 } else if (decimal_significand.value < xi) {
                     ++decimal_significand.value
                 }
-                return DecimalFP64(decimal_significand.value, minus_k, is_negative)
+                return DecimalFP64(decimal_significand.value, minus_k, isNegative)
             }
 
             // Normal interval case.
-            two_fc = two_fc or (carrier_uint(1) shl (format.significand_bits + 1))
+            twoFc = twoFc or (1.toULong() shl (format.significand_bits + 1))
         }
         else {
             // Is the input a subnormal number?
             // Normal interval case.
-            binary_exponent = min_exponent - format.significand_bits
+            binary_exponent = MIN_EXPONENT - format.significand_bits
         }
 
         //////////////////////////////////////////////////////////////////////
@@ -1345,7 +1345,7 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
         //////////////////////////////////////////////////////////////////////
 
         // Compute k and beta.
-        val minus_k = binary_exponent.floorLog10Pow2() - kappa
+        val minus_k = binary_exponent.floorLog10Pow2() - KAPPA
         val cache = format.cache[-minus_k - format.min_k]
         val beta = binary_exponent + (-minus_k).floorLog2Pow10()
 
@@ -1363,24 +1363,24 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
         // Fortunately, with these inputs, that branch is never executed, so we are
         // fine.
         val z_result =
-            format.compute_mul(carrier_uint((two_fc or 1u) shl beta), cache)
+            format.compute_mul((twoFc or 1u) shl beta, cache)
 
         //////////////////////////////////////////////////////////////////////
         // Step 2: Try larger divisor; remove trailing zeros if necessary.
         //////////////////////////////////////////////////////////////////////
 
-        val big_divisor = computePower10Long(kappa.toUInt() + 1u)
-        val small_divisor = computePower10Long(kappa.toUInt())
+        val big_divisor = computePower10Long(KAPPA.toUInt() + 1u)
+        val small_divisor = computePower10Long(KAPPA.toUInt())
 
         // Using an upper bound on zi, we might be able to optimize the division
         // better than the compiler; we are computing zi / big_divisor here.
-        var decimal_significand = format.divide_by_pow10(z_result.integer_part, kappa.toUInt() + 1u, (carrier_uint(2) shl significand_bits) * big_divisor - 1u)
-        var r = carrier_uint(z_result.integer_part - big_divisor * decimal_significand)
+        var decimal_significand = format.divide_by_pow10(z_result.integer_part, KAPPA.toUInt() + 1u, (2.toULong() shl SIGNIFICAND_BITS) * big_divisor - 1u)
+        var r = z_result.integer_part - big_divisor * decimal_significand
 
         do {
             if (r < deltai) {
                 // Exclude the right endpoint if necessary.
-                if (!(r != 0uL || !z_result.is_integer || is_even)) {
+                if (!(r != 0uL || !z_result.is_integer || isEven)) {
                     --decimal_significand
                     r = big_divisor
                     break
@@ -1390,17 +1390,17 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
             } else {
                 // r == deltai; compare fractional parts.
                 val x_result =
-                    format.compute_mul_parity(two_fc - 1u, cache, beta)
+                    format.compute_mul_parity(twoFc - 1u, cache, beta)
 
-                if (!(x_result.parity or (x_result.is_integer and is_even))) {
+                if (!(x_result.parity or (x_result.is_integer and isEven))) {
                     break
                 }
             }
 
-            val decimal_exponent = MutableInt(minus_k + kappa + 1)
+            val decimal_exponent = MutableInt(minus_k + KAPPA + 1)
             val m = MutableULong(decimal_significand)
             format.remove_trailing_zeros(m, decimal_exponent)
-            return DecimalFP64(m.value, decimal_exponent.value, is_negative)
+            return DecimalFP64(m.value, decimal_exponent.value, isNegative)
         } while (false)
 
 
@@ -1412,11 +1412,11 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
 
         // delta is equal to 10^(kappa + elog10(2) - floor(elog10(2))), so dist cannot
         // be larger than r.
-        val dist = MutableULong(carrier_uint(r - (deltai / 2uL) + (small_divisor / 2uL)))
+        val dist = MutableULong(r - (deltai / 2uL) + (small_divisor / 2uL))
         val approx_y_parity = ((dist.value xor (small_divisor shr 1)) and 1uL) != 0uL
 
         // Is dist divisible by 10^kappa?
-        val divisible_by_small_divisor = check_divisibility_and_divide_by_pow10(dist, kappa.toUInt())
+        val divisible_by_small_divisor = check_divisibility_and_divide_by_pow10(dist, KAPPA.toUInt())
 
         // Add dist / 10^kappa to the significand.
         decimal_significand += dist.value
@@ -1428,7 +1428,7 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
             // Since there are only 2 possibilities, we only need to care about the
             // parity. Also, zi and r should have the same parity since the divisor
             // is an even number.
-            val y_result = format.compute_mul_parity(two_fc, cache, beta)
+            val y_result = format.compute_mul_parity(twoFc, cache, beta)
             if (y_result.parity != approx_y_parity) {
                 --decimal_significand
             }
@@ -1442,17 +1442,15 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
             }
         }
 
-        return DecimalFP64(decimal_significand, minus_k + kappa, is_negative)
+        return DecimalFP64(decimal_significand, minus_k + KAPPA, isNegative)
     }
 
     fun is_right_endpoint_integer_shorter_interval(binary_exponent: Int): Boolean {
-        return binary_exponent >= case_shorter_interval_right_endpoint_lower_threshold &&
-                binary_exponent <= case_shorter_interval_right_endpoint_upper_threshold
+        return binary_exponent in CASE_SHORTER_INTERVAL_RIGHT_ENDPOINT_RANGE
     }
 
     fun is_left_endpoint_integer_shorter_interval(binary_exponent: Int): Boolean {
-        return binary_exponent >= case_shorter_interval_left_endpoint_lower_threshold &&
-                binary_exponent <= case_shorter_interval_left_endpoint_upper_threshold
+        return binary_exponent in CASE_SHORTER_INTERVAL_LEFT_ENDPOINT_RANGE
     }
 
     fun to_chars_n(x: Double, buffer: StringBuilder): StringBuilder  {
@@ -1513,12 +1511,12 @@ private object DoubleToDecimalConverter: impl<Double, ULong> {
 
 
 //template <class Float>
-fun toDecimal(x: Float): DecimalFP32 {
+internal fun toDecimal(x: Float): FloatToDecimalConverter.DecimalFP32 {
     assert(x.isFinite() && x != 0.0f)
     return FloatToDecimalConverter.to_decimal(x)
 }
 
-fun toDecimal(x: Double): DecimalFP64 {
+internal fun toDecimal(x: Double): DecimalFP64 {
     assert(x.isFinite() && x != 0.0)
     return DoubleToDecimalConverter.to_decimal(x)
 }
