@@ -1266,6 +1266,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
          * Algorithm based on dragonbox: https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf
          */
         internal open fun convertToDecimal(double: Double): ParseResult {
+            if (double == 0.0) return ParseResult(ZERO.ints, 0)
             val d = toDecimal(double)
             val ints = valToUInts(d.significand)
 
