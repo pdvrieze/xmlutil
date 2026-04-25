@@ -811,7 +811,12 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             number: Double,
             decimalFormat: DecimalFormat
         ) {
-            formatTo(receiver, BigDecimal(number), decimalFormat)
+            when {
+                number.isNaN() -> receiver.append(decimalFormat.NaN)
+                number.isFinite() -> formatTo(receiver, BigDecimal(number), decimalFormat)
+                number.sign > 0 -> receiver.append(decimalFormat.infinity)
+                else -> receiver.append(decimalFormat.minusSign).append(decimalFormat.infinity)
+            }
         }
 
         override fun toString(): String = buildString {
