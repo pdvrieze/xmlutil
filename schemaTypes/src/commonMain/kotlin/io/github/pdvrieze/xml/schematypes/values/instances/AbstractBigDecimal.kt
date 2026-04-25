@@ -374,14 +374,18 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         }
     }
 
-    private fun roundImpl(precision: Int, halfEven: Boolean): T {
+    protected open fun roundImpl(precision: Int, halfEven: Boolean): T {
+        val adjust = when (sign) {
+            0 -> return self
+            1 -> XsdInt(1)
+            else -> XsdInt(-1)
+        }
 
         val storedLSDPos = D10Pos(-(exponent + precision))
         if (storedLSDPos.p <= 0) return self
 
         val (resultBase, remainder) = splitAtExponent(-precision)
 
-        val adjust = if (sign >= 0) XsdInt(1) else XsdInt(-1)
 
         // must have omitted leading zeros
         if (remainder.precisionDigits < (precision + remainder.exponent))
@@ -648,9 +652,14 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
      * Get the absolute value of this value.
      */
     override fun abs(): T {
-        val newInts = ints.copyOf()
-        newInts[0] = newInts[0] and 0x7FFFFFFFu
-        return newInstance(newInts, exponent)
+        when (ints[0] and SIGN_BIT.toUInt()) {
+            0u -> return self
+            else -> {
+                val newInts = ints.copyOf()
+                newInts[0] = newInts[0] and 0x7FFF_FFFFu
+                return newInstance(newInts, exponent)
+            }
+        }
     }
 
     override fun compareTo(other: XsdDecimal): Int {

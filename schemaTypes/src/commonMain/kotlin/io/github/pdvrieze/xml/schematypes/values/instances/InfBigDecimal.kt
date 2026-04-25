@@ -211,6 +211,122 @@ class InfBigDecimal(ints: UIntArray, exponent: Int) :
         }
     }
 
+    override fun plus(other: XsdDecimal): InfBigDecimal {
+        return when {
+            isNaN -> self
+            other.isNaN -> other.asT()
+            isInfinity -> when {
+                other.isNegativeInfinity -> NaN
+                else -> self
+            }
+
+            isNegativeInfinity -> when {
+                other.isInfinity -> NaN
+                else -> self
+            }
+
+            ! other.isFinite -> other.asT()
+
+            else -> super.plus(other)
+        }
+    }
+
+    override fun minus(other: XsdDecimal): InfBigDecimal {
+        return when {
+            isNaN -> self
+            other.isNaN -> other.asT()
+            isInfinity -> when {
+                other.isInfinity -> NaN
+                else -> self
+            }
+
+            isNegativeInfinity -> when {
+                other.isNegativeInfinity -> NaN
+                else -> self
+            }
+
+            ! other.isFinite -> other.asT()
+
+            else -> super.minus(other)
+        }
+    }
+
+    override fun times(other: XsdDecimal): InfBigDecimal {
+        return when {
+            isNaN -> self
+            other.isNaN -> other.asT()
+            isInfinity -> when {
+                other.isNegativeInfinity -> NaN
+                else -> self
+            }
+
+            isNegativeInfinity -> when {
+                other.isInfinity -> NaN
+                else -> self
+            }
+
+            ! other.isFinite -> other.asT()
+
+            else -> super.times(other)
+        }
+    }
+
+    override fun times(multiplier: UInt): InfBigDecimal {
+        return when {
+            ! isFinite -> self
+            else -> super.times(multiplier)
+        }
+    }
+
+    override fun divRem(divider: XsdDecimal): DivRem<InfBigDecimal> {
+        val dSign = divider.sign
+        val lSign = sign
+        return when {
+            dSign == 0 -> DivRem(NaN, self)
+            lSign == 0 -> DivRem(ZERO, ZERO)
+            isNaN -> DivRem(self, NaN)
+            divider.isNaN -> DivRem(NaN, self)
+            ! isFinite -> {
+                when {
+                    !divider.isFinite -> DivRem(NaN, NaN)
+                    lSign != dSign -> DivRem(-self, NaN)
+                    else -> DivRem(self, NaN)
+                }
+            }
+
+            else -> super.divRem(divider)
+        }
+    }
+
+    override fun divRem(divider: ULong): DivRem<InfBigDecimal> {
+        val lSign = sign
+        return when {
+            divider == 0uL -> DivRem(NaN, self)
+            lSign == 0 -> DivRem(ZERO, ZERO)
+
+            isNaN -> DivRem(self, NaN)
+            ! isFinite -> when {
+                lSign < 0 -> DivRem(-self, NaN)
+                else -> DivRem(self, NaN)
+            }
+
+            else -> super.divRem(divider)
+        }
+    }
+
+    override fun roundImpl(
+        precision: Int,
+        halfEven: Boolean
+    ): InfBigDecimal {
+        if (!isFinite) if (isNaN) return self else return NaN
+        return super.roundImpl(precision, halfEven)
+    }
+
+    override fun getDecimalDigit(pos: Int): Char {
+        check(isFinite) { "Cannot get decimal digit of NaN or Infinity" }
+        return super.getDecimalDigit(pos)
+    }
+
     override fun compareTo(other: XsdDecimal): Int {
         return when {
             isFinite -> super.compareTo(other)
