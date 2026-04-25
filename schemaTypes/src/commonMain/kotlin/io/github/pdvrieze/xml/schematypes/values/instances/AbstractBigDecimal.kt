@@ -174,6 +174,15 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         this[intPos] = otherBaseDigits.or(update(oldValue).shl(shift))
     }
 
+    private fun decimalDigitFromStored(pos: D10Pos): UInt {
+        val storedDigit = getStoredDigit(pos.toStoredD1000Pos())
+        return when (pos.p.mod(3)) {
+            0 -> storedDigit % 10u
+            1 -> (storedDigit / 10u) % 10u
+            else -> storedDigit / 100u
+        }
+    }
+
     private fun pseudoDigitFromZeroDec(pos: D10Pos): UInt {
         val lsiPos = D1000StoredPos((pos.p-exponent).floorDiv(3))
         // check correct for small positive exponents
@@ -366,7 +375,41 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     }
 
     private fun roundImpl(precision: Int, halfEven: Boolean): T {
-        TODO("Not correct")
+
+        val storedLSDPos = D10Pos(-(exponent + precision))
+        if (storedLSDPos.p <= 0) return self
+
+        val (resultBase, remainder) = splitAtExponent(-precision)
+
+        val adjust = if (sign >= 0) XsdInt(1) else XsdInt(-1)
+
+        // must have omitted leading zeros
+        if (remainder.precisionDigits < (precision + remainder.exponent))
+            return resultBase
+
+        val leadingD1000 = remainder.ints.last()
+        // note that precisionDigits is a count
+        when (remainder.precisionDigits.mod(3)) {
+            1 -> when (leadingD1000.mod(10u)) {
+                in 0u..4u -> return resultBase
+                in 6u..9u -> return resultBase + adjust
+            }
+
+            2 -> when (leadingD1000.mod(100u)) {
+                in 0u..49u -> return resultBase
+                in 51u..99u -> return resultBase + adjust
+            }
+
+            else -> when (leadingD1000) {
+                in 0u..499u -> return resultBase
+                in 501u..999u -> return resultBase + adjust
+            }
+        }
+        if (!halfEven || (0 until remainder.precisionDigits.div(3)).any { remainder.ints[it] != 0u }) {
+            return resultBase + adjust
+        }
+        if (resultBase.ints[0] and 1u == 1u) return resultBase + adjust
+        return resultBase
     }
 
     override fun roundToHalfEven(): T {

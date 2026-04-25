@@ -382,10 +382,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
             val str = when {
                 number !is XsdInteger -> {
-                    val bd = number.toBigDecimal()
-                    val extraDecimalsNeeded = decimalDigits + bd.exponent.coerceAtLeast(0)
-                    buildString(bd.precisionDigits + extraDecimalsNeeded) {
-                        for (i in (bd.precisionDigits + bd.exponent - 1) downTo (-decimalDigits)) {
+                    val bd = number.toBigDecimal().exp10(decimalDigits) // multply with decimal digits
+                        .roundToHalfEven()
+
+                    buildString(bd.precisionDigits) {
+                        for (i in (bd.precisionDigits - 1) downTo 0) {
                             append(bd.getDecimalDigit(i))
                         }
                     }
