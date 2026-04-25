@@ -494,17 +494,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     stringPos <= 0 -> return
 
                     regularGrouping > 0 -> {
-                        val patternSizeBeforeLastGroup = intPattern.asSequence().takeWhile { it !is GroupingSeparator }.sumOf { it.length }
-                        val groupOffset = (stringPos - patternSizeBeforeLastGroup).mod(regularGrouping)
-                        for (i in 0 until groupOffset) {
+                        val alreadyPendingDigitsInGroup = intPattern.asSequence().takeWhile { it !is GroupingSeparator }.sumOf { it.length }
+                        val groupOffset = (stringPos + alreadyPendingDigitsInGroup).mod(regularGrouping)
+                        for (i in 0 until stringPos) {
+                            if (i.mod(regularGrouping) == groupOffset) appendable.appendUnicode(decimalFormat.groupingSeparator)
                             appendable.appendDigit(digitSource[i], decimalFormat)
-                        }
-                        var i = groupOffset
-                        while (i < stringPos) {
-                            appendable.appendUnicode(decimalFormat.groupingSeparator)
-                            for (_ in 0 until regularGrouping) {
-                                appendable.appendDigit(digitSource[i++], decimalFormat)
-                            }
                         }
                     }
 
