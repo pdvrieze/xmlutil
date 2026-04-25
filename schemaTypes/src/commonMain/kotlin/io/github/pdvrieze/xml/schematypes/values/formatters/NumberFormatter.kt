@@ -164,15 +164,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         }
 
                         decimalFormat.percent, decimalFormat.perMille -> {
-                            when (state) {
-                                PARSE_STATE_INT_MANDATORY -> intPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
-                                PARSE_STATE_INT_OPT -> intPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
-                                PARSE_STATE_DECIMAL_MANDATORY -> decimalPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
-                                PARSE_STATE_DECIMAL_OPT -> decimalPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
-                                else -> throw IllegalArgumentException("Unexpected grouping separator in state $state")
-                            }
                             nextState = if (cp == decimalFormat.percent) PARSE_STATE_PERCENT else PARSE_STATE_PERMILLE
-                            i = pictureSegment.nextCodePointPos(i)
                             break
                         }
 
@@ -199,7 +191,9 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 }
                 when (nextState) {
                     PARSE_STATE_DECIMAL_MANDATORY,
-                    PARSE_STATE_EXP_MANDATORY -> i = pictureSegment.nextCodePointPos(i)
+                    PARSE_STATE_EXP_MANDATORY,
+                    PARSE_STATE_PERCENT,
+                    PARSE_STATE_PERMILLE -> i = pictureSegment.nextCodePointPos(i)
                 }
 
                 stateStart = i
@@ -304,8 +298,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             var req = 0
             for (d in decimalPattern) {
                 when (d) {
-                    is OptDigits -> opt = d.length
-                    is ReqDigits -> req = d.length
+                    is OptDigits -> opt += d.length
+                    is ReqDigits -> req += d.length
                     else -> Unit
                 }
             }
