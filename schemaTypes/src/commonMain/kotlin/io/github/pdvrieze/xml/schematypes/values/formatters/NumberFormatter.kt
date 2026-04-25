@@ -521,7 +521,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
                     is OptDigits if (canBeZero && digitSource[stringPos - 1] == '0') -> {
                         val startPos = (stringPos - elem.length).coerceAtLeast(0)
-                        val containsNonZero = (startPos..<(stringPos - 1)).any { digitSource[it] != '0' }
+                        val containsNonZero = (startPos..<stringPos).any { digitSource[it] != '0' }
 
                         formatHelper(
                             digitSource,
@@ -533,6 +533,9 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         )
 
                         if (containsNonZero) {
+                            if (patternPos == intPattern.size) {
+                                appendable.appendUnicode(decimalFormat.decimalSeparator)
+                            }
                             var lastPos = stringPos
 
                             while (lastPos > startPos && digitSource[lastPos - 1] == '0') lastPos -= 1
@@ -647,23 +650,34 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
-            formatNonSuffixTo(receiver, number * XsdInt(100), decimalFormat)
+            val multplied = when (number) {
+                is XsdInt if (number.intValue < MAX_INT_BEFORE_MULT) -> number * 100
+                is XsdLong if (number.longValue < MAX_LONG_BEFORE_MULT) -> number * 100L
+                is XsdUnsignedInt if (number.uIntValue < MAX_UINT_BEFORE_MULT) -> number * 100u
+                is XsdUnsignedLong if (number.uLongValue < MAX_ULONG_BEFORE_MULT) -> number * 100uL
+                is XsdInteger -> number.toBigInt() * 100
+                else -> number.toBigDecimal().exp10(2)
+            }
+
+            formatNonSuffixTo(receiver, multplied, decimalFormat)
             receiver.append(decimalFormat.percent)
             if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(receiver: Appendable, number: Float, decimalFormat: DecimalFormat) {
-            formatNonSuffixTo(receiver, number * 100, decimalFormat)
-            receiver.append(decimalFormat.percent)
-            if (suffix != null) receiver.append(suffix)
+            formatTo(receiver, BigDecimal(number), decimalFormat)
         }
 
         override fun formatTo(receiver: Appendable, number: Double, decimalFormat: DecimalFormat) {
-            formatNonSuffixTo(receiver, number * 100, decimalFormat)
-            receiver.append(decimalFormat.percent)
-            if (suffix != null) receiver.append(suffix)
+            formatTo(receiver, BigDecimal(number), decimalFormat)
         }
 
+        companion object {
+            const val MAX_INT_BEFORE_MULT = Int.MAX_VALUE/100
+            val MAX_UINT_BEFORE_MULT = UInt.MAX_VALUE/100u
+            const val MAX_LONG_BEFORE_MULT = Long.MAX_VALUE/100L
+            val MAX_ULONG_BEFORE_MULT = ULong.MAX_VALUE/100uL
+        }
 
     }
 
@@ -690,21 +704,33 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
-            formatNonSuffixTo(receiver, number * XsdInt(1000), decimalFormat)
+            val multplied = when (number) {
+                is XsdInt if (number.intValue < MAX_INT_BEFORE_MULT) -> number * 1000
+                is XsdLong if (number.longValue < MAX_LONG_BEFORE_MULT) -> number * 1000L
+                is XsdUnsignedInt if (number.uIntValue < MAX_UINT_BEFORE_MULT) -> number * 1000u
+                is XsdUnsignedLong if (number.uLongValue < MAX_ULONG_BEFORE_MULT) -> number * 1000uL
+                is XsdInteger -> number.toBigInt() * 1000
+                else -> number.toBigDecimal().exp10(2)
+            }
+
+            formatNonSuffixTo(receiver, multplied, decimalFormat)
             receiver.append(decimalFormat.perMille)
             if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(receiver: Appendable, number: Float, decimalFormat: DecimalFormat) {
-            formatNonSuffixTo(receiver, number * 1000, decimalFormat)
-            receiver.append(decimalFormat.perMille)
-            if (suffix != null) receiver.append(suffix)
+            formatTo(receiver, BigDecimal(number), decimalFormat)
         }
 
         override fun formatTo(receiver: Appendable, number: Double, decimalFormat: DecimalFormat) {
-            formatNonSuffixTo(receiver, number * 1000, decimalFormat)
-            receiver.append(decimalFormat.perMille)
-            if (suffix != null) receiver.append(suffix)
+            formatTo(receiver, BigDecimal(number), decimalFormat)
+        }
+
+        companion object {
+            const val MAX_INT_BEFORE_MULT = Int.MAX_VALUE/1000
+            val MAX_UINT_BEFORE_MULT = UInt.MAX_VALUE/1000u
+            const val MAX_LONG_BEFORE_MULT = Long.MAX_VALUE/1000L
+            val MAX_ULONG_BEFORE_MULT = ULong.MAX_VALUE/1000uL
         }
 
     }
