@@ -386,7 +386,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         .roundToHalfEven()
 
                     buildString(bd.precisionDigits) {
-                        for (i in (bd.precisionDigits - 1) downTo 0) {
+                        for (i in (bd.precisionDigits + bd.exponent - 1) downTo 0) {
                             append(bd.getDecimalDigit(i))
                         }
                     }
