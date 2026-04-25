@@ -199,8 +199,19 @@ value class UnicodeCharRange(val intRange: IntRange): ClosedRange<UnicodeChar>, 
 }
 
 @ExperimentalXmlUtilApi
-@Suppress("NOTHING_TO_INLINE")
-inline fun CharSequence.unicodeChar(pos: Int): UnicodeChar = UnicodeChar(get(pos))
+fun CharSequence.unicodeChar(pos: Int): UnicodeChar {
+    val c = get(pos)
+    if (c.isHighSurrogate() && pos + 1 < length) {
+        val d = get(pos+1)
+        if (d.isLowSurrogate()) {
+            val high = c.code - 0xd800
+            val low = get(pos+1).code - 0xdc00
+            val cp = 0x10000 + (high shl 10) + (low and 0x3ff)
+            return UnicodeChar(cp)
+        }
+    }
+    return  UnicodeChar(c)
+}
 
 fun CharSequence.indexOf(unicodeChar: UnicodeChar, pos: Int = 0): Int {
     for (i in pos until length) {
