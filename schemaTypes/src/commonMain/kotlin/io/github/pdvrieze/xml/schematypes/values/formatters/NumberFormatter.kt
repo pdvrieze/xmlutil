@@ -163,8 +163,13 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             continue // skip default increase in position
                         }
 
-                        decimalFormat.percent, decimalFormat.perMille -> {
-                            nextState = if (cp == decimalFormat.percent) PARSE_STATE_PERCENT else PARSE_STATE_PERMILLE
+                        decimalFormat.percent -> {
+                            nextState = PARSE_STATE_PERCENT
+                            break
+                        }
+
+                        decimalFormat.perMille -> {
+                            nextState = PARSE_STATE_PERMILLE
                             break
                         }
 
@@ -688,9 +693,9 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         suffix: String?,
         regularGrouping: Int = -1
     ) : NumberFormatter(prefix, intPattern, decimalPattern, suffix, regularGrouping) {
-        override fun normalized(): PercentFormatter {
+        override fun normalized(): PermilleFormatter {
             val r = normalizeBase()
-            return PercentFormatter(prefix, intPattern, decimalPattern, suffix, r.newGrouping)
+            return PermilleFormatter(prefix, intPattern, decimalPattern, suffix, r.newGrouping)
         }
 
         override fun copy(
@@ -710,7 +715,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 is XsdUnsignedInt if (number.uIntValue < MAX_UINT_BEFORE_MULT) -> number * 1000u
                 is XsdUnsignedLong if (number.uLongValue < MAX_ULONG_BEFORE_MULT) -> number * 1000uL
                 is XsdInteger -> number.toBigInt() * 1000
-                else -> number.toBigDecimal().exp10(2)
+                else -> number.toBigDecimal().exp10(3)
             }
 
             formatNonSuffixTo(receiver, multplied, decimalFormat)
@@ -727,10 +732,10 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         companion object {
-            const val MAX_INT_BEFORE_MULT = Int.MAX_VALUE/1000
-            val MAX_UINT_BEFORE_MULT = UInt.MAX_VALUE/1000u
-            const val MAX_LONG_BEFORE_MULT = Long.MAX_VALUE/1000L
-            val MAX_ULONG_BEFORE_MULT = ULong.MAX_VALUE/1000uL
+            const val MAX_INT_BEFORE_MULT = Int.MAX_VALUE / 1000
+            val MAX_UINT_BEFORE_MULT = UInt.MAX_VALUE / 1000u
+            const val MAX_LONG_BEFORE_MULT = Long.MAX_VALUE / 1000L
+            val MAX_ULONG_BEFORE_MULT = ULong.MAX_VALUE / 1000uL
         }
 
     }
