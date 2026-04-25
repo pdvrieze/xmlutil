@@ -1187,6 +1187,41 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             else -> newInstance(valToUInts(value), decimalPositions)
         }
 
+        private fun floor_log2(n: UInt): Int {
+            return 31-n.countLeadingZeroBits()
+        }
+
+        private fun floor_log2(n: ULong): Int {
+            return 63-n.countLeadingZeroBits()
+        }
+
+        /**
+         * Algorithm based on dragonbox: https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf
+         */
+        internal open fun convertToDecimal(float: Float): ParseResult {
+            requireRange(float.isFinite()) { "Not a finite float" }
+            if (float == 0.0f) return ParseResult(ZERO.ints, 0)
+
+            val d = FloatToDecimalConverter.to_decimal(float)
+            val ints = valToUInts(d.significand)
+
+            if (d.is_negative) ints[0] = ints[0] or SIGN_BIT.toUInt()
+
+            return ParseResult(ints, d.exponent)
+        }
+
+        /**
+         * Algorithm based on dragonbox: https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf
+         */
+        internal open fun convertToDecimal(double: Double): ParseResult {
+            val d = toDecimal(double)
+            val ints = valToUInts(d.significand)
+
+            if (d.is_negative) ints[0] = ints[0] or SIGN_BIT.toUInt()
+
+            return ParseResult(ints, d.exponent)
+        }
+
     }
 
     @JvmInline

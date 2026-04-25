@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdFloat
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 
@@ -38,10 +39,13 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
 
     constructor(value: CharSequence) : this(parse(value))
 
+    constructor(float: XsdFloat) : this(float.value)
+    constructor(float: Float) : this(convertToDecimal(float))
+    constructor(double: Double) : this(convertToDecimal(double))
+
     constructor(bigDecimal: InfBigDecimal): this(bigDecimal.ints, bigDecimal.exponent)
 
-    private constructor(parseResult: ParseResult) :
-            this(parseResult.ints, parseResult.decimalDigits)
+    private constructor(pr: ParseResult) : this(pr.ints, pr.decimalDigits)
 
     constructor(value: UInt): this(
         ints = uintArrayOf(value),
