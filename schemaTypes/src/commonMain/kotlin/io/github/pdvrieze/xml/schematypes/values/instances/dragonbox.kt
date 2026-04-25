@@ -35,53 +35,57 @@ private interface DecimalFP<SignificandType> {
     val is_negative: Boolean
 }
 
-data class DecimalFP32(override val significand: UInt, override val exponent: Int, override val is_negative: Boolean): DecimalFP<UInt>
 
-data class DecimalFP64(override val significand: ULong, override val exponent: Int, override val is_negative: Boolean): DecimalFP<ULong>
+data class DecimalFP64(override val significand: ULong, override val exponent: Int, override val is_negative: Boolean): DecimalFP<ULong> {
 
-private fun rotr32(n: UInt, r: Int): UInt {
-    val r = r and 0x1f
-    return (n shr r) or (n shl ((32 - r) and 0x1f))
+
+    fun toBigDecimal(): BigDecimal {
+        val l = if(is_negative) -(significand.toLong()) else significand.toLong()
+        return BigDecimal(l).exp10(exponent)
+    }
+
+
+    companion object {
+
+    }
 }
 
-private fun rotr64(n: ULong, r: Int): ULong {
+private fun ULong.rotr(r: Int): ULong {
     val r = r and 0x3f
-    return (n shr r) or (n shl ((64 - r) and 63))
+    return (this shr r) or (this shl ((64 - r) and 63))
 }
 
+internal fun UInt.isEven() = this % 2u == 0u
 
-private fun floor_log2(n: UInt): Int {
-    return 31-n.countLeadingZeroBits()
+
+internal fun UInt.floorLog2(): Int = 31 - countLeadingZeroBits()
+
+private fun ULong.floorLog2(): Int = 63 - countLeadingZeroBits()
+
+internal fun Int.floorLog10Pow2(): Int {
+    requireRange(this in -2620..2620) { "Exponent out of range: ${this}"}
+    return (this * 315653) shr 20
 }
 
-private fun floor_log2(n: ULong): Int {
-    return 63-n.countLeadingZeroBits()
-}
-
-private fun floor_log10_pow2(e: Int): Int {
-    requireRange(e in -2620..2620) { "Exponent out of range: $e"}
-    return (e * 315653) shr 20
-}
-
-private fun floor_log2_pow10(e: Int):Int {
+internal fun Int.floorLog2Pow10():Int {
     // Formula itself holds on [-4003,4003]; [-1233,1233] is to ensure no overflow.
-    requireRange(e in -1233..1233) { "Exponent out of range: $e"}
-    return (e * 1741647) shr 19
+    requireRange(this in -1233..1233) { "Exponent out of range: ${this}"}
+    return (this * 1741647) shr 19
 }
 
-private fun floor_log10_pow2_minus_log10_4_over_3(e: Int): Int {
-    requireRange(e in -2985..2936)
-    return (e * 631305 - 261663) shr 21
+internal fun Int.floorLog10Pow2MinusLog10_4Over3(): Int {
+    requireRange(this in -2985..2936)
+    return (this * 631305 - 261663) shr 21
 }
 
-private fun floor_log5_pow2(e:Int): Int {
-    assert(e in -1831..1831)
-    return (e * 225799) shr 19
+internal fun Int.floorLog5Pow2(): Int {
+    assert(this in -1831..1831)
+    return (this * 225799) shr 19
 }
 
-private fun floor_log5_pow2_minus_log5_3(e: Int): Int {
-    assert(e in -3543..2427)
-    return (e * 451597 - 715764) shr 20
+internal fun Int.floorLog5Pow2MinusLog5_3(): Int {
+    assert(this in -3543..2427)
+    return (this * 451597 - 715764) shr 20
 }
 
 private class UInt128(val high: ULong, val low: ULong) {
@@ -91,8 +95,6 @@ private class UInt128(val high: ULong, val low: ULong) {
         return UInt128(newHigh, newLow)
     }
 }
-
-private fun umul64(x: UInt, y: UInt): ULong { return x * y.toULong(); }
 
 /**
  * Get 128-bit result of multiplication of two 64-bit unsigned integers.
@@ -146,7 +148,7 @@ private fun umul192_upper128(x: ULong, y: UInt128): UInt128 {
 
 // Get upper 64-bits of multiplication of a 32-bit unsigned integer and a 64-bit
 // unsigned integer.
-private fun umul96_upper64(x: UInt, y: ULong): ULong {
+internal fun umul96_upper64(x: UInt, y: ULong): ULong {
     val yh = (y shr 32)
     val yl = (y and 0xffff_ffffu)
 
@@ -169,31 +171,36 @@ private fun umul192_lower128(x: ULong, y: UInt128): UInt128 {
 
 // Get lower 64-bits of multiplication of a 32-bit unsigned integer and a 64-bit
 // unsigned integer.
-private fun umul96_lower64(x: UInt, y: ULong): ULong {
-    return (x * y) and (0xffffffffffffffffuL)
+internal fun umul96_lower64(x: UInt, y: ULong): ULong {
+    return x.toULong() * y
 }
 
 //template <int k, class Int>
-private fun compute_power(a: UInt, k: UInt): UInt {
+
+/** 10 to the power k */
+internal fun computePower10(k: UInt): UInt {
     //static_assert(k >= 0);
-    var a = a
+    var a = 10u
     var e = k
     var p = 1u
-    while (e!=0u) {
-        if (e and 1u!=0u) p *= a
+    while (e != 0u) {
+        if (e and 1u != 0u) p *= a
         e = e shr 1
         a *= a
     }
     return p
 }
 
-private fun compute_power(a: ULong, k: UInt): ULong {
+/**
+ * 10 to the power k.
+ */
+private fun computePower10Long(k: UInt): ULong {
     //static_assert(k >= 0);
-    var a = a
+    var a = 10uL
     var e = k
     var p = 1uL
     while (e!=0u) {
-        if (e and 1u!=0u) p *= a
+        if (e and 1u != 0u) p *= a
         e = e shr 1
         a *= a
     }
@@ -206,10 +213,8 @@ interface ComputeMulResult<T> {
     val integer_part: T
     val is_integer: Boolean
 }
-//template <class Integer>
-class compute_mul_resultInt(override val integer_part: Int, override val is_integer: Boolean): ComputeMulResult<Int>
+
 class compute_mul_resultUInt(override val integer_part: UInt, override val is_integer: Boolean): ComputeMulResult<UInt>
-class compute_mul_resultLong(override val integer_part: Long, override val is_integer: Boolean): ComputeMulResult<Long>
 class compute_mul_resultULong(override val integer_part: ULong, override val is_integer: Boolean): ComputeMulResult<ULong>
 
 @JvmInline
@@ -251,7 +256,6 @@ class MutableInt(var value: Int) {
 
 
 private object float_format_float: FloatFormat<Float> {
-    typealias carrier_uint = UInt
     override val total_bits = 32
     override val significand_bits = 23
     override val exponent_bits = 8
@@ -265,29 +269,6 @@ private object float_format_float: FloatFormat<Float> {
     override val max_k = 46
     override val max_output_string_length = 1 + decimal_significand_digits + 1 + 1 + 1 + decimal_exponent_digits
 
-
-    fun remove_trailing_zeros(significand: MutableUInt, exponent: MutableInt) {
-        // See https://github.com/jk-jeon/rtz_benchmark.
-        // The idea of branchless search below is by reddit users r/pigeon768 and
-        // r/TheoreticalDumbass.
-
-        var r = rotr32((significand * (184254097u)), 4)
-        var b = r < (429497u)
-        var s = if(b) 1u else 0u
-        if (b) significand.value = r
-
-        r = rotr32((significand * (42949673u)), 2)
-        b = r < (42949673u)
-        s = s.shl(1) + if(b) 1u else 0u
-        if (b) significand.value = r
-
-        r = rotr32((significand * (1288490189u)), 1)
-        b = r < (429496730u)
-        s = (s shl 1) + if (b) 1u else 0u
-        if (b) significand.value = r
-
-        exponent += s.toInt()
-    }
 
     fun compute_mul(u: UInt, cache: ULong): compute_mul_resultUInt {
         val r = umul96_upper64(u, cache)
@@ -332,16 +313,16 @@ private object float_format_float: FloatFormat<Float> {
         // compilers tend to generate mov + mul instead of a single imul for an unknown
         // reason if we just write n / 10.
         if (N == 1u && n_max <= 1073741828u) {
-            return (umul64(n, 429496730u) shr 32).toUInt()
+            return ((n.toULong() * 429496730uL) shr 32).toUInt()
         }
         // Specialize for 32-bit division by 100.
         // It seems compilers tend to generate mov + mul instead of a single imul for an
         // unknown reason if we just write n / 100.
         else if (N == 2u) {
-            return (umul64(n, 1374389535u) shr 37).toUInt()
+            return ((n.toULong() * 1374389535uL) shr 37).toUInt()
         }
         else {
-            return n / compute_power((10u), N)
+            return n / computePower10( N)
         }
     }
 
@@ -419,22 +400,22 @@ private object float_format_double: FloatFormat<Double> {
         // The idea of branchless search below is by reddit users r/pigeon768 and
         // r/TheoreticalDumbass.
 
-        var r = rotr64(uint64_t(significand * 28999941890838049uL), 8)
+        var r = uint64_t(significand * 28999941890838049uL).rotr(8)
         var b = r < 184467440738uL
         var s = size_t(b)
         if(b) significand.value = r
 
-        r = rotr64(uint64_t(significand * 182622766329724561uL), 4)
+        r = uint64_t(significand * 182622766329724561uL).rotr(4)
         b = r < 1844674407370956uL
         s = s.shl(1) + if(b) 1uL else 0uL
         if(b) significand.value = r
 
-        r = rotr64(uint64_t(significand * 10330176681277348905uL), 2)
+        r = uint64_t(significand * 10330176681277348905uL).rotr(2)
         b = r < 184467440737095517uL
         s = s.shl(1) + if(b) 1uL else 0uL
         if(b) significand.value = r
 
-        r = rotr64(uint64_t(significand * 14757395258967641293uL), 1)
+        r = uint64_t(significand * 14757395258967641293uL).rotr(1)
         b = r < 1844674407370955162uL
         s = s.shl(1) + if(b) 1uL else 0uL
         if(b) significand.value = r
@@ -492,7 +473,7 @@ private object float_format_double: FloatFormat<Double> {
             return umul128_upper64(n, 4722366482869645214uL) shr 8
         }
         else {
-            return n / compute_power(10uL, N)
+            return n / computePower10Long(N)
         }
     }
 
@@ -1142,7 +1123,7 @@ fun count_factors(n: ULong, a: UInt):UInt {
     return c
 }
 
-val divide_magic_number = uintArrayOf(6554u, 656u)
+val DIVIDE_MAGIC_NUMBER = uintArrayOf(6554u, 656u)
 
 //template <class T, unsigned Size>
 //static constexpr bool valid_float = std::numeric_limits<T>::is_iec559 &&
@@ -1168,371 +1149,13 @@ fun reverse(char* begin, char* end) {
 
 interface impl<F, I> {
     val format: FloatFormat<F>
-    fun carrier_uint(f: F): I
-    fun carrier_uint(i: Int): I
-    fun carrier_uint(i: UInt): I
 }
 
-private object implFloat: impl<Float, UInt> {
-    override val format = float_format_float
-
-    override fun carrier_uint(f: Float): UInt = f.toRawBits().toUInt()
-    override fun carrier_uint(i: Int): UInt = i.toUInt()
-    override fun carrier_uint(i: UInt): UInt = i
-
-    //    static_assert(sizeof(carrier_uint) == sizeof(Float))
-
-    const val min_exponent = -126
-    const val max_exponent = 127
-    const val significand_bits = 23
-    const val carrier_bits = 32
-    const val kappa = 1//(((carrier_bits - significand_bits - 2) * 315653) shr 20) - 1
-
-    val min_k = minOf(-floor_log10_pow2_minus_log10_4_over_3(max_exponent - significand_bits),
-        -floor_log10_pow2(max_exponent - significand_bits) + kappa)
-
-    // We do invoke shorter_interval_case for exponent == min_exponent case;
-    // so we should not add 1 here.
-    val max_k = maxOf(-floor_log10_pow2_minus_log10_4_over_3(min_exponent - significand_bits /*+ 1*/),
-        -floor_log10_pow2(min_exponent - significand_bits) + kappa)
-
-    val case_shorter_interval_left_endpoint_lower_threshold = 2
-
-    val case_shorter_interval_left_endpoint_upper_threshold = 14
-        //2 + floor_log2(compute_power(a = 10u, k = 11u) / 3u)
-
-    val case_shorter_interval_right_endpoint_lower_threshold = 0
-
-    val case_shorter_interval_right_endpoint_upper_threshold = 11
-        //2 + floor_log2(compute_power(10u, 12u) / 3u)
-
-    val shorter_interval_tie_lower_threshold = -floor_log5_pow2_minus_log5_3(significand_bits + 4) - 2 - significand_bits
-
-    val shorter_interval_tie_upper_threshold = -floor_log5_pow2(significand_bits + 2) - 2 - significand_bits
-
-//    static_assert(kappa >= 1)
-//    static_assert(carrier_bits >= significand_bits + 2 + floor_log2_pow10(kappa + 1))
-//    static_assert(min_k >= format::min_k && max_k <= format::max_k)
-
-    fun check_divisibility_and_divide_by_pow10(n: MutableUInt, N: UInt): Boolean {
-        val N = 1
-        // Make sure the computation for max_n does not overflow.
-//        static_assert(N + 1 <= floor_log10_pow2(carrier_bits), "")
-//        assert(n.value <= compute_power(carrier_uint(10), N + 1u))
-
-        val magic_number = divide_magic_number[N.toInt() - 1]
-        val prod = (n * magic_number)
-
-        val mask = 0xFFFFu
-        val result = ((prod and mask) < magic_number)
-
-        val n = carrier_uint(prod shr 16)
-        return result
-    }
-
-    // Compute floor(n / 10^N) for small n and N.
-    // Precondition: n <= 10^(N+1)
-    fun small_division_by_pow10(n: float_format_float.carrier_uint, N: UInt): UInt {
-        // Make sure the computation for max_n does not overflow.
-        assert(N.toInt() + 1 <= floor_log10_pow2(carrier_bits))
-        assert(n <= compute_power(carrier_uint(10), N+1u))
-        return carrier_uint((n * divide_magic_number[N.toInt() - 1]) shr 16)
-    }
-
-    @JvmInline
-    value class binary_fp(private val bits: Int) {
-        val significand: UInt get() = (bits and 0x007fffff).toUInt()
-        val exponent: Int get() = ((bits ushr 23) and 0xff)+format.exponent_bias
-        val is_negative: Boolean get() = bits.ushr(31) != 0
-
-        fun isFinite(): Boolean = (bits and 0x7f800000) != 0x7f800000
-
-        constructor(f: Float): this(f.toRawBits())
-    }
-
-    fun decompose_float(x: Float): binary_fp {
-        return binary_fp(x)
-    }
-
-    fun is_finite(binary_exponent: Int): Boolean {
-        return binary_exponent != 0xff
-    }
-
-    // The main algorithm assumes the input is a normal/subnormal finite number.
-    fun to_decimal(binary_significand: UInt, binary_exponent: Int, is_negative: Boolean): DecimalFP32 {
-        var binary_exponent = binary_exponent
-        val is_even = binary_significand % 2u == 0u
-        var two_fc = binary_significand shl 1
-
-        // Is the input a normal number?
-        if (binary_exponent != 0) {
-            binary_exponent += format.exponent_bias - format.significand_bits
-
-            // Shorter interval case; proceed like Schubfach.
-            // One might think this condition is wrong, since when exponent_bits ==
-            // 1 and two_fc == 0, the interval is actually regular. However, it
-            // turns out that this seemingly wrong condition is actually fine,
-            // because the end result is anyway the same.
-            //
-            // [binary32]
-            // (fc-1/2) * 2^e = 1.175'494'28... * 10^-38
-            // (fc-1/4) * 2^e = 1.175'494'31... * 10^-38
-            //    fc    * 2^e = 1.175'494'35... * 10^-38
-            // (fc+1/2) * 2^e = 1.175'494'42... * 10^-38
-            //
-            // Hence, shorter_interval_case will return 1.175'494'4 * 10^-38.
-            // 1.175'494'3 * 10^-38 is also a correct shortest representation that
-            // will be rejected if we assume shorter interval, but 1.175'494'4 *
-            // 10^-38 is closer to the true value so it doesn't matter.
-            //
-            // [binary64]
-            // (fc-1/2) * 2^e = 2.225'073'858'507'201'13... * 10^-308
-            // (fc-1/4) * 2^e = 2.225'073'858'507'201'25... * 10^-308
-            //    fc    * 2^e = 2.225'073'858'507'201'38... * 10^-308
-            // (fc+1/2) * 2^e = 2.225'073'858'507'201'63... * 10^-308
-            //
-            // Hence, shorter_interval_case will return 2.225'073'858'507'201'4 *
-            // 10^-308. This is indeed of the shortest length, and it is the unique
-            // one closest to the true value among valid representations of the same
-            // length.
-
-            // Shorter interval case.
-            if (two_fc == 0u) {
-                // Compute k and beta.
-                val minus_k = floor_log10_pow2_minus_log10_4_over_3(binary_exponent)
-                val beta = binary_exponent + floor_log2_pow10(-minus_k)
-
-                // Compute xi and zi.
-                val cache = format.cache[-minus_k - format.min_k]
-
-                var xi = format.compute_left_endpoint_for_shorter_interval_case(cache, beta)
-                val zi = format.compute_right_endpoint_for_shorter_interval_case(cache, beta)
-
-                // If the left endpoint is not an integer, increase it.
-                // (Both endpoints are always included since the significand is even.)
-                if (!is_left_endpoint_integer_shorter_interval(binary_exponent)) {
-                    ++xi
-                }
-
-                // Try bigger divisor.
-                // zi is at most floor((f_c + 1/2) * 2^e * 10^k0).
-                // Substituting f_c = 2^p and k0 = -floor(log10(3 * 2^(e-2))), we get
-                // zi <= floor((2^(p+1) + 1) * 20/3) <= ceil((2^(p+1) + 1)/3) * 20.
-                // This computation does not overflow for any of the formats I care about.
-                val decimal_significand = MutableUInt(format.divide_by_pow10(zi,1u,  (((carrier_uint(2) shl significand_bits) + 1u) / 3u + 1u) * 20u))
-
-                // If succeed, remove trailing zeros if necessary and return.
-                if (decimal_significand * 10u >= xi) {
-                    val decimal_exponent = MutableInt(minus_k + 1)
-                    format.remove_trailing_zeros(decimal_significand, decimal_exponent)
-                    return DecimalFP32(decimal_significand.value, decimal_exponent.value, is_negative)
-                }
-
-                // Otherwise, compute the round-up of y.
-                decimal_significand.value = format.compute_round_up_for_shorter_interval_case(cache, beta)
-
-                // When tie occurs, choose the even one.
-                if (decimal_significand.value % 2u != 0u &&
-                    binary_exponent >= shorter_interval_tie_lower_threshold &&
-                    binary_exponent <= shorter_interval_tie_upper_threshold) {
-                    --decimal_significand.value
-                } else if (decimal_significand.value < xi) {
-                    ++decimal_significand.value
-                }
-                return DecimalFP32(decimal_significand.value, minus_k, is_negative)
-            }
-
-            // Normal interval case.
-            two_fc = two_fc or (carrier_uint(1) shl (format.significand_bits + 1))
-        }
-        else {
-            // Is the input a subnormal number?
-            // Normal interval case.
-            binary_exponent = min_exponent - format.significand_bits
-        }
-
-        //////////////////////////////////////////////////////////////////////
-        // Step 1: Schubfach multiplier calculation.
-        //////////////////////////////////////////////////////////////////////
-
-        // Compute k and beta.
-        val minus_k = floor_log10_pow2(binary_exponent) - kappa
-        val cache = format.cache[-minus_k - format.min_k]
-        val beta = binary_exponent + floor_log2_pow10(-minus_k)
-
-        // Compute zi and deltai.
-        // 10^kappa <= deltai < 10^(kappa + 1)
-        val deltai = format.compute_delta(cache, beta)
-        // For the case of binary32, the result of integer check is not correct for
-        // 29711844 * 2^-82
-        // = 6.1442653300000000008655037797566933477355632930994033813476... * 10^-18
-        // and 29711844 * 2^-81
-        // = 1.2288530660000000001731007559513386695471126586198806762695... * 10^-17,
-        // and they are the unique counterexamples. However, since 29711844 is even,
-        // this does not cause any problem for the endpoints calculations; it can only
-        // cause a problem when we need to perform integer check for the center.
-        // Fortunately, with these inputs, that branch is never executed, so we are
-        // fine.
-        val z_result =
-            format.compute_mul(carrier_uint((two_fc or 1u) shl beta), cache)
-
-        //////////////////////////////////////////////////////////////////////
-        // Step 2: Try larger divisor; remove trailing zeros if necessary.
-        //////////////////////////////////////////////////////////////////////
-
-        val big_divisor = compute_power(carrier_uint(10), kappa.toUInt() + 1u)
-        val small_divisor = compute_power(carrier_uint(10), kappa.toUInt())
-
-        // Using an upper bound on zi, we might be able to optimize the division
-        // better than the compiler; we are computing zi / big_divisor here.
-        var decimal_significand = format.divide_by_pow10(z_result.integer_part, kappa.toUInt() + 1u, (carrier_uint(2) shl significand_bits) * big_divisor - 1u)
-        var r = carrier_uint(z_result.integer_part - big_divisor * decimal_significand)
-
-        do {
-            if (r < deltai) {
-                // Exclude the right endpoint if necessary.
-                if (!(r != 0u || !z_result.is_integer || is_even)) {
-                    --decimal_significand
-                    r = big_divisor
-                    break
-                }
-            } else if (r > deltai) {
-                break
-            } else {
-                // r == deltai; compare fractional parts.
-                val x_result =
-                    format.compute_mul_parity(two_fc - 1u, cache, beta)
-
-                if (!(x_result.parity or (x_result.is_integer and is_even))) {
-                    break
-                }
-            }
-
-            val decimal_exponent = MutableInt(minus_k + kappa + 1)
-            val m = MutableUInt(decimal_significand)
-            format.remove_trailing_zeros(m, decimal_exponent)
-            return DecimalFP32(m.value, decimal_exponent.value, is_negative)
-        } while (false)
-
-
-        //////////////////////////////////////////////////////////////////////
-        // Step 3: Find the significand with the smaller divisor.
-        //////////////////////////////////////////////////////////////////////
-
-        decimal_significand *= 10u
-
-        // delta is equal to 10^(kappa + elog10(2) - floor(elog10(2))), so dist cannot
-        // be larger than r.
-        val dist = MutableUInt(carrier_uint(r - (deltai / 2u) + (small_divisor / 2u)))
-        val approx_y_parity = ((dist.value xor (small_divisor shr 1)) and 1u) != 0u
-
-        // Is dist divisible by 10^kappa?
-        val divisible_by_small_divisor = check_divisibility_and_divide_by_pow10(dist, kappa.toUInt())
-
-        // Add dist / 10^kappa to the significand.
-        decimal_significand += dist.value
-
-        if (divisible_by_small_divisor) {
-            // Check z^(f) >= epsilon^(f).
-            // We have either yi == zi - epsiloni or yi == (zi - epsiloni) - 1,
-            // where yi == zi - epsiloni if and only if z^(f) >= epsilon^(f).
-            // Since there are only 2 possibilities, we only need to care about the
-            // parity. Also, zi and r should have the same parity since the divisor
-            // is an even number.
-            val y_result = format.compute_mul_parity(two_fc, cache, beta)
-            if (y_result.parity != approx_y_parity) {
-                --decimal_significand
-            }
-            else {
-                // If z^(f) >= epsilon^(f), we might have a tie
-                // when z^(f) == epsilon^(f), or equivalently, when y is an integer.
-                // When tie happens, always choose the even one.
-                if ((decimal_significand % 2u != 0u) and y_result.is_integer) {
-                    --decimal_significand
-                }
-            }
-        }
-
-        return DecimalFP32(decimal_significand, minus_k + kappa, is_negative)
-    }
-
-    fun is_right_endpoint_integer_shorter_interval(binary_exponent: Int): Boolean {
-        return binary_exponent >= case_shorter_interval_right_endpoint_lower_threshold &&
-                binary_exponent <= case_shorter_interval_right_endpoint_upper_threshold
-    }
-
-    fun is_left_endpoint_integer_shorter_interval(binary_exponent: Int): Boolean {
-        return binary_exponent >= case_shorter_interval_left_endpoint_lower_threshold &&
-                binary_exponent <= case_shorter_interval_left_endpoint_upper_threshold
-    }
-
-    fun to_chars_n(x: Float, buffer: StringBuilder): StringBuilder  {
-        val decomposed = decompose_float(x)
-
-        if (!x.isFinite()) {
-            if (decomposed.significand == 0u) {
-                if (decomposed.is_negative) {
-                    buffer.append('-')
-                }
-                buffer.append("Infinity")
-                return buffer
-            }
-            else {
-                buffer.append("NaN")
-                return buffer
-            }
-        }
-
-        if (decomposed.is_negative) {
-            buffer.append('-')
-        }
-
-        if (decomposed.significand == 0u && decomposed.exponent == 0) {
-            buffer.append("0E0")
-            return buffer
-        }
-
-        var (dec_sig, dec_exp, dec_sign) =
-            to_decimal(decomposed.significand, decomposed.exponent, decomposed.is_negative)
-
-        if (dec_sig < 10u) {
-            buffer.append('0' + dec_sig.toInt())
-        } else {
-            val reversed = StringBuilder()
-
-            do {
-                reversed.append('0'+ (dec_sig % 10u).toInt())
-
-                dec_sig /= 10u
-                ++dec_exp
-            } while (dec_sig >= 10u)
-            buffer.append('0' + dec_sig.toInt())
-            buffer.append('.')
-            buffer.append(reversed.reverse())
-        }
-
-        buffer.append('E')
-
-        if (dec_exp < 0) {
-            buffer.append('-')
-            dec_exp = -dec_exp
-        }
-
-        val reversed = StringBuilder()
-        do {
-            reversed.append('0' + dec_exp % 10)
-            dec_exp /= 10
-        } while (dec_exp != 0)
-        return buffer.append(reversed.reverse())
-    }
-}
-
-private object implDouble: impl<Double, ULong> {
+private object DoubleToDecimalConverter: impl<Double, ULong> {
     override val format = float_format_double
 
-    override fun carrier_uint(f: Double): ULong = f.toRawBits().toULong()
-    override fun carrier_uint(i: Int): ULong = i.toULong()
-    override fun carrier_uint(i: UInt): ULong = i.toULong()
+    fun carrier_uint(i: Int): ULong = i.toULong()
+    fun carrier_uint(i: UInt): ULong = i.toULong()
     fun carrier_uint(i: ULong): ULong = i
 
     //    static_assert(sizeof(carrier_uint) == sizeof(Float))
@@ -1541,36 +1164,36 @@ private object implDouble: impl<Double, ULong> {
     val max_exponent = 1023
     val significand_bits = 52
     val carrier_bits = 64
-    val kappa = floor_log10_pow2(carrier_bits - significand_bits - 2) - 1
+    val kappa = (carrier_bits - significand_bits - 2).floorLog10Pow2() - 1
 
-    val min_k = minOf(-floor_log10_pow2_minus_log10_4_over_3(max_exponent - significand_bits),
-        -floor_log10_pow2(max_exponent - significand_bits) + kappa)
+    val min_k = minOf(-(max_exponent - significand_bits).floorLog10Pow2MinusLog10_4Over3(),
+        -(max_exponent - significand_bits).floorLog10Pow2() + kappa)
 
     // We do invoke shorter_interval_case for exponent == min_exponent case;
     // so we should not add 1 here.
-    val max_k = maxOf(-floor_log10_pow2_minus_log10_4_over_3(min_exponent - significand_bits /*+ 1*/),
-        -floor_log10_pow2(min_exponent - significand_bits) + kappa)
+    val max_k = maxOf(-(min_exponent - significand_bits /*+ 1*/).floorLog10Pow2MinusLog10_4Over3(),
+        -(min_exponent - significand_bits).floorLog10Pow2() + kappa)
 
     val case_shorter_interval_left_endpoint_lower_threshold = 2
 
     val case_shorter_interval_left_endpoint_upper_threshold = 2 +
-            floor_log2(compute_power(
-                    a = 10u,
-                    k = count_factors(
-                        (carrier_uint(1) shl (significand_bits + 2)) - 1uL,
-                        5u
-                    ) + 1u
-                ) / 3u)
+            (computePower10(
+                k = count_factors(
+                    (carrier_uint(1) shl (significand_bits + 2)) - 1uL,
+                    5u
+                ) + 1u
+            ) / 3u).floorLog2()
 
     val case_shorter_interval_right_endpoint_lower_threshold = 0
 
     val case_shorter_interval_right_endpoint_upper_threshold = 2 +
-            floor_log2(
-                compute_power(10u, count_factors((carrier_uint(1) shl (significand_bits + 1)) + 1u, 5u) + 1u) / 3u)
+            (computePower10(
+                count_factors((carrier_uint(1) shl (significand_bits + 1)) + 1u, 5u) + 1u
+            ) / 3u).floorLog2()
 
-    val shorter_interval_tie_lower_threshold = -floor_log5_pow2_minus_log5_3(significand_bits + 4) - 2 - significand_bits
+    val shorter_interval_tie_lower_threshold = -(significand_bits + 4).floorLog5Pow2MinusLog5_3() - 2 - significand_bits
 
-    val shorter_interval_tie_upper_threshold = -floor_log5_pow2(significand_bits + 2) - 2 - significand_bits
+    val shorter_interval_tie_upper_threshold = -(significand_bits + 2).floorLog5Pow2() - 2 - significand_bits
 
 //    static_assert(kappa >= 1)
 //    static_assert(carrier_bits >= significand_bits + 2 + floor_log2_pow10(kappa + 1))
@@ -1579,9 +1202,9 @@ private object implDouble: impl<Double, ULong> {
     fun check_divisibility_and_divide_by_pow10(n: MutableULong, N: UInt): Boolean {
         // Make sure the computation for max_n does not overflow.
 //        static_assert(N + 1 <= floor_log10_pow2(carrier_bits), "")
-        assert(n.value <= compute_power(carrier_uint(10), N + 1u))
+        assert(n.value <= computePower10Long(N + 1u))
 
-        val magic_number = divide_magic_number[N.toInt() - 1]
+        val magic_number = DIVIDE_MAGIC_NUMBER[N.toInt() - 1]
         val prod = (n * magic_number)
 
         val mask = 0xFFFFuL
@@ -1593,11 +1216,11 @@ private object implDouble: impl<Double, ULong> {
 
     // Compute floor(n / 10^N) for small n and N.
     // Precondition: n <= 10^(N+1)
-    fun small_division_by_pow10(n: float_format_float.carrier_uint, N: UInt): ULong {
+    fun small_division_by_pow10(n: UInt, N: UInt): ULong {
         // Make sure the computation for max_n does not overflow.
-        assert(N.toInt() + 1 <= floor_log10_pow2(carrier_bits))
-        assert(n <= compute_power(carrier_uint(10), N+1u))
-        return carrier_uint((n * divide_magic_number[N.toInt() - 1]) shr 16)
+        assert(N.toInt() + 1 <= carrier_bits.floorLog10Pow2())
+        assert(n <= computePower10Long(N+1u))
+        return carrier_uint((n * DIVIDE_MAGIC_NUMBER[N.toInt() - 1]) shr 16)
     }
 
     @JvmInline
@@ -1617,6 +1240,11 @@ private object implDouble: impl<Double, ULong> {
 
     fun is_finite(binary_exponent: Int): Boolean {
         return binary_exponent != 0xff
+    }
+
+    fun to_decimal(d: Double): DecimalFP64 {
+        val bin = binary_fp(d)
+        return to_decimal(bin.significand, bin.exponent, bin.is_negative)
     }
 
     // The main algorithm assumes the input is a normal/subnormal finite number.
@@ -1660,8 +1288,8 @@ private object implDouble: impl<Double, ULong> {
             // Shorter interval case.
             if (two_fc == 0uL) {
                 // Compute k and beta.
-                val minus_k = floor_log10_pow2_minus_log10_4_over_3(binary_exponent)
-                val beta = binary_exponent + floor_log2_pow10(-minus_k)
+                val minus_k = binary_exponent.floorLog10Pow2MinusLog10_4Over3()
+                val beta = binary_exponent + (-minus_k).floorLog2Pow10()
 
                 // Compute xi and zi.
                 val cache = format.cache[-minus_k - format.min_k]
@@ -1717,9 +1345,9 @@ private object implDouble: impl<Double, ULong> {
         //////////////////////////////////////////////////////////////////////
 
         // Compute k and beta.
-        val minus_k = floor_log10_pow2(binary_exponent) - kappa
+        val minus_k = binary_exponent.floorLog10Pow2() - kappa
         val cache = format.cache[-minus_k - format.min_k]
-        val beta = binary_exponent + floor_log2_pow10(-minus_k)
+        val beta = binary_exponent + (-minus_k).floorLog2Pow10()
 
         // Compute zi and deltai.
         // 10^kappa <= deltai < 10^(kappa + 1)
@@ -1741,8 +1369,8 @@ private object implDouble: impl<Double, ULong> {
         // Step 2: Try larger divisor; remove trailing zeros if necessary.
         //////////////////////////////////////////////////////////////////////
 
-        val big_divisor = compute_power(carrier_uint(10), kappa.toUInt() + 1u)
-        val small_divisor = compute_power(carrier_uint(10), kappa.toUInt())
+        val big_divisor = computePower10Long(kappa.toUInt() + 1u)
+        val small_divisor = computePower10Long(kappa.toUInt())
 
         // Using an upper bound on zi, we might be able to optimize the division
         // better than the compiler; we are computing zi / big_divisor here.
@@ -1832,16 +1460,12 @@ private object implDouble: impl<Double, ULong> {
 
         if (!x.isFinite()) {
             if (decomposed.significand == 0uL) {
-                if (decomposed.is_negative) {
-                    buffer.append('-')
-                }
+                if (decomposed.is_negative) buffer.append('-')
                 buffer.append("Infinity")
-                return buffer
-            }
-            else {
+            } else {
                 buffer.append("NaN")
-                return buffer
             }
+            return buffer
         }
 
         if (decomposed.is_negative) {
@@ -1853,8 +1477,7 @@ private object implDouble: impl<Double, ULong> {
             return buffer
         }
 
-        var (dec_sig, dec_exp, dec_sign) =
-            to_decimal(decomposed.significand, decomposed.exponent, decomposed.is_negative)
+        var (dec_sig, dec_exp, dec_sign) = to_decimal(x)
 
         if (dec_sig < 10u) {
             buffer.append('0' + dec_sig.toInt())
@@ -1890,17 +1513,20 @@ private object implDouble: impl<Double, ULong> {
 
 
 //template <class Float>
-fun to_decimal(x: Float): DecimalFP32 {
-    val decomposed = implFloat.binary_fp(x)
-    assert(x.isFinite() && (decomposed.significand != 0u || decomposed.exponent != 0))
-    return implFloat.to_decimal(decomposed.significand, decomposed.exponent,
-        decomposed.is_negative)
+fun toDecimal(x: Float): DecimalFP32 {
+    assert(x.isFinite() && x != 0.0f)
+    return FloatToDecimalConverter.to_decimal(x)
+}
+
+fun toDecimal(x: Double): DecimalFP64 {
+    assert(x.isFinite() && x != 0.0)
+    return DoubleToDecimalConverter.to_decimal(x)
 }
 
 // Null-terminate and bypass the return value of impl::to_chars_n.
 //template <class Float>
 fun to_chars(x: Float, buffer: StringBuilder): StringBuilder {
-    return implFloat.to_chars_n(x, buffer)
+    return FloatToDecimalConverter.to_chars_n(x, buffer)
 }
 
 // Maximum required buffer size (excluding null-terminator)
