@@ -150,11 +150,11 @@ object NumericFunctions: AbstractFunctionObject() {
                 QName(ns, localName)
             } else if (':' in x) {
                 val prefix = x.substringBefore(':')
-                val localName = x.substringAfter(':')
+                val localPart = x.substringAfter(':')
                 val ns = ctx.namepaceContext.getNamespaceURI(prefix)
                     ?: throw EvaluationException(ErrorCodes.FODF1280, "Namespace prefix '$prefix' not bound to namespace")
 
-                QName(ns, prefix, localName)
+                QName(ns, localPart, prefix)
             } else {
                 QName(x)
             }
