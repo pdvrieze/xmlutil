@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.values.UnicodeChar
 import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SerializableQName
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 
@@ -50,20 +51,33 @@ class Qt3DecimalFormat(
     val infinity: String? = null,
     val NaN: String? = null,
 ) : Qt3Environment.Element {
+
+    private fun setValues(b: DecimalFormat.Builder) {
+        name?.let { b.name = it }
+        decimalSeparator?.let { b.decimalSeparator = it }
+        exponentSeparator?.let { b.exponentSeparator = it }
+        groupingSeparator?.let { b.groupingSeparator = it }
+        percent?.let { b.percent = it }
+        perMille?.let { b.perMille = it }
+        zeroDigit?.let { b.zeroDigit = it }
+        digit?.let { b.digit = it }
+        minusSign?.let { b.minusSign = it }
+        patternSeparator?.let { b.patternSeparator = it }
+        infinity?.let { b.infinity = it }
+        NaN?.let { b.NaN = it }
+
+    }
+
+    fun toDecimalFormat(overriddenName: QName): DecimalFormat.Named {
+        return DecimalFormat.Builder().also { b ->
+            setValues(b)
+            b.name = overriddenName
+        }.build() as DecimalFormat.Named
+    }
+
     fun toDecimalFormat(): DecimalFormat {
         return DecimalFormat.Builder().also { b ->
-            name?.let { b.name = it }
-            decimalSeparator?.let { b.decimalSeparator = it }
-            exponentSeparator?.let { b.exponentSeparator = it }
-            groupingSeparator?.let { b.groupingSeparator = it }
-            percent?.let { b.percent = it }
-            perMille?.let { b.perMille = it }
-            zeroDigit?.let { b.zeroDigit = it }
-            digit?.let { b.digit = it }
-            minusSign?.let { b.minusSign = it }
-            patternSeparator?.let { b.patternSeparator = it }
-            infinity?.let { b.infinity = it }
-            NaN?.let { b.NaN = it }
+            setValues(b)
         }.build()
     }
 }

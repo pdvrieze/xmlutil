@@ -36,6 +36,7 @@ import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 import org.w3.qt3tests.resolved.assertions.AssertionResult
 import javax.xml.namespace.NamespaceContext
+import javax.xml.namespace.QName
 
 @OptIn(XPathInternal::class)
 abstract class AbstractTestSetSuite {
@@ -58,6 +59,9 @@ abstract class AbstractTestSetSuite {
                 val name = decFormat.name
                 if (name == null) {
                     decimalFormat = decFormat.toDecimalFormat()
+                } else if (name.prefix.isEmpty() && name.namespaceURI.isNotEmpty()) {
+                    val decFormat = decFormat.toDecimalFormat(QName(name.localPart))
+                    namedDecimalFormats.add(decFormat)
                 } else {
                     namedDecimalFormats.add(decFormat.toDecimalFormat() as DecimalFormat.Named)
                 }
