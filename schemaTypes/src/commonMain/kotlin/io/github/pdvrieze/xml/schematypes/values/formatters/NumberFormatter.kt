@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 import kotlin.jvm.JvmStatic
 import kotlin.math.absoluteValue
-import kotlin.math.roundToLong
 import kotlin.math.sign
 
 @ExperimentalXmlUtilApi
@@ -434,76 +433,6 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             formatHelper(str, str.length, intPattern.size + decimalPattern.size - 1, receiver, decimalFormat, true)
         }
 
-        fun formatNonSuffixTo(receiver: Appendable, number: Double, decimalFormat: DecimalFormat) {
-            if (prefix != null) receiver.append(prefix)
-            if (number.isInfinite()) {
-                receiver.append(decimalFormat.infinity)
-                return
-            }
-
-            var n = number
-
-            var mulRemaining = decimalDigits
-            while (mulRemaining > 0) {
-                when (mulRemaining) {
-                    1 -> n *= 10
-                    2 -> n *= 100
-                    3 -> n *= 1_000
-                    4 -> n *= 10_000
-                    5 -> n *= 100_000
-                    6 -> n *= 1000_000
-                    7 -> n *= 1_000_000
-                    8 -> n *= 10_000_000
-                    9 -> n *= 100_000_000
-                    else -> {
-                        n *= 100_000_000
-                        mulRemaining -= 9
-                        continue
-                    }
-                }
-                break
-            }
-
-            val final = n.roundToLong().toString()
-
-            formatHelper(final, final.length, intPattern.size + decimalPattern.size - 1, receiver, decimalFormat, true)
-        }
-
-        fun formatNonSuffixTo(receiver: Appendable, number: Float, decimalFormat: DecimalFormat) {
-            if (prefix != null) receiver.append(prefix)
-            if (number.isInfinite()) {
-                receiver.append(decimalFormat.infinity)
-                return
-            }
-
-            var n = number
-
-            var mulRemaining = decimalDigits
-            while (mulRemaining > 0) {
-                when (mulRemaining) {
-                    1 -> n *= 10
-                    2 -> n *= 100
-                    3 -> n *= 1_000
-                    4 -> n *= 10_000
-                    5 -> n *= 100_000
-                    6 -> n *= 1000_000
-                    7 -> n *= 1_000_000
-                    8 -> n *= 10_000_000
-                    9 -> n *= 100_000_000
-                    else -> {
-                        n *= 100_000_000
-                        mulRemaining -= 9
-                        continue
-                    }
-                }
-                break
-            }
-
-            val final = n.roundToLong().toString()
-
-            formatHelper(final, final.length, intPattern.size + decimalPattern.size - 1, receiver, decimalFormat, true)
-        }
-
         private fun Appendable.appendDigit(c: Char, decimalFormat: DecimalFormat) {
             appendUnicode(UnicodeChar(decimalFormat.zeroDigit.codePoint + (c.code - '0'.code)))
         }
@@ -895,15 +824,37 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 val targetExp = minIntDigits.coerceAtLeast(0) - bd.precisionDigits
                 val expShift = targetExp - bd.exponent
 
-                val nonExp = bd.exp10(expShift)
+                val nonExp = bd.exp10(expShift/*).exp10(*/+ decimalDigits) // multply with decimal digits
+                    .roundToHalfEven()
 
                 // has optional int digits only and needs leading zero
-                if (minIntDigits == 0 && intPattern.isNotEmpty() && nonExp.precisionDigits <= -nonExp.exponent) {
+                if (minIntDigits == 0 && intPattern.isNotEmpty() && nonExp.precisionDigits <= decimalDigits) {
                     receiver.append(decimalFormat.zeroDigit) // add leading zero
                 }
 
 
-                super.formatNonSuffixTo(receiver, nonExp, decimalFormat)
+                if (super.prefix != null) receiver.append(super.prefix)
+                val str = when {
+                    nonExp.sign == 0 -> "0"
+                    else -> {
+                        val bd = nonExp
+
+                        buildString(bd.precisionDigits) {
+                            for (i in (bd.precisionDigits + bd.exponent - 1) downTo 0) {
+                                this.append(bd.getDecimalDigit(i))
+                            }
+                        }
+                    }
+                }
+                // format the non-exp part
+                formatHelper(
+                    str,
+                    str.length,
+                    intPattern.size + decimalPattern.size - 1,
+                    receiver,
+                    decimalFormat,
+                    true
+                )
 
                 receiver.append(decimalFormat.exponentSeparator)
                 var expValue = bd.exponent - targetExp
