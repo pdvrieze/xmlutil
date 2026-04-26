@@ -288,22 +288,34 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         fun formatTo(receiver: Appendable, value: XsdNumeric<*>) {
             when (value) {
                 is XsdDecimal -> when {
-                    value.sign >= 0 -> posFormatter.formatTo(receiver, value, decimalFormat)
-                    else -> negFormatter.formatTo(receiver, value.abs(), decimalFormat)
+                    value.isNegative -> negFormatter.formatTo(receiver, value.abs(), decimalFormat)
+                    else -> posFormatter.formatTo(receiver, value, decimalFormat)
                 }
 
                 is XsdDouble -> when {
                     value.isNaN -> receiver.append(decimalFormat.NaN)
-                    value.value >= 0.0 -> posFormatter.formatTo(receiver, value.value, decimalFormat)
-                    value.value.isInfinite() -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
-                    else -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
+
+                    value.value.isInfinite() -> when {
+                        value.isInfinity -> receiver.append(decimalFormat.infinity)
+                        else -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
+                    }
+
+                    (value.value.toRawBits() shr 63) != 0L -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
+
+                    else -> posFormatter.formatTo(receiver, value.value, decimalFormat)
                 }
 
                 is XsdFloat -> when {
                     value.isNaN -> receiver.append(decimalFormat.NaN)
-                    value.value >= 0f -> posFormatter.formatTo(receiver, value.value, decimalFormat)
-                    value.value.isInfinite() -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
-                    else -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
+
+                    value.value.isInfinite() -> when {
+                        value.isInfinity -> receiver.append(decimalFormat.infinity)
+                        else -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
+                    }
+
+                    (value.value.toRawBits() shr 31) != 0 -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
+
+                    else -> posFormatter.formatTo(receiver, value.value, decimalFormat)
                 }
             }
         }
@@ -818,6 +830,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             decimalFormat: DecimalFormat
         ) {
             if (expPattern.isNotEmpty()) {
+                if (prefix != null) receiver.append(prefix)
                 val bd = number.toBigDecimal()
                 val targetExp = minIntDigits.coerceAtLeast(0) - bd.precisionDigits
                 val expShift = targetExp - bd.exponent
@@ -831,8 +844,6 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     receiver.append(decimalFormat.zeroDigit) // add leading zero
                 }
 
-
-                if (super.prefix != null) receiver.append(super.prefix)
                 val str = buildString(nonExp.precisionDigits.coerceAtLeast(1)) {
                     for (i in (nonExp.precisionDigits + nonExp.exponent - 1) downTo 0) {
                         this.append(nonExp.getDecimalDigit(i))

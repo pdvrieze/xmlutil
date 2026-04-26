@@ -353,6 +353,7 @@ class InfBigDecimal(ints: UIntArray, exponent: Int) :
 
     companion object: CompanionBase<InfBigDecimal>() {
         override val ZERO = InfBigDecimal(uintArrayOf(0u), 0)
+        override val NEGZERO = InfBigDecimal(uintArrayOf(0x8000_0000u), 0)
         override val ONE = InfBigDecimal(uintArrayOf(1u), 0)
         override val MINUSONE = InfBigDecimal(uintArrayOf(1u or SIGN_BIT.toUInt()), 0)
         val NaN = InfBigDecimal(uintArrayOf((SPECIAL_BIT or NAN_BIT).toUInt()), 0)

@@ -79,6 +79,7 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
 
     companion object : CompanionBase<BigDecimal>() {
         override val ZERO = BigDecimal(uintArrayOf(0u), 0)
+        override val NEGZERO = BigDecimal(uintArrayOf(0x8000_0000u), 0)
         override val ONE = BigDecimal(uintArrayOf(1u), 0)
         override val MINUSONE = BigDecimal(uintArrayOf(1u), 0)
 //        val NaN = BigDecimal(NAN_BIT, UIntArray(0), 0)

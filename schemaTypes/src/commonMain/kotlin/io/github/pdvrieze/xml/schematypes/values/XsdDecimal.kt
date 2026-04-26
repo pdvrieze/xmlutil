@@ -34,6 +34,7 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     override val schemaType: DecimalType<XsdDecimal>
 
     val sign: Int
+    val isNegative: Boolean
 
     override fun toLong(): Long
     override fun toInt(): Int

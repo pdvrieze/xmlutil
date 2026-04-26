@@ -78,6 +78,8 @@ class BigUnsignedInt internal constructor(ints: UIntArray, exp: ULong): Abstract
     override val sign: Int
         get() = if (ints.size == 1 && ints[0] == 0u) 0 else 1
 
+    override val isNegative: Boolean get() = false
+
     override fun plus(other: XsdNonNegativeInteger): BigUnsignedInt {
         if (other is BigUnsignedInt) { return plus(other) }
         return plus(BigUnsignedInt(other))

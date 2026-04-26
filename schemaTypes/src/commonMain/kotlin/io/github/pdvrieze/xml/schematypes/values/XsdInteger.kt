@@ -73,6 +73,7 @@ interface XsdInteger : XsdDecimal {
      * An indicator of the sign of the number. For a logical value of `0` a sign of `0` is returned.
      */
     override val sign: Int
+    override val isNegative: Boolean get() = sign < 0
 
     /**
      * Retrieve the [index] 32bit value from zero.

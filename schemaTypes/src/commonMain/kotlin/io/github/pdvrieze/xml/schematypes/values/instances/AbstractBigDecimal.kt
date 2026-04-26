@@ -50,7 +50,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         require(ints.size >0) { "There must be at least one int"}
         val lastDigit = ints.last()
         if (ints.size > 1) {
-            require(ints.any { it != 0u }) { "Zero sign must have a single int" }
+            require(ints.any { (it and 0x7fff_ffffu) != 0u }) { "Zero sign must have a single int" }
             val valZero = ints[0]
             if (valZero and SPECIAL_BIT.toUInt() != 0u) {
                 throw IllegalArgumentException(
@@ -92,7 +92,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         get() {
             val int0 = ints[0].toInt()
             return when {
-                ints.size == 1 && int0 == 0 -> 0
+                ints.size == 1 && int0.and(0x7fff_ffff) == 0 -> 0
 
                 int0 and (SPECIAL_BIT or NAN_BIT) == (SPECIAL_BIT or NAN_BIT) -> throw ArithmeticException("NaN value")
 
@@ -100,13 +100,10 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             }
         }
 
+    override val isNegative: Boolean get() = ints[0].shr(31) != 0u
+
     val intDigitSize: Int
         get() = (ints.size * 9) + exponent
-
-
-
-
-
 
     override val isFinite: Boolean
         get() = ints[0].toInt() and SPECIAL_BIT == 0
@@ -700,12 +697,11 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     override val xmlString: String get() = buildString { appendTo(this) }
 
     internal open fun appendTo(appendable: Appendable) {
-        val s = sign
-        if (s == 0) {
+        val firstInt = ints[0]
+        if (firstInt shr 31 != 0u) appendable.append('-')
+        if (ints.size == 1 && (firstInt and 0x3fff_ffffu ==0u)) {
             appendable.append('0')
             return
-        } else if (s < 0) {
-            appendable.append('-')
         }
 
         val intDigits = intDigitSize
@@ -1079,6 +1075,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     abstract class CompanionBase<T: AbstractBigDecimal<T>> {
 
         abstract val ZERO: T
+        abstract val NEGZERO: T
         abstract val ONE: T
         abstract val MINUSONE: T
 
@@ -1256,7 +1253,10 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
          */
         internal open fun convertToDecimal(float: Float): ParseResult {
             requireRange(float.isFinite()) { "Not a finite float" }
-            if (float == 0.0f) return ParseResult(ZERO.ints, 0)
+            if (float == 0.0f) return when {
+                float.toRawBits().ushr(31) != 0 -> ParseResult(NEGZERO.ints, 0)
+                else -> ParseResult(ZERO.ints, 0)
+            }
 
             val d = FloatToDecimalConverter.to_decimal(float)
             val ints = valToUInts(d.significand)
@@ -1270,7 +1270,10 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
          * Algorithm based on dragonbox: https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf
          */
         internal open fun convertToDecimal(double: Double): ParseResult {
-            if (double == 0.0) return ParseResult(ZERO.ints, 0)
+            if (double == 0.0) return when {
+                double.toRawBits().ushr(63) != 0L -> ParseResult(NEGZERO.ints, 0)
+                else -> ParseResult(ZERO.ints, 0)
+            }
             val d = toDecimal(double)
             val ints = valToUInts(d.significand)
 

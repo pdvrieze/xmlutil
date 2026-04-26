@@ -74,6 +74,7 @@ class BigNegativeInt internal constructor(ints: UIntArray, exp: ULong) :
     fun normalize(): BigNegativeInt = createOptimizedInstance(ints, exp)
 
     override val sign: Int get() = -1
+    override val isNegative: Boolean get() = true
 
     override fun unaryMinus(): BigPositiveInt = BigPositiveInt(ints, exp)
 
