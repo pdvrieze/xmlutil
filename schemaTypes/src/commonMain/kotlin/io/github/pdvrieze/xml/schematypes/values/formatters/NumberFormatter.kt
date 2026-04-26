@@ -252,6 +252,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 }
             }
 
+            require (intPattern.isNotEmpty() || decimalPattern.isNotEmpty()) { "No digits in mantissa: $pictureSegment" }
+
             return DecimalDigitPatternFormatter(prefix, intPattern, decimalPattern, expPattern, suffix)
         }
 
