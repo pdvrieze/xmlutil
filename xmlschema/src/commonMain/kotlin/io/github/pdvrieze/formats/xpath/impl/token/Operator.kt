@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.impl.BooleanFunctions
 import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
+import io.github.pdvrieze.formats.xpath.functions.impl.StringFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
@@ -231,7 +232,14 @@ sealed class Operator(
     object IS: Operator("is", 5, XPathVersion.XPath2_0, false)
 
     @NeedsXPath3_0
-    object CONCAT: Operator("||", 6, XPathVersion.XPath3_0, true)
+    object CONCAT: Operator("||", 6, XPathVersion.XPath3_0, true) {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+            // defined as equivalent to the function call
+            return StringFunctions.fnConcat(left, right)
+        }
+    }
     @NeedsXPath2
     object TO: Operator("to", 7, XPathVersion.XPath2_0, false)
 
