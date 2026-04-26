@@ -391,7 +391,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         if (remainder.precisionDigits < (precision + remainder.exponent))
             return resultBase
 
-        val leadingD1000 = remainder.ints.last()
+        val leadingD1000 = remainder.ints.getStoredDigit(D1000StoredPos((remainder.precisionDigits-1)/3))
         // note that precisionDigits is a count
         when (remainder.precisionDigits.mod(3)) {
             1 -> when (leadingD1000.mod(10u)) {
