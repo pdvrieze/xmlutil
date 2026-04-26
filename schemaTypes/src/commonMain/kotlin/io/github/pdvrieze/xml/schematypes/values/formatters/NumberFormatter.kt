@@ -387,6 +387,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             if (prefix != null) receiver.append(prefix)
 
             val str = when {
+                number.sign == 0 -> "0"
                 number !is XsdInteger -> {
                     val bd = number.toBigDecimal().exp10(decimalDigits) // multply with decimal digits
                         .roundToHalfEven()
@@ -828,8 +829,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
         override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
             when (number) {
-                is XsdFloat -> formatNonSuffixTo(receiver, number.value, decimalFormat)
-                is XsdDouble -> formatNonSuffixTo(receiver, number.value, decimalFormat)
+                is XsdFloat -> return formatTo(receiver, number.value, decimalFormat)
+                is XsdDouble -> return formatTo(receiver, number.value, decimalFormat)
                 is XsdDecimal -> formatNonSuffixTo(receiver, number, decimalFormat)
             }
             if (suffix != null) receiver.append(suffix)
