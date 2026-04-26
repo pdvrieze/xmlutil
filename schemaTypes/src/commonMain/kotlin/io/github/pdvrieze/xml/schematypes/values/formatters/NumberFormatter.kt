@@ -142,6 +142,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         decimalFormat.groupingSeparator -> {
                             val baseLen = i - stateStart
                             val targetPattern = when (state) {
+                                PARSE_STATE_PREFIX -> {
+                                    state = PARSE_STATE_INT_OPT
+                                    intPattern
+                                }
+
                                 PARSE_STATE_INT_MANDATORY, PARSE_STATE_INT_OPT, PARSE_STATE_PREFIX -> intPattern
                                 PARSE_STATE_DECIMAL_OPT, PARSE_STATE_DECIMAL_MANDATORY -> decimalPattern
                                 PARSE_STATE_EXP_OPT, PARSE_STATE_EXP_MANDATORY -> expPattern
