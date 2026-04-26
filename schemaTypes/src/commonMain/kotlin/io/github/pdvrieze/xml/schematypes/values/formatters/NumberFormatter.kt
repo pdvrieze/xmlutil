@@ -256,18 +256,14 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             val pos: NumberFormatter
             val neg: NumberFormatter
             if (negIdx >= 0) {
-                pos = parseSingle(picture.substring(0, negIdx), decimalFormat)
-                neg = parseSingle(picture.substring(negIdx + 1), decimalFormat)
+                pos = parseSingle(picture.substring(0, negIdx), decimalFormat).normalized()
+                neg = parseSingle(picture.substring(negIdx + 1), decimalFormat).normalized()
             } else {
-                pos = parseSingle(picture, decimalFormat)
+                pos = parseSingle(picture, decimalFormat).normalized()
                 val newPrefix = pos.prefix?.let { "${decimalFormat.minusSign}$it" } ?: decimalFormat.minusSign.toString()
                 neg = pos.copy(prefix = newPrefix)
             }
-            return PosNegFormatter(
-                pos.normalized(),
-                neg.normalized(),
-                decimalFormat
-            )
+            return PosNegFormatter(pos, neg, decimalFormat)
         }
 
         private const val PARSE_STATE_PREFIX=0
@@ -803,10 +799,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     expPattern.isNotEmpty() -> newDecimalPattern = listOf(ReqDigits(1))
                     else -> newIntPattern = addRequiredDigitTail(intPattern)
                 }
-/*
-            } else if (intPattern.isNotEmpty() && expPattern.isNotEmpty() && r.minIntCount == 0) {
+            } else if (expPattern.isNotEmpty() && r.minIntCount == 0 && r.maxIntCount> 0) {
                 newIntPattern = addRequiredDigitTail(intPattern)
-*/
             } else if (r.minIntCount ==0 && r.minDecimalCount == 0) {
                 newDecimalPattern = addRequiredDigitFront(decimalPattern)
             }
@@ -920,6 +914,10 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             if (decimalPattern.isNotEmpty()) {
                 append(" . ")
                 decimalPattern.forEach { append(it) }
+            }
+            if (expPattern.isNotEmpty()) {
+                append(" e ")
+                append(expPattern)
             }
             if (suffix != null) append( suffix )
         }
