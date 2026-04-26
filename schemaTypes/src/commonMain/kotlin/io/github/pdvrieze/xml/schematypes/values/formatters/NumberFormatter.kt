@@ -838,7 +838,13 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 if (extraDigits > 0) {
                     repeat(extraDigits) { receiver.appendUnicode(decimalFormat.zeroDigit) }
                 }
-                receiver.append(expString)
+                if (decimalFormat.zeroDigit.codePoint == '0'.code) {
+                    receiver.append(expString)
+                } else {
+                    for (d in expString) {
+                        receiver.appendUnicode(UnicodeChar(decimalFormat.zeroDigit.codePoint + (d.code - '0'.code)))
+                    }
+                }
             } else {
                 super.formatNonSuffixTo(receiver, number, decimalFormat)
             }
