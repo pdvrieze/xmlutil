@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.SpecVersion
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
@@ -35,8 +37,9 @@ class ExprEvalContext(
     val expr: Expr,
     isXPath1compat: Boolean = false,
     variables: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
-    deterministicState: DeterministicState
-) : EvalContext(contextItem, namespaceContext, isXPath1compat, variables, deterministicState) {
+    deterministicState: DeterministicState,
+    specVersion: SpecVersion,
+) : EvalContext(contextItem, namespaceContext, isXPath1compat, variables, deterministicState, specVersion) {
 
     @XPathInternal
     fun resolveType(name: QName): AnyType {
@@ -47,7 +50,7 @@ class ExprEvalContext(
     }
 
     override fun copy(contextItem: ContextItem?): ExprEvalContext =
-        ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables, deterministicState)
+        ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables, deterministicState, specVersion)
 
     fun copy(
         namespaceContext: NamespaceContext = this.namepaceContext,
@@ -55,7 +58,15 @@ class ExprEvalContext(
         expr: Expr = this.expr,
         isXPath1compat: Boolean = this.isXPath1Compat,
         variables: Map<String, Map<String, XdmValue<*>>> = this.variables,
-    ): ExprEvalContext = ExprEvalContext(namespaceContext, contextItem, expr, isXPath1compat, variables, deterministicState)
+    ): ExprEvalContext = ExprEvalContext(
+        namespaceContext,
+        contextItem,
+        expr,
+        isXPath1compat,
+        variables,
+        deterministicState,
+        specVersion
+    )
 
     inline fun <R> withValueContext(value: ContextItem, function: context(ExprEvalContext)  () -> R): R {
         return context(this.copy(contextItem = value), function)
@@ -76,6 +87,12 @@ class ExprEvalContext(
 
     companion object {
         val DUMMY =
-            ExprEvalContext(SimpleNamespaceContext(), null, ContextItemExpr, deterministicState = DeterministicState())
+            ExprEvalContext(
+                SimpleNamespaceContext(),
+                null,
+                ContextItemExpr,
+                deterministicState = DeterministicState(),
+                specVersion = XPathVersion.XPath3_1
+            )
     }
 }

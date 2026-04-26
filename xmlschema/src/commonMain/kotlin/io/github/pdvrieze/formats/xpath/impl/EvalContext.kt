@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.SpecVersion
 import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.Collation
@@ -50,14 +51,22 @@ open class EvalContext(
     val namepaceContext: NamespaceContext,
     val isXPath1Compat: Boolean = false,
     val variables: Map<String, Map<String, XdmValue<*>>> = emptyMap(),
-    protected val deterministicState: DeterministicState = DeterministicState()
+    protected val deterministicState: DeterministicState = DeterministicState(),
+    val specVersion: SpecVersion
 ) {
     constructor(
         baseURI: XsdAnyURI?,
         contextItem: ContextItem? = null,
         namepaceContext: NamespaceContext = SimpleNamespaceContext(),
         isXPath1Compat: Boolean = false,
-    ) : this(contextItem, namepaceContext, isXPath1Compat, deterministicState = DeterministicState(baseURI))
+        specVersion: SpecVersion,
+    ) : this(
+        contextItem,
+        namepaceContext,
+        isXPath1Compat,
+        deterministicState = DeterministicState(baseURI),
+        specVersion = specVersion
+    )
 
     val contextValue get() = contextItem?.value
     val currentTimeStamp: XsdDateTimeStamp get() = deterministicState.currentDateTimeStamp
@@ -89,16 +98,31 @@ open class EvalContext(
     }
 
     open fun copy(contextItem: ContextItem?): EvalContext =
-        EvalContext(contextItem, namepaceContext, isXPath1Compat, variables, deterministicState)
+        EvalContext(contextItem, namepaceContext, isXPath1Compat, variables, deterministicState, specVersion)
 
     fun copyNoExpr(
         contextItem: ContextItem? = this.contextItem,
         namepaceContext: NamespaceContext = this.namepaceContext,
         isXPath1Compat: Boolean = this.isXPath1Compat
-    ): EvalContext = EvalContext(contextItem, namepaceContext, isXPath1Compat, variables, deterministicState)
+    ): EvalContext = EvalContext(
+        contextItem,
+        namepaceContext,
+        isXPath1Compat,
+        variables,
+        deterministicState,
+        specVersion,
+    )
 
     @PublishedApi
-    internal fun createExprContext(expr: Expr): ExprEvalContext = ExprEvalContext(namepaceContext, contextItem, expr, isXPath1Compat, variables, deterministicState)
+    internal fun createExprContext(expr: Expr): ExprEvalContext = ExprEvalContext(
+        namepaceContext,
+        contextItem,
+        expr,
+        isXPath1Compat,
+        variables,
+        deterministicState,
+        specVersion
+    )
 
     @OptIn(ExperimentalContracts::class)
     inline fun <R> withExprContext(expr: Expr, block: context(ExprEvalContext) ()-> R): R {
@@ -110,7 +134,7 @@ open class EvalContext(
 
     open fun newVarScope(varName: QName, value: XdmValue<*>): EvalContext {
         val newVars = newVarMap(varName, value)
-        return EvalContext(contextItem, namepaceContext, isXPath1Compat, newVars, deterministicState)
+        return EvalContext(contextItem, namepaceContext, isXPath1Compat, newVars, deterministicState, specVersion)
     }
 
     protected fun newVarMap(varName: QName, value: XdmValue<*>): MutableMap<String, Map<String, XdmValue<*>>> {
