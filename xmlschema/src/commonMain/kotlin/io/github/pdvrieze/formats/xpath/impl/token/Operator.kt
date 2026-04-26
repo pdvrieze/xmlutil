@@ -237,7 +237,7 @@ sealed class Operator(
         context(ctx: ExprEvalContext)
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
             // defined as equivalent to the function call
-            return StringFunctions.fnConcat(left, right)
+            return StringFunctions.fnConcat.invokePromoting(left, right)
         }
     }
     @NeedsXPath2
