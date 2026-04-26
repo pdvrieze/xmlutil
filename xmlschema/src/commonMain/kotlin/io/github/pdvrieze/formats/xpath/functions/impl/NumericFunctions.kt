@@ -165,7 +165,9 @@ object NumericFunctions: AbstractFunctionObject() {
                 ?: throw EvaluationException(ErrorCodes.FODF1280, "Decimal format '$it' not known")
         } ?: ctx.defaultDecimalFormat
 
-        val format = NumberFormatter(picture, decimalFormat)
+        val format = try { NumberFormatter(picture, decimalFormat) } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FODF1310, "Invalid picture for format-number: '$picture'", e)
+        }
         atomic(format.format(value))
 
     }

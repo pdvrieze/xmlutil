@@ -58,8 +58,6 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             var nextState = PARSE_STATE_PREFIX
             var stateStart = 0
 
-            val lastDigit = UnicodeChar(decimalFormat.zeroDigit.codePoint+9)
-
             var prefix: String? = null
             val intPattern = mutableListOf<FormatElem>()
             val decimalPattern = mutableListOf<FormatElem>()
@@ -83,7 +81,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             break
                         }
 
-                        in decimalFormat.zeroDigit..lastDigit -> if (state != PARSE_STATE_INT_MANDATORY &&
+                        in decimalFormat.digitRange -> if (state != PARSE_STATE_INT_MANDATORY &&
                             state != PARSE_STATE_DECIMAL_MANDATORY && state != PARSE_STATE_EXP_MANDATORY) {
                             when (state) {
                                 PARSE_STATE_PREFIX -> if (i > 0) prefix = pictureSegment.substring(0, i)
@@ -197,7 +195,14 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     PARSE_STATE_INT_MANDATORY -> if (i > stateStart) intPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
                     PARSE_STATE_DECIMAL_MANDATORY -> if (i > stateStart) decimalPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
                     PARSE_STATE_DECIMAL_OPT -> if (i > stateStart) decimalPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
-                    PARSE_STATE_EXP_MANDATORY -> if (i > stateStart) expPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
+                    PARSE_STATE_EXP_MANDATORY -> when {
+                        i > stateStart -> expPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
+                        else -> {
+                            stateStart -= decimalFormat.exponentSeparator.length
+                            state = PARSE_STATE_SUFFIX
+                            break
+                        }
+                    }
                     PARSE_STATE_EXP_OPT -> if (i > stateStart) expPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
                 }
                 when (nextState) {
@@ -214,7 +219,16 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 }
             } while (state < PARSE_STATE_PERCENT && i < pictureSegment.length)
 
-            if (stateStart < pictureSegment.length) suffix = pictureSegment.substring(stateStart)
+            if (stateStart < pictureSegment.length) {
+                suffix = pictureSegment.substring(stateStart)
+                var i = 0
+                while (i < suffix.length) {
+                    val cp = suffix.unicodeChar(i)
+                    if (cp != decimalFormat.exponentSeparator && decimalFormat.isActive(cp)) throw IllegalArgumentException("Suffix must not contain active characters: $suffix")
+
+                    i = suffix.nextCodePointPos(i)
+                }
+            }
 
             when (state) {
                 PARSE_STATE_PERCENT -> {

@@ -37,6 +37,15 @@ open class DecimalFormat(
     val NaN: String = "NaN",
 ) {
 
+    val digitRange = zeroDigit..UnicodeChar(zeroDigit.codePoint+9)
+
+    fun isActive(character: UnicodeChar): Boolean = when (character) {
+        decimalSeparator,
+            exponentSeparator, groupingSeparator, digit, patternSeparator -> true
+        in digitRange -> true
+        else -> false
+    }
+
     class Named(
         val name: QName,
         decimalSeparator: UnicodeChar = UnicodeChar('.'),
