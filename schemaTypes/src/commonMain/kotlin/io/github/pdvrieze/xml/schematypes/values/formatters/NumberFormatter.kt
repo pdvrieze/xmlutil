@@ -86,8 +86,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         }
 
                         decimalFormat.exponentSeparator -> {
-                            require(state < PARSE_STATE_EXP_MANDATORY) { "Exponent separator must only once (and excludes percent)" }
-                            nextState = PARSE_STATE_EXP_MANDATORY
+                            nextState = when {
+                                // must be (valid) suffix
+                                state >= PARSE_STATE_EXP_MANDATORY -> PARSE_STATE_SUFFIX
+                                else -> PARSE_STATE_EXP_MANDATORY
+                            }
                             break
                         }
 
