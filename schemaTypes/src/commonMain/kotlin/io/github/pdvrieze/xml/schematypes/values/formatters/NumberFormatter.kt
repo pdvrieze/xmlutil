@@ -877,8 +877,10 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     expPattern.isNotEmpty() -> newDecimalPattern = listOf(ReqDigits(1))
                     else -> newIntPattern = addRequiredDigitTail(intPattern)
                 }
+/*
             } else if (intPattern.isNotEmpty() && expPattern.isNotEmpty() && r.minIntCount == 0) {
                 newIntPattern = addRequiredDigitTail(intPattern)
+*/
             } else if (r.minIntCount ==0 && r.minDecimalCount == 0) {
                 newDecimalPattern = addRequiredDigitFront(decimalPattern)
             }
@@ -897,6 +899,12 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 val expShift = targetExp - bd.exponent
 
                 val nonExp = bd.exp10(expShift)
+
+                // has optional int digits only and needs leading zero
+                if (minIntDigits == 0 && intPattern.isNotEmpty() && nonExp.precisionDigits <= -nonExp.exponent) {
+                    receiver.append(decimalFormat.zeroDigit) // add leading zero
+                }
+
 
                 super.formatNonSuffixTo(receiver, nonExp, decimalFormat)
 
