@@ -38,8 +38,10 @@ import kotlin.jvm.JvmInline
  */
 abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructor(
     internal val ints: UIntArray,
-    final override val exponent: Int
+    exponent: Int
 ) : XsdBigDecimal {
+
+    final override val exponent: Int
 
     /**
      * Determine the amount of decimal digits this number contains.
@@ -58,6 +60,9 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
                 )
             }
             require(lastDigit != 0u) { "Last int must not be zero" }
+            this.exponent = exponent
+        } else {
+            this.exponent = if (lastDigit and 0x7fff_ffffu == 0u) 0 else exponent
         }
         val d3 = (lastDigit shr 20) and 0x3ffu
         val d2 = (lastDigit shr 10) and 0x3ffu
@@ -112,22 +117,13 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
     override fun exp10(n: Int): T {
         val newDecimalPosition = exponent + n
-        return newInstance(ints, newDecimalPosition)
+        return companion.newInstance(ints, newDecimalPosition)
     }
 
     override val isInteger: Boolean
         get() = exponent <= 0
 
     protected abstract val companion: CompanionBase<T>
-
-    private fun newInstance(ints: UIntArray, exponent: Int): T =
-        companion.newInstance(ints, exponent)
-
-    private fun newInstance(value: Int, decimalPositions: Int = 0): T =
-        companion.invoke(value, decimalPositions)
-
-    private fun newInstance(value: Long, decimalPositions: Int = 0): T =
-        companion.invoke(value, decimalPositions)
 
     protected abstract fun XsdDecimal.asT(): T
 
@@ -283,7 +279,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
         if ((-exponent) %9 ==0) {
             val newInts = ints.copyOfRange((-exponent)/9, ints.size)
-            return newInstance(newInts, 0)
+            return companion.newInstance(newInts, 0)
         }
 
         val intDigits = D10Pos(precisionDigits+exponent).toD1000Size()
@@ -309,13 +305,13 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
                     int0.shr(20).and(0x3ffu) != 0x3e7u ->
                         newInts[0] = (int0 and 0x3ff0_0000u) + 1_000_000u
 
-                    else -> return (newInstance(newInts, 0) + BigDecimal(1u)).unaryMinus()
+                    else -> return (companion.newInstance(newInts, 0) + BigDecimal(1u)).unaryMinus()
                 }
             }
 
             newInts[0] = newInts[0] or SIGN_BIT.toUInt() // copy the sign bit
         }
-        return newInstance(newInts, 0)
+        return companion.newInstance(newInts, 0)
     }
 
     override fun ceiling(): T {
@@ -437,7 +433,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         // Note that flipping the sign works as the "special" bits are opposite to the sign bit
         val newInts = ints.copyOf()
         newInts[0] = newInts[0] xor SIGN_BIT.toUInt()
-        return newInstance(newInts, exponent)
+        return companion.newInstance(newInts, exponent)
     }
 
     override fun unaryPlus(): T = self
@@ -471,12 +467,12 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         val startIndex = 0 // elems.indexOfFirst { it != 0u }
         val newExp = exp + startIndex * 9
         // must be zero
-        if (startIndex < 0) return newInstance(uintArrayOf(0u), newExp)
+        if (startIndex < 0) return companion.newInstance(uintArrayOf(0u), newExp)
         val endIndex = elems.indexOfLast { it != 0u }.coerceAtLeast(startIndex) + 1
-        if (endIndex - startIndex == elems.size) return newInstance(elems, exp)
+        if (endIndex - startIndex == elems.size) return companion.newInstance(elems, exp)
 
         val newElems = elems.copyOfRange(startIndex, endIndex)
-        return newInstance(newElems, newExp)
+        return companion.newInstance(newElems, newExp)
     }
 
     override fun plus(other: XsdDecimal): T = plus(other.asT())
@@ -541,7 +537,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         }
         val cmp = compareTo(other)
         when {
-            cmp == 0 -> return newInstance(uintArrayOf(0u), exponent)
+            cmp == 0 -> return companion.newInstance(uintArrayOf(0u), exponent)
             cmp  < 0 -> return other.minus(self).unaryMinus().asT()
         }
 
@@ -580,7 +576,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             else -> resultInts
         }
 
-        return newInstance(ints, newExp)
+        return companion.newInstance(ints, newExp)
 
     }
 
@@ -591,7 +587,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         if (other.precisionDigits > precisionDigits) return other.asT().times(self)
         val newSign = sign * other.sign
         val newExponent = exponent + other.exponent
-        if (newSign == 0) return newInstance(uintArrayOf(0u), newExponent)
+        if (newSign == 0) return companion.newInstance(uintArrayOf(0u), newExponent)
 
         val intsNeeded = (precisionDigits + other.precisionDigits +8)/9
         val newInts = UIntArray(intsNeeded)
@@ -631,7 +627,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     }
 
     override operator fun times(multiplier: UInt): T {
-        return times(newInstance(multiplier.toLong()))
+        return times(companion.invoke(multiplier.toLong()))
     }
 
     infix fun shl(shift: Int): T {
@@ -642,7 +638,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     infix fun shl(shift: ULong): T {
         if (shift == 0uL || !isFinite) return self
         val newInts = BigUnsignedInt(ints, shift).expandExp().ints
-        return newInstance(newInts, exponent)
+        return companion.newInstance(newInts, exponent)
     }
 
     /**
@@ -654,7 +650,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             else -> {
                 val newInts = ints.copyOf()
                 newInts[0] = newInts[0] and 0x7FFF_FFFFu
-                return newInstance(newInts, exponent)
+                return companion.newInstance(newInts, exponent)
             }
         }
     }
@@ -864,7 +860,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         if (ints[0] and SIGN_BIT.toUInt() != 0u) {
             newInts[0] = newInts[0] or SIGN_BIT.toUInt()
         }
-        return newInstance(newInts, newExp)
+        return companion.newInstance(newInts, newExp)
     }
 
 
@@ -895,13 +891,13 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
                 val (q, r) = newDivident
                     .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), dSign = dSign)
-                val newQ = newInstance(q.ints, divider.exponent)
+                val newQ = companion.newInstance(q.ints, divider.exponent)
                 return DivRem(newQ, remPart + r)
             }
 
             val (q, r) = withNewExp(divider.exponent + expCorrect)
                 .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), lSign, dSign)
-            val newQ = newInstance(q.ints, divider.exponent)
+            val newQ = companion.newInstance(q.ints, divider.exponent)
 
             val newR = r.withNewExp(r.exponent - expCorrect)
 
@@ -985,7 +981,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
         val remainderSize = mutableDivident.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
 
-        val remainder = newInstance(mutableDivident.copyOfRange(0, remainderSize), exponent)
+        val remainder = companion.newInstance(mutableDivident.copyOfRange(0, remainderSize), exponent)
 
         if (lSign < 0) mutableDivident[0] = mutableDivident[0] or SIGN_BIT.toUInt()
         val quotientSize = quotient.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
@@ -996,7 +992,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             lSign != dSign -> quotient[0] = quotient[0] or SIGN_BIT.toUInt()
         }
 
-        val quotientX = newInstance(quotient.copyOf(quotientSize), 0)
+        val quotientX = companion.newInstance(quotient.copyOf(quotientSize), 0)
 
         return DivRem(quotientX, remainder)
     }

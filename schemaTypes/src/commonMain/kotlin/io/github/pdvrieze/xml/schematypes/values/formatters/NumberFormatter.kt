@@ -834,7 +834,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 val bd = number.toBigDecimal()
                 val targetExp = minIntDigits.coerceAtLeast(0) - bd.precisionDigits
                 val expShift = targetExp - bd.exponent
-                var expValue = bd.exponent - targetExp
+                var expValue = if(bd == BigDecimal.ZERO) 0 else bd.exponent - targetExp
 
                 val nonExp = bd.exp10(expShift + decimalDigits) // multply with decimal digits
                     .roundToHalfEven()
