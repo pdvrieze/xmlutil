@@ -68,9 +68,9 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             d2 != 0u -> { offset = 3; d2 }
             else -> { offset = 0; d1 }
         }
-        precisionDigits = (ints.size-1)*9 + offset + when {
-            d > 100u -> 3
-            d > 10u -> 2
+        precisionDigits = (ints.size - 1) * 9 + offset + when {
+            d >= 100u -> 3
+            d >= 10u -> 2
             else -> 1
         }
     }
