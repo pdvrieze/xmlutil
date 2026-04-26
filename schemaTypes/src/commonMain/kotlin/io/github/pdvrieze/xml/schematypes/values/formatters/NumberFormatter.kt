@@ -140,49 +140,24 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         }
 
                         decimalFormat.groupingSeparator -> {
-                            when (state) {
-                                PARSE_STATE_INT_MANDATORY -> {
-                                    val len = (i - stateStart) / decimalFormat.zeroDigit.length
-                                    if (len > 0) { intPattern.add(ReqDigits(len)) }
-                                    intPattern.add(GroupingSeparator)
-                                }
-
-                                PARSE_STATE_INT_OPT -> {
-                                    val len = (i - stateStart) / decimalFormat.digit.length
-                                    if (len > 0) intPattern.add(OptDigits(len))
-                                    intPattern.add(GroupingSeparator)
-                                }
-
-                                PARSE_STATE_DECIMAL_OPT -> {
-                                    val len = (i - stateStart) / decimalFormat.zeroDigit.length
-                                    if (len > 0) decimalPattern.add(ReqDigits(len))
-                                    decimalPattern.add(GroupingSeparator)
-                                }
-
-                                PARSE_STATE_DECIMAL_MANDATORY -> {
-                                    val len = (i - stateStart) / decimalFormat.digit.length
-                                    if (len > 0) decimalPattern.add(OptDigits(len))
-                                    decimalPattern.add(GroupingSeparator)
-                                }
-
-                                PARSE_STATE_EXP_OPT -> {
-                                    val len = (i - stateStart) / decimalFormat.zeroDigit.length
-                                    if (len > 0) expPattern.add(ReqDigits(len))
-                                    expPattern.add(GroupingSeparator)
-                                }
-
-                                PARSE_STATE_EXP_MANDATORY -> {
-                                    val len = (i - stateStart) / decimalFormat.digit.length
-                                    if (len > 0) expPattern.add(OptDigits(len))
-                                    expPattern.add(GroupingSeparator)
-                                }
-
-                                PARSE_STATE_PREFIX -> {
-                                    intPattern.add(GroupingSeparator)
-                                    state = PARSE_STATE_INT_OPT // must be followed by optional or mandatory digits
-                                }
+                            val baseLen = i - stateStart
+                            val targetPattern = when (state) {
+                                PARSE_STATE_INT_MANDATORY, PARSE_STATE_INT_OPT, PARSE_STATE_PREFIX -> intPattern
+                                PARSE_STATE_DECIMAL_OPT, PARSE_STATE_DECIMAL_MANDATORY -> decimalPattern
+                                PARSE_STATE_EXP_OPT, PARSE_STATE_EXP_MANDATORY -> expPattern
                                 else -> throw IllegalArgumentException("Unexpected grouping separator in state $state")
                             }
+                            if (baseLen > 0) {
+                                val pending = when (state) {
+                                    PARSE_STATE_INT_OPT, PARSE_STATE_DECIMAL_OPT, PARSE_STATE_EXP_OPT
+                                        -> OptDigits(baseLen / decimalFormat.digit.length)
+
+                                    else -> ReqDigits(baseLen / decimalFormat.zeroDigit.length)
+                                }
+                                targetPattern.add(pending)
+                            }
+                            targetPattern.add(GroupingSeparator)
+
                             i = pictureSegment.nextCodePointPos(i)
                             stateStart = i
                             continue // skip default increase in position
