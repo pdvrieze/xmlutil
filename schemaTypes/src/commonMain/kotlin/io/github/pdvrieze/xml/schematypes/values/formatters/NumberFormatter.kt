@@ -800,7 +800,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     else -> newIntPattern = addRequiredDigitTail(intPattern)
                 }
             } else if (expPattern.isNotEmpty() && r.minIntCount == 0 && r.maxIntCount> 0) {
-                newIntPattern = addRequiredDigitTail(intPattern)
+                // This will be corrected in formatting
             } else if (r.minIntCount ==0 && r.minDecimalCount == 0) {
                 newDecimalPattern = addRequiredDigitFront(decimalPattern)
             }
