@@ -155,6 +155,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                                     else -> ReqDigits(baseLen / decimalFormat.zeroDigit.length)
                                 }
                                 targetPattern.add(pending)
+                            } else {
+                                require (targetPattern.lastOrNull() !is GroupingSeparator) { "Grouping separator must not directly follow a grouping separator: $pictureSegment" }
                             }
                             targetPattern.add(GroupingSeparator)
 
