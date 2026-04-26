@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
+import kotlin.jvm.JvmStatic
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 import kotlin.math.sign
@@ -659,7 +660,41 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             val optIntCount: Int,
             val minDecimalCount: Int,
             val optDecimalCount: Int,
-        )
+        ) {
+            val maxIntCount get() = minIntCount + optIntCount
+            val maxDecimalCount get() = minDecimalCount + optDecimalCount
+        }
+
+        companion object {
+            @JvmStatic
+            protected fun addRequiredDigitTail(source: List<FormatElem>): List<FormatElem> {
+                if (source.isEmpty()) return listOf(ReqDigits(1))
+                val tail = source.last() as? OptDigits ?: return source
+                val head = source.asSequence().take(source.size - 1)
+
+                val result = ArrayList<FormatElem>(source.size + 1)
+                result.addAll(head)
+                if (tail.length > 1) result.add(OptDigits(tail.length - 1))
+                result.add(ReqDigits(1))
+
+                return result
+            }
+
+            @JvmStatic
+            protected fun addRequiredDigitFront(source: List<FormatElem>): List<FormatElem> {
+                if (source.isEmpty()) return listOf(ReqDigits(1))
+                val head = source.first() as? OptDigits ?: return source
+                val tail = source.asSequence().drop(1)
+
+                val result = ArrayList<FormatElem>(source.size + 1)
+                result.add(ReqDigits(1))
+                if (head.length > 1) result.add(OptDigits(head.length - 1))
+                result.addAll(tail)
+
+                return result
+            }
+
+        }
     }
 
     private class PercentFormatter(
@@ -671,7 +706,15 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
     ) : NumberFormatter(prefix, intPattern, decimalPattern, suffix, regularGrouping) {
         override fun normalized(): PercentFormatter {
             val r = normalizeBase()
-            return PercentFormatter(prefix, intPattern, decimalPattern, suffix, r.newGrouping)
+            var newIntPattern = intPattern
+            var newDecimalPattern = decimalPattern
+            if (r.minIntCount == 0 && r.maxDecimalCount == 0) {
+                newIntPattern = addRequiredDigitTail(intPattern)
+            } else if (r.minIntCount ==0 && r.minDecimalCount == 0) {
+                newDecimalPattern = addRequiredDigitFront(decimalPattern)
+            }
+
+            return PercentFormatter(prefix, newIntPattern, newDecimalPattern, suffix, r.newGrouping)
         }
 
         override fun copy(
@@ -725,7 +768,15 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
     ) : NumberFormatter(prefix, intPattern, decimalPattern, suffix, regularGrouping) {
         override fun normalized(): PermilleFormatter {
             val r = normalizeBase()
-            return PermilleFormatter(prefix, intPattern, decimalPattern, suffix, r.newGrouping)
+            var newIntPattern = intPattern
+            var newDecimalPattern = decimalPattern
+            if (r.minIntCount == 0 && r.maxDecimalCount == 0) {
+                newIntPattern = addRequiredDigitTail(intPattern)
+            } else if (r.minIntCount ==0 && r.minDecimalCount == 0) {
+                newDecimalPattern = addRequiredDigitFront(decimalPattern)
+            }
+
+            return PermilleFormatter(prefix, newIntPattern, newDecimalPattern, suffix, r.newGrouping)
         }
 
         override fun copy(
@@ -739,7 +790,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
-            val multplied = when (number) {
+            val multiplied = when (number) {
                 is XsdInt if (number.intValue < MAX_INT_BEFORE_MULT) -> number * 1000
                 is XsdLong if (number.longValue < MAX_LONG_BEFORE_MULT) -> number * 1000L
                 is XsdUnsignedInt if (number.uIntValue < MAX_UINT_BEFORE_MULT) -> number * 1000u
@@ -748,7 +799,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 else -> number.toBigDecimal().exp10(3)
             }
 
-            formatNonSuffixTo(receiver, multplied, decimalFormat)
+            formatNonSuffixTo(receiver, multiplied, decimalFormat)
             receiver.append(decimalFormat.perMille)
             if (suffix != null) receiver.append(suffix)
         }
@@ -816,10 +867,23 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             return DecimalDigitPatternFormatter(prefix, intPattern, decimalPattern, expPattern, suffix, regularGrouping)
         }
 
-
         override fun normalized(): NumberFormatter {
             val r = normalizeBase()
-            return DecimalDigitPatternFormatter(prefix, intPattern, decimalPattern, expPattern, suffix, r.newGrouping)
+            var newIntPattern: List<FormatElem> = intPattern
+            var newDecimalPattern = decimalPattern
+
+            if (r.minIntCount == 0 && r.maxDecimalCount == 0) {
+                when {
+                    expPattern.isNotEmpty() -> newDecimalPattern = listOf(ReqDigits(1))
+                    else -> newIntPattern = addRequiredDigitTail(intPattern)
+                }
+            } else if (intPattern.isNotEmpty() && expPattern.isNotEmpty() && r.minIntCount == 0) {
+                newIntPattern = addRequiredDigitTail(intPattern)
+            } else if (r.minIntCount ==0 && r.minDecimalCount == 0) {
+                newDecimalPattern = addRequiredDigitFront(decimalPattern)
+            }
+
+            return DecimalDigitPatternFormatter(prefix, newIntPattern, newDecimalPattern, expPattern, suffix, r.newGrouping)
         }
 
         override fun formatNonSuffixTo(
