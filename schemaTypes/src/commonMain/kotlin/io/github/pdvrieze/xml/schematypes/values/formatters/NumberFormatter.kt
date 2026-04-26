@@ -806,13 +806,15 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         ) {
             if (expPattern.isNotEmpty()) {
                 val bd = number.toBigDecimal()
-                val expShift = bd.precisionDigits - minIntDigits.coerceAtLeast(1)
+                val targetExp = minIntDigits.coerceAtLeast(0) - bd.precisionDigits
+                val expShift = targetExp - bd.exponent
 
-                val nonExp = bd.exp10(expShift - bd.exponent)
+                val nonExp = bd.exp10(expShift)
+
                 super.formatNonSuffixTo(receiver, nonExp, decimalFormat)
 
                 receiver.append(decimalFormat.exponentSeparator)
-                var expValue = bd.exponent+expShift
+                var expValue = bd.exponent - targetExp
                 if (expValue < 0) {
                     receiver.append(decimalFormat.minusSign)
                     expValue = expValue.absoluteValue
@@ -820,7 +822,6 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 val expString = expValue.toString()
                 val extraDigits = expMinDigits - expString.length
                 if (extraDigits > 0) {
-                    receiver.appendUnicode(UnicodeChar(decimalFormat.zeroDigit.codePoint + '0'.code))
                     repeat(extraDigits) { receiver.appendUnicode(decimalFormat.zeroDigit) }
                 }
                 receiver.append(expString)
