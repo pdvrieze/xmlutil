@@ -77,6 +77,9 @@ enum class Fn(
     lowerCase(StringFunctions.fnLowerCase),
     translate(StringFunctions.fnTranslate),
 
+    substringBefore(StringFunctions.fnSubstringBefore),
+    substringAfter(StringFunctions.fnSubstringAfter),
+
     matches(StringFunctions.fnMatches),
     //endregion
 

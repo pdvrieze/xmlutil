@@ -198,6 +198,26 @@ object StringFunctions : AbstractFunctionObject() {
     //endregion
 
     //region Functions on substring matching 5.5
+    val fnSubstringBefore = BuiltinFunctionImpl("substring-before", listOf(
+        functionType(STRING, STRING.opt, STRING.opt),
+        functionType(STRING, STRING.opt, STRING.opt, STRING),
+    )) { args ->
+        val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@BuiltinFunctionImpl atomic(arg1)
+        // TODO support collation
+        atomic(arg1.substringBefore(arg2, ""))
+    }
+
+    val fnSubstringAfter = BuiltinFunctionImpl("substring-after", listOf(
+        functionType(STRING, STRING.opt, STRING.opt),
+        functionType(STRING, STRING.opt, STRING.opt, STRING),
+    )) { args ->
+        val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@BuiltinFunctionImpl atomic(arg1)
+        // TODO support collation
+        atomic(arg1.substringAfter(arg2, ""))
+    }
+
     //endregion
 
     //region String functions using regex 5.6
