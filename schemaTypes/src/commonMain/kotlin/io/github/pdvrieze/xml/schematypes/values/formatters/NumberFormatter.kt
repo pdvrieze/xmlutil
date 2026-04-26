@@ -85,7 +85,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             break
                         }
 
-                        decimalFormat.exponentSeparator -> {
+                        // If prefix there was no active character so ignore exponent (which must be surrounded by actives)
+                        decimalFormat.exponentSeparator if (state != PARSE_STATE_PREFIX) -> {
                             nextState = when {
                                 // must be (valid) suffix
                                 state >= PARSE_STATE_EXP_MANDATORY -> PARSE_STATE_SUFFIX
