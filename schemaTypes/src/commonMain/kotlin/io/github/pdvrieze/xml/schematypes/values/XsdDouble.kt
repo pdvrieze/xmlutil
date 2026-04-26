@@ -39,6 +39,15 @@ interface XsdDouble: XsdPrimitive, XsdNumeric<XsdDouble> {
     override val isNaN: Boolean get() = value.isNaN()
     override val isInfinity: Boolean get() = value == Double.POSITIVE_INFINITY
     override val isNegativeInfinity: Boolean get() = value == Double.NEGATIVE_INFINITY
+    override val sign: Int
+        get() = when {
+            value.isNaN() -> throw IllegalStateException("NaN has no sign")
+            value == 0.0 -> 0
+            else -> value.toRawBits().shr(63).or(1).toInt()
+        }
+
+    override val isNegative: Boolean
+        get() = value.toRawBits().shr(63) != 0L
 
     override fun toLong(): Long = value.toLong()
     override fun toInt(): Int = value.toInt()

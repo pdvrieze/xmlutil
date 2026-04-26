@@ -47,18 +47,9 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
 
     private constructor(pr: ParseResult) : this(pr.ints, pr.decimalDigits)
 
-    constructor(value: UInt): this(
-        ints = uintArrayOf(value),
-        exponent = 0
-    )
+    constructor(value: UInt) : this(ints = valToUInts(value), exponent = 0)
 
-    constructor(value: ULong) : this(
-        ints = when {
-            value <= UInt.MAX_VALUE -> uintArrayOf(value.toUInt())
-            else -> uintArrayOf(value.toUInt(), (value shr 32).toUInt())
-        },
-        exponent = 0
-    )
+    constructor(value: ULong) : this(ints = valToUInts(value), exponent = 0)
 
     override val self: BigDecimal get() = this
     override val isNaN: Boolean get() = false

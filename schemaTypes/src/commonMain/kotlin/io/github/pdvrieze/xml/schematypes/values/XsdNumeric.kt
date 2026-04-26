@@ -28,6 +28,9 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
     override val schemaType: PrimitiveType<XsdPrimitive>
 
+    val sign: Int
+    val isNegative: Boolean
+
     val isFinite: Boolean
     val isNaN: Boolean
     val isInfinity: Boolean

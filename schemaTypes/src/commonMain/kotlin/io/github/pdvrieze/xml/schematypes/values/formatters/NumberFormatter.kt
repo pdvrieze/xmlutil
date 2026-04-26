@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 import kotlin.jvm.JvmStatic
 import kotlin.math.absoluteValue
-import kotlin.math.sign
 
 @ExperimentalXmlUtilApi
 class NumberFormatter private constructor(internal val format: PosNegFormatter) {
@@ -286,37 +285,14 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         val decimalFormat: DecimalFormat
     ) {
         fun formatTo(receiver: Appendable, value: XsdNumeric<*>) {
+            val formatter = when {
+                value.isNegative -> negFormatter
+                else -> posFormatter
+            }
             when (value) {
-                is XsdDecimal -> when {
-                    value.isNegative -> negFormatter.formatTo(receiver, value.abs(), decimalFormat)
-                    else -> posFormatter.formatTo(receiver, value, decimalFormat)
-                }
-
-                is XsdDouble -> when {
-                    value.isNaN -> receiver.append(decimalFormat.NaN)
-
-                    value.value.isInfinite() -> when {
-                        value.isInfinity -> receiver.append(decimalFormat.infinity)
-                        else -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
-                    }
-
-                    (value.value.toRawBits() shr 63) != 0L -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
-
-                    else -> posFormatter.formatTo(receiver, value.value, decimalFormat)
-                }
-
-                is XsdFloat -> when {
-                    value.isNaN -> receiver.append(decimalFormat.NaN)
-
-                    value.value.isInfinite() -> when {
-                        value.isInfinity -> receiver.append(decimalFormat.infinity)
-                        else -> receiver.appendUnicode(decimalFormat.minusSign).append(decimalFormat.infinity)
-                    }
-
-                    (value.value.toRawBits() shr 31) != 0 -> negFormatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
-
-                    else -> posFormatter.formatTo(receiver, value.value, decimalFormat)
-                }
+                is XsdDecimal -> formatter.formatTo(receiver, value.abs(), decimalFormat)
+                is XsdDouble -> formatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
+                is XsdFloat -> formatter.formatTo(receiver, value.value.absoluteValue, decimalFormat)
             }
         }
     }
@@ -431,11 +407,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 }
 
                 decimalDigits > 0 -> buildString(number.size.toInt() * 18 + decimalDigits) {
-                    append(number.toString())
+                    append(number.xmlString)
                     repeat(decimalDigits) { append('0') }
                 }
 
-                else -> number.toString()
+                else -> number.xmlString
             }
 
             formatHelper(str, str.length, intPattern.size + decimalPattern.size - 1, receiver, decimalFormat, true)
@@ -882,11 +858,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
-            when (number) {
-                is XsdFloat -> return formatTo(receiver, number.value, decimalFormat)
-                is XsdDouble -> return formatTo(receiver, number.value, decimalFormat)
-                is XsdDecimal -> formatNonSuffixTo(receiver, number, decimalFormat)
-            }
+            formatNonSuffixTo(receiver, number, decimalFormat)
             if (suffix != null) receiver.append(suffix)
         }
 
@@ -895,12 +867,17 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             number: Float,
             decimalFormat: DecimalFormat
         ) {
+            if (number.isFinite()) {
+                formatTo(receiver, BigDecimal(number), decimalFormat)
+                return
+            }
+
+            if (prefix != null) receiver.append(prefix)
             when {
                 number.isNaN() -> receiver.append(decimalFormat.NaN)
-                number.isFinite() -> formatTo(receiver, BigDecimal(number), decimalFormat)
-                number.sign > 0 -> receiver.append(decimalFormat.infinity)
-                else -> receiver.append(decimalFormat.minusSign).append(decimalFormat.infinity)
+                else -> receiver.append(decimalFormat.infinity)
             }
+            if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(
@@ -908,12 +885,18 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             number: Double,
             decimalFormat: DecimalFormat
         ) {
-            when {
-                number.isNaN() -> receiver.append(decimalFormat.NaN)
-                number.isFinite() -> formatTo(receiver, BigDecimal(number), decimalFormat)
-                number.sign > 0 -> receiver.append(decimalFormat.infinity)
-                else -> receiver.append(decimalFormat.minusSign).append(decimalFormat.infinity)
+            if (number.isFinite()) {
+                formatTo(receiver, BigDecimal(number), decimalFormat)
+                return
             }
+
+            if (prefix != null) receiver.append(prefix)
+            when {
+                number.isFinite() -> formatTo(receiver, BigDecimal(number), decimalFormat)
+                number.isNaN() -> receiver.append(decimalFormat.NaN)
+                else -> receiver.append(decimalFormat.infinity)
+            }
+            if (suffix != null) receiver.append(suffix)
         }
 
         override fun toString(): String = buildString {

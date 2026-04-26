@@ -43,6 +43,16 @@ interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
     override val isInfinity: Boolean get() = value == Float.POSITIVE_INFINITY
     override val isNegativeInfinity: Boolean get() = value == Float.NEGATIVE_INFINITY
 
+    override val sign: Int
+        get() = when {
+            value.isNaN() -> throw IllegalStateException("NaN has no sign")
+            value == 0.0f -> 0
+            else -> value.toRawBits().shr(31).or(1)
+        }
+
+    override val isNegative: Boolean
+        get() = value.toRawBits().shr(61) != 0
+
     override fun toLong(): Long = value.toLong()
     override fun toFloat(): Float = value
 
