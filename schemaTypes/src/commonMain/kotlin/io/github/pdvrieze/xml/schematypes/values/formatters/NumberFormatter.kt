@@ -819,18 +819,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 val expShift = targetExp - bd.exponent
                 var expValue = bd.exponent - targetExp
 
-                val expectedDigits = decimalDigits + minIntDigits
-
-                var nonExp = bd.exp10(expShift + decimalDigits) // multply with decimal digits
+                val nonExp = bd.exp10(expShift + decimalDigits) // multply with decimal digits
                     .roundToHalfEven()
-
-                // In case we end up increased size due to rounding, correct for that.
-                // A loop should not be needed as the increased size should only be 1
-                if (nonExp.precisionDigits > expectedDigits) {
-                    nonExp = nonExp.exp10(-1).roundToHalfEven()
-                    expValue += 1
-                }
-
 
                 // has optional int digits only and needs leading zero
                 if (minIntDigits == 0 && intPattern.isNotEmpty() && nonExp.precisionDigits <= decimalDigits) {
