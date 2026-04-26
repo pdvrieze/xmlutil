@@ -647,7 +647,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
-            val multplied = when (number) {
+            val multiplied = when (number) {
                 is XsdInt if (number.intValue < MAX_INT_BEFORE_MULT) -> number * 100
                 is XsdLong if (number.longValue < MAX_LONG_BEFORE_MULT) -> number * 100L
                 is XsdUnsignedInt if (number.uIntValue < MAX_UINT_BEFORE_MULT) -> number * 100u
@@ -656,17 +656,35 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 else -> number.toBigDecimal().exp10(2)
             }
 
-            formatNonSuffixTo(receiver, multplied, decimalFormat)
+            formatNonSuffixTo(receiver, multiplied, decimalFormat)
             receiver.append(decimalFormat.percent)
             if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(receiver: Appendable, number: Float, decimalFormat: DecimalFormat) {
-            formatTo(receiver, BigDecimal(number), decimalFormat)
+            val m = number * 100.0f
+            when {
+                m.isInfinite() -> {
+                    prefix?.let { receiver.append(it) }
+                    receiver.append(decimalFormat.infinity)
+                }
+                else -> formatNonSuffixTo(receiver, BigDecimal(m), decimalFormat)
+            }
+            receiver.append(decimalFormat.percent)
+            if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(receiver: Appendable, number: Double, decimalFormat: DecimalFormat) {
-            formatTo(receiver, BigDecimal(number), decimalFormat)
+            val m = number * 100.0
+            when {
+                m.isInfinite() -> {
+                    prefix?.let { receiver.append(it) }
+                    receiver.append(decimalFormat.infinity)
+                }
+                else -> formatNonSuffixTo(receiver, BigDecimal(m), decimalFormat)
+            }
+            receiver.append(decimalFormat.percent)
+            if (suffix != null) receiver.append(suffix)
         }
 
         companion object {
@@ -724,11 +742,29 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         }
 
         override fun formatTo(receiver: Appendable, number: Float, decimalFormat: DecimalFormat) {
-            formatTo(receiver, BigDecimal(number), decimalFormat)
+            val m = number * 1000.0f
+            when {
+                m.isInfinite() -> {
+                    prefix?.let { receiver.append(it) }
+                    receiver.append(decimalFormat.infinity)
+                }
+                else -> formatNonSuffixTo(receiver, BigDecimal(m), decimalFormat)
+            }
+            receiver.append(decimalFormat.perMille)
+            if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(receiver: Appendable, number: Double, decimalFormat: DecimalFormat) {
-            formatTo(receiver, BigDecimal(number), decimalFormat)
+            val m = number * 1000.0
+            when {
+                m.isInfinite() -> {
+                    prefix?.let { receiver.append(it) }
+                    receiver.append(decimalFormat.infinity)
+                }
+                else -> formatNonSuffixTo(receiver, BigDecimal(m), decimalFormat)
+            }
+            receiver.append(decimalFormat.perMille)
+            if (suffix != null) receiver.append(suffix)
         }
 
         companion object {
