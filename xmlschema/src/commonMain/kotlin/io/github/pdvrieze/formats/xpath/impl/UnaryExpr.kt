@@ -21,13 +21,9 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 
 @XPathInternal
@@ -83,19 +79,13 @@ sealed class UnaryExpr: AbstractExprSingle() {
         override fun eval(): XdmValue<*> {
             val e = expr.eval()
             ctx.withExprContext(this) {
-                return XdmAtomic(NumericFunctions.fnNumber(e).value.unaryMinus())
-            }
-
-/*
-            when (val e = expr.eval()) {
-                is XdmSequence.EMPTY -> return e
-                !is XdmAtomic<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, this, "Expected atomic number, found ${e.staticType}")
-                else -> {
-                    val v = (e.value as? XsdNumeric<*>) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, this, "Expected number, found ${e.value.schemaType}")
-                    return XdmAtomic(v.unaryMinus() as XsdAtomic)
+                val r = when (val v = (e as? XdmAtomic<*>)?.value) {
+                    is XsdNumeric<*> -> v.unaryMinus()
+                    else -> NumericFunctions.fnNumber(e).value.unaryMinus()
                 }
+
+                return XdmAtomic(r)
             }
-*/
         }
 
         context(c: OutputContext)
