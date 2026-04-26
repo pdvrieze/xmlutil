@@ -817,9 +817,20 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 val bd = number.toBigDecimal()
                 val targetExp = minIntDigits.coerceAtLeast(0) - bd.precisionDigits
                 val expShift = targetExp - bd.exponent
+                var expValue = bd.exponent - targetExp
 
-                val nonExp = bd.exp10(expShift/*).exp10(*/+ decimalDigits) // multply with decimal digits
+                val expectedDigits = decimalDigits + minIntDigits
+
+                var nonExp = bd.exp10(expShift + decimalDigits) // multply with decimal digits
                     .roundToHalfEven()
+
+                // In case we end up increased size due to rounding, correct for that.
+                // A loop should not be needed as the increased size should only be 1
+                if (nonExp.precisionDigits > expectedDigits) {
+                    nonExp = nonExp.exp10(-1).roundToHalfEven()
+                    expValue += 1
+                }
+
 
                 // has optional int digits only and needs leading zero
                 if (minIntDigits == 0 && intPattern.isNotEmpty() && nonExp.precisionDigits <= decimalDigits) {
@@ -828,16 +839,9 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
 
                 if (super.prefix != null) receiver.append(super.prefix)
-                val str = when {
-                    nonExp.sign == 0 -> "0"
-                    else -> {
-                        val bd = nonExp
-
-                        buildString(bd.precisionDigits) {
-                            for (i in (bd.precisionDigits + bd.exponent - 1) downTo 0) {
-                                this.append(bd.getDecimalDigit(i))
-                            }
-                        }
+                val str = buildString(nonExp.precisionDigits.coerceAtLeast(1)) {
+                    for (i in (nonExp.precisionDigits + nonExp.exponent - 1) downTo 0) {
+                        this.append(nonExp.getDecimalDigit(i))
                     }
                 }
                 // format the non-exp part
@@ -851,7 +855,6 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                 )
 
                 receiver.append(decimalFormat.exponentSeparator)
-                var expValue = bd.exponent - targetExp
                 if (expValue < 0) {
                     receiver.append(decimalFormat.minusSign)
                     expValue = expValue.absoluteValue
