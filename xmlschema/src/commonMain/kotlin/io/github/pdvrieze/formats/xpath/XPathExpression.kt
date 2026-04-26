@@ -74,7 +74,8 @@ interface XPathExpression: XQueryExpression {
                 contextItem,
                 namespaceContext,
                 variables = vars,
-                deterministicState = state ?: EvalContext.DeterministicState()
+                deterministicState = state ?: EvalContext.DeterministicState(),
+                specVersion = version
             )
         ) { expr.eval() }
     }
