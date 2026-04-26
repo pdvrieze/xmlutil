@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.formatters
 import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
@@ -46,6 +47,14 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
     fun formatTo(receiver: Appendable, value: XsdNumeric<*>) {
         format.formatTo(receiver, value)
     }
+
+    @XmlUtilInternal
+    fun hasExponent(): Boolean {
+        (format.posFormatter as? DecimalDigitPatternFormatter)?.let { if(it.expPattern.isNotEmpty()) return true }
+        (format.negFormatter as? DecimalDigitPatternFormatter)?.let { return it.expPattern.isNotEmpty() }
+        return false
+    }
+
 
     override fun toString(): String {
         return format.toString()

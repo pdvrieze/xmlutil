@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
@@ -165,9 +166,14 @@ object NumericFunctions: AbstractFunctionObject() {
                 ?: throw EvaluationException(ErrorCodes.FODF1280, "Decimal format '$it' not known")
         } ?: ctx.defaultDecimalFormat
 
+
         val format = try { NumberFormatter(picture, decimalFormat) } catch (e: IllegalArgumentException) {
             throw EvaluationException(ErrorCodes.FODF1310, "Invalid picture for format-number: '$picture'", e)
         }
+        if (! ctx.specVersion.includes(XPathVersion.XPath3_1) && format.hasExponent()) {
+            throw EvaluationException(ErrorCodes.FODF1310, "XPath 3.0 and earlier do not support exponents in format-number: '$picture' (format: $formatName)")
+        }
+
         atomic(format.format(value))
 
     }
