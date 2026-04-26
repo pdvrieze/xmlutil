@@ -81,6 +81,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     when (val cp = pictureSegment.unicodeChar(i)) {
                         decimalFormat.decimalSeparator -> {
                             require (state < PARSE_STATE_DECIMAL_MANDATORY) { "Decimal separator must only occur after integer part" }
+                            require(i > stateStart || intPattern.lastOrNull() !is GroupingSeparator) { "Decimal separator must not directly follow a grouping separator: $pictureSegment" }
                             nextState = PARSE_STATE_DECIMAL_MANDATORY
                             break
                         }
@@ -141,32 +142,38 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                         decimalFormat.groupingSeparator -> {
                             when (state) {
                                 PARSE_STATE_INT_MANDATORY -> {
-                                    intPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
+                                    val len = (i - stateStart) / decimalFormat.zeroDigit.length
+                                    if (len > 0) { intPattern.add(ReqDigits(len)) }
                                     intPattern.add(GroupingSeparator)
                                 }
 
                                 PARSE_STATE_INT_OPT -> {
-                                    intPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
+                                    val len = (i - stateStart) / decimalFormat.digit.length
+                                    if (len > 0) intPattern.add(OptDigits(len))
                                     intPattern.add(GroupingSeparator)
                                 }
 
                                 PARSE_STATE_DECIMAL_OPT -> {
-                                    decimalPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
+                                    val len = (i - stateStart) / decimalFormat.zeroDigit.length
+                                    if (len > 0) decimalPattern.add(ReqDigits(len))
                                     decimalPattern.add(GroupingSeparator)
                                 }
 
                                 PARSE_STATE_DECIMAL_MANDATORY -> {
-                                    decimalPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
+                                    val len = (i - stateStart) / decimalFormat.digit.length
+                                    if (len > 0) decimalPattern.add(OptDigits(len))
                                     decimalPattern.add(GroupingSeparator)
                                 }
 
                                 PARSE_STATE_EXP_OPT -> {
-                                    expPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
+                                    val len = (i - stateStart) / decimalFormat.zeroDigit.length
+                                    if (len > 0) expPattern.add(ReqDigits(len))
                                     expPattern.add(GroupingSeparator)
                                 }
 
                                 PARSE_STATE_EXP_MANDATORY -> {
-                                    expPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
+                                    val len = (i - stateStart) / decimalFormat.digit.length
+                                    if (len > 0) expPattern.add(OptDigits(len))
                                     expPattern.add(GroupingSeparator)
                                 }
 
@@ -243,6 +250,8 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                     i = suffix.nextCodePointPos(i)
                 }
             }
+
+            require (decimalPattern.firstOrNull() !is GroupingSeparator) { "The decimal part cannot start with a grouping separator" }
 
             when (state) {
                 PARSE_STATE_PERCENT -> {
