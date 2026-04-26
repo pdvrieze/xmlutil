@@ -383,7 +383,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
         abstract fun formatTo(receiver: Appendable, number: Double, decimalFormat: DecimalFormat)
 
-        fun formatNonSuffixTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
+        open fun formatNonSuffixTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
             if (prefix != null) receiver.append(prefix)
 
             val str = when {
@@ -753,6 +753,22 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
         regularGrouping: Int = -1
     ) : NumberFormatter(prefix, intPattern, decimalPattern, suffix, regularGrouping){
 
+        val expDigits: Int
+        val expMinDigits: Int
+
+        init {
+            var d = 0
+            var md = 0
+            for (e in expPattern) {
+                when {
+                    e is OptDigits -> d += e.length
+                    e is ReqDigits -> md += e.length
+                }
+            }
+            expDigits = d + md
+            expMinDigits = md
+        }
+
         override fun copy(
             prefix: String?,
             intPattern: List<FormatElem>,
@@ -780,20 +796,43 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             return DecimalDigitPatternFormatter(prefix, intPattern, decimalPattern, expPattern, suffix, r.newGrouping)
         }
 
-        override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
+        override fun formatNonSuffixTo(
+            receiver: Appendable,
+            number: XsdDecimal,
+            decimalFormat: DecimalFormat
+        ) {
             if (expPattern.isNotEmpty()) {
-                val minExpSize = expPattern.asSequence().filterIsInstance<ReqDigits>().sumOf { it.length }
-                val scalingFactor = minIntDigits
-                
+                val bd = number.toBigDecimal()
+                val expShift = bd.precisionDigits - minIntDigits.coerceAtLeast(1)
 
-            } else {
-                when (number) {
-                    is XsdFloat -> formatNonSuffixTo(receiver, number.value, decimalFormat)
-                    is XsdDouble -> formatNonSuffixTo(receiver, number.value, decimalFormat)
-                    is XsdDecimal -> formatNonSuffixTo(receiver, number, decimalFormat)
+                val nonExp = bd.exp10(expShift - bd.exponent)
+                super.formatNonSuffixTo(receiver, nonExp, decimalFormat)
+
+                receiver.append(decimalFormat.exponentSeparator)
+                var expValue = bd.exponent+expShift
+                if (expValue < 0) {
+                    receiver.append(decimalFormat.minusSign)
+                    expValue = expValue.absoluteValue
                 }
-                if (suffix != null) receiver.append(suffix)
+                val expString = expValue.toString()
+                val extraDigits = expMinDigits - expString.length
+                if (extraDigits > 0) {
+                    receiver.appendUnicode(UnicodeChar(decimalFormat.zeroDigit.codePoint + '0'.code))
+                    repeat(extraDigits) { receiver.appendUnicode(decimalFormat.zeroDigit) }
+                }
+                receiver.append(expString)
+            } else {
+                super.formatNonSuffixTo(receiver, number, decimalFormat)
             }
+        }
+
+        override fun formatTo(receiver: Appendable, number: XsdDecimal, decimalFormat: DecimalFormat) {
+            when (number) {
+                is XsdFloat -> formatNonSuffixTo(receiver, number.value, decimalFormat)
+                is XsdDouble -> formatNonSuffixTo(receiver, number.value, decimalFormat)
+                is XsdDecimal -> formatNonSuffixTo(receiver, number, decimalFormat)
+            }
+            if (suffix != null) receiver.append(suffix)
         }
 
         override fun formatTo(
@@ -804,7 +843,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
             when {
                 number.isNaN() -> receiver.append(decimalFormat.NaN)
                 number.isFinite() -> formatTo(receiver, BigDecimal(number), decimalFormat)
-                number.sign>0 -> receiver.append(decimalFormat.infinity)
+                number.sign > 0 -> receiver.append(decimalFormat.infinity)
                 else -> receiver.append(decimalFormat.minusSign).append(decimalFormat.infinity)
             }
         }
