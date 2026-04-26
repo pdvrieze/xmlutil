@@ -83,11 +83,13 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             break
                         }
 
-                        in decimalFormat.zeroDigit..lastDigit -> if (state != PARSE_STATE_INT_MANDATORY && state != PARSE_STATE_DECIMAL_MANDATORY) {
+                        in decimalFormat.zeroDigit..lastDigit -> if (state != PARSE_STATE_INT_MANDATORY &&
+                            state != PARSE_STATE_DECIMAL_MANDATORY && state != PARSE_STATE_EXP_MANDATORY) {
                             when (state) {
                                 PARSE_STATE_PREFIX -> if (i > 0) prefix = pictureSegment.substring(0, i)
                                 PARSE_STATE_INT_OPT -> if (i > stateStart) intPattern.add(OptDigits((i - stateStart) / decimalFormat.digit.length))
                                 PARSE_STATE_DECIMAL_MANDATORY -> if (i > stateStart) decimalPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
+                                PARSE_STATE_EXP_MANDATORY -> if (i > stateStart) expPattern.add(ReqDigits((i - stateStart) / decimalFormat.zeroDigit.length))
                                 else -> throw IllegalArgumentException("Unexpected state $state")
                             }
 
