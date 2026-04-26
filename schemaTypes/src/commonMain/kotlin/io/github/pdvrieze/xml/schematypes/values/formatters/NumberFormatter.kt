@@ -534,7 +534,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
 
                     is GroupingSeparator -> {
                         // no more digits or patterns: we don't append the separator.
-                        if (stringPos > 0 || patternPos > 0) {
+                        if (stringPos > 0 || (patternPos > 0 && (0..patternPos).any { intPattern[it] is ReqDigits })) {
                             formatHelper(digitSource, stringPos, patternPos - 1, appendable, decimalFormat, false)
                             appendable.appendUnicode(decimalFormat.groupingSeparator)
                         }
