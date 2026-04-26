@@ -456,6 +456,7 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             if (i.mod(regularGrouping) == groupOffset) appendable.appendUnicode(decimalFormat.groupingSeparator)
                             appendable.appendDigit(digitSource[i], decimalFormat)
                         }
+                        if (alreadyPendingDigitsInGroup == regularGrouping) appendable.appendUnicode(decimalFormat.groupingSeparator)
                     }
 
                     else -> appendable.append(digitSource, 0, stringPos)
