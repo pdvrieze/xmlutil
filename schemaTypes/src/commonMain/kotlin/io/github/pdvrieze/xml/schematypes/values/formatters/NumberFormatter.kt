@@ -540,8 +540,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
                             intPattern[patternPos - 1] is OptDigits)) -> return
 
                     is GroupingSeparator -> {
-                        formatHelper(digitSource, stringPos, patternPos - 1, appendable, decimalFormat, false)
-                        appendable.appendUnicode(decimalFormat.groupingSeparator)
+                        // no more digits or patterns: we don't append the separator.
+                        if (stringPos > 0 || patternPos > 0) {
+                            formatHelper(digitSource, stringPos, patternPos - 1, appendable, decimalFormat, false)
+                            appendable.appendUnicode(decimalFormat.groupingSeparator)
+                        }
                     }
 
                     is OptDigits -> {
