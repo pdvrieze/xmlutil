@@ -286,6 +286,11 @@ class NumberFormatter private constructor(internal val format: PosNegFormatter) 
     ) {
         fun formatTo(receiver: Appendable, value: XsdNumeric<*>) {
             val formatter = when {
+                value.isNaN -> {
+                    receiver.append(decimalFormat.NaN)
+                    return
+                }
+
                 value.isNegative -> negFormatter
                 else -> posFormatter
             }
