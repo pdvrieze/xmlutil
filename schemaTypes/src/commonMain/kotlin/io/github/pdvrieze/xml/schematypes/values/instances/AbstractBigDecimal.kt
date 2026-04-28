@@ -105,6 +105,9 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             }
         }
 
+    val isZero: Boolean
+        get() = ints.size ==1 && ints[0].and(0x3fff_ffffu) == 0u // use mask to allow for -0
+
     override val isNegative: Boolean get() = ints[0].shr(31) != 0u
 
     val intDigitSize: Int
@@ -840,10 +843,11 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     }
 
     private fun withNewExp(newExp: Int): T {
-        val newDecDigitCount = D10Pos(precisionDigits - newExp + exponent)
-        if (newDecDigitCount.p == 0) return companion.ZERO
+        if (newExp == exponent || isZero) return self
 
-        val newInts = UIntArray(newDecDigitCount.intSize)
+        val newDecDigitCount = D10Pos(precisionDigits - newExp + exponent)
+
+        val newInts = UIntArray(newDecDigitCount.intSize/*.coerceAtLeast(1)*/)
         for (i in newInts.indices) {
             var tmp = 0u
             for (j in 0..2) {
