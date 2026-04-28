@@ -728,10 +728,6 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
                 appendable.append('0')
             }
         }
-        if (exponent !=0) {
-            appendable.append('e')
-            appendable.append(exponent.toString())
-        }
     }
 
     override fun divRem(divider: XsdDecimal): DivRem<T> {

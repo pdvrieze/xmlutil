@@ -43,6 +43,8 @@ interface FloatType<out T : XsdFloat> : PrimitiveType<T>, NumericType<T> {
         return super<PrimitiveType>.isBaseOf(maybeSubType)
     }
 
+    override fun fromString(value: CharSequence): T
+
     override fun castFrom(other: XsdAtomic): T {
         return super<PrimitiveType>.castFrom(other)
     }

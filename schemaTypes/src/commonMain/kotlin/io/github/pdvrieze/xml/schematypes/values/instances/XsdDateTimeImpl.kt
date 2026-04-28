@@ -89,7 +89,7 @@ open class XsdDateTimeImpl private constructor(
         }
         requireRange(hour in 0u..23u) { "Hour value $hour !in 0..23" }
         requireRange(minute in 0u..59u) { "Minute value $minute !in 0..59" }
-        requireRange(second.toDouble() in 0.0..<60.0) { "Second value !in 0.0..<60.0" }
+        requireRange(second.toDouble() in 0.0..<60.0) { "Second value ($second) !in 0.0..<60.0" }
         requireRange(timezoneOffset == null || timezoneOffset in -840..840) { "Timezone offset must be in -840..840 or null, was: $timezoneOffset" }
     }
 
