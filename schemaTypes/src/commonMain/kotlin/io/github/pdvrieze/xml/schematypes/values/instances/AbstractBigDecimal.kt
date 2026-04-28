@@ -121,7 +121,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     }
 
     override val isInteger: Boolean
-        get() = exponent <= 0
+        get() = exponent >=0
 
     protected abstract val companion: CompanionBase<T>
 
@@ -1198,21 +1198,21 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             return newInstance(ints, 0)
         }
 
-        operator fun invoke(value: Int, decimalPositions: Int = 0): T = when {
+        operator fun invoke(value: Int, exponent: Int = 0): T = when {
             value < 0 -> {
                 val uints = valToUInts((-value).toUInt())
                 uints[0] = uints[0] or SIGN_BIT.toUInt()
-                newInstance(uints, decimalPositions)
+                newInstance(uints, exponent)
             }
 
             value == 0 -> ZERO
 
-            else -> newInstance(valToUInts(value.toUInt()), decimalPositions)
+            else -> newInstance(valToUInts(value.toUInt()), exponent)
         }
 
-        operator fun invoke(value: UInt, decimalPositions: Int = 0): T = when {
+        operator fun invoke(value: UInt, exponent: Int = 0): T = when {
             value == 0u -> ZERO
-            else -> newInstance(valToUInts(value), decimalPositions)
+            else -> newInstance(valToUInts(value), exponent)
         }
 
         operator fun invoke(value: Long, decimalPositions: Int = 0): T = when {
