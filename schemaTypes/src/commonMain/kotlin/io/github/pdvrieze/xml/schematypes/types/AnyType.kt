@@ -40,7 +40,7 @@ interface AnyType {
 
     fun sharedBaseType(other: AnyType): AnyType {
         var sharedType = this
-        while (!other.derivesFrom(sharedType)) {
+        while (sharedType != sharedType.baseType && !other.derivesFrom(sharedType)) {
             sharedType = sharedType.baseType
         }
         return sharedType
