@@ -43,7 +43,7 @@ class TestDateTime {
 
     @Test
     fun testDateTimeNanos() {
-        val time = XsdDateTime(2000, 1u, 1u, 1u, 1u, BigDecimal(12, 9))
+        val time = XsdDateTime(2000, 1u, 1u, 1u, 1u, BigDecimal(12, -9))
         assertEquals("2000-01-01T01:01:00.000000012", time.xmlString)
     }
 

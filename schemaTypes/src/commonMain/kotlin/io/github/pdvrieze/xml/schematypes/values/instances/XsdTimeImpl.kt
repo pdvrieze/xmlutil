@@ -75,7 +75,7 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
             val millis = millis
             return when {
                 millis % 1000u == 0u -> XsdUnsignedInt(millis / 1000u)
-                else -> BigDecimal(millis, 3)
+                else -> BigDecimal(millis, -3)
             }
         }
 

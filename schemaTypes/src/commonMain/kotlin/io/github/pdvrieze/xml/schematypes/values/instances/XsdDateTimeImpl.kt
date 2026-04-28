@@ -50,7 +50,7 @@ open class XsdDateTimeImpl private constructor(
         second = dateTime.nanosecond.let {// retain nano seconds
             when {
                 it % 1_000_000_000 == 0 -> XsdInt(dateTime.second)
-                else -> BigDecimal(it, 9) + XsdInt(dateTime.second)
+                else -> BigDecimal(it, -9) + XsdInt(dateTime.second)
             }
         },
         timezoneOffset = timezoneOffset,
@@ -89,7 +89,7 @@ open class XsdDateTimeImpl private constructor(
         }
         requireRange(hour in 0u..23u) { "Hour value $hour !in 0..23" }
         requireRange(minute in 0u..59u) { "Minute value $minute !in 0..59" }
-        requireRange(second.toDouble() in 0.0..<60.0) { "Second value ($second) !in 0.0..<60.0" }
+        requireRange(second >= XsdInt(0) && second <= XsdInt(60)) { "Second value (${second.xmlString}) !in 0.0..<60.0" }
         requireRange(timezoneOffset == null || timezoneOffset in -840..840) { "Timezone offset must be in -840..840 or null, was: $timezoneOffset" }
     }
 
@@ -216,7 +216,7 @@ open class XsdDateTimeImpl private constructor(
 
             val secDec = when (nanos) {
                 0 -> XsdInt(seconds)
-                else -> BigDecimal(seconds.toLong()*1_000_000_000 + nanos, 9)
+                else -> BigDecimal(seconds.toLong()*1_000_000_000 + nanos, -9)
             }
 
             return XsdDateTimeImpl(

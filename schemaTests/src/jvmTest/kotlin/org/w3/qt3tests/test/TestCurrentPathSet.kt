@@ -41,7 +41,7 @@ class TestCurrentPathSet : AbstractTestSetSuite() {
         testEvalTestCaseImpl(testCase)
     }
 
-    companion object : CompanionBase("fn-adjust-date-to-timezone") {
+    companion object : CompanionBase("fn-adjust-dateTime-to-timezone") {
         @JvmStatic
         override fun getTestCases(): List<Named<ResolvedQt3TestCase>> {
             return getTestCases(testSetName)
