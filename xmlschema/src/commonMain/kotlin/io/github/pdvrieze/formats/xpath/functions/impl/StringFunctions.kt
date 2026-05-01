@@ -234,5 +234,62 @@ object StringFunctions : AbstractFunctionObject() {
         val result = regex.containsMatchIn(input)
         atomic(result)
     }
+
+    val fnReplace = BuiltinFunctionImpl("replace", listOf(
+        functionType(STRING, STRING.opt, STRING, STRING, STRING),
+        functionType(STRING, STRING.opt, STRING, STRING),
+    )) { args ->
+        val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val pattern = args.atomicArgN<XsdString>(1).xmlString
+        val replacement = args.atomicArgN<XsdString>(2).xmlString
+        val flags = if (args.size == 4) args.atomicArgN<XsdString>(3).xmlString else ""
+
+        val regex = XRegex(pattern, SchemaVersion.V1_1)
+        var start = 0
+        val result = StringBuilder()
+        var match = regex.find(input, start)
+        while (match != null) {
+            if (match.range.first > start) result.append(input, start, match.range.first)
+            result.append(replacement)
+            start = match.range.last + 1
+
+            match = regex.find(input, start)
+        }
+        if (start < input.length) result.append(input, start, input.length)
+        atomic(result.toString())
+    }
+
+    val fnTokenize = BuiltinFunctionImpl("tokenize", listOf(
+        functionType(STRING.any, STRING.opt, STRING, STRING),
+        functionType(STRING.any, STRING.opt, STRING),
+        functionType(STRING.any, STRING.opt),
+    )) { args ->
+        var input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val pattern: String
+        if (args.size == 1) {
+            input = xmlCollapseWhitespace(input)
+            pattern = " "
+        } else {
+            pattern = args.atomicArgN<XsdString>(1).xmlString
+        }
+
+        val flags = if (args.size == 3) args.atomicArgN<XsdString>(2).xmlString else ""
+
+        val regex = XRegex(pattern, SchemaVersion.V1_1)
+        var start = 0
+        val result = mutableListOf<XdmAtomic<XsdString>>()
+        var match = regex.find(input, start)
+        while (match != null) {
+            if (match.range.first > start) {
+                result.add(atomic(input.substring(start, match.range.first)))
+            }
+            start = match.range.last + 1
+
+            match = regex.find(input, start)
+        }
+        if (start < input.length) result.add(atomic(input.substring(start, input.length)))
+        XdmSequence.fromList(result, STRING.any.toValueType())
+    }
+
     //endregion
 }
