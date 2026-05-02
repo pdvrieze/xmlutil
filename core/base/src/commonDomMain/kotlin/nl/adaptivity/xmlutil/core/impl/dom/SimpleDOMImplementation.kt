@@ -22,11 +22,11 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
-import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMVersion
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDOMImplementation
 
-internal object SimpleDOMImplementation : DOMImplementation {
+internal object SimpleDOMImplementation : AbstractDOMImplementation() {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
     override fun createDocument(namespace: String?, qualifiedName: String): DocumentImpl =

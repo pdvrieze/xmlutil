@@ -22,13 +22,15 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.CharacterData
 
-internal abstract class CharacterDataImpl(
+@XmlUtilInternal
+public abstract class CharacterDataImpl internal constructor(
     private var ownerDocument: DocumentImpl,
     private var data: String
-) : NodeImpl(), CharacterData {
+) : LeafNodeImpl(), CharacterData {
     override fun getOwnerDocument(): DocumentImpl = ownerDocument
 
     override fun setOwnerDocument(ownerDocument: DocumentImpl) {
@@ -43,10 +45,6 @@ internal abstract class CharacterDataImpl(
     override fun setData(data: String) {
         this.data = data
     }
-
-    final override fun getFirstChild(): Nothing? = null
-    final override fun getLastChild(): Nothing? = null
-    final override fun getChildNodes(): INodeListImpl = EmptyNodeList
 
     override fun appendChild(node: PlatformNode): Nothing {
         throw UnsupportedOperationException("Cannot append child to a character data node")
@@ -95,14 +93,3 @@ internal abstract class CharacterDataImpl(
     }
 }
 
-internal object EmptyNodeList : INodeListImpl {
-    override val size: Int get() = 0
-
-    override fun item(index: Int): Nothing? = null
-
-    override fun get(index: Int): Nothing? = item(index)
-
-    override fun iterator(): Iterator<Nothing> {
-        return emptyList<Nothing>().iterator()
-    }
-}

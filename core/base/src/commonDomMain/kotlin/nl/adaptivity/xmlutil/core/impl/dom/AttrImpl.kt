@@ -26,29 +26,21 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.NodeType
 
-internal class AttrImpl(
+public class AttrImpl internal constructor(
     private var ownerDocument: DocumentImpl,
     private val namespaceURI: String?,
     private val localName: String,
     private val prefix: String?,
     private var value: String
-) : NodeImpl(), Attr {
+) : LeafNodeImpl(), Attr {
 
-    constructor(ownerDocument: DocumentImpl, original: PlatformAttr) : this(
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformAttr) : this(
         ownerDocument,
         original.getNamespaceURI(),
         original.getLocalName() ?: throw DOMException.invalidCharacterErr("Local name not set for attribute") ,
         original.getPrefix(),
         original.getValue()
     )
-
-    override fun getFirstChild(): Nothing? {
-        TODO("not implemented")
-    }
-
-    override fun getLastChild(): Nothing? {
-        TODO("not implemented")
-    }
 
     override fun appendChild(node: PlatformNode): Nothing {
         TODO("not implemented")
@@ -94,8 +86,6 @@ internal class AttrImpl(
     }
 
     override fun getNodeName(): String = getName()
-
-    override fun getChildNodes(): INodeListImpl = EmptyNodeList
 
     private var ownerElement: ElementImpl? = null
 

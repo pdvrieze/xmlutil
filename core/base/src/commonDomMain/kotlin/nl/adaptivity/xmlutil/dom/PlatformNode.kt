@@ -146,3 +146,4 @@ public actual interface PlatformNode {
 
 }
 
+public actual val PlatformNode.ownerDocument: PlatformDocument? get() = getOwnerDocument()

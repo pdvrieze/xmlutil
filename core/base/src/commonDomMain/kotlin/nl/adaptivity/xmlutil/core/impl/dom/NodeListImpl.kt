@@ -22,10 +22,10 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.dom2.NodeList
 
-internal interface INodeListImpl: NodeList {
+public interface INodeListImpl: NodeList {
     override fun get(index: Int): NodeImpl? = item(index)
 
-    fun isEmpty(): Boolean = size == 0
+    public fun isEmpty(): Boolean = size == 0
 
     override fun item(index: Int): NodeImpl?
 
@@ -41,7 +41,7 @@ internal class NodeListImpl(
     override val size: Int get() = elements.size
 
     override fun item(index: Int): NodeImpl? = when (index) {
-        in 0 until elements.size -> elements[index]
+        in elements.indices -> elements[index]
 
         else -> null
     }

@@ -20,16 +20,18 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
 
-internal class ProcessingInstructionImpl(
+@XmlUtilInternal
+public class ProcessingInstructionImpl internal constructor(
     ownerDocument: DocumentImpl,
     private val target: String,
     data: String
 ) : CharacterDataImpl(ownerDocument, data), ProcessingInstruction {
-    constructor(ownerDocument: DocumentImpl, original: PlatformProcessingInstruction) :
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformProcessingInstruction) :
             this(ownerDocument, original.getNodeName(), original.getData())
 
     override fun getNodetype(): NodeType = NodeType.PROCESSING_INSTRUCTION_NODE

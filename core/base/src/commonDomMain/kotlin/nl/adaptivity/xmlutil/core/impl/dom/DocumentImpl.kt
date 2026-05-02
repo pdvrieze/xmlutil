@@ -22,11 +22,13 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
-internal class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) : NodeImpl(), Document {
+@XmlUtilInternal
+public class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) : ParentNodeImpl(), Document {
     init {
         if (doctype?.maybeOwnerDocument != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
         doctype?.setOwnerDocument(this)
@@ -34,7 +36,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
 
     private val docId = nextDocId()
 
-    constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
+    internal constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
 
     override fun getDoctype(): DocumentTypeImpl? = doctype
 
@@ -191,7 +193,7 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
 
     override fun createElement(localName: String): ElementImpl {
         if (localName.isEmpty()) throw DOMException.invalidCharacterErr("Element name cannot be empty")
-        if (localName.indexOf(':')>=0) throw DOMException.namespaceErr("Prefix in name without namespace uri")
+        if (localName.indexOf(':') >= 0) throw DOMException.namespaceErr("Prefix in name without namespace uri")
         return ElementImpl(this, null, localName, null)
     }
 
@@ -244,12 +246,12 @@ internal class DocumentImpl private constructor(private val doctype: DocumentTyp
 //        else -> e.toString()
     }
 
-    companion object {
+    public companion object {
         private var nextDocId: Int = 1
 
         private fun nextDocId(): Int = nextDocId++
 
-        fun coerce(document: PlatformDocument): DocumentImpl {
+        internal fun coerce(document: PlatformDocument): DocumentImpl {
             return (document as? DocumentImpl) ?: throw DOMException.notSupportedErr("Documents can not be adopted")
         }
     }
@@ -259,8 +261,7 @@ internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
     if (node is DocumentImpl) return node
     if (getOwnerDocument() != node.getOwnerDocument()) throw DOMException.wrongDocumentErr("Node (${node.getNodetype()}) not owned by this document (${getOwnerDocument()} != ${node.getOwnerDocument()})")
     when (node) {
-        is NodeImpl -> {}
-        else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+        !is NodeImpl -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
     }
 //    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
     return node
@@ -269,6 +270,6 @@ internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
 internal fun Node.checkNode(node: Node): NodeImpl {
     if (node is DocumentImpl) return node
     if (ownerDocument != node.getOwnerDocument()) throw DOMException.wrongDocumentErr("Node (${node.getNodetype()}) not owned by this document")
-    if (node !is NodeImpl) throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+    if (node !is LeafNodeImpl) throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
     return node
 }

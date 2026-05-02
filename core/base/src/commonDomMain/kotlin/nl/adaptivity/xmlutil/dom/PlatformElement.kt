@@ -60,3 +60,7 @@ public actual interface PlatformElement : PlatformNode {
     public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 }
 
+public actual val PlatformElement.namespaceURI: String? get() = getNamespaceURI()
+public actual val PlatformElement.prefix: String? get() = getPrefix()
+public actual val PlatformElement.localName: String get() = getLocalName()
+

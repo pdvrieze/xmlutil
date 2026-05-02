@@ -22,13 +22,17 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.parentNode
 
-internal class DocumentFragmentImpl(private var ownerDocument: DocumentImpl) : NodeImpl(), DocumentFragment {
+@XmlUtilInternal
+public class DocumentFragmentImpl internal constructor(private var ownerDocument: DocumentImpl) :
+    ParentNodeImpl(), DocumentFragment {
+
     override fun getOwnerDocument(): DocumentImpl = ownerDocument
 
     override fun setOwnerDocument(ownerDocument: DocumentImpl) {

@@ -20,14 +20,17 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformComment
 import nl.adaptivity.xmlutil.dom2.Comment
 import nl.adaptivity.xmlutil.dom2.NodeType
 
-internal class CommentImpl(ownerDocument: DocumentImpl, data: String) : CharacterDataImpl(ownerDocument, data),
+@XmlUtilInternal
+public class CommentImpl internal constructor(ownerDocument: DocumentImpl, data: String) : CharacterDataImpl(ownerDocument, data),
     Comment {
 
-    constructor(ownerDocument: DocumentImpl, original: PlatformComment) : this(ownerDocument, original.getData())
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformComment) :
+            this(ownerDocument, original.getData())
 
     override fun getNodetype(): NodeType = NodeType.COMMENT_NODE
 

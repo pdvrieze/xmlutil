@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,5 +22,9 @@
 package nl.adaptivity.xmlutil.dom
 
 public expect interface PlatformElement : PlatformNode
+
+public expect val PlatformElement.namespaceURI: String?
+public expect val PlatformElement.prefix: String?
+public expect val PlatformElement.localName: String
 
 
