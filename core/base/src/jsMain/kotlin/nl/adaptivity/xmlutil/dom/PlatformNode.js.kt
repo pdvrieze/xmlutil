@@ -47,4 +47,4 @@ public actual external interface PlatformNode {
 
 }
 
-
+public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument

@@ -18,15 +18,12 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.dom
+package nl.adaptivity.xmlutil.dom2.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.Text
 
-public interface NodeImpl : Node {
-    @XmlUtilInternal
-    public fun setParentNode(node: ParentNodeImpl?)
+@ExperimentalXmlUtilApi
+public abstract class AbstractText<out N: Node, out P: Node> : AbstractCharacterData<N, P>(), Text
 
-    @XmlUtilInternal
-    public fun setOwnerDocument(ownerDocument: DocumentImpl)
-}

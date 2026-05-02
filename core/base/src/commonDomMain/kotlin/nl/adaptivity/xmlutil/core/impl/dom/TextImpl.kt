@@ -20,14 +20,15 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.Text
 
-internal open class TextImpl(ownerDocument: DocumentImpl, data: String)
-    : CharacterDataImpl(ownerDocument, data), Text {
+@XmlUtilInternal
+public open class TextImpl internal constructor(ownerDocument: DocumentImpl, data: String) : CharacterDataImpl(ownerDocument, data), Text {
 
-    constructor(ownerDocument: DocumentImpl, original: PlatformText) : this(ownerDocument, original.getData())
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformText) : this(ownerDocument, original.getData())
 
     override fun getNodetype(): NodeType = NodeType.TEXT_NODE
 

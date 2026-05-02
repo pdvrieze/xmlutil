@@ -20,13 +20,14 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom2.Node
+internal object EmptyNodeList : INodeListImpl {
+    override val size: Int get() = 0
 
-public interface NodeImpl : Node {
-    @XmlUtilInternal
-    public fun setParentNode(node: ParentNodeImpl?)
+    override fun item(index: Int): Nothing? = null
 
-    @XmlUtilInternal
-    public fun setOwnerDocument(ownerDocument: DocumentImpl)
+    override fun get(index: Int): Nothing? = item(index)
+
+    override fun iterator(): Iterator<Nothing> {
+        return emptyList<Nothing>().iterator()
+    }
 }

@@ -32,13 +32,13 @@ import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.parentNode
 
-internal class ElementImpl(
+public class ElementImpl internal constructor(
     private var ownerDocument: DocumentImpl,
     private val namespaceURI: String?,
     private val localName: String,
     private val prefix: String?
-) : NodeImpl(), Element {
-    constructor(ownerDocument: DocumentImpl, original: PlatformElement) : this(
+) : ParentNodeImpl(), Element {
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformElement) : this(
         ownerDocument,
         original.getNamespaceURI(),
         original.getLocalName(),
@@ -366,7 +366,7 @@ internal class ElementImpl(
         }
     }
 
-    inner class AttrMap : NamedNodeMap {
+    public inner class AttrMap : NamedNodeMap {
         override val size: Int get() = _attributes.size
         override fun getLength(): Int = size
 
@@ -412,7 +412,7 @@ internal class ElementImpl(
         }
     }
 
-    inner class AttrIterator : Iterator<AttrImpl> {
+    internal inner class AttrIterator : Iterator<AttrImpl> {
         private var pos = 0
 
         override fun hasNext(): Boolean = pos < _attributes.size

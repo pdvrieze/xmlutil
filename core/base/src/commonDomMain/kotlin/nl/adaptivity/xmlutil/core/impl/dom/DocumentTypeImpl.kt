@@ -20,19 +20,21 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
 
-internal class DocumentTypeImpl(
-    var maybeOwnerDocument: DocumentImpl?,
+@XmlUtilInternal
+public class DocumentTypeImpl internal constructor(
+    internal var maybeOwnerDocument: DocumentImpl?,
     private val name: String,
     private val publicId: String,
     private val systemId: String
-) : NodeImpl(), DocumentType {
-    constructor(original: DocumentType1) : this(
+) : LeafNodeImpl(), DocumentType {
+    internal constructor(original: DocumentType1) : this(
         DocumentImpl.coerce(original.getOwnerDocument()),
         original.getName(),
         original.getPublicId(),
@@ -54,12 +56,6 @@ internal class DocumentTypeImpl(
     override fun getNodetype(): NodeType = NodeType.DOCUMENT_TYPE_NODE
 
     override fun getNodeName(): String = getName()
-
-    override fun getChildNodes(): INodeListImpl = EmptyNodeList
-
-    override fun getFirstChild(): Nothing? = null
-
-    override fun getLastChild(): Nothing? = null
 
     override fun appendChild(node: PlatformNode): Nothing {
         throw UnsupportedOperationException("Cannot append child to a document type node")
@@ -87,8 +83,8 @@ internal class DocumentTypeImpl(
         return getParentNode()?.lookupNamespaceURI(prefix)
     }
 
-    companion object {
-        fun coerce(doctype: DocumentType1): DocumentTypeImpl {
+    public companion object {
+        internal fun coerce(doctype: DocumentType1): DocumentTypeImpl {
             return doctype as? DocumentTypeImpl ?: DocumentTypeImpl(doctype)
         }
 

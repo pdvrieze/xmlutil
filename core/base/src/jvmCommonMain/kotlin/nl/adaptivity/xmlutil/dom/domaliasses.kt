@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,12 +27,17 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual typealias PlatformNode = org.w3c.dom.Node
+public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument
 
 public actual typealias PlatformAttr = org.w3c.dom.Attr
 
 public actual typealias PlatformDocumentFragment = org.w3c.dom.DocumentFragment
 
 public actual typealias PlatformElement = org.w3c.dom.Element
+
+public actual val PlatformElement.namespaceURI: String? get() = getNamespaceURI()
+public actual val PlatformElement.prefix: String? get() = getPrefix()
+public actual val PlatformElement.localName: String get() = getLocalName()
 
 public actual typealias PlatformText = org.w3c.dom.Text
 

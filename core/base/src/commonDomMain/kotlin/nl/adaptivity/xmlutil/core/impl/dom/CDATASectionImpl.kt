@@ -24,10 +24,10 @@ import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 import nl.adaptivity.xmlutil.dom2.CDATASection
 import nl.adaptivity.xmlutil.dom2.NodeType
 
-internal class CDATASectionImpl(ownerDocument: DocumentImpl, data: String) : TextImpl(ownerDocument, data),
+public class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, data: String) : TextImpl(ownerDocument, data),
     CDATASection {
 
-    constructor(ownerDocument: DocumentImpl, original: PlatformCDATASection) : this(ownerDocument, original.getData())
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformCDATASection) : this(ownerDocument, original.getData())
 
     override fun getNodetype(): NodeType = NodeType.CDATA_SECTION_NODE
 
