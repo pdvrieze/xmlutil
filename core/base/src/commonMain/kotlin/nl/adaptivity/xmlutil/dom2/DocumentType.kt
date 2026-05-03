@@ -33,6 +33,9 @@ public expect interface DocumentType : Node, PlatformDocumentType {
     public override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?
+
+    override fun getNodeValue(): Nothing?
+
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

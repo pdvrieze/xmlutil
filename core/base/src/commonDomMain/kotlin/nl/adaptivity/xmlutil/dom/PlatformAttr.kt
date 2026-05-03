@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -34,6 +34,7 @@ public actual interface PlatformAttr : PlatformNode {
     public fun setValue(value: String)
 
     public fun getOwnerElement(): PlatformElement?
+    public override fun getOwnerDocument(): PlatformDocument
 
     public override fun appendChild(node: PlatformNode): Nothing
     public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing

@@ -29,13 +29,18 @@ public actual interface Document : Node, PlatformDocument {
     override val doctype: DocumentType? get() = getDoctype()
     override val documentElement: Element? get() = getDocumentElement()
     override val inputEncoding: String? get() = getInputEncoding()
+    override val ownerDocument: Nothing? get() = null
+
+    actual override fun getNodeValue(): Nothing?
 
     public actual fun getImplementation(): DOMImplementation
     public actual fun getDoctype(): DocumentType?
     public actual fun getDocumentElement(): Element?
     public actual fun getInputEncoding(): String?
+    actual override fun getOwnerDocument(): Nothing?
+
     public actual override fun importNode(node: PlatformNode, deep: Boolean): Node
-    public actual override fun adoptNode(node: PlatformNode): Node
+    public actual override fun adoptNode(node: PlatformNode): Node?
     public actual override fun createAttribute(localName: String): Attr
     public actual override fun createAttributeNS(namespace: String?, qualifiedName: String): Attr
     public actual override fun createElement(localName: String): Element

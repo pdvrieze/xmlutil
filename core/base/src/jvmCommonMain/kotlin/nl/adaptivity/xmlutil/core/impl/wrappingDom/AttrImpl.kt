@@ -40,6 +40,12 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
 
     override fun getSpecified(): Boolean = delegate.specified
 
+    override fun getNodeValue(): String = delegate.nodeValue
+
+    override fun getOwnerDocument(): DocumentImpl {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
     override fun getValue(): String = delegate.value
 
     override fun setValue(value: String) {

@@ -32,7 +32,7 @@ public actual interface Document : Node, PlatformDocument {
     public actual override fun getDocumentElement(): Element?
     public actual override fun getInputEncoding(): String?
     public actual override fun importNode(node: PlatformNode, deep: Boolean): Node
-    public actual override fun adoptNode(node: PlatformNode): Node
+    public actual override fun adoptNode(node: PlatformNode): Node?
     public actual override fun createAttribute(localName: String): Attr
     public actual override fun createAttributeNS(namespace: String?, qualifiedName: String): Attr
     public actual override fun createElement(localName: String): Element
@@ -42,6 +42,9 @@ public actual interface Document : Node, PlatformDocument {
     public actual override fun createCDATASection(data: String): CDATASection
     public actual override fun createComment(data: String): Comment
     public actual override fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
+
+    public actual override fun getOwnerDocument(): Nothing?
+    public actual override fun getNodeValue(): Nothing?
 }
 
 public actual fun Document.importNode(

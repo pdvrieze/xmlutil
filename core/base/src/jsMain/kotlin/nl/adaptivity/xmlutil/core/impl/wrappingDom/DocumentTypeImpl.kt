@@ -21,13 +21,15 @@
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.DocumentType as DocumentType2
 import org.w3c.dom.DocumentType as DOMDocumentType
 
-internal class DocumentTypeImpl(delegate: DOMDocumentType) : NodeImpl<DOMDocumentType>(delegate), DocumentType2 {
+internal class DocumentTypeImpl(delegate: DOMDocumentType) : NodeImpl<DOMDocumentType>(delegate), DocumentType {
     override val parentElement: Element?
         get() = super.parentElement
+
+    override fun getNodeValue(): Nothing? = null
 
     override fun getName(): String = delegate.name
 

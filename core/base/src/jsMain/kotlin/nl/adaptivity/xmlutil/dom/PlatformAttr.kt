@@ -34,5 +34,5 @@ public actual external interface PlatformAttr : PlatformNode {
     public val name: String
     public var value: String
     public val ownerElement: PlatformElement?
+    override val ownerDocument: PlatformDocument
 }
-

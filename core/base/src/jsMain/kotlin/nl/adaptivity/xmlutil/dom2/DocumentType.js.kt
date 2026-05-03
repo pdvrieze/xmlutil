@@ -34,6 +34,8 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     public actual fun getPublicId(): String
     public actual fun getSystemId(): String
 
+    actual override fun getNodeValue(): Nothing?
+
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing
 

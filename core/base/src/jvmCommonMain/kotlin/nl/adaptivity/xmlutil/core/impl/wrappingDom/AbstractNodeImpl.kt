@@ -33,7 +33,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
     @Suppress("UNCHECKED_CAST")
     val delegate: N = delegate.unWrap()
 
-    final override fun getOwnerDocument(): DocumentImpl = delegate.ownerDocument.wrap()
+    override fun getOwnerDocument(): DocumentImpl? = delegate.ownerDocument.wrap()
 
     override fun getParentElement(): ElementImpl? {
         return (delegate.parentNode as PlatformElement?)?.wrap()
@@ -62,7 +62,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     final override fun getChildNodes(): WrappingNodeList = WrappingNodeList(delegate.childNodes)
 
-    final override fun getNodeValue(): String = delegate.nodeValue
+    override fun getNodeValue(): String? = delegate.nodeValue
 
     final override fun setNodeValue(nodeValue: String?) {
         delegate.nodeValue = nodeValue

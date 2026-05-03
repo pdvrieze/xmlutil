@@ -30,7 +30,8 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 public actual interface Node: PlatformNode {
     public actual fun getNodetype(): NodeType
     public actual override fun getNodeName(): String
-    public actual override fun getOwnerDocument(): Document
+    public actual override fun getNodeValue(): String?
+    public actual override fun getOwnerDocument(): Document?
     public actual override fun getParentNode(): Node?
     public actual override fun getTextContent(): String?
     public actual override fun setTextContent(value: String)
@@ -56,7 +57,7 @@ public actual interface Node: PlatformNode {
 @IgnorableReturnValue
 @Deprecated("Use member", level = DeprecationLevel.HIDDEN)
 public actual fun Node.appendChild(node: PlatformNode): Node {
-    val n = node as? Node ?: getOwnerDocument().adoptNode(node = node)
+    val n = node as? Node ?: getOwnerDocument()!!.let { d -> d.adoptNode(node = node) ?: d.importNode(node, true) }
     return appendChild(n)
 }
 
@@ -66,7 +67,7 @@ public actual fun Node.replaceChild(
     newChild: PlatformNode,
     oldChild: Node
 ): Node {
-    val n: Node = newChild as? Node ?: getOwnerDocument().adoptNode(node = newChild)
+    val n: Node = newChild as? Node ?: getOwnerDocument()!!.let { d -> d.adoptNode(node = newChild) ?: d.importNode(newChild, true) }
     return replaceChild(n, oldChild)
 }
 

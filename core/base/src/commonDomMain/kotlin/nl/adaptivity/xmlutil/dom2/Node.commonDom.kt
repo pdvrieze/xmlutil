@@ -33,7 +33,7 @@ public actual interface Node : PlatformNode {
     actual override fun getLastChild(): Node?
     actual override fun getPreviousSibling(): Node?
     actual override fun getNextSibling(): Node?
-    actual override fun getOwnerDocument(): Document
+    actual override fun getOwnerDocument(): Document?
     actual override fun getParentElement(): Element?
 
     @IgnorableReturnValue

@@ -40,7 +40,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
     @Suppress("UNCHECKED_CAST")
     val delegate: N = delegate.unWrap() as N
 
-    override val ownerDocument: Document get() = delegate.ownerDocument!!.wrap()
+    override val ownerDocument: DocumentImpl? get() = delegate.ownerDocument?.wrap()
 
     override val parentNode: Node? get() = delegate.parentNode?.wrap()
     override val parentElement: Element? get() = parentNode as? Element
@@ -143,7 +143,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
     }
 
     override fun getNodeName(): String = nodeName
-    override fun getOwnerDocument(): Document = ownerDocument
+    override fun getOwnerDocument(): DocumentImpl? = ownerDocument
     override fun getParentNode(): Node? = parentNode
     override fun getParentElement(): Element? = parentElement
     override fun getFirstChild(): Node? = firstChild

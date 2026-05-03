@@ -22,4 +22,7 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 
-public actual interface DocumentType : Node, PlatformDocumentType
+public actual interface DocumentType : Node, PlatformDocumentType {
+    override fun getOwnerDocument(): Document?
+    actual override fun getNodeValue(): Nothing?
+}

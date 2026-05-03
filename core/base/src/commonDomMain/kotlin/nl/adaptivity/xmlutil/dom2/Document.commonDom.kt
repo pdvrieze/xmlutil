@@ -49,11 +49,15 @@ public actual interface Document : Node, PlatformDocument {
 
     actual override fun importNode(node: PlatformNode, deep: Boolean): Node
 
-    actual override fun adoptNode(node: PlatformNode): Node
+    actual override fun adoptNode(node: PlatformNode): Node?
 
     actual override fun createAttribute(localName: String): Attr
 
     actual override fun createAttributeNS(namespace: String?, qualifiedName: String): Attr
+
+    actual override fun getOwnerDocument(): Nothing?
+
+    actual override fun getNodeValue(): Nothing?
 }
 
 public actual fun Document.importNode(node: PlatformNode, deep: Boolean): Node {

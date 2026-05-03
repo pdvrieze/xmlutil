@@ -22,7 +22,13 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeType
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractComment<out N: Node, out P: Node> : AbstractCharacterData<N, P>(), Comment
+public interface AbstractComment<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
+    IAbstractNode<N, P>, Comment {
+
+    override fun getNodetype(): NodeType = NodeType.COMMENT_NODE
+
+    override fun getNodeName(): String = "#comment"
+}

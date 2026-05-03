@@ -31,6 +31,7 @@ import nl.adaptivity.xmlutil.prefix
 import nl.adaptivity.xmlutil.dom2.Element as Element2
 
 public expect interface Document : Node, PlatformDocument {
+    override fun getOwnerDocument(): Nothing?
 
     public fun getImplementation(): DOMImplementation
 
@@ -42,7 +43,7 @@ public expect interface Document : Node, PlatformDocument {
 
     public fun importNode(node: PlatformNode, deep: Boolean /*= false*/): Node
 
-    public fun adoptNode(node: PlatformNode): Node
+    public fun adoptNode(node: PlatformNode): Node?
 
     public fun createAttribute(localName: String): Attr
 
@@ -62,6 +63,7 @@ public expect interface Document : Node, PlatformDocument {
 
     public fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
 
+    override fun getNodeValue(): Nothing?
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

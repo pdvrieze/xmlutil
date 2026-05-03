@@ -25,6 +25,10 @@ package nl.adaptivity.xmlutil.dom2
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
 public actual interface ProcessingInstruction : Node, PlatformProcessingInstruction {
+    override val ownerDocument: Document get() = getOwnerDocument()
+
+    actual override fun getOwnerDocument(): Document
+
     override val target: String get() = getTarget()
 
     override var data: String
@@ -34,4 +38,6 @@ public actual interface ProcessingInstruction : Node, PlatformProcessingInstruct
     public actual fun getTarget(): String
     public actual fun getData(): String
     public actual fun setData(data: String)
+
+    actual override fun getNodeValue(): String
 }

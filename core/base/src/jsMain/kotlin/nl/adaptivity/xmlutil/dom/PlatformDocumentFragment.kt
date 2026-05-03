@@ -21,4 +21,6 @@
 package nl.adaptivity.xmlutil.dom
 
 @JsName("DocumentFragment")
-public actual external interface PlatformDocumentFragment : PlatformNode
+public actual external interface PlatformDocumentFragment : PlatformNode {
+    override val ownerDocument: PlatformDocument?
+}

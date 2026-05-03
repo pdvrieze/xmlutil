@@ -33,7 +33,11 @@ internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), Attr {
             delegate.value = value
         }
 
+    override val ownerDocument: DocumentImpl get() = checkNotNull(super<NodeImpl>.ownerDocument)
+
     override val parentElement: Element? get() = ownerElement
+
+    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
 
     override fun getOwnerElement(): Element? = ownerElement
 
@@ -41,6 +45,10 @@ internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), Attr {
 
     override fun setValue(value: String) {
         this.value = value
+    }
+
+    override fun getNodeValue(): String {
+        return getValue()
     }
 
     override fun getPrefix(): String? = prefix

@@ -21,9 +21,52 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
+import kotlin.jvm.JvmStatic
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractParentNode<out N: Node, out P: Node> : AbstractNode<N, P>() {
+public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
+    ownerDocument: AbstractDocument<N, P>?,
+    nodeStorage: (P) -> AbstractNodeStorage<N, P>,
+    parentNode: P? = null,
+) : AbstractNode<N, P>(ownerDocument, parentNode), IAbstractParentNode<N, P> {
 
+    protected abstract val self: P
+
+    @Suppress("UNCHECKED_CAST")
+    private val nodeStorage: AbstractNodeStorage<N, P> = nodeStorage(this as P)
+
+    override fun setOwnerDocument(ownerDocument: AbstractDocument<@UnsafeVariance N, @UnsafeVariance P>) {
+        for (c in getChildNodes()) {
+            c.setOwnerDocument(ownerDocument)
+        }
+        super.setOwnerDocument(ownerDocument)
+    }
+
+    override fun getChildNodes(): AbstractNodeList<N, P> = nodeStorage.getNodeList()
+
+    override fun getFirstChild(): N? = nodeStorage.getFirstChild()
+
+    override fun getLastChild(): N? = nodeStorage.getLastChild()
+
+    override fun appendChild(node: PlatformNode): N = nodeStorage.appendChild(self, node)
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N =
+        nodeStorage.replaceChild(self, newChild, oldChild)
+
+    override fun removeChild(node: PlatformNode): N = nodeStorage.removeChild(self, node)
+
+    override public fun getSiblingBefore(ref: Node): N? = nodeStorage.getSiblingBefore(ref)
+
+    public override fun getSiblingAfter(ref: Node): N? = nodeStorage.getSiblingAfter(ref)
+
+    public companion object {
+        @JvmStatic
+        internal fun <N : IAbstractNode<N, P>, P : IAbstractParentNode<N, P>>
+                IAbstractNode<N, P>.setOwnerDocument(ownerDocument: AbstractDocument<N, P>) {
+            (this as AbstractNode<*, *>).setOwnerDocument(ownerDocument)
+        }
+    }
 }
+

@@ -23,21 +23,17 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.DocumentFragment
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.parentNode
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentFragment
+import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
 @XmlUtilInternal
-public class DocumentFragmentImpl internal constructor(private var ownerDocument: DocumentImpl) :
-    ParentNodeImpl(), DocumentFragment {
+public class DocumentFragmentImpl internal constructor(
+    ownerDocument: DocumentImpl,
+) : AbstractDocumentFragment<NodeImpl, ParentNodeImpl>(ownerDocument, { LinearNodeStorage(NodeImpl.storageAdapter) }), ParentNodeImpl {
 
-    override fun getOwnerDocument(): DocumentImpl = ownerDocument
+    override val self: DocumentFragmentImpl get() = this
 
-    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        this.ownerDocument = ownerDocument
-    }
+    override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
 
     override fun getPreviousSibling(): Nothing? = null
 
@@ -47,10 +43,6 @@ public class DocumentFragmentImpl internal constructor(private var ownerDocument
     internal val _childNodes: NodeListImpl = NodeListImpl()
 
     override fun getChildNodes(): INodeListImpl = _childNodes
-
-    override fun getNodetype(): NodeType = NodeType.DOCUMENT_FRAGMENT_NODE
-
-    override fun getNodeName(): String = "#document-fragment"
 
     override fun getFirstChild(): NodeImpl? = _childNodes.elements.firstOrNull()
 
@@ -65,61 +57,6 @@ public class DocumentFragmentImpl internal constructor(private var ownerDocument
     override fun setTextContent(value: String) {
         _childNodes.elements.clear()
         appendChild(getOwnerDocument().createTextNode(value))
-    }
-
-    @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): NodeImpl {
-        if (node === this) throw DOMException.hierarchyRequestErr("Node cannot be added to itself")
-        val n = checkNode(node)
-        when (n) {
-            is DocumentFragmentImpl -> for (n2 in n._childNodes) {
-                _childNodes.elements.add(n2)
-                n2.setParentNode(this)
-                n._childNodes.elements.clear()
-            }
-
-            else -> {
-                n.parentNode?.removeChild(n)
-                _childNodes.elements.add(n)
-                n.setParentNode(this)
-            }
-        }
-        return n
-    }
-
-    @IgnorableReturnValue
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): NodeImpl {
-        val old = checkNode(oldChild)
-        val oldIdx = _childNodes.elements.indexOf(old)
-        if (oldIdx < 0) throw DOMException.notFoundErr("Old child not found")
-
-        _childNodes.elements[oldIdx].setParentNode(null)
-        when (val new = checkNode(newChild)) {
-            is DocumentFragmentImpl -> {
-                val elems = new._childNodes.elements
-                for (e in elems) e.setParentNode(this)
-                _childNodes.elements.addAll(oldIdx, elems)
-                new._childNodes.elements.clear() // remove nodes from fragment
-            }
-
-            else -> {
-                new.parentNode?.removeChild(new)
-                _childNodes.elements[oldIdx] = new
-                new.setParentNode(this)
-            }
-        }
-
-        return old
-    }
-
-    @IgnorableReturnValue
-    override fun removeChild(node: PlatformNode): NodeImpl {
-        val c = checkNode(node)
-
-        if (!_childNodes.elements.remove(c)) throw DOMException.notFoundErr("Node not found")
-        c.setParentNode(null)
-
-        return c
     }
 
     override fun lookupPrefix(namespace: String): String? = null

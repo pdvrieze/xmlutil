@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -31,6 +31,7 @@ import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 
 public actual interface PlatformDocument : PlatformNode {
+    public override fun getOwnerDocument(): Nothing? = null
 
     public fun getImplementation(): PlatformDOMImplementation
 
@@ -64,7 +65,7 @@ public actual interface PlatformDocument : PlatformNode {
     public fun importNode(node: PlatformNode): PlatformNode = importNode(node, false)
     public fun importNode(node: PlatformNode, deep: Boolean): PlatformNode
 
-    public fun adoptNode(node: PlatformNode): PlatformNode
+    public fun adoptNode(node: PlatformNode): PlatformNode?
 
     public fun createAttribute(localName: String): PlatformAttr
 
@@ -73,4 +74,4 @@ public actual interface PlatformDocument : PlatformNode {
 }
 
 
-public actual fun Document.adoptNode(node: PlatformNode): Node = adoptNode(node)
+public actual fun Document.adoptNode(node: PlatformNode): Node? = adoptNode(node)

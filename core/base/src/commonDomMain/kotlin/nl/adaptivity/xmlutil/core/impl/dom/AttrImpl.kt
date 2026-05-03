@@ -20,53 +20,36 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 
 public class AttrImpl internal constructor(
-    private var ownerDocument: DocumentImpl,
+    ownerDocument: DocumentImpl,
     private val namespaceURI: String?,
     private val localName: String,
     private val prefix: String?,
-    private var value: String
-) : LeafNodeImpl(), Attr {
+    private var value: String,
+    parentNode: ElementImpl? = null,
+) : AbstractAttr<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), NodeImpl, Attr {
 
     internal constructor(ownerDocument: DocumentImpl, original: PlatformAttr) : this(
         ownerDocument,
         original.getNamespaceURI(),
-        original.getLocalName() ?: throw DOMException.invalidCharacterErr("Local name not set for attribute") ,
+        original.getLocalName() ?: throw DOMException.invalidCharacterErr("Local name not set for attribute"),
         original.getPrefix(),
         original.getValue()
     )
 
-    override fun appendChild(node: PlatformNode): Nothing {
-        TODO("not implemented")
+    override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
+
+    @XmlUtilInternal
+    override fun setOwnerDocument(ownerDocument: AbstractDocument<NodeImpl, ParentNodeImpl>) {
+        super.setOwnerDocument(ownerDocument)
     }
-
-    override fun replaceChild(
-        newChild: PlatformNode,
-        oldChild: PlatformNode
-    ): Nothing {
-        TODO("not implemented")
-    }
-
-    override fun removeChild(node: PlatformNode): Nothing {
-        TODO("not implemented")
-    }
-
-    override fun getOwnerDocument(): DocumentImpl = ownerDocument
-
-    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        if (ownerDocument !== this.ownerDocument) {
-            setOwnerElement(null)
-            this.ownerDocument = ownerDocument
-        }
-    }
-
-    override fun getNodetype(): NodeType = NodeType.ATTRIBUTE_NODE
 
     override fun getName(): String = when {
         prefix.isNullOrEmpty() -> localName
@@ -85,27 +68,12 @@ public class AttrImpl internal constructor(
         this.value = value
     }
 
-    override fun getNodeName(): String = getName()
-
-    private var ownerElement: ElementImpl? = null
-
-    override fun getOwnerElement(): ElementImpl? = ownerElement
-    internal fun setOwnerElement(ownerElement: ElementImpl?) {
-        this.ownerElement = ownerElement
-    }
+    override fun getOwnerElement(): ElementImpl? = getParentElement() as ElementImpl?
 
     override fun getTextContent(): String = value
 
     override fun setTextContent(value: String) {
         this.value = value
-    }
-
-    override fun lookupPrefix(namespace: String): String? {
-        return getOwnerElement()?.lookupPrefix(namespace)
-    }
-
-    override fun lookupNamespaceURI(prefix: String): String? {
-        return getOwnerElement()?.lookupNamespaceURI(prefix)
     }
 
     override fun toString(): String {

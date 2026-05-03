@@ -26,6 +26,10 @@ import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public expect interface CharacterData : Node, PlatformCharacterData {
+    public override fun getOwnerDocument(): Document
+
+    override fun getNodeValue(): String
+
     public fun getData(): String
 
     public fun setData(data: String)

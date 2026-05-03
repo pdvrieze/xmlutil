@@ -34,6 +34,12 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
         delegate.data = data
     }
 
+    override fun getOwnerDocument(): DocumentImpl {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
+    override fun getNodeValue(): String = delegate.nodeValue
+
     override fun getLength(): Int = delegate.length
 
     override fun substringData(offset: Int, count: Int): String =

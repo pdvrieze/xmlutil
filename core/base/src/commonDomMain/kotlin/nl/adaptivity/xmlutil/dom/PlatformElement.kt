@@ -31,6 +31,8 @@ import nl.adaptivity.xmlutil.dom2.NodeList
 @Suppress("DEPRECATION", "SERIALIZER_TYPE_INCOMPATIBLE")
 @Serializable(with = ElementSerializer::class)
 public actual interface PlatformElement : PlatformNode {
+    public override fun getOwnerDocument(): PlatformDocument
+
     public fun getNamespaceURI(): String?
     public fun getPrefix(): String?
     public fun getLocalName(): String

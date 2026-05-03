@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,6 +23,8 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual interface PlatformCharacterData : PlatformNode {
+    public override fun getOwnerDocument(): PlatformDocument
+
     public fun getData(): String
     public fun setData(data: String)
 

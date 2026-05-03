@@ -24,4 +24,10 @@ import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 import nl.adaptivity.xmlutil.dom2.CDATASection
 
 
-internal class CDATASectionImpl(delegate: PlatformCDATASection) : TextImpl(delegate), CDATASection
+internal class CDATASectionImpl(delegate: PlatformCDATASection) : TextImpl(delegate), CDATASection {
+
+    override fun getOwnerDocument(): DocumentImpl {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
+}

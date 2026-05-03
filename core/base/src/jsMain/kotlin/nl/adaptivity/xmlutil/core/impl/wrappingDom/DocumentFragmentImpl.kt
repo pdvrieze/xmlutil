@@ -20,8 +20,15 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom2.DocumentFragment as DocumentFragment2
+import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import org.w3c.dom.DocumentFragment as DOMDocumentFragment
 
 internal class DocumentFragmentImpl(delegate: DOMDocumentFragment) :
-    NodeImpl<DOMDocumentFragment>(delegate), DocumentFragment2
+    NodeImpl<DOMDocumentFragment>(delegate), DocumentFragment {
+
+    override fun getNodeValue(): Nothing? = null
+
+    override val ownerDocument: DocumentImpl get() = checkNotNull(super.ownerDocument)
+
+    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+}

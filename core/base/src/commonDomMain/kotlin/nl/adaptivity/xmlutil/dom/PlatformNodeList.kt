@@ -22,11 +22,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.dom2.Node
-
 public actual interface PlatformNodeList {
-    public fun item(index: Int): PlatformNode?
-    public val size: Int
+    public fun item(index: Int): PlatformNode? = get(index)
     public fun getLength(): Int
 
     public operator fun get(index: Int): PlatformNode?
@@ -34,4 +31,5 @@ public actual interface PlatformNodeList {
     public operator fun iterator(): Iterator<PlatformNode>
 }
 
+public val PlatformNodeList.size: Int get() = getLength()
 

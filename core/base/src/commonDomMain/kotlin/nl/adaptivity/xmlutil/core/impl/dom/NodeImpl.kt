@@ -20,13 +20,23 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.impl.IAbstractNode
+import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
-public interface NodeImpl : Node {
-    @XmlUtilInternal
-    public fun setParentNode(node: ParentNodeImpl?)
+public interface NodeImpl : IAbstractNode<NodeImpl, ParentNodeImpl> {
+//    @XmlUtilInternal
+//    public fun setParentNode(node: ParentNodeImpl?)
+    public override fun getOwnerDocument(): DocumentImpl?
 
-    @XmlUtilInternal
-    public fun setOwnerDocument(ownerDocument: DocumentImpl)
+
+    public companion object {
+        internal val storageAdapter: LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl> = object: LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl> {
+            override fun checkType(parent: ParentNodeImpl, node: PlatformNode): NodeImpl = when (node) {
+                is NodeImpl -> node
+                else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+            }
+        }
+    }
 }

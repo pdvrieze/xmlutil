@@ -22,21 +22,26 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
-import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Document
 import org.w3c.dom.Document as DomDocument
 import org.w3c.dom.Node as DomNode
 
-internal class DocumentImpl(delegate: DomDocument) : NodeImpl<DomDocument>(delegate), Document2 {
-    override fun getInputEncoding(): String = delegate.inputEncoding
-
-    override fun getImplementation(): DOMImplementation = DOMImplementationImpl
+internal class DocumentImpl(delegate: DomDocument) : NodeImpl<DomDocument>(delegate), Document {
+    override val ownerDocument: Nothing? get() = null
 
     // TODO might need to be added to Document2
     val documentURI: String = delegate.documentURI
 
+    override fun getNodeValue(): Nothing? = null
+
+    override fun getInputEncoding(): String = delegate.inputEncoding
+
+    override fun getImplementation(): DOMImplementation = DOMImplementationImpl
+
     override fun getDoctype(): DocumentTypeImpl? = delegate.doctype?.let(::DocumentTypeImpl)
 
     override fun getDocumentElement(): ElementImpl? = delegate.documentElement?.wrap()
+    override fun getOwnerDocument(): Nothing? = null
 
     override fun createElement(localName: String): ElementImpl =
         ElementImpl(delegate.createElement(localName))

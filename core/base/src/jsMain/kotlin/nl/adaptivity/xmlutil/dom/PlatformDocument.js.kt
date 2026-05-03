@@ -52,11 +52,11 @@ public actual external interface PlatformDocument : PlatformNode {
     public fun createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction
     public fun importNode(node: PlatformNode, deep: Boolean): PlatformNode
 
-    public fun adoptNode(node: PlatformNode): PlatformNode
+    public fun adoptNode(node: PlatformNode): PlatformNode?
 
     public fun createAttribute(localName: String): PlatformAttr
 
     public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 }
 
-public actual fun Document2.adoptNode(node: PlatformNode): Node2 = adoptNode(node.wrap())
+public actual fun Document2.adoptNode(node: PlatformNode): Node2? = adoptNode(node.wrap())

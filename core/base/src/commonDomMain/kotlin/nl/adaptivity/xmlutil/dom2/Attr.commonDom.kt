@@ -24,4 +24,6 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr
 
 public actual interface Attr : Node, PlatformAttr {
     actual override fun getOwnerElement(): Element?
+    actual override fun getOwnerDocument(): Document
+    actual override fun getNodeValue(): String
 }

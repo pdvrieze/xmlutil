@@ -28,4 +28,4 @@ public expect interface PlatformDocument : PlatformNode
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @Deprecated("Use member instead", level = DeprecationLevel.HIDDEN)
-public expect fun Document.adoptNode(node: PlatformNode): Node
+public expect fun Document.adoptNode(node: PlatformNode): Node?

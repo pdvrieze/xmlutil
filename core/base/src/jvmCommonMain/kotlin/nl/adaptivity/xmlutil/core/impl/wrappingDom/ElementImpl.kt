@@ -32,6 +32,12 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
 
     override fun getTagName(): String = delegate.tagName
 
+    override fun getNodeValue(): Nothing? = null
+
+    override fun getOwnerDocument(): DocumentImpl {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
     override fun getElementsByTagName(qualifiedName: String): WrappingNodeList {
         return WrappingNodeList(delegate.getElementsByTagName(qualifiedName))
     }
