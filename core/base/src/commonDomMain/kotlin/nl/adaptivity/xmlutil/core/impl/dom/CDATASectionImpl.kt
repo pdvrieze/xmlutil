@@ -23,13 +23,15 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 import nl.adaptivity.xmlutil.dom2.CDATASection
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.impl.AbstractCDataSection
+import nl.adaptivity.xmlutil.dom2.impl.AbstractText
 
-public class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, data: String) : TextImpl(ownerDocument, data),
-    CDATASection {
+public class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
+    TextImpl(ownerDocument, data), AbstractCDataSection<NodeImpl, ParentNodeImpl> {
 
     internal constructor(ownerDocument: DocumentImpl, original: PlatformCDATASection) : this(ownerDocument, original.getData())
 
-    override fun getNodetype(): NodeType = NodeType.CDATA_SECTION_NODE
+    override fun getNodetype(): NodeType = super<AbstractCDataSection>.getNodetype()
 
-    override fun getNodeName(): String = "#cdata-section"
+    override fun getNodeName(): String = super<AbstractCDataSection>.getNodeName()
 }

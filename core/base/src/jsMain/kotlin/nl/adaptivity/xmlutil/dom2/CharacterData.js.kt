@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface CharacterData : Node, PlatformCharacterData {
+    override val ownerDocument: Document get() = getOwnerDocument()
+
     public actual fun getData(): String
     public actual fun setData(data: String)
     public actual fun substringData(offset: Int, count: Int): String
@@ -33,6 +35,9 @@ public actual interface CharacterData : Node, PlatformCharacterData {
     public actual fun insertData(offset: Int, data: String)
     public actual fun deleteData(offset: Int, count: Int)
     public actual fun replaceData(offset: Int, count: Int, data: String)
+
+    actual override fun getNodeValue(): String
+    actual override fun getOwnerDocument(): Document
 
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing

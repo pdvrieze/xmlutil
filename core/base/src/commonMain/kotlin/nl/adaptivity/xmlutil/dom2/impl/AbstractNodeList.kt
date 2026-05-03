@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,18 +18,22 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.wrappingDom
+package nl.adaptivity.xmlutil.dom2.impl
 
-import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
-import nl.adaptivity.xmlutil.dom2.DocumentFragment
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom2.NodeList
 
-internal class DocumentFragmentImpl(delegate: PlatformDocumentFragment) :
-    AbstractNodeImpl<PlatformDocumentFragment>(delegate), DocumentFragment {
-    override fun getNodeValue(): Nothing? = null
+@ExperimentalXmlUtilApi
+public interface AbstractNodeList<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> : NodeList {
+    override fun getLength(): Int = iterator().asSequence().count()
 
-    override fun getOwnerDocument(): DocumentImpl {
-        return checkNotNull(super.getOwnerDocument())
+    override fun item(index: Int): N? {
+        return get(index)
     }
 
-    override fun getAttributes(): Nothing? = null
+    override fun get(index: Int): N? {
+        return iterator().asSequence().elementAtOrNull(index)
+    }
+
+    abstract override fun iterator(): Iterator<N>
 }

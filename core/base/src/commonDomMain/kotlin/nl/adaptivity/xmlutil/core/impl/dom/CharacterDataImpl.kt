@@ -23,39 +23,22 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.CharacterData
+import nl.adaptivity.xmlutil.dom2.impl.AbstractCharacterData
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 
 @XmlUtilInternal
 public abstract class CharacterDataImpl internal constructor(
-    private var ownerDocument: DocumentImpl,
-    private var data: String
-) : LeafNodeImpl(), CharacterData {
-    override fun getOwnerDocument(): DocumentImpl = ownerDocument
-
-    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        if (this.ownerDocument !== ownerDocument) {
-            setParentNode(null)
-            this.ownerDocument = ownerDocument
-        }
-    }
+    ownerDocument: DocumentImpl,
+    private var data: String,
+    parentNode: ParentNodeImpl? = null
+) : AbstractCharacterData<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), CharacterData {
+    override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
 
     override fun getData(): String = data
 
     override fun setData(data: String) {
         this.data = data
-    }
-
-    override fun appendChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Cannot append child to a character data node")
-    }
-
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Character data nodes do not have children")
-    }
-
-    override fun removeChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Character data nodes do not have children")
     }
 
     override fun getTextContent(): String? = getData()
@@ -82,14 +65,6 @@ public abstract class CharacterDataImpl internal constructor(
 
     final override fun replaceData(offset: Int, count: Int, data: String) {
         this.data = this.data.replaceRange(offset, offset + count, data)
-    }
-
-    override fun lookupPrefix(namespace: String): String? {
-        return getParentNode()?.lookupPrefix(namespace)
-    }
-
-    override fun lookupNamespaceURI(prefix: String): String? {
-        return getParentNode()?.lookupNamespaceURI(prefix)
     }
 }
 

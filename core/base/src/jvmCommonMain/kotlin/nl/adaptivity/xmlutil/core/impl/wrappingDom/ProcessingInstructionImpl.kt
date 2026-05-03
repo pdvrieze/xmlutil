@@ -34,6 +34,12 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
         delegate.data = data
     }
 
+    override fun getNodeValue(): String = data
+
+    override fun getOwnerDocument(): DocumentImpl {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
     override fun appendChild(node: PlatformNode): Nothing {
         throw UnsupportedOperationException("No children in processing instruction")
     }

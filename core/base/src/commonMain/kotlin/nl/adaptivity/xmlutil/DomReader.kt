@@ -38,7 +38,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
 
     @Suppress("DEPRECATION")
     constructor(delegate: PlatformNode) :
-            this((delegate as? Node) ?: createDocument().adoptNode(delegate), true)
+            this((delegate as? Node) ?: createDocument().importNode(delegate, true), true)
 
     private var current: Node? = null
 

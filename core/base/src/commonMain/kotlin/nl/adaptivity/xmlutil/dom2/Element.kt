@@ -26,6 +26,7 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(ElementSerializer::class)
 public expect interface Element : Node, PlatformElement {
+    public override fun getOwnerDocument(): Document
 
     public fun getNamespaceURI(): String?
 
@@ -59,6 +60,9 @@ public expect interface Element : Node, PlatformElement {
 
     public fun getElementsByTagName(qualifiedName: String): NodeList
     public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
+
+    override fun getNodeValue(): Nothing?
+
 }
 
 public val Element.namespaceURI: String? get() = getNamespaceURI()

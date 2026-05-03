@@ -20,58 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom2.impl.AbstractNode
-
-public abstract class LeafNodeImpl() : AbstractNode<NodeImpl, ParentNodeImpl>(), NodeImpl {
-    abstract override fun getOwnerDocument(): DocumentImpl
-
-    private var parentNode: ParentNodeImpl? = null
-
-    final override fun getChildNodes(): INodeListImpl = EmptyNodeList
-
-    final override fun getFirstChild(): Nothing? = null
-
-    final override fun getLastChild(): Nothing? = null
-
-
-    override fun getParentNode(): ParentNodeImpl? {
-        return parentNode
-    }
-//    override fun getParentNode(): NodeImpl? = parentNode
-
-    override fun getParentElement(): ElementImpl? {
-        return parentNode as? ElementImpl
-    }
-
-    @XmlUtilInternal
-    override fun setParentNode(node: ParentNodeImpl?) {
-        parentNode = node?.let { checkNode(it) as ParentNodeImpl }
-    }
-
-    override fun getPreviousSibling(): NodeImpl? {
-        val siblings = (getParentNode() ?: return null).getChildNodes()
-        if (siblings.item(0) == this || siblings.size <= 1) return null
-        for (idx in 1 until siblings.size) {
-            if (siblings.item(idx) == this) {
-                return siblings.item(idx - 1)
-            }
-        }
-        return null
-    }
-
-    override fun getNextSibling(): NodeImpl? {
-        val siblings = (getParentNode() ?: return null).getChildNodes()
-        if (siblings.item(siblings.size - 1) == this || siblings.size <= 1) return null
-        for (idx in 0 until (siblings.size - 1)) {
-            if (siblings.item(idx) == this) {
-                return siblings.item(idx + 1)
-            }
-        }
-        return null
-    }
-
-}
+internal typealias LeafNodeImpl = NodeImpl
 
 internal fun Appendable.appendTextContent(node: NodeImpl) {
     when (node) {

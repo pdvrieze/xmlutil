@@ -21,24 +21,26 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.dom2.NodeList
+import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 
-public interface INodeListImpl: NodeList {
+public interface INodeListImpl: AbstractNodeList<NodeImpl, ParentNodeImpl>, NodeList {
     override fun get(index: Int): NodeImpl? = item(index)
 
-    public fun isEmpty(): Boolean = size == 0
+    public fun isEmpty(): Boolean = getLength() == 0
 
     override fun item(index: Int): NodeImpl?
 
     override fun iterator(): Iterator<NodeImpl>
 
-    override fun getLength(): Int = size
+    override fun getLength(): Int
 }
 
 internal class NodeListImpl(
     internal val elements: MutableList<NodeImpl> = mutableListOf()
 ) : INodeListImpl {
-
-    override val size: Int get() = elements.size
+    override fun getLength(): Int {
+        return elements.size
+    }
 
     override fun item(index: Int): NodeImpl? = when (index) {
         in elements.indices -> elements[index]

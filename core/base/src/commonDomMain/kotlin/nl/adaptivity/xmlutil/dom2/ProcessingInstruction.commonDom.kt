@@ -22,4 +22,8 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
-public actual interface ProcessingInstruction : Node, PlatformProcessingInstruction
+public actual interface ProcessingInstruction : Node, PlatformProcessingInstruction {
+    actual override fun getOwnerDocument(): Document
+
+    actual override fun getNodeValue(): String
+}

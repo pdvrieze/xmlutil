@@ -22,29 +22,26 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom.PlatformDocumentType as DocumentType1
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
 
 @XmlUtilInternal
 public class DocumentTypeImpl internal constructor(
-    internal var maybeOwnerDocument: DocumentImpl?,
+    maybeOwnerDocument: DocumentImpl?,
     private val name: String,
     private val publicId: String,
     private val systemId: String
-) : LeafNodeImpl(), DocumentType {
-    internal constructor(original: DocumentType1) : this(
-        DocumentImpl.coerce(original.getOwnerDocument()),
+) : AbstractDocumentType<NodeImpl, ParentNodeImpl>(maybeOwnerDocument), NodeImpl, DocumentType {
+    internal constructor(original: PlatformDocumentType) : this(
+        original.getOwnerDocument()?.let { DocumentImpl.coerce(it) },
         original.getName(),
         original.getPublicId(),
         original.getSystemId()
     )
 
-    override fun getOwnerDocument(): DocumentImpl = maybeOwnerDocument!!
-
-    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        this.maybeOwnerDocument = ownerDocument
+    override fun getOwnerDocument(): DocumentImpl? {
+        return super.getOwnerDocument() as DocumentImpl?
     }
 
     override fun getName(): String = name
@@ -53,39 +50,15 @@ public class DocumentTypeImpl internal constructor(
 
     override fun getSystemId(): String = systemId
 
-    override fun getNodetype(): NodeType = NodeType.DOCUMENT_TYPE_NODE
-
-    override fun getNodeName(): String = getName()
-
-    override fun appendChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Cannot append child to a document type node")
-    }
-
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Document type nodes do not have children")
-    }
-
-    override fun removeChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Document type nodes do not have children")
-    }
-
     override fun getTextContent(): String? = null
 
     override fun setTextContent(value: String) {
         throw DOMException.hierarchyRequestErr("Documents have no (direct) text content")
     }
 
-    override fun lookupPrefix(namespace: String): String? {
-        return getParentNode()?.lookupPrefix(namespace)
-    }
-
-    override fun lookupNamespaceURI(prefix: String): String? {
-        return getParentNode()?.lookupNamespaceURI(prefix)
-    }
-
     public companion object {
-        internal fun coerce(doctype: DocumentType1): DocumentTypeImpl {
-            return doctype as? DocumentTypeImpl ?: DocumentTypeImpl(doctype)
+        internal fun coerce(doctype: PlatformDocumentType): DocumentTypeImpl {
+            return (doctype as? DocumentTypeImpl)?.takeIf { it.getOwnerDocument() == null } ?: DocumentTypeImpl(doctype)
         }
 
     }

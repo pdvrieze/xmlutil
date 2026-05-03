@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.dom2.Element as Element2
 import org.w3c.dom.Element as DomElement
 
 internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate), Element2 {
+    override val ownerDocument: DocumentImpl get() = checkNotNull(super.ownerDocument)
+
     override fun getNamespaceURI(): String? = delegate.namespaceURI
 
     override fun getPrefix(): String? = delegate.prefix
@@ -33,6 +35,12 @@ internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate
     override fun getLocalName(): String = delegate.localName
 
     override fun getTagName(): String = delegate.tagName
+
+    override fun getNodeValue(): Nothing? = null
+
+    override fun getOwnerDocument(): DocumentImpl {
+        return super.getOwnerDocument() as DocumentImpl
+    }
 
     override fun getElementsByTagName(qualifiedName: String): WrappingNodeList {
         return WrappingNodeList(delegate.getElementsByTagName(qualifiedName))

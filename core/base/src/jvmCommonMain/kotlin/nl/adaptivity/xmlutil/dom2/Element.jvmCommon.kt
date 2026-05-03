@@ -53,4 +53,8 @@ public actual interface Element : Node, PlatformElement {
         namespace: String?,
         localName: String
     ): NodeList
+
+    actual override fun getNodeValue(): Nothing?
+    actual override fun getOwnerDocument(): Document
+
 }

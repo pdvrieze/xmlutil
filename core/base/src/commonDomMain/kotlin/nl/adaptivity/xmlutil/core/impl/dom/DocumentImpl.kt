@@ -25,13 +25,66 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
+import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
+import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeStorage
+import nl.adaptivity.xmlutil.dom2.impl.SiblingIterator
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XmlUtilInternal
-public class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) : ParentNodeImpl(), Document {
+public class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) :
+    AbstractDocument<NodeImpl, ParentNodeImpl>({ (it as DocumentImpl).NodeStorage() }), ParentNodeImpl, Document {
+
     init {
-        if (doctype?.maybeOwnerDocument != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
+        if (doctype?.getOwnerDocument() != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
         doctype?.setOwnerDocument(this)
+    }
+
+    override val self: DocumentImpl get() = this
+
+    private inner class NodeStorage(): AbstractNodeStorage<NodeImpl, ParentNodeImpl>, AbstractNodeList<NodeImpl, ParentNodeImpl> {
+        override fun getNodeList(): AbstractNodeList<NodeImpl, ParentNodeImpl> = this
+
+        @XmlUtilInternal
+        override fun checkTypeAndOwner(parent: ParentNodeImpl, node: PlatformNode): ElementImpl {
+            if (node !is ElementImpl) throw DOMException.wrongDocumentErr("Only elements of the same type can be added to the document")
+            if (node.ownerDocument != parent) throw DOMException.wrongDocumentErr("Node not owned by this document")
+            return node
+        }
+
+        override fun appendChild(parent: ParentNodeImpl, node: NodeImpl) {
+            when (node) {
+                is TextImpl -> when {
+                    isXmlWhitespace(node.getData()) -> return
+
+                    else -> throw DOMException.notSupportedErr("Non-whitespace nodes cannot be added directly to a document")
+                }
+
+                is DocumentFragmentImpl -> node.getChildNodes().forEach { appendChild(parent, it as NodeImpl) }
+            }
+
+            if (_documentElement != null) throw DOMException.hierarchyRequestErr("Only one root element is supported for now")
+
+
+            _documentElement = node as ElementImpl
+        }
+
+        override fun removeChild(parent: ParentNodeImpl, node: NodeImpl): NodeImpl {
+            if (node !== _documentElement) throw DOMException.notFoundErr("Node is not a child of this document")
+            _documentElement = null
+            return node
+        }
+
+        override fun replaceChild(parent: ParentNodeImpl, newChild: NodeImpl, oldChild: NodeImpl): NodeImpl {
+            if (newChild.ownerDocument != this@DocumentImpl) throw DOMException.wrongDocumentErr("Node not owned by this document")
+
+            _documentElement = newChild as ElementImpl
+            return oldChild
+        }
+
+        override fun iterator(): Iterator<NodeImpl> {
+            return _documentElement?.let { SiblingIterator(it) } ?: emptyList<Nothing>().iterator()
+        }
     }
 
     private val docId = nextDocId()
@@ -45,23 +98,12 @@ public class DocumentImpl private constructor(private val doctype: DocumentTypeI
     private var _documentElement: ElementImpl? = null
     override fun getDocumentElement(): ElementImpl? = _documentElement
 
-    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        if (this !== ownerDocument) {
-            throw DOMException.notSupportedErr("Documents can only be owned by themselves")
-        }
-    }
-
     override var characterSet: String = "UTF-8"
 
     override fun getInputEncoding(): String = characterSet
 
-    override fun getNodetype(): NodeType = NodeType.DOCUMENT_NODE
-
-    override fun getNodeName(): String = "#document"
-
-    override fun getOwnerDocument(): DocumentImpl = this
-
     override fun getParentNode(): Nothing? = null
+    override fun getParentElement(): Nothing? = null
 
     private val _childNodes: NodeListImpl = NodeListImpl()
 
@@ -82,109 +124,9 @@ public class DocumentImpl private constructor(private val doctype: DocumentTypeI
     }
 
     override fun adoptNode(node: PlatformNode): NodeImpl {
-        when (node) {
-            is PlatformDocument, is PlatformDocumentType -> throw DOMException.notSupportedErr("node (${node.getNodetype()}) cannot be adopted")
-            !is NodeImpl -> throw DOMException.notSupportedErr("node is of a different implementation and cannot be adopted")
-        }
-        if (node.getOwnerDocument() === this) {
-            node.getParentNode()?.removeChild(node)
-            node.setParentNode(null)
-            return node
-        }
-        node.getParentNode()?.removeChild(node)
-        node.setOwnerDocument(this)
-        return node
-    }
+        if (node !is NodeImpl) throw DOMException.notSupportedErr("node is of a different implementation and cannot be adopted")
 
-
-    override fun importNode(node: PlatformNode, deep: Boolean): NodeImpl {
-        return when (node) {
-            is PlatformAttr -> AttrImpl(this, node)
-            is PlatformCDATASection -> CDATASectionImpl(this, node)
-            is PlatformComment -> CommentImpl(this, node)
-            is PlatformDocument -> throw DOMException.notSupportedErr("Documents cannot be imported")
-            is PlatformDocumentFragment -> DocumentFragmentImpl(this).also { cpy ->
-                if (deep) {
-                    for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNode(child, deep))
-                    }
-                }
-            }
-
-            is PlatformElement -> ElementImpl(this, node).also { cpy ->
-                if (deep) {
-                    for (child in node.getChildNodes()) {
-                        cpy.appendChild(importNode(child, deep))
-                    }
-                }
-            }
-
-
-            is PlatformProcessingInstruction -> ProcessingInstructionImpl(this, node)
-            is PlatformText -> TextImpl(this, node)
-            else -> throw DOMException.notSupportedErr("Unsupported node subtype")
-        }
-    }
-
-    @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): NodeImpl {
-        val n = checkNode(node)
-        if (n == _documentElement) return n
-        check(n.getOwnerDocument() == this) { "Node not owned by this document" }
-
-        if (n is DocumentFragmentImpl) {
-            for (child in n.getChildNodes()) {
-                appendChild(child)
-                n._childNodes.elements.clear()
-            }
-        } else {
-
-            if (n.parentNode != null) n.setParentNode(null)
-
-            when (n) {
-                is ElementImpl -> {
-                    if (_documentElement != null) throw DOMException.hierarchyRequestErr("Only one root element is supported for now")
-                    _documentElement = n
-                }
-
-                is PlatformComment,
-                is ProcessingInstructionImpl -> Unit // fine
-
-                is TextImpl -> if (!isXmlWhitespace(n.getData())) {
-                    throw DOMException.notSupportedErr("Non-whitespace nodes cannot be added directly to a document")
-                }
-
-                else -> throw DOMException.notSupportedErr("Attempting to add node ${n.getNodetype()} where not permitted")
-            }
-
-            n.setParentNode(this)
-            _childNodes.elements.add(n)
-        }
-
-        return n
-    }
-
-    @IgnorableReturnValue
-    override fun removeChild(node: PlatformNode): NodeImpl {
-        val n = checkNode(node)
-        val idx = _childNodes.elements.indexOf(node)
-        if (idx < 0) throw DOMException.notFoundErr("Node is not a child of this document")
-        if (n == _documentElement) _documentElement = null
-        _childNodes.elements.remove(n)
-        n.setParentNode(null)
-        return n
-    }
-
-    @IgnorableReturnValue
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): NodeImpl {
-        val old = checkNode(oldChild)
-        if (old != _documentElement) throw DOMException.notFoundErr("Old node not found in document")
-        val newChild = checkNode(newChild)
-        if (newChild !is ElementImpl) throw DOMException.notSupportedErr("Only element children to root supported for now")
-        newChild.parentNode?.removeChild(old)
-        _documentElement = newChild
-        newChild.setParentNode(this)
-        return old
+        return adoptNodeImpl(node)
     }
 
     override fun createDocumentFragment(): DocumentFragmentImpl {

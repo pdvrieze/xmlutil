@@ -24,6 +24,13 @@ import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 
 internal class ProcessingInstructionImpl(delegate: DomProcessingInstruction) :
     NodeImpl<DomProcessingInstruction>(delegate), ProcessingInstruction2 {
+    override val ownerDocument: DocumentImpl get() = checkNotNull(super<NodeImpl>.ownerDocument)
+
+    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+
+    override fun getNodeValue(): String {
+        return delegate.data
+    }
 
     override fun setData(data: String) {
         delegate.data = data

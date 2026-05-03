@@ -29,7 +29,8 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     public actual override fun getName(): String
     public actual override fun getPublicId(): String
     public actual override fun getSystemId(): String
-    override fun getOwnerDocument(): Document
+    actual override fun getNodeValue(): Nothing?
+    override fun getOwnerDocument(): Document?
 
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing

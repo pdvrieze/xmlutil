@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,6 +28,8 @@ package nl.adaptivity.xmlutil.dom
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
 )
 public actual interface PlatformProcessingInstruction : PlatformNode {
+    public override fun getOwnerDocument(): PlatformDocument
+
     public fun getData(): String
 
     public fun setData(data: String)

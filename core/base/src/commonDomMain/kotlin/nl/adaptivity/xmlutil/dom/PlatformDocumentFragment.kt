@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom
 
 public actual interface PlatformDocumentFragment : PlatformNode {
+    public override fun getOwnerDocument(): PlatformDocument
 //    public fun getName(): String
 //    public fun getPublicId(): String
 //    public fun getSystemId(): String

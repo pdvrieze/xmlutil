@@ -31,11 +31,16 @@ internal abstract class CharacterDataImpl<N : DOMCharacterData>(delegate: N) : N
             delegate.data = value
         }
 
+    override val ownerDocument: DocumentImpl get() = checkNotNull(super<NodeImpl>.ownerDocument)
+    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+
     override fun getData(): String = data
 
     override fun setData(data: String) {
         this.data = data
     }
+
+    override fun getNodeValue(): String = data
 
 //    override fun getLength(): Int = delegate.length
 

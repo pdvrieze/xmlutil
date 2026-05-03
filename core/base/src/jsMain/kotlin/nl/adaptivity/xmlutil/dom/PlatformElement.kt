@@ -22,6 +22,8 @@ package nl.adaptivity.xmlutil.dom
 
 @JsName("Element")
 public actual external interface PlatformElement : PlatformNode {
+    override val ownerDocument: PlatformDocument
+
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
     public fun setAttribute(qualifiedName: String, value: String)

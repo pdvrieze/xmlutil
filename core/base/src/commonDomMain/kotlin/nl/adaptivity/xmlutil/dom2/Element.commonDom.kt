@@ -26,6 +26,10 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
+    actual override fun getNodeValue(): Nothing?
+
+    actual override fun getOwnerDocument(): Document
+
     actual override fun setAttributeNode(attr: PlatformAttr): Attr?
 
     actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?

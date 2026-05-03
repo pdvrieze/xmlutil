@@ -29,7 +29,8 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 public expect interface Node : PlatformNode {
     public fun getNodetype(): NodeType
     public fun getNodeName(): String
-    public fun getOwnerDocument(): Document
+    public fun getNodeValue(): String?
+    public fun getOwnerDocument(): Document?
     public fun getParentNode(): Node?
     public fun getTextContent(): String?
     public fun setTextContent(value: String)
@@ -74,7 +75,7 @@ public inline val Node.nodeType: Short get() = getNodetype().value
 public inline val Node.nodeName: String get() = getNodeName()
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public inline val Node.ownerDocument: Document get() = getOwnerDocument()
+public inline val Node.ownerDocument: Document? get() = getOwnerDocument()
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val Node.parentNode: Node? get() = getParentNode()

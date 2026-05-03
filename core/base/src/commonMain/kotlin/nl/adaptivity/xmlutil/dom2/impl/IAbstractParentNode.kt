@@ -21,16 +21,32 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Node
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractDocumentType<out N: IAbstractNode<N, P>, out P: IAbstractParentNode<N, P>>(
-    ownerDocument: AbstractDocument<N, P>?,
-    parentNode: P? = null,
-) : AbstractLeafNode<N, P>(ownerDocument, parentNode), DocumentType {
+public interface IAbstractParentNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>: IAbstractNode<N, P> {
+    override fun getParentNode(): P?
 
-    final override fun getNodetype(): NodeType = NodeType.DOCUMENT_TYPE_NODE
-    final override fun getNodeValue(): Nothing? = null
-    final override fun getNodeName(): String = getName()
+    override fun getOwnerDocument(): AbstractDocument<N, P>?
+
+    override fun getFirstChild(): N?
+
+    override fun getLastChild(): N?
+
+    override fun getPreviousSibling(): N?
+
+    override fun getNextSibling(): N?
+
+    override fun appendChild(node: PlatformNode): N
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N
+
+    override fun removeChild(node: PlatformNode): N
+
+    public fun getSiblingBefore(ref: Node): N?
+
+    public fun getSiblingAfter(ref: Node): N?
+
+    public override fun getChildNodes(): AbstractNodeList<N, P>
 }

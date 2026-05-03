@@ -33,6 +33,8 @@ internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeIm
         return WrappingNamedNodeMap(delegate.notations)
     }
 
+    override fun getNodeValue(): Nothing? = null
+
     override fun getAttributes(): Nothing? = null
 
     override fun getPublicId(): String = delegate.publicId

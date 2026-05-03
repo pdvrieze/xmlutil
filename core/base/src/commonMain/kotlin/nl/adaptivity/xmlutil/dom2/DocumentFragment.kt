@@ -22,4 +22,8 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
 
-public expect interface DocumentFragment : Node, PlatformDocumentFragment
+public expect interface DocumentFragment : Node, PlatformDocumentFragment {
+    public override fun getOwnerDocument(): Document
+
+    override fun getNodeValue(): Nothing?
+}

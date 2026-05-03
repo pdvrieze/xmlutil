@@ -22,4 +22,7 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 
-public actual interface CharacterData: Node, PlatformCharacterData
+public actual interface CharacterData: Node, PlatformCharacterData {
+    actual override fun getOwnerDocument(): Document
+    actual override fun getNodeValue(): String
+}

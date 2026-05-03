@@ -24,6 +24,8 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public expect interface Attr : Node, PlatformAttr {
+    public override fun getOwnerDocument(): Document
+
     public fun getNamespaceURI(): String?
 
     public fun getPrefix(): String?
@@ -44,6 +46,7 @@ public expect interface Attr : Node, PlatformAttr {
     public override fun getFirstChild(): Nothing?
     public override fun getLastChild(): Nothing?
 
+    override fun getNodeValue(): String
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

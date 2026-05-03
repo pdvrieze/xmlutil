@@ -45,4 +45,7 @@ public actual interface CharacterData : Node, PlatformCharacterData {
 
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
+
+    actual override fun getNodeValue(): String
+    actual override fun getOwnerDocument(): Document
 }

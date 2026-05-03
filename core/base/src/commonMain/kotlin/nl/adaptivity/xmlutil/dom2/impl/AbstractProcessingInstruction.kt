@@ -21,8 +21,21 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractProcessingInstruction<out N: Node, out P: Node> : AbstractNode<N, P>(), ProcessingInstruction
+public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
+    ownerDocument: AbstractDocument<N, P>,
+    parentNode: P? = null
+) : AbstractLeafNode<N, P>(ownerDocument, parentNode), ProcessingInstruction {
+    override fun getOwnerDocument(): AbstractDocument<N, P> {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
+    final override fun getNodetype(): NodeType = NodeType.PROCESSING_INSTRUCTION_NODE
+
+    final override fun getNodeName(): String = getTarget()
+
+    override fun getNodeValue(): String = getData()
+}

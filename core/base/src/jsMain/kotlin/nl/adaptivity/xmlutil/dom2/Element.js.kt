@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
+    override val ownerDocument: Document
+
     public actual fun getNamespaceURI(): String?
     public actual fun getPrefix(): String?
     public actual fun getLocalName(): String
@@ -49,4 +51,7 @@ public actual interface Element : Node, PlatformElement {
         namespace: String?,
         localName: String
     ): NodeList
+
+    actual override fun getOwnerDocument(): Document
+    actual override fun getNodeValue(): Nothing?
 }

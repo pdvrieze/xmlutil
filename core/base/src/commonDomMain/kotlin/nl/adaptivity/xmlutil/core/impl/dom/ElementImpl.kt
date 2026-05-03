@@ -26,18 +26,18 @@ import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
-import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.parentNode
+import nl.adaptivity.xmlutil.dom2.impl.AbstractElement
+import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
 public class ElementImpl internal constructor(
-    private var ownerDocument: DocumentImpl,
+    ownerDocument: DocumentImpl,
     private val namespaceURI: String?,
     private val localName: String,
-    private val prefix: String?
-) : ParentNodeImpl(), Element {
+    private val prefix: String?,
+    parentNode: ParentNodeImpl? = null
+) : AbstractElement<NodeImpl, ParentNodeImpl>(ownerDocument, { LinearNodeStorage(NodeImpl.storageAdapter) }, parentNode), ParentNodeImpl {
+
     internal constructor(ownerDocument: DocumentImpl, original: PlatformElement) : this(
         ownerDocument,
         original.getNamespaceURI(),
@@ -45,24 +45,15 @@ public class ElementImpl internal constructor(
         original.getPrefix()
     )
 
-    override fun getOwnerDocument(): DocumentImpl = ownerDocument
+    override val self: ElementImpl get() = this
 
-    override fun setOwnerDocument(ownerDocument: DocumentImpl) {
-        if (this.ownerDocument !== ownerDocument) {
-            setParentNode(null)
-            this.ownerDocument = ownerDocument
-        }
-    }
+    override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
 
     override fun getNamespaceURI(): String? = namespaceURI
 
     override fun getPrefix(): String? = prefix
 
     override fun getLocalName(): String = localName
-
-    override fun getNodetype(): NodeType = NodeType.ELEMENT_NODE
-
-    override fun getNodeName(): String = getTagName()
 
     override fun getTagName(): String = when (prefix) {
         null, "" -> localName
@@ -132,61 +123,6 @@ public class ElementImpl internal constructor(
         return NodeListImpl(elems)
     }
 
-    @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): NodeImpl {
-        val n = checkNode(node)
-        when (n) {
-            is DocumentFragmentImpl -> {
-                val nodes = _childNodes.elements.toList()
-                _childNodes.elements.clear()
-                for (n2 in nodes) {
-                    appendChild(n2)
-                }
-            }
-
-            else -> {
-                check (n.parentNode == null) { "Node to be appended already has a parent node" }
-
-                n.setParentNode(this)
-
-                _childNodes.elements.add(n)
-            }
-        }
-        return n
-    }
-
-    @IgnorableReturnValue
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): NodeImpl {
-        val old = checkNode(oldChild)
-        if (newChild == oldChild) return old
-        val newNode = checkNode(newChild)
-        newNode.parentNode?.removeChild(newNode)
-
-        val idx = _childNodes.indexOf(old)
-        if (idx < 0) throw DOMException.notFoundErr("Old node not a child of this element")
-
-        _childNodes.elements[idx].setParentNode(null)
-
-        newNode.setParentNode(this)
-
-        _childNodes.elements[idx] = newNode
-
-        check(oldChild.getParentNode() == null)
-        check(newChild.getParentNode() == this)
-
-        return old
-    }
-
-    @IgnorableReturnValue
-    override fun removeChild(node: PlatformNode): NodeImpl {
-        val n = checkNode(node)
-
-        if (!_childNodes.elements.remove(n)) throw DOMException.notFoundErr("Node to remove not found")
-
-        n.setParentNode(null)
-        return n
-    }
-
     private fun getAttrIdxNS(namespaceURI: String?, localName: String) = _attributes.indexOfFirst {
         (it.getNamespaceURI() ?: "") == (namespaceURI ?: "") && it.getLocalName() == localName
     }
@@ -199,12 +135,12 @@ public class ElementImpl internal constructor(
         when (oldAttr) {
             null -> _attributes.add(newAttr)
             else -> {
-                oldAttr.setOwnerElement(null)
+                oldAttr.setParentNode(null)
                 _attributes[elementIdx] = newAttr
             }
         }
 
-        newAttr.setOwnerElement(this@ElementImpl)
+        newAttr.setParentNode(this@ElementImpl)
         return oldAttr
     }
 
@@ -212,7 +148,7 @@ public class ElementImpl internal constructor(
         return when {
             idx < 0 -> null
             else -> _attributes[idx].apply {
-                setOwnerElement(null)
+                setParentNode(null)
             }
         }
     }
@@ -265,7 +201,7 @@ public class ElementImpl internal constructor(
             in 0.._attributes.size -> _attributes[idx].setValue(value)
             else -> _attributes.add(
                 AttrImpl(getOwnerDocument(), namespaceURI, localName, prefix, value).apply {
-                    setOwnerElement(this@ElementImpl)
+                    setParentNode(this@ElementImpl)
                 }
             )
         }

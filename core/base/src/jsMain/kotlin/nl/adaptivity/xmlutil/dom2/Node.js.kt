@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(with = NodeSerializer::class)
 public actual interface Node : PlatformNode {
-    override val ownerDocument: Document
+    override val ownerDocument: Document?
     override val parentNode: Node?
     override val parentElement: Element?
     override val childNodes: NodeList
@@ -37,9 +37,12 @@ public actual interface Node : PlatformNode {
     override val previousSibling: Node?
     override val nextSibling: Node?
 
+
+
     public actual fun getNodetype(): NodeType
     public actual fun getNodeName(): String
-    public actual fun getOwnerDocument(): Document
+    public actual fun getNodeValue(): String?
+    public actual fun getOwnerDocument(): Document?
     public actual fun getParentNode(): Node?
     public actual fun getTextContent(): String?
     public actual fun setTextContent(value: String)
@@ -64,7 +67,7 @@ public actual interface Node : PlatformNode {
 
 @IgnorableReturnValue
 public actual fun Node.appendChild(node: PlatformNode): Node {
-    val n = node as? Node ?: getOwnerDocument().adoptNode(node)
+    val n = node as? Node ?: getOwnerDocument()!!.let { d -> d.adoptNode(node) ?: d.importNode(node, true) }
     return appendChild(n)
 }
 
@@ -73,7 +76,7 @@ public actual fun Node.replaceChild(
     newChild: PlatformNode,
     oldChild: Node
 ): Node {
-    val n = newChild as? Node ?: getOwnerDocument().adoptNode(newChild)
+    val n = newChild as? Node ?: getOwnerDocument()!!.let { d -> d.adoptNode(newChild) ?: d.importNode(newChild, true) }
     return replaceChild(n, oldChild)
 }
 

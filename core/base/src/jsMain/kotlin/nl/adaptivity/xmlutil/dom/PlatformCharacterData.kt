@@ -28,6 +28,7 @@ package nl.adaptivity.xmlutil.dom
 */
 @JsName("CharacterData")
 public actual external interface PlatformCharacterData : PlatformNode {
+    override val ownerDocument: PlatformDocument
 
     public var data: String
 

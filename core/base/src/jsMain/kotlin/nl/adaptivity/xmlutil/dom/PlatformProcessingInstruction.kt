@@ -28,6 +28,8 @@ package nl.adaptivity.xmlutil.dom
 */
 @JsName("ProcessingInstruction")
 public actual external interface PlatformProcessingInstruction : PlatformNode {
+    override val ownerDocument: PlatformDocument
+
     public val target: String
     public var data: String
 }

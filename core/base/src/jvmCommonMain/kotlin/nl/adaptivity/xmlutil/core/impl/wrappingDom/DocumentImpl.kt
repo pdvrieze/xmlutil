@@ -32,6 +32,10 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
 
     override fun getImplementation(): DOMImplementationImpl = DOMImplementationImpl
 
+    override fun getOwnerDocument(): Nothing? = null
+
+    override fun getNodeValue(): Nothing? = null
+
     override fun getDoctype(): DocumentTypeImpl? = delegate.doctype?.let(::DocumentTypeImpl)
 
     override fun getDocumentElement(): ElementImpl? = delegate.documentElement?.wrap()

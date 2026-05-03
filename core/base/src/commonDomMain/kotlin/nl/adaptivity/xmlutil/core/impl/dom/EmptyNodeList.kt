@@ -21,7 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 internal object EmptyNodeList : INodeListImpl {
-    override val size: Int get() = 0
+    override fun getLength(): Int = 0
 
     override fun item(index: Int): Nothing? = null
 

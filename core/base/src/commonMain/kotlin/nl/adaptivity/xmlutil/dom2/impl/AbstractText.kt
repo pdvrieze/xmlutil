@@ -21,9 +21,16 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.Text
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractText<out N: Node, out P: Node> : AbstractCharacterData<N, P>(), Text
+public interface AbstractText<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
+    IAbstractNode<N, P>, Text {
+
+    override fun getNodetype(): NodeType = NodeType.TEXT_NODE
+
+    override fun getNodeName(): String = "#text"
+
+}
 

@@ -39,7 +39,9 @@ public actual interface PlatformNode {
 
     public fun getNodeName(): String
 
-    public fun getOwnerDocument(): PlatformDocument
+    public fun getNodeValue(): String?
+
+    public fun getOwnerDocument(): PlatformDocument?
 
     public fun getParentNode(): PlatformNode?
 

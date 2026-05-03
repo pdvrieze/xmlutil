@@ -21,24 +21,56 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.Element
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractNode<out N: Node, out P: Node> : Node {
-    abstract override fun getParentNode(): P?
+public abstract class AbstractNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>
+internal constructor(
+    private var _ownerDocument: AbstractDocument<N, P>?,
+    private var _parentNode: P? = null
+) : IAbstractNode<N, P> {
+
+    override fun getParentNode(): P? = _parentNode
+
+    @XmlUtilInternal
+    internal fun setParentNode(parentNode: @UnsafeVariance P?) {
+        _parentNode = parentNode
+    }
+
+    override fun getOwnerDocument(): AbstractDocument<N, P>? {
+        return _ownerDocument
+    }
+
+    internal open fun setOwnerDocument(ownerDocument: AbstractDocument<@UnsafeVariance N, @UnsafeVariance P>) {
+        _ownerDocument = ownerDocument
+    }
+
+    override fun getParentElement(): Element? {
+        return _parentNode as? Element
+    }
+
+
+    override fun getPreviousSibling(): N? {
+        @Suppress("UNCHECKED_CAST")
+        return (_parentNode ?: return null).getSiblingBefore(this as N)
+    }
+
+    override fun getNextSibling(): N? {
+        val siblingsIt = (getParentNode() ?: return null).getChildNodes().iterator()
+        while (siblingsIt.hasNext()) {
+            val s = siblingsIt.next()
+            if (s == this) {
+                return if (siblingsIt.hasNext()) siblingsIt.next() else null
+            }
+        }
+        return null
+    }
 
     abstract override fun getFirstChild(): N?
 
     abstract override fun getLastChild(): N?
-
-    abstract override fun getPreviousSibling(): N?
-
-    abstract override fun getNextSibling(): N?
-
-//    abstract override fun getParentElement(): AbstractElement?
-
-//    abstract override fun getOwnerDocument(): AbstractDocument
 
     abstract override fun appendChild(node: PlatformNode): N
 
@@ -46,4 +78,3 @@ public abstract class AbstractNode<out N: Node, out P: Node> : Node {
 
     abstract override fun removeChild(node: PlatformNode): N
 }
-

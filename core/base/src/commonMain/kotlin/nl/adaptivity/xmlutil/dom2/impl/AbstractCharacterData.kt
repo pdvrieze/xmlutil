@@ -22,7 +22,16 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.CharacterData
-import nl.adaptivity.xmlutil.dom2.Node
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractCharacterData<out N: Node, out P: Node> : AbstractNode<N, P>(), CharacterData
+public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
+    ownerDocument: AbstractDocument<N, P>,
+    parentNode: P? = null
+) : AbstractLeafNode<N, P>(ownerDocument, parentNode), CharacterData {
+
+    override fun getOwnerDocument(): AbstractDocument<N, P> {
+        return checkNotNull(super.getOwnerDocument()) { "Attributes cannot have a null owner document" }
+    }
+
+    final override fun getNodeValue(): String = getData()
+}

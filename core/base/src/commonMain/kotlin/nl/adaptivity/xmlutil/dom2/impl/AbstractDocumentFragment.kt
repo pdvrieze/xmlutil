@@ -22,7 +22,22 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeType
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractDocumentFragment<out N: Node, out P: Node> : AbstractNode<N, P>(), DocumentFragment
+public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
+    ownerDocument: AbstractDocument<N, P>,
+    nodeStorage: (P) -> AbstractNodeStorage<N, P>,
+    parentNode: P? = null
+) : AbstractParentNode<N, P>(ownerDocument, nodeStorage, parentNode,), DocumentFragment {
+
+
+    final override fun getNodetype(): NodeType = NodeType.DOCUMENT_FRAGMENT_NODE
+    final override fun getNodeValue(): Nothing? = null
+    final override fun getNodeName(): String = "#document-fragment"
+
+    override fun getOwnerDocument(): AbstractDocument<N, P> {
+        return checkNotNull(super.getOwnerDocument()) { "Document fragments cannot have a null owner document" }
+    }
+
+}

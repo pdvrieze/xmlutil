@@ -22,7 +22,25 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeType
 
 @ExperimentalXmlUtilApi
-public abstract class AbstractElement<out N: Node, out P: Node> : AbstractNode<N, P>(), Element
+public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
+    ownerDocument: AbstractDocument<N, P>,
+    nodeStorage: (P) -> AbstractNodeStorage<N, P>,
+    parentNode: P? = null,
+) : AbstractParentNode<N, P>(ownerDocument, nodeStorage, parentNode), Element {
+
+    final override fun getNodetype(): NodeType = NodeType.ELEMENT_NODE
+    final override fun getNodeValue(): Nothing? = null
+
+    final override fun getNodeName(): String = when (val p = getPrefix()) {
+        null, "" -> getLocalName()
+        else -> "$p:${getLocalName()}"
+    }
+
+    override fun getOwnerDocument(): AbstractDocument<N, P> {
+        return checkNotNull(super.getOwnerDocument()) { "Elements cannot have a null owner document" }
+    }
+
+}

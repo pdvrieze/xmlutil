@@ -28,4 +28,7 @@ public actual interface ProcessingInstruction : Node, PlatformProcessingInstruct
     public actual override fun getTarget(): String
     public actual override fun getData(): String
     public actual override fun setData(data: String)
+
+    actual override fun getNodeValue(): String
+    actual override fun getOwnerDocument(): Document
 }

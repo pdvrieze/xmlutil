@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface Attr : Node, PlatformAttr {
     override val parentElement: Element?
+    override val ownerDocument: Document get() = getOwnerDocument()
 
     public actual fun getNamespaceURI(): String?
     public actual fun getPrefix(): String?
@@ -35,6 +36,8 @@ public actual interface Attr : Node, PlatformAttr {
     public actual fun getValue(): String
     public actual fun setValue(value: String)
     public actual fun getOwnerElement(): Element?
+
+    actual override fun getOwnerDocument(): Document
 
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing
@@ -47,4 +50,5 @@ public actual interface Attr : Node, PlatformAttr {
 
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
+    actual override fun getNodeValue(): String
 }

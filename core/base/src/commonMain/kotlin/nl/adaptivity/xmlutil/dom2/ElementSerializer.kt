@@ -100,7 +100,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
                     setAttribute(name, value)
                 }
                 for (node in content) {
-                    appendChild(doc.adoptNode(node))
+                    appendChild(doc.adoptNode(node) ?: doc.importNode(node, true))
                 }
             }
         }
