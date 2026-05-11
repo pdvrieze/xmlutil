@@ -61,8 +61,4 @@ internal class WrappedJvmProcessingInstruction(delegate: PlatformProcessingInstr
     override fun cloneNode(deep: Boolean): WrappedJvmProcessingInstruction {
         return WrappedJvmProcessingInstruction(delegate.cloneNode(deep) as PlatformProcessingInstruction)
     }
-
-    override fun cloneNode(deep: Boolean): ProcessingInstructionImpl {
-        return ProcessingInstructionImpl(delegate.cloneNode(deep) as PlatformProcessingInstruction)
-    }
 }
