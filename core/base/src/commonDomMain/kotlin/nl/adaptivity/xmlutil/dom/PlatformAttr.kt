@@ -43,3 +43,7 @@ public actual interface PlatformAttr : PlatformNode {
     override fun getLastChild(): Nothing?
 }
 
+public actual fun PlatformAttr.getNamespaceURI(): String? = getNamespaceURI()
+public actual fun PlatformAttr.getLocalName(): String? = getLocalName()
+public actual fun PlatformAttr.getPrefix(): String? = getPrefix()
+public actual fun PlatformAttr.getValue(): String = getValue()

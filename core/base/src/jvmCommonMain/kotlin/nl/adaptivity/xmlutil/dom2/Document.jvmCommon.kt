@@ -22,9 +22,14 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.core.impl.wrappingDom.DOMImplementationImpl.createDocument
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import org.w3c.dom.DOMConfiguration
+import org.w3c.dom.EntityReference
+import org.w3c.dom.NodeList
+import org.w3c.dom.Node as DomNode
 
 public actual interface Document : Node, PlatformDocument {
     public actual override fun getImplementation(): DOMImplementation
@@ -42,9 +47,96 @@ public actual interface Document : Node, PlatformDocument {
     public actual override fun createCDATASection(data: String): CDATASection
     public actual override fun createComment(data: String): Comment
     public actual override fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
+    override fun createEntityReference(name: String?): EntityReference? {
+        throw UnsupportedOperationException("Entity references are not supported")
+    }
 
     public actual override fun getOwnerDocument(): Nothing?
     public actual override fun getNodeValue(): Nothing?
+    override fun setNodeValue(nodeValue: String?) {} // nothing to do
+
+    override fun cloneNode(deep: Boolean): Document {
+        val d = createDocument(null, null, getDoctype()?.cloneNode(false))
+        if (deep) for (c in getChildNodes()) d.appendChild(c.cloneNode(true))
+        return d
+    }
+
+    override fun getBaseURI(): String? = when (val du = documentURI) {
+        null -> null
+        else -> du.substringBeforeLast('/')
+    }
+
+    override fun getElementsByTagName(tagname: String?): NodeList? =
+        TODO("Note yet implemented")
+
+
+    override fun getElementsByTagNameNS(
+        namespaceURI: String?,
+        localName: String
+    ): NodeList? = TODO("Note yet implemented")
+
+    override fun getElementById(elementId: String): Element? {
+        fun getElementById(parent: Element, id: String): Element? {
+            val idAttr = parent.attributes.firstOrNull { it.isId }
+            if (idAttr!=null && idAttr.value==id) return parent
+            return parent.childNodes.asSequence()
+                .filterIsInstance<Element>()
+                .map { getElementById(it, id) }
+                .firstOrNull()
+        }
+
+        return childNodes.asSequence()
+            .filterIsInstance<Element>()
+            .map { getElementById(it, elementId) }
+            .firstOrNull()
+    }
+
+    override fun getXmlEncoding(): String? {
+        return inputEncoding
+    }
+
+    @Deprecated("For now always false")
+    override fun getXmlStandalone(): Boolean {
+        return false
+    }
+
+    @Deprecated("No-op for now")
+    override fun setXmlStandalone(xmlStandalone: Boolean) {}
+
+    @Deprecated("1.0 for now")
+    override fun getXmlVersion(): String? {
+        return "1.0"
+    }
+
+    @Deprecated("No-op for now")
+    override fun setXmlVersion(xmlVersion: String?) {}
+
+    override fun getStrictErrorChecking(): Boolean {
+        return true
+    }
+
+    @Deprecated("No-op for now")
+    override fun setStrictErrorChecking(strictErrorChecking: Boolean) {}
+
+    override fun getDocumentURI(): String? = null
+
+    @Deprecated("No-op for now")
+    override fun setDocumentURI(documentURI: String?) {
+    }
+
+    override fun getDomConfig(): DOMConfiguration? {
+        TODO("not implemented")
+    }
+
+    @Deprecated("No-op for now")
+    override fun normalizeDocument() {
+        @Suppress("DEPRECATION")
+        normalize()
+    }
+
+    override fun renameNode(n: DomNode?, namespaceURI: String?, qualifiedName: String?): DomNode? {
+        TODO("not implemented")
+    }
 }
 
 public actual fun Document.importNode(

@@ -29,8 +29,6 @@ import nl.adaptivity.xmlutil.dom2.impl.AbstractDOMImplementation
 internal object SimpleDOMImplementation : AbstractDOMImplementation() {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
-    override fun createDocument(namespace: String?, qualifiedName: String): DocumentImpl =
-        createDocument(namespace, qualifiedName, null)
 
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentTypeImpl {
         return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)

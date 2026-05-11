@@ -37,5 +37,12 @@ public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>,
 
     final override fun getNodeName(): String = getTarget()
 
-    override fun getNodeValue(): String = getData()
+    final override fun getNodeValue(): String = getData()
+
+    final override fun getTextContent(): String = getData()
+
+    final override fun setTextContent(value: String?) {
+        setData(value ?: "")
+    }
+
 }

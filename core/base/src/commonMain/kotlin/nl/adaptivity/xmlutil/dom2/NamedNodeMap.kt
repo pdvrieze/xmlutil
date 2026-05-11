@@ -22,8 +22,8 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public expect interface NamedNodeMap : PlatformNamedNodeMap, Iterable<Attr> {
 
@@ -43,9 +43,9 @@ public expect interface NamedNodeMap : PlatformNamedNodeMap, Iterable<Attr> {
 
     public fun getNamedItemNS(namespace: String?, localName: String): Attr?
 
-    public fun setNamedItem(attr: PlatformAttr): Attr?
+    public fun setNamedItem(attr: PlatformNode): Attr?
 
-    public fun setNamedItemNS(attr: PlatformAttr): Attr?
+    public fun setNamedItemNS(attr: PlatformNode): Attr?
 
     public fun removeNamedItem(qualifiedName: String): Attr?
 

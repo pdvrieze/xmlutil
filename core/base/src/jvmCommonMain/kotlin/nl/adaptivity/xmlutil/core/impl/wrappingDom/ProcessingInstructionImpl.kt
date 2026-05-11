@@ -34,7 +34,11 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
         delegate.data = data
     }
 
-    override fun getNodeValue(): String = data
+    override fun getNodeValue(): String = delegate.nodeValue
+
+    override fun setNodeValue(nodeValue: String?) {
+        delegate.nodeValue = nodeValue
+    }
 
     override fun getOwnerDocument(): DocumentImpl {
         return checkNotNull(super.getOwnerDocument())
@@ -54,5 +58,9 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
 
     override fun getAttributes(): NamedNodeMap? {
         TODO("not implemented")
+    }
+
+    override fun cloneNode(deep: Boolean): ProcessingInstructionImpl {
+        return ProcessingInstructionImpl(delegate.cloneNode(deep) as PlatformProcessingInstruction)
     }
 }

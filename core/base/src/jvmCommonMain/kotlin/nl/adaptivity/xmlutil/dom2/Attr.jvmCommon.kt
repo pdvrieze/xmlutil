@@ -24,6 +24,7 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import org.w3c.dom.TypeInfo
 
 public actual interface Attr : Node, PlatformAttr {
     public actual override fun getNamespaceURI(): String?
@@ -53,5 +54,28 @@ public actual interface Attr : Node, PlatformAttr {
     public actual override fun getLastChild(): Nothing?
 
     actual override fun getNodeValue(): String
+    override fun setNodeValue(nodeValue: String?) {
+        setValue(nodeValue ?: "")
+    }
+
+    override fun normalize() {}
+
+    override fun cloneNode(deep: Boolean): Attr {
+        return getOwnerDocument().createAttributeNS(getNamespaceURI(), getName()).also {
+            it.setValue(getValue())
+        }
+    }
+
+    /**
+     * Always true for processing that does not have defaults
+     */
+    override fun getSpecified(): Boolean = true
+
+    override fun getSchemaTypeInfo(): TypeInfo? {
+        return null
+    }
+
+    override fun isId(): Boolean = false
+
     actual override fun getOwnerDocument(): Document
 }

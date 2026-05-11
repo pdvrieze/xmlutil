@@ -39,8 +39,6 @@ public actual interface PlatformDocument : PlatformNode {
 
     public fun getDocumentElement(): PlatformElement?
 
-    public val characterSet: String?
-
     public fun getInputEncoding(): String?
 
     public fun createElement(localName: String): PlatformElement
@@ -72,6 +70,8 @@ public actual interface PlatformDocument : PlatformNode {
     public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 
 }
+
+public val PlatformDocument.characterSet: String? get() = getInputEncoding()
 
 
 public actual fun Document.adoptNode(node: PlatformNode): Node? = adoptNode(node)

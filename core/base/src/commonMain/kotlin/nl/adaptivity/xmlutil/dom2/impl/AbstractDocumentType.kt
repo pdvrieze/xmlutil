@@ -33,4 +33,7 @@ public abstract class AbstractDocumentType<out N: IAbstractNode<N, P>, out P: IA
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_TYPE_NODE
     final override fun getNodeValue(): Nothing? = null
     final override fun getNodeName(): String = getName()
+
+    final override fun setTextContent(value: String?) {/* Defined as NO-OP*/ }
+    final override fun getTextContent(): Nothing? = null
 }

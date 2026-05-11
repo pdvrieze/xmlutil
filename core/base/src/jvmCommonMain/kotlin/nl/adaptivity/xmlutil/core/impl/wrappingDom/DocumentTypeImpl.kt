@@ -27,13 +27,18 @@ import nl.adaptivity.xmlutil.dom2.DocumentType
 internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeImpl<PlatformDocumentType>(delegate), DocumentType {
     override fun getName(): String = delegate.name
 
+    @Deprecated("No-op for now")
     override fun getEntities(): WrappingNamedNodeMap = WrappingNamedNodeMap(delegate.entities)
 
+    @Deprecated("No-op for now")
     override fun getNotations(): WrappingNamedNodeMap {
         return WrappingNamedNodeMap(delegate.notations)
     }
 
     override fun getNodeValue(): Nothing? = null
+    override fun setNodeValue(nodeValue: String?) {
+        delegate.nodeValue = nodeValue
+    }
 
     override fun getAttributes(): Nothing? = null
 
@@ -41,6 +46,7 @@ internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeIm
 
     override fun getSystemId(): String = delegate.systemId
 
+    @Deprecated("No-op for now")
     override fun getInternalSubset(): String = delegate.internalSubset
 
     override fun getFirstChild(): Nothing? = null
@@ -55,4 +61,8 @@ internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeIm
 
     override fun removeChild(node: PlatformNode): Nothing =
         throw UnsupportedOperationException("No children in documenttype")
+
+    override fun cloneNode(deep: Boolean): DocumentTypeImpl {
+        return DocumentTypeImpl(delegate.cloneNode(deep) as PlatformDocumentType)
+    }
 }

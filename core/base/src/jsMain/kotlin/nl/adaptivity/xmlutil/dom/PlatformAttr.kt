@@ -36,3 +36,8 @@ public actual external interface PlatformAttr : PlatformNode {
     public val ownerElement: PlatformElement?
     override val ownerDocument: PlatformDocument
 }
+
+public actual fun PlatformAttr.getNamespaceURI(): String? = namespaceURI
+public actual fun PlatformAttr.getLocalName(): String? = localName
+public actual fun PlatformAttr.getPrefix(): String? = prefix
+public actual fun PlatformAttr.getValue(): String = value

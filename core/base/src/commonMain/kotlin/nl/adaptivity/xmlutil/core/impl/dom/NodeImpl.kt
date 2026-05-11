@@ -22,21 +22,29 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractNode
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
 public interface NodeImpl : IAbstractNode<NodeImpl, ParentNodeImpl> {
-//    @XmlUtilInternal
-//    public fun setParentNode(node: ParentNodeImpl?)
     public override fun getOwnerDocument(): DocumentImpl?
 
-
     public companion object {
-        internal val storageAdapter: LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl> = object: LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl> {
-            override fun checkType(parent: ParentNodeImpl, node: PlatformNode): NodeImpl = when (node) {
-                is NodeImpl -> node
-                else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+
+        internal class StorageAdapter(private val ownerDocument: DocumentImpl): LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl>, AbstractAttrStorage.Adapter<AttrImpl> {
+            override fun checkTypeAndOwner(node: PlatformNode): NodeImpl = when (node) {
+                !is NodeImpl -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+                else if node.getOwnerDocument() != ownerDocument -> throw DOMException.wrongDocumentErr("Node not owned by this document")
+                else -> node
+            }
+
+            override fun checkAttr(a: PlatformNode): AttrImpl {
+                return when (a) {
+                    is AttrImpl -> a
+                    else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+                }
             }
         }
     }
+
 }

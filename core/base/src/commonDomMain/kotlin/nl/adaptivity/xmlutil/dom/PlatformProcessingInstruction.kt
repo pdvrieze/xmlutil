@@ -37,3 +37,5 @@ public actual interface PlatformProcessingInstruction : PlatformNode {
     public fun getTarget(): String
 }
 
+public actual fun PlatformProcessingInstruction.getNodeName(): String = getTarget()
+public actual fun PlatformProcessingInstruction.getData(): String = getData()

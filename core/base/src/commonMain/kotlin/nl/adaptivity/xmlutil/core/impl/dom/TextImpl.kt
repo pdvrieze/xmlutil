@@ -22,8 +22,8 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformText
+import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.impl.AbstractText
 
 @XmlUtilInternal

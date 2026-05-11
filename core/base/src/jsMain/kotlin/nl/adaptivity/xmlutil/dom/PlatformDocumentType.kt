@@ -32,3 +32,8 @@ public actual external interface PlatformDocumentType : PlatformNode {
     public val publicId: String
     public val systemId: String
 }
+
+public actual fun PlatformDocumentType.getOwnerDocument(): PlatformDocument? = ownerDocument
+public actual fun PlatformDocumentType.getName(): String = name
+public actual fun PlatformDocumentType.getPublicId(): String = publicId
+public actual fun PlatformDocumentType.getSystemId(): String = systemId

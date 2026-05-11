@@ -20,8 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface NamedNodeMap : PlatformNamedNodeMap {
     actual override fun item(index: Int): Attr?
@@ -30,9 +30,9 @@ public actual interface NamedNodeMap : PlatformNamedNodeMap {
 
     actual override fun getNamedItemNS(namespace: String?, localName: String): Attr?
 
-    actual override fun setNamedItem(attr: PlatformAttr): Attr?
+    actual override fun setNamedItem(attr: PlatformNode): Attr?
 
-    actual override fun setNamedItemNS(attr: PlatformAttr): Attr?
+    actual override fun setNamedItemNS(attr: PlatformNode): Attr?
 
     actual override fun removeNamedItem(qualifiedName: String): Attr?
 

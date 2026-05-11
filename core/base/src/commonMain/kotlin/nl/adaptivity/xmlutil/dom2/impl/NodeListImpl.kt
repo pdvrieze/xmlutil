@@ -18,37 +18,29 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.dom
+package nl.adaptivity.xmlutil.dom2.impl
 
-import nl.adaptivity.xmlutil.dom2.NodeList
-import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
-public interface INodeListImpl: AbstractNodeList<NodeImpl, ParentNodeImpl>, NodeList {
-    override fun get(index: Int): NodeImpl? = item(index)
+@ExperimentalXmlUtilApi
+public class NodeListImpl<out N : IAbstractNode<N, P>, out P: IAbstractParentNode<N, P>>(
+    elements: List<N> = emptyList()
+) : AbstractNodeList<N, P> {
 
-    public fun isEmpty(): Boolean = getLength() == 0
+    private val _elements = elements.toMutableList()
+    internal val elements: List<N> get() = _elements
 
-    override fun item(index: Int): NodeImpl?
-
-    override fun iterator(): Iterator<NodeImpl>
-
-    override fun getLength(): Int
-}
-
-internal class NodeListImpl(
-    internal val elements: MutableList<NodeImpl> = mutableListOf()
-) : INodeListImpl {
     override fun getLength(): Int {
         return elements.size
     }
 
-    override fun item(index: Int): NodeImpl? = when (index) {
+    override fun item(index: Int): N? = when (index) {
         in elements.indices -> elements[index]
 
         else -> null
     }
 
-    override fun iterator(): Iterator<NodeImpl> {
+    override fun iterator(): Iterator<N> {
         return elements.iterator()
     }
 }

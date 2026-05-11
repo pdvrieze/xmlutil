@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -36,9 +36,9 @@ public actual interface PlatformNamedNodeMap : Iterable<Attr> {
 
     public fun getNamedItemNS(namespace: String?, localName: String): PlatformAttr?
 
-    public fun setNamedItem(attr: PlatformAttr): PlatformAttr?
+    public fun setNamedItem(attr: PlatformNode): PlatformAttr?
 
-    public fun setNamedItemNS(attr: PlatformAttr): PlatformAttr?
+    public fun setNamedItemNS(attr: PlatformNode): PlatformAttr?
 
     public fun removeNamedItem(qualifiedName: String): PlatformAttr?
 

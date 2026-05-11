@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
-    override val ownerDocument: Document
+    override val ownerDocument: Document get() = getOwnerDocument()
 
     public actual fun getNamespaceURI(): String?
     public actual fun getPrefix(): String?

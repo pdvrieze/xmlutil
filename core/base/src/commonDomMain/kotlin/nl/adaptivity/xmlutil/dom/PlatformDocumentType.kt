@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -32,3 +32,8 @@ public actual interface PlatformDocumentType : PlatformNode {
     override fun getLastChild(): Nothing?
 
 }
+
+public actual fun PlatformDocumentType.getOwnerDocument(): PlatformDocument? = ownerDocument
+public actual fun PlatformDocumentType.getName(): String = getName()
+public actual fun PlatformDocumentType.getPublicId(): String = getPublicId()
+public actual fun PlatformDocumentType.getSystemId(): String = getSystemId()

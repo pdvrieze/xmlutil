@@ -23,19 +23,21 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.isXmlWhitespace
 import kotlin.jvm.JvmStatic
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
     ownerDocument: AbstractDocument<N, P>?,
-    nodeStorage: (P) -> AbstractNodeStorage<N, P>,
+    nodeStorage: (P) -> MutableAbstractNodeStorage<N, P>,
     parentNode: P? = null,
 ) : AbstractNode<N, P>(ownerDocument, parentNode), IAbstractParentNode<N, P> {
 
     protected abstract val self: P
 
     @Suppress("UNCHECKED_CAST")
-    private val nodeStorage: AbstractNodeStorage<N, P> = nodeStorage(this as P)
+    private val _nodeStorage: MutableAbstractNodeStorage<N, P> = nodeStorage(this as P)
+    protected val nodeStorage: AbstractNodeStorage<N, P> get() = _nodeStorage
 
     override fun setOwnerDocument(ownerDocument: AbstractDocument<@UnsafeVariance N, @UnsafeVariance P>) {
         for (c in getChildNodes()) {
@@ -44,22 +46,48 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
         super.setOwnerDocument(ownerDocument)
     }
 
-    override fun getChildNodes(): AbstractNodeList<N, P> = nodeStorage.getNodeList()
+    final override fun getChildNodes(): AbstractNodeList<N, P> = nodeStorage.getNodeList()
 
-    override fun getFirstChild(): N? = nodeStorage.getFirstChild()
+    final override fun getFirstChild(): N? = nodeStorage.getFirstChild()
 
-    override fun getLastChild(): N? = nodeStorage.getLastChild()
+    final override fun getLastChild(): N? = nodeStorage.getLastChild()
 
-    override fun appendChild(node: PlatformNode): N = nodeStorage.appendChild(self, node)
+    final override fun appendChild(node: PlatformNode): N {
+        return _nodeStorage.appendChild(self, node)
+    }
 
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N =
-        nodeStorage.replaceChild(self, newChild, oldChild)
+    final override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N =
+        _nodeStorage.replaceChild(self, newChild, oldChild)
 
-    override fun removeChild(node: PlatformNode): N = nodeStorage.removeChild(self, node)
+    final override fun removeChild(node: PlatformNode): N = _nodeStorage.removeChild(self, node)
 
-    override public fun getSiblingBefore(ref: Node): N? = nodeStorage.getSiblingBefore(ref)
+    public final override fun getSiblingBefore(ref: Node): N? = nodeStorage.getSiblingBefore(ref)
 
-    public override fun getSiblingAfter(ref: Node): N? = nodeStorage.getSiblingAfter(ref)
+    public final override fun getSiblingAfter(ref: Node): N? = nodeStorage.getSiblingAfter(ref)
+
+    private fun getTextContent(receiver: StringBuilder, node: IAbstractNode<N, P>) {
+        when (node) {
+            is AbstractComment<*, *> -> {}
+            is AbstractCharacterData<N, P> -> if (!isXmlWhitespace(node.getTextContent())) {
+                receiver.append(node.getTextContent())
+            }
+
+            is AbstractDocumentFragment<*, *>,
+            is AbstractElement<N, *> -> {
+                for (c in getChildNodes()) {
+                    getTextContent(receiver, c)
+                }
+            }
+        }
+    }
+
+    protected fun getTextContentImpl(): String = buildString {
+        getTextContent(this, this@AbstractParentNode)
+    }
+
+    override fun setTextContent(value: String?) {
+        TODO("not implemented")
+    }
 
     public companion object {
         @JvmStatic

@@ -18,12 +18,17 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.dom
+package nl.adaptivity.xmlutil.core.impl.dom
 
-public expect interface PlatformAttr : PlatformNode
+internal fun Appendable.appendTextContent(node: NodeImpl) {
+    when (node) {
+        is DocumentFragmentImpl,
+        is ElementImpl -> for (n in node.getChildNodes()) {
+            appendTextContent(n)
+        }
 
-public expect fun PlatformAttr.getNamespaceURI(): String?
-public expect fun PlatformAttr.getLocalName(): String?
-public expect fun PlatformAttr.getPrefix(): String?
-public expect fun PlatformAttr.getValue(): String
+        is AttrImpl -> append(node.getValue())
 
+        is CharacterDataImpl -> append(node.getData())
+    }
+}

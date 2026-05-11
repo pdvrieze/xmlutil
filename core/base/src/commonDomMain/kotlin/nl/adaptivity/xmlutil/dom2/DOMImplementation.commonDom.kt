@@ -30,11 +30,6 @@ public actual interface DOMImplementation : PlatformDOMImplementation {
         systemId: String
     ): DocumentType
 
-    override fun createDocument(
-        namespace: String?,
-        qualifiedName: String
-    ): Document
-
     public actual override fun createDocument(
         namespace: String?,
         qualifiedName: String?,

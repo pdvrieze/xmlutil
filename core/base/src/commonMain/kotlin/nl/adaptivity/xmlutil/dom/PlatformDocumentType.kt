@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,3 +21,8 @@
 package nl.adaptivity.xmlutil.dom
 
 public expect interface PlatformDocumentType : PlatformNode
+
+public expect fun PlatformDocumentType.getOwnerDocument(): PlatformDocument?
+public expect fun PlatformDocumentType.getName(): String
+public expect fun PlatformDocumentType.getPublicId(): String
+public expect fun PlatformDocumentType.getSystemId(): String

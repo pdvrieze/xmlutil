@@ -55,7 +55,7 @@ internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), Attr {
 
     override fun getNamespaceURI(): String? = namespaceURI
 
-    override fun getLocalName(): String = localName
+    override fun getLocalName(): String? = localName
 
     override fun getName(): String = name
 

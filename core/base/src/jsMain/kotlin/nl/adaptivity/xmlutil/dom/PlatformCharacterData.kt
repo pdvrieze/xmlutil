@@ -34,3 +34,4 @@ public actual external interface PlatformCharacterData : PlatformNode {
 
 }
 
+public actual fun PlatformCharacterData.getData(): String = data

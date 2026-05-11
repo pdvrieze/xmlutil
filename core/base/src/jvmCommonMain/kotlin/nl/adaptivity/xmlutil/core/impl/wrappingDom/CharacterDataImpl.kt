@@ -39,8 +39,15 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
     }
 
     override fun getNodeValue(): String = delegate.nodeValue
+    override fun setNodeValue(nodeValue: String?) {
+        data = nodeValue ?: ""
+    }
 
     override fun getLength(): Int = delegate.length
+
+    override fun normalize() {
+        delegate.normalize()
+    }
 
     override fun substringData(offset: Int, count: Int): String =
         delegate.substringData(offset, count)
@@ -80,4 +87,6 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
     @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): Nothing =
         throw UnsupportedOperationException("No children in character data")
+
+    abstract override fun cloneNode(deep: Boolean): CharacterDataImpl<N>
 }

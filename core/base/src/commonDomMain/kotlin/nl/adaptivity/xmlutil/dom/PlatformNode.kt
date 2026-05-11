@@ -59,7 +59,7 @@ public actual interface PlatformNode {
     public fun getNextSibling(): PlatformNode?
 
     public fun getTextContent(): String?
-    public fun setTextContent(value: String)
+    public fun setTextContent(value: String?)
 
     public fun lookupPrefix(namespace: String): String?
 

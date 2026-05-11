@@ -22,18 +22,20 @@ package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.getNodeName
 import nl.adaptivity.xmlutil.dom2.impl.AbstractProcessingInstruction
 
 @XmlUtilInternal
 public class ProcessingInstructionImpl internal constructor(
     ownerDocument: DocumentImpl,
-    private val target: String,
-    private var data: String,
+    target: String,
+    data: String,
     parentNode: ParentNodeImpl? = null,
 ) : AbstractProcessingInstruction<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), NodeImpl {
+    private val _target = target
+    private var _data = data
+
     internal constructor(ownerDocument: DocumentImpl, original: PlatformProcessingInstruction) :
             this(ownerDocument, original.getNodeName(), original.getData())
 
@@ -41,17 +43,11 @@ public class ProcessingInstructionImpl internal constructor(
         return super.getOwnerDocument() as DocumentImpl
     }
 
-    override fun getTarget(): String = target
+    override fun getTarget(): String = _target
 
-    override fun getData(): String = data
+    override fun getData(): String = _data
 
     override fun setData(data: String) {
-        this.data = data
-    }
-
-    override fun getTextContent(): String = data
-
-    override fun setTextContent(value: String) {
-        data = value
+        this._data = data
     }
 }

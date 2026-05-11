@@ -30,4 +30,11 @@ internal class CDATASectionImpl(delegate: PlatformCDATASection) : TextImpl(deleg
         return checkNotNull(super.getOwnerDocument())
     }
 
+    override fun cloneNode(deep: Boolean): CDATASectionImpl {
+        return CDATASectionImpl(delegate.cloneNode(deep) as PlatformCDATASection)
+    }
+
+    override fun normalize() {
+        delegate.normalize()
+    }
 }

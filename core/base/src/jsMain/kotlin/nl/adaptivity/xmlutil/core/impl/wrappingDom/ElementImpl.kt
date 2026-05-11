@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.dom2.Element as Element2
 import org.w3c.dom.Element as DomElement
 
 internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate), Element2 {
-    override val ownerDocument: DocumentImpl get() = checkNotNull(super.ownerDocument)
+    override val ownerDocument: DocumentImpl get() = getOwnerDocument()
 
     override fun getNamespaceURI(): String? = delegate.namespaceURI
 

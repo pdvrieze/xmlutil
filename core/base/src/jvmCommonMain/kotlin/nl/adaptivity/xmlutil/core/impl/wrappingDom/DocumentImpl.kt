@@ -24,7 +24,6 @@ import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Document
 import org.w3c.dom.DOMConfiguration
-import org.w3c.dom.EntityReference
 import org.w3c.dom.NodeList
 
 internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<PlatformDocument>(delegate), Document {
@@ -36,32 +35,42 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
 
     override fun getNodeValue(): Nothing? = null
 
+    override fun setNodeValue(nodeValue: String?) {
+        delegate.nodeValue = nodeValue
+    }
+
     override fun getDoctype(): DocumentTypeImpl? = delegate.doctype?.let(::DocumentTypeImpl)
 
     override fun getDocumentElement(): ElementImpl? = delegate.documentElement?.wrap()
 
     override fun getXmlEncoding(): String = delegate.xmlEncoding
 
+    @Deprecated("For now always false")
     override fun getXmlStandalone(): Boolean = delegate.xmlStandalone
 
+    @Deprecated("No-op for now")
     override fun setXmlStandalone(xmlStandalone: Boolean) {
         delegate.xmlStandalone = xmlStandalone
     }
 
+    @Deprecated("1.0 for now")
     override fun getXmlVersion(): String = delegate.xmlVersion
 
+    @Deprecated("No-op for now")
     override fun setXmlVersion(xmlVersion: String?) {
         delegate.xmlVersion = xmlVersion
     }
 
     override fun getStrictErrorChecking(): Boolean = delegate.strictErrorChecking
 
+    @Deprecated("No-op for now")
     override fun setStrictErrorChecking(strictErrorChecking: Boolean) {
         delegate.strictErrorChecking = strictErrorChecking
     }
 
     override fun getDocumentURI(): String = delegate.documentURI
 
+    @Deprecated("No-op for now")
     override fun setDocumentURI(documentURI: String?) {
         delegate.documentURI = documentURI
     }
@@ -70,9 +79,13 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
         return delegate.domConfig
     }
 
+    override fun getBaseURI(): String {
+        return delegate.baseURI!!
+    }
+
     override fun getAttributes(): Nothing? = null
 
-    override fun getElementsByTagName(tagname: String): WrappingNodeList {
+    fun getElementsByTagName(tagname: String): WrappingNodeList {
         return WrappingNodeList(delegate.getElementsByTagName(tagname))
     }
 
@@ -107,15 +120,20 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
     override fun createElementNS(namespaceURI: String, qualifiedName: String): ElementImpl =
         ElementImpl(delegate.createElementNS(namespaceURI, qualifiedName))
 
-    override fun createEntityReference(name: String?): EntityReference {
-        return delegate.createEntityReference(name)
+    override fun createEntityReference(name: String?): EntityReferenceImpl {
+        return EntityReferenceImpl(delegate.createEntityReference(name))
     }
 
+    @Deprecated("No-op for now")
     override fun normalizeDocument() {
         return delegate.normalizeDocument()
     }
 
-    override fun renameNode(n: PlatformNode, namespaceURI: String?, qualifiedName: String): AbstractNodeImpl<*> =
+    override fun cloneNode(deep: Boolean): DocumentImpl {
+        return DocumentImpl(delegate.cloneNode(deep) as PlatformDocument)
+    }
+
+    fun renameNode(n: PlatformNode, namespaceURI: String?, qualifiedName: String): AbstractNodeImpl<*> =
         delegate.renameNode(n.unWrap(), namespaceURI, qualifiedName).wrap()
 
     override fun adoptNode(node: PlatformNode): AbstractNodeImpl<*> = delegate.adoptNode(node.unWrap()).wrap()

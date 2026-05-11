@@ -27,6 +27,9 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface CharacterData : Node, PlatformCharacterData {
     override val ownerDocument: Document get() = getOwnerDocument()
+    override var data: String
+        get() = getData()
+        set(value) { setData(value) }
 
     public actual fun getData(): String
     public actual fun setData(data: String)

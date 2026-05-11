@@ -57,7 +57,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
 
     override val nodeType: Short get() = delegate.nodeType
 
-    override val baseURI: String get() = delegate.baseURI
+    val baseURI: String get() = delegate.baseURI
 
     override var nodeValue: String?
         get() = delegate.nodeValue
@@ -72,7 +72,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
         }
 
     override fun getTextContent(): String? = textContent
-    override fun setTextContent(value: String) {
+    override fun setTextContent(value: String?) {
         textContent = value
     }
 
