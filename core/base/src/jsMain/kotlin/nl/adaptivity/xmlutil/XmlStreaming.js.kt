@@ -115,7 +115,7 @@ internal actual object XmlStreaming : IXmlStreaming {
 
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     actual override val platformDOMImplementation: PlatformDOMImplementation
-        get() = DOMImplementationImpl.delegate as PlatformDOMImplementation
+        get() = DOMImplementationImpl.delegate
 }
 
 /**

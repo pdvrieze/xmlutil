@@ -28,7 +28,7 @@ internal class DocumentFragmentImpl(delegate: DOMDocumentFragment) :
 
     override fun getNodeValue(): Nothing? = null
 
-    override val ownerDocument: DocumentImpl get() = getOwnerDocument()
+    override val ownerDocument: DocumentImpl get() = checkNotNull(delegate.ownerDocument).wrap()
 
-    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+    override fun getOwnerDocument(): DocumentImpl = checkNotNull(delegate.ownerDocument).wrap()
 }
