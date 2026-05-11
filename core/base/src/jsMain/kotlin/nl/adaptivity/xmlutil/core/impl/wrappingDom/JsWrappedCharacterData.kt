@@ -24,15 +24,15 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.CharacterData as CharacterData2
 import org.w3c.dom.CharacterData as DOMCharacterData
 
-internal abstract class CharacterDataImpl<N : DOMCharacterData>(delegate: N) : NodeImpl<N>(delegate), CharacterData2 {
+internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N) : JsWrappedNode<N>(delegate), CharacterData2 {
     override var data: String
         get() = delegate.data
         set(value) {
             delegate.data = value
         }
 
-    override val ownerDocument: DocumentImpl get() = checkNotNull(super<NodeImpl>.ownerDocument)
-    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+    override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
+    override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
 
     override fun getData(): String = data
 

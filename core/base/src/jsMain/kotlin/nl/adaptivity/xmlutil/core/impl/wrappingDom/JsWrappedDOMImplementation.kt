@@ -32,7 +32,7 @@ import org.w3c.dom.parsing.DOMParser
 import nl.adaptivity.xmlutil.dom2.DOMImplementation as DOMImplementation2
 import org.w3c.dom.Document as DomDocument
 
-internal object DOMImplementationImpl : DOMImplementation2 {
+internal object JsWrappedDOMImplementation : DOMImplementation2 {
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     val delegate: PlatformDOMImplementation by lazy {
         runCatching { document.implementation }
@@ -52,7 +52,7 @@ internal object DOMImplementationImpl : DOMImplementation2 {
         val documentType1 = documentType?.unWrap() as? PlatformDocumentType
         return when (val d = delegate.createDocument(namespace, qualifiedName, documentType1)) {
             is Document -> d
-            else -> DocumentImpl(d as DomDocument)
+            else -> JsWrappedDocument(d as DomDocument)
         }
     }
 

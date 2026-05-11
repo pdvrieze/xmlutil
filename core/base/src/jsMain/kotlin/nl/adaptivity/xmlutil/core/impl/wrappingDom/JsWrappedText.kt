@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom2.Comment as Comment2
-import org.w3c.dom.Comment as DOMComment
+import nl.adaptivity.xmlutil.dom2.Text as Text2
+import org.w3c.dom.Text as DOMText
 
-internal class CommentImpl(delegate: DOMComment) : CharacterDataImpl<DOMComment>(delegate), Comment2
+internal open class JsWrappedText(delegate: DOMText) : JsWrappedCharacterData<DOMText>(delegate), Text2

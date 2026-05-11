@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.Element
 import org.w3c.dom.DocumentType as DOMDocumentType
 
-internal class DocumentTypeImpl(delegate: DOMDocumentType) : NodeImpl<DOMDocumentType>(delegate), DocumentType {
+internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<DOMDocumentType>(delegate), DocumentType {
     override val parentElement: Element?
         get() = getParentElement()
 

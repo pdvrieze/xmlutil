@@ -26,18 +26,18 @@ import nl.adaptivity.xmlutil.dom2.Element
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.Node as DomNode
 
-internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), Attr {
+internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegate), Attr {
     override var value: String
         get() = delegate.value
         set(value) {
             delegate.value = value
         }
 
-    override val ownerDocument: DocumentImpl get() = checkNotNull(super<NodeImpl>.ownerDocument)
+    override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
 
     override val parentElement: Element? get() = ownerElement
 
-    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+    override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
 
     override fun getOwnerElement(): Element? = ownerElement
 
@@ -69,7 +69,7 @@ internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), Attr {
 
     override val name: String get() = delegate.name
 
-    override val ownerElement: ElementImpl?
+    override val ownerElement: JsWrappedElement?
         get() = delegate.ownerElement?.wrap()
 
     override fun appendChild(node: PlatformNode): Nothing =
@@ -86,6 +86,6 @@ internal class AttrImpl(delegate: DomAttr) : NodeImpl<DomAttr>(delegate), Attr {
 
 }
 
-internal fun DomNode.wrapAttr(): AttrImpl {
+internal fun DomNode.wrapAttr(): JsWrappedAttr {
     return (this as DomAttr).wrap()
 }

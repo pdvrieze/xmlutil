@@ -25,8 +25,8 @@ import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import nl.adaptivity.xmlutil.dom2.Element as Element2
 import org.w3c.dom.Element as DomElement
 
-internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate), Element2 {
-    override val ownerDocument: DocumentImpl get() = getOwnerDocument()
+internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement>(delegate), Element2 {
+    override val ownerDocument: JsWrappedDocument get() = getOwnerDocument()
 
     override fun getNamespaceURI(): String? = delegate.namespaceURI
 
@@ -38,19 +38,19 @@ internal class ElementImpl(delegate: DomElement) : NodeImpl<DomElement>(delegate
 
     override fun getNodeValue(): Nothing? = null
 
-    override fun getOwnerDocument(): DocumentImpl {
-        return super.getOwnerDocument() as DocumentImpl
+    override fun getOwnerDocument(): JsWrappedDocument {
+        return super.getOwnerDocument() as JsWrappedDocument
     }
 
-    override fun getElementsByTagName(qualifiedName: String): WrappingNodeList {
-        return WrappingNodeList(delegate.getElementsByTagName(qualifiedName))
+    override fun getElementsByTagName(qualifiedName: String): JsWrappedNodeList {
+        return JsWrappedNodeList(delegate.getElementsByTagName(qualifiedName))
     }
 
-    override fun getElementsByTagNameNS(namespace: String?, localName: String): WrappingNodeList {
-        return WrappingNodeList(delegate.getElementsByTagNameNS(namespace, localName))
+    override fun getElementsByTagNameNS(namespace: String?, localName: String): JsWrappedNodeList {
+        return JsWrappedNodeList(delegate.getElementsByTagNameNS(namespace, localName))
     }
 
-    override fun getAttributes(): WrappingNamedNodeMap = WrappingNamedNodeMap(delegate.attributes)
+    override fun getAttributes(): JsWrappedNamedNodeMap = JsWrappedNamedNodeMap(delegate.attributes)
 
     override fun getAttributeNode(qualifiedName: String): Attr2? {
         return delegate.getAttributeNode(qualifiedName)?.wrapAttr()
