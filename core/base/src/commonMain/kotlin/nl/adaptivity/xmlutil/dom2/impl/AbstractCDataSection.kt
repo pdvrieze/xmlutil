@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 public interface AbstractCDataSection<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
     CDATASection {
 
-    override fun getNodetype(): NodeType = NodeType.ATTRIBUTE_NODE
+    override fun getNodetype(): NodeType = NodeType.CDATA_SECTION_NODE
 
     override fun getNodeName(): String = "#data-section"
 

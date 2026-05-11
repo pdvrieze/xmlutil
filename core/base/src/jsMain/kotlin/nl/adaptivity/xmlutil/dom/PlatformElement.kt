@@ -44,4 +44,7 @@ public actual external interface PlatformElement : PlatformNode {
 
 public actual val PlatformElement.namespaceURI: String? get() = asDynamic().namespaceURI
 public actual val PlatformElement.prefix: String? get() = asDynamic().prefix
+public actual val PlatformElement.name: String get() = asDynamic().name
 public actual val PlatformElement.localName: String get() = asDynamic().localName
+public actual val PlatformElement.attributes: PlatformNamedNodeMap get() = asDynamic().attributes
+public actual val PlatformElement.childNodes: PlatformNodeList get() = asDynamic().childNodes

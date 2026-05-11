@@ -33,3 +33,18 @@ public actual external interface PlatformNamedNodeMap {
 
 }
 
+public val PlatformNamedNodeMap.length: Int get() = asDynamic().length
+
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> =
+    IteratorImpl(this)
+
+private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMap): Iterator<N> {
+    var idx = 0
+
+    override fun hasNext(): Boolean = idx < map.length
+
+    override fun next(): N {
+        @Suppress("UNCHECKED_CAST")
+        return map.item(idx++) as N
+    }
+}

@@ -320,7 +320,8 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
 private fun Node.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
     @Suppress("DEPRECATION")
     return when (nodeType) {
-        NodeConsts.ATTRIBUTE_NODE -> EventType.ATTRIBUTE
+        NodeConsts.ATTRIBUTE_NODE ->
+            EventType.ATTRIBUTE
         NodeConsts.CDATA_SECTION_NODE -> EventType.CDSECT
         NodeConsts.COMMENT_NODE -> EventType.COMMENT
         NodeConsts.DOCUMENT_TYPE_NODE -> EventType.DOCDECL

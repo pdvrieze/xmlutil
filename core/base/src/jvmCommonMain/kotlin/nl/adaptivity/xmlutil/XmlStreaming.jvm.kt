@@ -25,6 +25,7 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.DOMImplementationImpl
 import nl.adaptivity.xmlutil.core.internal.StringInOutBuffer
@@ -124,7 +125,7 @@ internal actual object XmlStreaming : IXmlStreaming {
     }
 
     actual override val genericDomImplementation: DOMImplementation
-        get() = DOMImplementationImpl
+        get() = SimpleDOMImplementation
 
     actual override val platformDOMImplementation: PlatformDOMImplementation
         get() = DOMImplementationImpl.delegate

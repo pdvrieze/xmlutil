@@ -22,7 +22,25 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformCDATASection
+import nl.adaptivity.xmlutil.dom.PlatformComment
+import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
+import nl.adaptivity.xmlutil.dom.PlatformElement
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
+import nl.adaptivity.xmlutil.dom.PlatformText
+import nl.adaptivity.xmlutil.dom.attributes
+import nl.adaptivity.xmlutil.dom.childNodes
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.getName
+import nl.adaptivity.xmlutil.dom.getNamespaceURI
+import nl.adaptivity.xmlutil.dom.getNodeName
+import nl.adaptivity.xmlutil.dom.getValue
+import nl.adaptivity.xmlutil.dom.iterator
+import nl.adaptivity.xmlutil.dom.localName
+import nl.adaptivity.xmlutil.dom.name
+import nl.adaptivity.xmlutil.dom.namespaceURI
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.CDATASection
 import nl.adaptivity.xmlutil.dom2.Comment
@@ -40,6 +58,7 @@ import nl.adaptivity.xmlutil.dom2.localName
 import nl.adaptivity.xmlutil.dom2.namespaceURI
 import nl.adaptivity.xmlutil.dom2.parentNode
 import nl.adaptivity.xmlutil.dom2.target
+import nl.adaptivity.xmlutil.dom2.value
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
@@ -116,43 +135,45 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
         deep: Boolean
     ): N {
         val newNode = when (node) {
-            is Attr -> {
+            is PlatformAttr -> {
                 val n = node.getName()
                 when {
                     ':' in n -> createAttributeNS(node.getNamespaceURI(), n)
+                    n == "xmlns" -> createAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, n)
                     else -> createAttribute(n)
-                }
+                }.also { it.value = node.getValue() }
             }
 
-            is Element -> {
+            is PlatformElement -> {
                 val r = when (val u = node.namespaceURI) {
                     null, "" -> createElement(node.localName)
-                    else -> createElementNS(u, node.localName)
+                    else -> createElementNS(u, node.name)
                 }
                 for (a in node.attributes) {
                     val n = a.getName()
                     when {
-                        ':' in n -> r.setAttributeNS(a.namespaceURI, n, a.getValue())
+                        ':' in n -> r.setAttributeNS(a.getNamespaceURI(), n, a.getValue())
+                        n == "xmlns" -> r.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, n, a.getValue())
                         else -> r.setAttribute(n, a.getValue())
                     }
                 }
-                for (c in childNodes) r.appendChild(importNode(c, true))
+                for (c in node.childNodes) r.appendChild(importNode(c, true))
 
                 r
             }
 
-            is DocumentFragment if deep -> createDocumentFragment().also { t ->
-                for (c in childNodes) t.appendChild(importNode(c, true))
+            is PlatformDocumentFragment if deep -> createDocumentFragment().also { t ->
+                for (c in node.childNodes) t.appendChild(importNode(c, true))
             }
 
-            is DocumentFragment -> createDocumentFragment()
+            is PlatformDocumentFragment -> createDocumentFragment()
 
-            is CDATASection -> createCDATASection(node.data)
+            is PlatformCDATASection -> createCDATASection(node.getData())
 
-            is Text -> createTextNode(node.data)
+            is PlatformText -> createTextNode(node.getData())
 
-            is Comment -> createComment(node.data)
-            is ProcessingInstruction -> createProcessingInstruction(node.target, node.data)
+            is PlatformComment -> createComment(node.getData())
+            is PlatformProcessingInstruction -> createProcessingInstruction(node.getNodeName(), node.getData())
             else -> throw IllegalArgumentException("Cannot import node of type ${node::class.simpleName}")
         }
 

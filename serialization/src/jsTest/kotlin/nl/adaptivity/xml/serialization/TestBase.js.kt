@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,17 +18,17 @@
  * permissions and limitations under the License.
  */
 
+package nl.adaptivity.xml.serialization
 
-package nl.adaptivity.xmlutil.dom
+import nl.adaptivity.xmlutil.DomWriter
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.writeCurrent
+import nl.adaptivity.xmlutil.xmlStreaming
 
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-
-public expect interface PlatformElement : PlatformNode
-
-public expect val PlatformElement.namespaceURI: String?
-public expect val PlatformElement.prefix: String?
-public expect val PlatformElement.name: String
-public expect val PlatformElement.localName: String
-public expect val PlatformElement.attributes: PlatformNamedNodeMap
-public expect val PlatformElement.childNodes: PlatformNodeList
-
+actual fun PlatformDOMImplementation.parse(input: String): Document {
+    val dw = DomWriter()
+    val r = xmlStreaming.newReader(input)
+    while (r.hasNext()) { val _ = r.next(); r.writeCurrent(dw) }
+    return dw.target
+}

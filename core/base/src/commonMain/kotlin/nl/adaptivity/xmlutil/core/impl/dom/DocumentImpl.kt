@@ -34,7 +34,9 @@ import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XmlUtilInternal
 public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
-    AbstractDocument<NodeImpl, ParentNodeImpl>({ (it as DocumentImpl).NodeStorage() }), ParentNodeImpl, Document {
+    AbstractDocument<NodeImpl, ParentNodeImpl>({
+        (it as DocumentImpl).NodeStorage()
+    }), ParentNodeImpl, Document {
 
     init {
         if (doctype?.getOwnerDocument() != null) throw DOMException.wrongDocumentErr("Document type already used for a different document")
@@ -110,7 +112,12 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
         return ProcessingInstructionImpl(this, target, data)
     }
 
-
+    override fun importNode(
+        node: PlatformNode,
+        deep: Boolean
+    ): NodeImpl {
+        return super.importNode(node, deep)
+    }
 
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
@@ -167,10 +174,6 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
             }
 
             return super.replaceChild(parent, newChild, oldChild)
-        }
-
-        override fun iterator(): Iterator<NodeImpl> {
-            return _documentElement?.let { SiblingIterator(it) } ?: emptyList<Nothing>().iterator()
         }
     }
 

@@ -26,3 +26,5 @@ public actual interface PlatformDocumentFragment : PlatformNode {
 //    public fun getPublicId(): String
 //    public fun getSystemId(): String
 }
+
+public actual val PlatformDocumentFragment.childNodes: PlatformNodeList get() = getChildNodes()

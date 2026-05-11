@@ -128,12 +128,12 @@ actual abstract class PlatformXmlTestBase<T> actual constructor(
     baseXmlFormat
 ) {
     @Test
-    open fun testDomSerializeXml() {
+    override fun testDomSerializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 
     @Test
-    open fun testDomDeserializeXml() {
+    override fun testDomDeserializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 }
@@ -146,12 +146,12 @@ actual abstract class PlatformTestBase<T> actual constructor(
     baseJsonFormat: Json
 ) : TestBase<T>(value, serializer, serializersModule, baseXmlFormat, baseJsonFormat) {
     @Test
-    open fun testDomSerializeXml() {
+    override fun testDomSerializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 
     @Test
-    open fun testDomDeserializeXml() {
+    override fun testDomDeserializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 }
@@ -163,12 +163,12 @@ actual abstract class PlatformTestPolymorphicBase<T> actual constructor(
     baseJsonFormat: Json
 ) : TestPolymorphicBase<T>(value, serializer, serializersModule, baseJsonFormat) {
     @Test
-    open fun testDomSerializeXml() {
+    override fun testDomSerializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 
     @Test
-    open fun testDomDeserializeXml() {
+    override fun testDomDeserializeXml() {
         testDomSerializeXmlImpl(baseXmlFormat)
     }
 }

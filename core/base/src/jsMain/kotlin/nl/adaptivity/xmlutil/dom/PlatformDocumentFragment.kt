@@ -24,3 +24,5 @@ package nl.adaptivity.xmlutil.dom
 public actual external interface PlatformDocumentFragment : PlatformNode {
     override val ownerDocument: PlatformDocument?
 }
+
+public actual val PlatformDocumentFragment.childNodes: PlatformNodeList get() = asDynamic().childNodes

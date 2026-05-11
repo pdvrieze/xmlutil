@@ -484,7 +484,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $event")
+                else -> throw XmlException("Found unexpected child tag event: $event")
             }//ignore
 
         }
@@ -555,7 +555,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $eventType")
+                else -> throw XmlException("Found unexpected child tag with event type: $eventType")
             }//ignore
 
         }
