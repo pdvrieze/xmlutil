@@ -37,10 +37,6 @@ public actual interface Attr : Node, PlatformAttr {
 
     actual override fun getAttributes(): Nothing?
 
-    override fun getParentNode(): Node?
-
-    override fun getParentElement(): Element?
-
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing
 
