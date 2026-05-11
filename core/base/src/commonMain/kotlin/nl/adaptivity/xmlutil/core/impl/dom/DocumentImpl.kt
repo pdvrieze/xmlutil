@@ -23,19 +23,22 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.*
-import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformDocument
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.DOMImplementation
+import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
-import nl.adaptivity.xmlutil.dom2.impl.SiblingIterator
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XmlUtilInternal
 public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
     AbstractDocument<NodeImpl, ParentNodeImpl>({
-        (it as DocumentImpl).NodeStorage()
+        NodeStorage(it as DocumentImpl)
     }), ParentNodeImpl, Document {
 
     init {
@@ -135,12 +138,15 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
         }
     }
 
-    private inner class NodeStorage(): LinearNodeStorage<NodeImpl, ParentNodeImpl>(storageAdapter), AbstractNodeList<NodeImpl, ParentNodeImpl> {
+    private class NodeStorage(private val document: DocumentImpl): LinearNodeStorage<NodeImpl, ParentNodeImpl>(StorageAdapter(document)), AbstractNodeList<NodeImpl, ParentNodeImpl> {
+        private var docElem: ElementImpl?
+            get() = document._documentElement
+            set(value) { document._documentElement = value}
 
         override fun appendChild(parent: ParentNodeImpl, node: NodeImpl) {
             when (node) {
-                is ElementImpl -> when (_documentElement) {
-                    null -> _documentElement = node
+                is ElementImpl -> when (docElem) {
+                    null -> docElem = node
                     else -> throw DOMException.hierarchyRequestErr("Documents may only have one root element")
 
                 }
@@ -154,16 +160,16 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
         }
 
         override fun removeChild(parent: ParentNodeImpl, node: NodeImpl): NodeImpl {
-            if (node === _documentElement) _documentElement = null
+            if (node === docElem) docElem = null
             return super.removeChild(parent, node)
         }
 
         override fun replaceChild(parent: ParentNodeImpl, newChild: NodeImpl, oldChild: NodeImpl): NodeImpl {
-            if (oldChild === _documentElement) _documentElement = null
+            if (oldChild === docElem) docElem = null
 
             when (newChild) {
-                is ElementImpl -> when (_documentElement) {
-                    null -> _documentElement = newChild
+                is ElementImpl -> when (docElem) {
+                    null -> docElem = newChild
                     else -> throw DOMException.hierarchyRequestErr("Document may only have one root element")
                 }
 
@@ -177,7 +183,7 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
         }
     }
 
-    internal val storageAdapter = StorageAdapter(this)
+    internal val storageAdapter: StorageAdapter get() = (nodeStorage as NodeStorage).adapter as StorageAdapter
 
     internal class StorageAdapter(private val ownerDocument: DocumentImpl): LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl>, AbstractAttrStorage.Adapter<AttrImpl> {
         override fun checkTypeAndOwner(node: PlatformNode): NodeImpl = when (node) {

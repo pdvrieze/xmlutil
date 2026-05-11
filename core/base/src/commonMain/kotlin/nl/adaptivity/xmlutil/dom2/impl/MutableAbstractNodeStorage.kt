@@ -93,7 +93,7 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
 
 @ExperimentalXmlUtilApi
 public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParentNode<N, P>>(
-    private val adapter: Adapter<N, P>
+    internal val adapter: Adapter<N, P>
 ): MutableAbstractNodeStorage<N, P>, AbstractNodeList<N, P> {
     private val elements = mutableListOf<N>()
 
