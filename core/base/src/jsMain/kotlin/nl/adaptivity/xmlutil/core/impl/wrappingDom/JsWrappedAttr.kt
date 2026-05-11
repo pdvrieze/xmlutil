@@ -59,6 +59,7 @@ internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegat
 
     override fun getName(): String = name
 
+    override fun getAttributes(): Nothing? = null
 
     override val namespaceURI: String? get() = delegate.namespaceURI
 

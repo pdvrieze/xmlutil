@@ -84,6 +84,8 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 
     final override fun getNextSibling(): Nothing? = null
 
+    final override fun getAttributes(): Nothing? = null
+
     final override fun lookupPrefix(namespace: String): String? {
         getDocumentElement()?.let { return it.lookupPrefix(namespace) }
 

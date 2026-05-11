@@ -25,4 +25,5 @@ import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 public actual interface DocumentType : Node, PlatformDocumentType {
     override fun getOwnerDocument(): Document?
     actual override fun getNodeValue(): Nothing?
+    actual override fun getAttributes(): Nothing?
 }

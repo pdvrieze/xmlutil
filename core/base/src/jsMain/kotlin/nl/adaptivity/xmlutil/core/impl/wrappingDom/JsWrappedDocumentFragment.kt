@@ -31,4 +31,7 @@ internal class JsWrappedDocumentFragment(delegate: DOMDocumentFragment) :
     override val ownerDocument: JsWrappedDocument get() = checkNotNull(delegate.ownerDocument).wrap()
 
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(delegate.ownerDocument).wrap()
+
+    override fun getAttributes(): Nothing? = null
+
 }

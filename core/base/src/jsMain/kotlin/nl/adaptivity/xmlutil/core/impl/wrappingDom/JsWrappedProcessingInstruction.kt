@@ -39,4 +39,7 @@ internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction
     override fun getData(): String = delegate.data
 
     override fun getTarget(): String = delegate.target
+
+    override fun getAttributes(): Nothing? = null
+
 }

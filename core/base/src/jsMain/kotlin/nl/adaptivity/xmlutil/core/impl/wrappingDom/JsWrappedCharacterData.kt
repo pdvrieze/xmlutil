@@ -78,4 +78,5 @@ internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N
     override fun getFirstChild(): Nothing? = null
     override fun getLastChild(): Nothing? = null
 
+    override fun getAttributes(): Nothing? = null
 }

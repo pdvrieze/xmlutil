@@ -36,6 +36,7 @@ public expect interface DocumentType : Node, PlatformDocumentType {
 
     override fun getNodeValue(): Nothing?
 
+    override fun getAttributes(): Nothing?
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

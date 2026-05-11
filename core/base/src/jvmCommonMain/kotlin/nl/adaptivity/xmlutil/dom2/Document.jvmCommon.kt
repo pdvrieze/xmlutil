@@ -137,6 +137,9 @@ public actual interface Document : Node, PlatformDocument {
     override fun renameNode(n: DomNode?, namespaceURI: String?, qualifiedName: String?): DomNode? {
         TODO("not implemented")
     }
+
+    actual override fun getAttributes(): Nothing?
+
 }
 
 public actual fun Document.importNode(

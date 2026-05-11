@@ -34,4 +34,5 @@ public actual interface DocumentFragment : Node, PlatformDocumentFragment {
         return e
     }
 
+    actual override fun getAttributes(): Nothing?
 }

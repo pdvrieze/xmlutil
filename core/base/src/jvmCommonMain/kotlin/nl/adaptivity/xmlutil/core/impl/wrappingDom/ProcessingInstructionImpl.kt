@@ -22,7 +22,6 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import org.w3c.dom.NamedNodeMap
 
 internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction) :
     AbstractNodeImpl<PlatformProcessingInstruction>(delegate), ProcessingInstruction {
@@ -56,9 +55,7 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
         throw UnsupportedOperationException("No children in processing instruction")
     }
 
-    override fun getAttributes(): NamedNodeMap? {
-        TODO("not implemented")
-    }
+    override fun getAttributes(): Nothing? = null
 
     override fun cloneNode(deep: Boolean): ProcessingInstructionImpl {
         return ProcessingInstructionImpl(delegate.cloneNode(deep) as PlatformProcessingInstruction)

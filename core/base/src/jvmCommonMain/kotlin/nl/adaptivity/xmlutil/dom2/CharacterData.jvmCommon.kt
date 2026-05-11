@@ -58,4 +58,7 @@ public actual interface CharacterData : Node, PlatformCharacterData {
     actual override fun getOwnerDocument(): Document
 
     override fun getLength(): Int = data.length
+
+    actual override fun getAttributes(): Nothing?
+
 }

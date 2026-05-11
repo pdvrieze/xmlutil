@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.NodeType
 
@@ -62,4 +63,5 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
 
     final override fun getParentElement(): Nothing? = null
 
+    override fun getAttributes(): Nothing? = null
 }

@@ -49,4 +49,7 @@ internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<
     public override fun getFirstChild(): Nothing? = null
 
     public override fun getLastChild(): Nothing? = null
+
+    override fun getAttributes(): Nothing? = null
+
 }

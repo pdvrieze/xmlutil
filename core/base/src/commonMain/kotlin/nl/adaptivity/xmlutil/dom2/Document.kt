@@ -64,6 +64,9 @@ public expect interface Document : Node, PlatformDocument {
     public fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
 
     override fun getNodeValue(): Nothing?
+
+    override fun getAttributes(): Nothing?
+
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

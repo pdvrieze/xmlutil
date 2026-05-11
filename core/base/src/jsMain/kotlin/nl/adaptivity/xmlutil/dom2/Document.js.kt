@@ -50,6 +50,9 @@ public actual interface Document : Node, PlatformDocument {
     public actual override fun createCDATASection(data: String): CDATASection
     public actual override fun createComment(data: String): Comment
     public actual override fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
+
+    actual override fun getAttributes(): Nothing?
+
 }
 
 public actual fun Document.importNode(

@@ -74,4 +74,7 @@ internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocum
 
     override fun importNode(node: PlatformNode, deep: Boolean): JsWrappedNode<DomNode> =
         delegate.importNode(node.unWrap(), deep).wrap()
+
+    override fun getAttributes(): Nothing? = null
+
 }

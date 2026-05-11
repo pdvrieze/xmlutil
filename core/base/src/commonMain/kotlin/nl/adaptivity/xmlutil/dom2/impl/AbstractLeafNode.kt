@@ -54,6 +54,8 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
 
     final override fun getChildNodes(): AbstractNodeList<N, P> = EmptyNodeList
 
+    override fun getAttributes(): Nothing? = null
+
     final override fun lookupPrefix(namespace: String): String? {
         return parentNode?.lookupPrefix(namespace) ?: when (namespace) {
             XMLConstants.XML_NS_URI -> XMLConstants.XML_NS_PREFIX
