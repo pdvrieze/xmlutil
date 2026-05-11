@@ -83,7 +83,7 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         return delegate.insertBefore(newChild!!, refChild?.unWrap()).wrap()
     }
 
-    fun hasChildNodes(): Boolean = delegate.hasChildNodes()
+    override fun hasChildNodes(): Boolean = delegate.hasChildNodes()
 
     fun cloneNode(deep: Boolean): Node {
         return delegate.cloneNode(deep).wrap()

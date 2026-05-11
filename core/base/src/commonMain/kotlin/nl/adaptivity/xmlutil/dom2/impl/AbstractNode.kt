@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.length
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>
@@ -60,6 +61,8 @@ internal constructor(
     override fun getNextSibling(): N? {
         return getParentNode()?.getSiblingAfter(this)
     }
+
+    override fun hasChildNodes(): Boolean = getChildNodes().length > 0
 
     abstract override fun getFirstChild(): N?
 

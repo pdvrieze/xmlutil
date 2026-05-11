@@ -68,6 +68,9 @@ public actual interface Node : PlatformNode {
 
     @IgnorableReturnValue
     public actual fun removeChild(node: PlatformNode): Node
+
+    public actual fun hasChildNodes(): Boolean
+
 }
 
 @IgnorableReturnValue

@@ -59,9 +59,7 @@ public actual interface Node: PlatformNode {
 
     override fun getAttributes(): NamedNodeMap? = null
 
-    override fun hasChildNodes(): Boolean {
-        return getChildNodes().length > 0
-    }
+    actual override fun hasChildNodes(): Boolean
 
     override fun isSupported(feature: String?, version: String?): Boolean = when (feature) {
         "Core", "XML" -> when (version) {

@@ -53,6 +53,10 @@ public expect interface Node : PlatformNode {
 
     @IgnorableReturnValue
     public fun removeChild(node: PlatformNode): Node
+
+    //region dom 3
+    public fun hasChildNodes(): Boolean
+    //endregion
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
