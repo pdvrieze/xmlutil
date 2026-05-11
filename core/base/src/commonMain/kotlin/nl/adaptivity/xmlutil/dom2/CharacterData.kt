@@ -54,6 +54,8 @@ public expect interface CharacterData : Node, PlatformCharacterData {
     override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?
+    override fun getAttributes(): Nothing?
+
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

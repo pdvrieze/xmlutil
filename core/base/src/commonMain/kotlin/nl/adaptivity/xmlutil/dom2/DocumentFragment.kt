@@ -26,4 +26,7 @@ public expect interface DocumentFragment : Node, PlatformDocumentFragment {
     public override fun getOwnerDocument(): Document
 
     override fun getNodeValue(): Nothing?
+
+    override fun getAttributes(): Nothing?
+
 }

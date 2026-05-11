@@ -58,6 +58,8 @@ public actual interface Document : Node, PlatformDocument {
     actual override fun getOwnerDocument(): Nothing?
 
     actual override fun getNodeValue(): Nothing?
+
+    actual override fun getAttributes(): Nothing?
 }
 
 public actual fun Document.importNode(node: PlatformNode, deep: Boolean): Node {

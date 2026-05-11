@@ -40,6 +40,7 @@ public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out 
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_FRAGMENT_NODE
     final override fun getNodeValue(): Nothing? = null
     final override fun getNodeName(): String = "#document-fragment"
+    final override fun getAttributes(): Nothing? = null
 
     override fun getOwnerDocument(): AbstractDocument<N, P> {
         return checkNotNull(super.getOwnerDocument()) { "Document fragments cannot have a null owner document" }

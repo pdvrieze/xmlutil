@@ -80,6 +80,7 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
     override fun removeChild(node: PlatformNode): Nothing =
         throw UnsupportedOperationException("No children in attributes")
 
+    override fun getAttributes(): Nothing? = null
 }
 
 internal fun PlatformNode.wrapAttr(): AttrImpl {

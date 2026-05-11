@@ -30,4 +30,7 @@ internal class EntityReferenceImpl(delegate: DOMEntityReference) : AbstractNodeI
     override fun insertBefore(newChild: Node, refChild: Node?): NodeImpl? {
         return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap()).wrap() as NodeImpl?
     }
+
+    override fun getAttributes(): Nothing? = null
+
 }

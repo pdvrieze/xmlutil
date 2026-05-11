@@ -46,6 +46,8 @@ public expect interface Attr : Node, PlatformAttr {
     public override fun getFirstChild(): Nothing?
     public override fun getLastChild(): Nothing?
 
+    public override fun getAttributes(): Nothing?
+
     override fun getNodeValue(): String
 }
 

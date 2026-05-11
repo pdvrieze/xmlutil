@@ -24,6 +24,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(NodeSerializer::class)
@@ -47,6 +48,7 @@ public actual interface Node : PlatformNode {
 
     public actual fun hasChildNodes(): Boolean
 
+    public actual fun getAttributes(): NamedNodeMap?
 }
 
 @IgnorableReturnValue

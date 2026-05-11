@@ -32,7 +32,7 @@ public actual interface Element : Node, PlatformElement {
     public actual fun getPrefix(): String?
     public actual fun getLocalName(): String
     public actual fun getTagName(): String
-    public actual fun getAttributes(): NamedNodeMap
+    public actual override fun getAttributes(): NamedNodeMap
     public actual override fun getAttribute(qualifiedName: String): String?
     public actual override fun getAttributeNS(namespace: String?, localName: String): String?
     public actual override fun setAttribute(qualifiedName: String, value: String)

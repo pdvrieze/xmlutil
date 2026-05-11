@@ -47,4 +47,6 @@ public actual interface DocumentType : Node, PlatformDocumentType {
 
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
+
+    actual override fun getAttributes(): Nothing?
 }

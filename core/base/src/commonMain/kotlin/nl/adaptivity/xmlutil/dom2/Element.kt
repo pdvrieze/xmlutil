@@ -36,7 +36,7 @@ public expect interface Element : Node, PlatformElement {
 
     public fun getTagName(): String
 
-    public fun getAttributes(): NamedNodeMap
+    public override fun getAttributes(): NamedNodeMap
 
 
     public fun getAttribute(qualifiedName: String): String?

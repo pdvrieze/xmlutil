@@ -32,4 +32,6 @@ public interface AbstractComment<out N : IAbstractNode<N, P>, out P : IAbstractP
     override fun getNodetype(): NodeType = NodeType.COMMENT_NODE
 
     override fun getNodeName(): String = "#comment"
+
+    override fun getAttributes(): Nothing?
 }

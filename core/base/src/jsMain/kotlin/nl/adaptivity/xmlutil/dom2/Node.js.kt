@@ -70,7 +70,7 @@ public actual interface Node : PlatformNode {
     public actual fun removeChild(node: PlatformNode): Node
 
     public actual fun hasChildNodes(): Boolean
-
+    public actual fun getAttributes(): NamedNodeMap?
 }
 
 @IgnorableReturnValue

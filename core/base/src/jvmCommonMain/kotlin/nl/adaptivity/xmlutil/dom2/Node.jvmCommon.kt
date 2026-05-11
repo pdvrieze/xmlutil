@@ -25,7 +25,6 @@ package nl.adaptivity.xmlutil.dom2
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import org.w3c.dom.NamedNodeMap
 import org.w3c.dom.UserDataHandler
 
 @Serializable(with = NodeSerializer::class)
@@ -57,7 +56,7 @@ public actual interface Node: PlatformNode {
     @Deprecated("No-op for now")
     override fun normalize() {}
 
-    override fun getAttributes(): NamedNodeMap? = null
+    actual override fun getAttributes(): NamedNodeMap?
 
     actual override fun hasChildNodes(): Boolean
 
