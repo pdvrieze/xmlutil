@@ -33,3 +33,11 @@ public actual interface PlatformNodeList {
 
 public val PlatformNodeList.size: Int get() = getLength()
 
+public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
+    NodeListIterator(this)
+
+private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
+    private var index = 0
+    override fun hasNext(): Boolean = index < list.getLength()
+    override fun next(): PlatformNode = list.item(index++)!!
+}

@@ -143,7 +143,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
     }
 
     override fun getNodeName(): String = nodeName
-    override fun getOwnerDocument(): DocumentImpl? = ownerDocument
+    override fun getOwnerDocument(): DocumentImpl? = delegate.ownerDocument?.wrap()
     override fun getParentNode(): Node? = parentNode
     override fun getParentElement(): Element? = parentElement
     override fun getFirstChild(): Node? = firstChild
