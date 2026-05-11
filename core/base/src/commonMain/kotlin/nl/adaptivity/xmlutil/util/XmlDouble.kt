@@ -52,7 +52,13 @@ public object XmlDoubleSerializer : KSerializer<Double> {
         "INF" -> Double.POSITIVE_INFINITY
         "-INF" -> Double.NEGATIVE_INFINITY
         "NaN" -> Double.NaN
-        else -> s.toDouble()
+        else -> try {
+            s.toDouble()
+        } catch (e: NumberFormatException) {
+            val m = e.message
+            if (m != null && s in m) throw e
+            throw NumberFormatException("For input string: \"$s\"")
+        }
     }
 }
 
