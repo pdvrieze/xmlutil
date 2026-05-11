@@ -22,43 +22,8 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.PlatformCDATASection
-import nl.adaptivity.xmlutil.dom.PlatformComment
-import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
-import nl.adaptivity.xmlutil.dom.PlatformElement
-import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
-import nl.adaptivity.xmlutil.dom.PlatformText
-import nl.adaptivity.xmlutil.dom.attributes
-import nl.adaptivity.xmlutil.dom.childNodes
-import nl.adaptivity.xmlutil.dom.getData
-import nl.adaptivity.xmlutil.dom.getName
-import nl.adaptivity.xmlutil.dom.getNamespaceURI
-import nl.adaptivity.xmlutil.dom.getNodeName
-import nl.adaptivity.xmlutil.dom.getValue
-import nl.adaptivity.xmlutil.dom.iterator
-import nl.adaptivity.xmlutil.dom.localName
-import nl.adaptivity.xmlutil.dom.name
-import nl.adaptivity.xmlutil.dom.namespaceURI
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.CDATASection
-import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.DocumentFragment
-import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.Text
-import nl.adaptivity.xmlutil.dom2.attributes
-import nl.adaptivity.xmlutil.dom2.childNodes
-import nl.adaptivity.xmlutil.dom2.data
-import nl.adaptivity.xmlutil.dom2.localName
-import nl.adaptivity.xmlutil.dom2.namespaceURI
-import nl.adaptivity.xmlutil.dom2.parentNode
-import nl.adaptivity.xmlutil.dom2.target
-import nl.adaptivity.xmlutil.dom2.value
+import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom2.*
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
@@ -209,4 +174,6 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 
     abstract override fun createProcessingInstruction(target: String, data: String):
             AbstractProcessingInstruction<N, P>
+
+    abstract override fun cloneNode(deep: Boolean): AbstractDocument<N, P>
 }

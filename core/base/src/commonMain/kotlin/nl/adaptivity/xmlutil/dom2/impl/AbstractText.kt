@@ -34,5 +34,8 @@ public interface AbstractText<out N : IAbstractNode<N, P>, out P : IAbstractPare
 
     override fun getNodeName(): String = "#text"
 
+    override fun cloneNode(deep: Boolean): AbstractText<N, P> {
+        return getOwnerDocument().createTextNode(getData())
+    }
 }
 

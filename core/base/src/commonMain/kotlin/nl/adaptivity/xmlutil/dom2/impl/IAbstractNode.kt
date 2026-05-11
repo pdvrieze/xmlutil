@@ -47,5 +47,7 @@ public interface IAbstractNode<out N : IAbstractNode<N, P>, out P : IAbstractPar
     override fun appendChild(node: PlatformNode): N
 
     override fun removeChild(node: PlatformNode): N
+
+    override fun cloneNode(deep: Boolean): IAbstractNode<N, P>
 }
 

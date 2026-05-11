@@ -22,4 +22,6 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformComment
 
-public expect interface Comment : CharacterData, PlatformComment
+public expect interface Comment : CharacterData, PlatformComment {
+    override fun cloneNode(deep: Boolean): Comment
+}

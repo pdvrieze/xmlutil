@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformComment
 import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.impl.AbstractComment
+import nl.adaptivity.xmlutil.dom2.impl.AbstractLeafNode
 
 @XmlUtilInternal
 public class CommentImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
@@ -34,5 +35,9 @@ public class CommentImpl internal constructor(ownerDocument: DocumentImpl, data:
 
     override fun toString(): String {
         return "<!--${getData()}-->"
+    }
+
+    override fun cloneNode(deep: Boolean): CommentImpl {
+        return CommentImpl(getOwnerDocument(), getData())
     }
 }

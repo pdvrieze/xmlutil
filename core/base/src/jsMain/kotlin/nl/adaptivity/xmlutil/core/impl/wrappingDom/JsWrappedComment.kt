@@ -23,4 +23,8 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom2.Comment as Comment2
 import org.w3c.dom.Comment as DOMComment
 
-internal class JsWrappedComment(delegate: DOMComment) : JsWrappedCharacterData<DOMComment>(delegate), Comment2
+internal class JsWrappedComment(delegate: DOMComment) : JsWrappedCharacterData<DOMComment>(delegate), Comment2 {
+    override fun cloneNode(deep: Boolean): JsWrappedComment {
+        return JsWrappedComment(delegate.cloneNode(deep) as DOMComment)
+    }
+}

@@ -34,4 +34,8 @@ public interface AbstractComment<out N : IAbstractNode<N, P>, out P : IAbstractP
     override fun getNodeName(): String = "#comment"
 
     override fun getAttributes(): Nothing?
+
+    override fun cloneNode(deep: Boolean): AbstractComment<N, P> {
+        return getOwnerDocument().createComment(getData())
+    }
 }

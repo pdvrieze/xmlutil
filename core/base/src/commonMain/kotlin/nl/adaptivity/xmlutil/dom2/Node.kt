@@ -57,6 +57,7 @@ public expect interface Node : PlatformNode {
     //region dom 3
     public fun hasChildNodes(): Boolean
     public fun getAttributes(): NamedNodeMap?
+    public fun cloneNode(deep: Boolean): Node
     //endregion
 }
 

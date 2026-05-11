@@ -35,4 +35,7 @@ public actual interface Element : Node, PlatformElement {
     actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?
 
     actual override fun removeAttributeNode(attr: PlatformAttr): Attr
+
+    actual override fun cloneNode(deep: Boolean): Element
+
 }

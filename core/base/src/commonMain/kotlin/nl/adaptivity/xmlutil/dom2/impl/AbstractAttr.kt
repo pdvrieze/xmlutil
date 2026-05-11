@@ -64,4 +64,10 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
     final override fun getParentElement(): Nothing? = null
 
     override fun getAttributes(): Nothing? = null
+
+    override fun cloneNode(deep: Boolean): AbstractAttr<N, P> {
+        return getOwnerDocument().createAttributeNS(getNamespaceURI(), getName()).also {
+            it.setValue(getValue())
+        }
+    }
 }

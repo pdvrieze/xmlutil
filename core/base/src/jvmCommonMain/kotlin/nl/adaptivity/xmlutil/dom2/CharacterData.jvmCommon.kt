@@ -53,7 +53,7 @@ public actual interface CharacterData : Node, PlatformCharacterData {
         setData(nodeValue ?: "")
     }
 
-    override fun cloneNode(deep: Boolean): CharacterData
+    actual override fun cloneNode(deep: Boolean): CharacterData
 
     actual override fun getOwnerDocument(): Document
 

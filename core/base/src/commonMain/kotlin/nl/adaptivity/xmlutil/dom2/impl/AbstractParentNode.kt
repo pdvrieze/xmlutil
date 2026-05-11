@@ -89,6 +89,8 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
         TODO("not implemented")
     }
 
+    abstract override fun cloneNode(deep: Boolean): AbstractParentNode<N, P>
+
     public companion object {
         @JvmStatic
         internal fun <N : IAbstractNode<N, P>, P : IAbstractParentNode<N, P>>

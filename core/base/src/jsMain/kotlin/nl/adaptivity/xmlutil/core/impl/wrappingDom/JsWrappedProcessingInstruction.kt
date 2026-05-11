@@ -42,4 +42,7 @@ internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction
 
     override fun getAttributes(): Nothing? = null
 
+    override fun cloneNode(deep: Boolean): JsWrappedProcessingInstruction {
+        return JsWrappedProcessingInstruction(delegate.cloneNode(deep) as DomProcessingInstruction)
+    }
 }

@@ -34,6 +34,8 @@ public expect interface ProcessingInstruction : Node, PlatformProcessingInstruct
     public fun setData(data: String)
 
     override fun getNodeValue(): String
+
+    override fun cloneNode(deep: Boolean): ProcessingInstruction
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

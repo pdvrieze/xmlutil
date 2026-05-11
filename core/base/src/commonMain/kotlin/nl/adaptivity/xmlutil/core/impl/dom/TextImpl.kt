@@ -24,6 +24,7 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.impl.AbstractLeafNode
 import nl.adaptivity.xmlutil.dom2.impl.AbstractText
 
 @XmlUtilInternal
@@ -35,6 +36,10 @@ public open class TextImpl internal constructor(ownerDocument: DocumentImpl, dat
     override fun getNodetype(): NodeType = NodeType.TEXT_NODE
 
     override fun getNodeName(): String = "#text"
+
+    override fun cloneNode(deep: Boolean): TextImpl {
+        return TextImpl(getOwnerDocument(), getData())
+    }
 
     override fun toString(): String {
         return getData()

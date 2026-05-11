@@ -76,4 +76,6 @@ internal constructor(
     abstract override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N
 
     abstract override fun removeChild(node: PlatformNode): N
+
+    abstract override fun cloneNode(deep: Boolean): AbstractNode<N, P>
 }

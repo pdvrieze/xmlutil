@@ -72,4 +72,5 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
         }
     }
 
+    abstract override fun cloneNode(deep: Boolean): AbstractLeafNode<N, P>
 }

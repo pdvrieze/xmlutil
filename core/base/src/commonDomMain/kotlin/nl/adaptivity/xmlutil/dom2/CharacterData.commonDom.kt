@@ -26,4 +26,5 @@ public actual interface CharacterData: Node, PlatformCharacterData {
     actual override fun getOwnerDocument(): Document
     actual override fun getNodeValue(): String
     actual override fun getAttributes(): Nothing?
+    actual override fun cloneNode(deep: Boolean): CharacterData
 }

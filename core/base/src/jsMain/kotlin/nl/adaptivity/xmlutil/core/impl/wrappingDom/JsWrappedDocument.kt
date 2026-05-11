@@ -77,4 +77,7 @@ internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocum
 
     override fun getAttributes(): Nothing? = null
 
+    override fun cloneNode(deep: Boolean): JsWrappedDocument {
+        return JsWrappedDocument(delegate.cloneNode(deep) as DomDocument)
+    }
 }

@@ -49,4 +49,12 @@ public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out 
     final override fun lookupPrefix(namespace: String): Nothing? = null
 
     final override fun lookupNamespaceURI(prefix: String): Nothing? = null
+
+    override fun cloneNode(deep: Boolean): AbstractDocumentFragment<N, P> {
+        return getOwnerDocument().createDocumentFragment().also { f ->
+            if (deep) {
+                for (c in getChildNodes()) f.appendChild(c.cloneNode(deep))
+            }
+        }
+    }
 }

@@ -91,4 +91,8 @@ internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement
 
     override fun hasAttributeNS(namespace: String?, localName: String): Boolean =
         delegate.hasAttributeNS(namespace, localName)
+
+    override fun cloneNode(deep: Boolean): JsWrappedElement {
+        return JsWrappedElement(delegate.cloneNode(deep) as DomElement)
+    }
 }

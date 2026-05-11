@@ -23,7 +23,5 @@ package nl.adaptivity.xmlutil.dom2
 import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 
 public actual interface CDATASection : Text, PlatformCDATASection {
-    override fun cloneNode(deep: Boolean): CDATASection {
-        return getOwnerDocument().createCDATASection(data)
-    }
+    actual override fun cloneNode(deep: Boolean): CDATASection
 }

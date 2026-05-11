@@ -29,4 +29,5 @@ public expect interface DocumentFragment : Node, PlatformDocumentFragment {
 
     override fun getAttributes(): Nothing?
 
+    override fun cloneNode(deep: Boolean): DocumentFragment
 }
