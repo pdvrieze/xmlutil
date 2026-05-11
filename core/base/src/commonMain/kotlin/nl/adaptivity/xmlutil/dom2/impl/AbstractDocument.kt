@@ -43,7 +43,7 @@ import nl.adaptivity.xmlutil.dom2.target
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
-    nodeStorage: (P) -> AbstractNodeStorage<N, P>
+    nodeStorage: (P) -> MutableAbstractNodeStorage<N, P>
 ) : AbstractParentNode<N, P>(null, nodeStorage = nodeStorage), Document {
     override fun getOwnerDocument(): Nothing? = null
 
@@ -51,18 +51,44 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
     final override fun getNodeValue(): Nothing? = null
     final override fun getNodeName(): String = "#document"
 
-    override fun lookupPrefix(namespace: String): String? {
+    final override fun getTextContent(): Nothing? = null
+
+    final override fun setTextContent(value: String?) {/* Defined as NO-OP*/ }
+
+    abstract override fun getDocumentElement(): AbstractElement<N, P>?
+
+    final override fun getParentElement(): Nothing? = null
+
+    final override fun getParentNode(): Nothing? = null
+
+    final override fun getPreviousSibling(): Nothing? = null
+
+    final override fun getNextSibling(): Nothing? = null
+
+    final override fun lookupPrefix(namespace: String): String? {
+        getDocumentElement()?.let { return it.lookupPrefix(namespace) }
+
         return when (namespace) {
-            XMLConstants.DEFAULT_NS_PREFIX -> XMLConstants.NULL_NS_URI
+            XMLConstants.NULL_NS_URI -> {
+                val docElem = getDocumentElement() ?: return XMLConstants.DEFAULT_NS_PREFIX
+                when (val defaultNS = docElem.lookupNamespaceURI("")) {
+                    XMLConstants.NULL_NS_URI, null -> XMLConstants.DEFAULT_NS_PREFIX
+                    else -> null
+                }
+            }
+
             XMLConstants.XML_NS_URI -> XMLConstants.XML_NS_PREFIX
+
             XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> XMLConstants.XMLNS_ATTRIBUTE
+
             else -> null
         }
     }
 
-    override fun lookupNamespaceURI(prefix: String): String? {
+    final override fun lookupNamespaceURI(prefix: String): String? {
+        getDocumentElement()?.let { return it.lookupNamespaceURI(prefix) }
+
         return when (prefix) {
-            XMLConstants.NULL_NS_URI -> XMLConstants.DEFAULT_NS_PREFIX
             XMLConstants.XML_NS_PREFIX -> XMLConstants.XML_NS_URI
             XMLConstants.XMLNS_ATTRIBUTE -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
             else -> null

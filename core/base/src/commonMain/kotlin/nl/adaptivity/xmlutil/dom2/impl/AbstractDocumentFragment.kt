@@ -27,10 +27,15 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 @ExperimentalXmlUtilApi
 public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
     ownerDocument: AbstractDocument<N, P>,
-    nodeStorage: (P) -> AbstractNodeStorage<N, P>,
+    nodeStorage: (P) -> MutableAbstractNodeStorage<N, P>,
     parentNode: P? = null
 ) : AbstractParentNode<N, P>(ownerDocument, nodeStorage, parentNode,), DocumentFragment {
 
+    final override fun getPreviousSibling(): Nothing? = null
+
+    final override fun getNextSibling(): Nothing? = null
+
+    final override fun getTextContent(): String = getTextContentImpl()
 
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_FRAGMENT_NODE
     final override fun getNodeValue(): Nothing? = null
@@ -40,4 +45,7 @@ public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out 
         return checkNotNull(super.getOwnerDocument()) { "Document fragments cannot have a null owner document" }
     }
 
+    final override fun lookupPrefix(namespace: String): Nothing? = null
+
+    final override fun lookupNamespaceURI(prefix: String): Nothing? = null
 }

@@ -29,37 +29,9 @@ import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 @XmlUtilInternal
 public class DocumentFragmentImpl internal constructor(
     ownerDocument: DocumentImpl,
-) : AbstractDocumentFragment<NodeImpl, ParentNodeImpl>(ownerDocument, { LinearNodeStorage(NodeImpl.storageAdapter) }), ParentNodeImpl {
+) : AbstractDocumentFragment<NodeImpl, ParentNodeImpl>(ownerDocument, { LinearNodeStorage(ownerDocument.storageAdapter) }), ParentNodeImpl {
 
     override val self: DocumentFragmentImpl get() = this
 
     override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
-
-    override fun getPreviousSibling(): Nothing? = null
-
-    override fun getNextSibling(): Nothing? = null
-
-    @Suppress("PropertyName")
-    internal val _childNodes: NodeListImpl = NodeListImpl()
-
-    override fun getChildNodes(): INodeListImpl = _childNodes
-
-    override fun getFirstChild(): NodeImpl? = _childNodes.elements.firstOrNull()
-
-    override fun getLastChild(): NodeImpl? = _childNodes.elements.lastOrNull()
-
-    override fun getTextContent(): String = buildString {
-        for (n in getChildNodes()) {
-            appendTextContent(n)
-        }
-    }
-
-    override fun setTextContent(value: String) {
-        _childNodes.elements.clear()
-        appendChild(getOwnerDocument().createTextNode(value))
-    }
-
-    override fun lookupPrefix(namespace: String): String? = null
-
-    override fun lookupNamespaceURI(prefix: String): String? = null
 }

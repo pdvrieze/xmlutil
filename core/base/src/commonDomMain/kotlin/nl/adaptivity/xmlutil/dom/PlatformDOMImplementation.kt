@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -30,9 +30,6 @@ public actual interface PlatformDOMImplementation {
 
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType
 
-    public fun createDocument(namespace: String?, qualifiedName: String): PlatformDocument =
-        createDocument(namespace, qualifiedName, null)
-
     public fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument
 
     public fun hasFeature(feature: String, version: String?): Boolean
@@ -41,4 +38,8 @@ public actual interface PlatformDOMImplementation {
 
     public fun getFeature(feature: String, version: String): Any?
 }
+
+
+public fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String): PlatformDocument =
+    createDocument(namespace, qualifiedName, null)
 

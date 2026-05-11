@@ -34,4 +34,10 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
     }
 
     final override fun getNodeValue(): String = getData()
+
+    final override fun getTextContent(): String = getData()
+
+    final override fun setTextContent(value: String?) {
+        setData(value ?: "")
+    }
 }

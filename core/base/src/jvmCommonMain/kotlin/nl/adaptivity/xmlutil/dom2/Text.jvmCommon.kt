@@ -21,5 +21,39 @@
 package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformText
+import nl.adaptivity.xmlutil.isXmlWhitespace
 
-public actual interface Text : CharacterData, PlatformText
+public actual interface Text : CharacterData, PlatformText {
+    override fun cloneNode(deep: Boolean): Text {
+        return getOwnerDocument().createTextNode(data)
+    }
+
+    override fun splitText(offset: Int): Text? {
+        if (offset >= length) return null
+        val newText = ownerDocument.createTextNode(substringData(offset, length-offset))
+        setNodeValue(substringData(0, offset))
+        insertBefore(newText, nextSibling)
+        return newText
+    }
+
+    override fun isElementContentWhitespace(): Boolean {
+        return isXmlWhitespace(data)
+    }
+
+    override fun getWholeText(): String {
+        var node: Text? = this
+        while (node?.previousSibling?.getNodetype() == NodeType.TEXT_NODE) { node = node.previousSibling as Text}
+
+        return buildString {
+            while (node?.getNodetype() == NodeType.TEXT_NODE) {
+                append(getData())
+
+                node = node.nextSibling as Text?
+            }
+        }
+    }
+
+    override fun replaceWholeText(content: String?): org.w3c.dom.Text? {
+        TODO("not implemented")
+    }
+}

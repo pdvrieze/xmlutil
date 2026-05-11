@@ -23,48 +23,45 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom2.CharacterData
 import nl.adaptivity.xmlutil.dom2.impl.AbstractCharacterData
-import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 
 @XmlUtilInternal
 public abstract class CharacterDataImpl internal constructor(
     ownerDocument: DocumentImpl,
-    private var data: String,
+    data: String,
     parentNode: ParentNodeImpl? = null
-) : AbstractCharacterData<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), CharacterData {
+) : AbstractCharacterData<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), NodeImpl {
+
+    private var _data = data
+
     override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
 
-    override fun getData(): String = data
+    override fun getParentElement(): ElementImpl? = super.getParentElement() as ElementImpl?
+
+    override fun getData(): String = _data
 
     override fun setData(data: String) {
-        this.data = data
-    }
-
-    override fun getTextContent(): String? = getData()
-
-    override fun setTextContent(value: String) {
-        data = value
+        this._data = data
     }
 
     final override fun substringData(offset: Int, count: Int): String {
-        return data.substring(offset, offset + count)
+        return _data.substring(offset, offset + count)
     }
 
     final override fun appendData(data: String) {
-        this.data += data
+        this._data += data
     }
 
     final override fun insertData(offset: Int, data: String) {
-        this.data = this.data.replaceRange(offset, offset, data)
+        this._data = this._data.replaceRange(offset, offset, data)
     }
 
     final override fun deleteData(offset: Int, count: Int) {
-        this.data = data.removeRange(offset, offset + count)
+        this._data = _data.removeRange(offset, offset + count)
     }
 
     final override fun replaceData(offset: Int, count: Int, data: String) {
-        this.data = this.data.replaceRange(offset, offset + count, data)
+        this._data = this._data.replaceRange(offset, offset + count, data)
     }
 }
 

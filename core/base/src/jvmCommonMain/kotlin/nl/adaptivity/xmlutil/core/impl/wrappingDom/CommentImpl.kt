@@ -26,4 +26,8 @@ import nl.adaptivity.xmlutil.dom2.Comment
 internal class CommentImpl(delegate: PlatformComment) : CharacterDataImpl<PlatformComment>(delegate), Comment {
 
     override fun getAttributes(): Nothing? = null
+
+    override fun cloneNode(deep: Boolean): CommentImpl {
+        return CommentImpl(delegate.cloneNode(deep) as PlatformComment)
+    }
 }

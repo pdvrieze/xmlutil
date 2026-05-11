@@ -20,7 +20,8 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap as NamedNodeMap2
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.NamedNodeMap as DomNamedNodeMap
@@ -51,16 +52,16 @@ internal class WrappingNamedNodeMap(val delegate: DomNamedNodeMap) : NamedNodeMa
         return delegate.setNamedItem(attr.unWrap())?.wrapAttr()
     }
 
-    override fun setNamedItem(attr: PlatformAttr): AttrImpl? {
-        return delegate.setNamedItem(attr.unWrap())?.wrapAttr()
+    override fun setNamedItem(attr: PlatformNode): Attr? {
+        return delegate.setNamedItem((attr as DomAttr).unWrap())?.wrapAttr()
     }
 
     fun setNamedItemNS(attr: DomAttr): AttrImpl? {
         return delegate.setNamedItemNS(attr.unWrap())?.wrapAttr()
     }
 
-    override fun setNamedItemNS(attr: PlatformAttr): AttrImpl? {
-        return delegate.setNamedItemNS(attr.unWrap())?.wrapAttr()
+    override fun setNamedItemNS(attr: PlatformNode): AttrImpl? {
+        return delegate.setNamedItemNS((attr as DomAttr).unWrap())?.wrapAttr()
     }
 
     override fun removeNamedItem(qualifiedName: String): AttrImpl {

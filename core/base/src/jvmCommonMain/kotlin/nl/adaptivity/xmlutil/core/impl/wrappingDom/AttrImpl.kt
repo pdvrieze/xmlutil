@@ -42,6 +42,18 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
 
     override fun getNodeValue(): String = delegate.nodeValue
 
+    override fun setNodeValue(nodeValue: String?) {
+        value = nodeValue ?: ""
+    }
+
+    override fun normalize() {
+        delegate.normalize()
+    }
+
+    override fun cloneNode(deep: Boolean): AttrImpl {
+        return AttrImpl(delegate.cloneNode(deep) as PlatformAttr)
+    }
+
     override fun getOwnerDocument(): DocumentImpl {
         return checkNotNull(super.getOwnerDocument())
     }

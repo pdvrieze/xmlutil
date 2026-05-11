@@ -23,18 +23,26 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom.getLocalName
+import nl.adaptivity.xmlutil.dom.getNamespaceURI
+import nl.adaptivity.xmlutil.dom.getPrefix
+import nl.adaptivity.xmlutil.dom.getValue
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 
 public class AttrImpl internal constructor(
     ownerDocument: DocumentImpl,
-    private val namespaceURI: String?,
-    private val localName: String,
-    private val prefix: String?,
-    private var value: String,
+    namespaceURI: String?,
+    localName: String,
+    prefix: String?,
+    value: String,
     parentNode: ElementImpl? = null,
-) : AbstractAttr<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), NodeImpl, Attr {
+) : AbstractAttr<NodeImpl, ParentNodeImpl>(ownerDocument, parentNode), NodeImpl {
+
+    private val _namespaceURI = namespaceURI
+    private val _localName = localName
+    private val _prefix = prefix
+    private var _value = value
 
     internal constructor(ownerDocument: DocumentImpl, original: PlatformAttr) : this(
         ownerDocument,
@@ -51,30 +59,19 @@ public class AttrImpl internal constructor(
         super.setOwnerDocument(ownerDocument)
     }
 
-    override fun getName(): String = when {
-        prefix.isNullOrEmpty() -> localName
-        else -> "${prefix}:${localName}"
-    }
+    override fun getNamespaceURI(): String? = _namespaceURI
 
-    override fun getNamespaceURI(): String? = namespaceURI
+    override fun getPrefix(): String? = _prefix
 
-    override fun getPrefix(): String? = prefix
+    override fun getLocalName(): String = _localName
 
-    override fun getLocalName(): String = localName
-
-    override fun getValue(): String = value
+    override fun getValue(): String = _value
 
     override fun setValue(value: String) {
-        this.value = value
+        this._value = value
     }
 
     override fun getOwnerElement(): ElementImpl? = getParentElement() as ElementImpl?
-
-    override fun getTextContent(): String = value
-
-    override fun setTextContent(value: String) {
-        this.value = value
-    }
 
     override fun toString(): String {
         val attrName = when (getPrefix().isNullOrBlank()) {

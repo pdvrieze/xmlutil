@@ -23,7 +23,7 @@ package nl.adaptivity.xmlutil.dom2
 import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
 
 public actual interface DocumentFragment : Node, PlatformDocumentFragment {
-    override val ownerDocument: Document?
+    override val ownerDocument: Document? get() = getOwnerDocument()
     actual override fun getNodeValue(): Nothing?
     actual override fun getOwnerDocument(): Document
 }

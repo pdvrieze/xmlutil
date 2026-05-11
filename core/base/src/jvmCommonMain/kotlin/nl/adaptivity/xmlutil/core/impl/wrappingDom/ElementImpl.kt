@@ -34,6 +34,10 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
 
     override fun getNodeValue(): Nothing? = null
 
+    override fun setNodeValue(nodeValue: String?) {
+        delegate.nodeValue = nodeValue
+    }
+
     override fun getOwnerDocument(): DocumentImpl {
         return checkNotNull(super.getOwnerDocument())
     }
@@ -49,6 +53,8 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
     override fun getSchemaTypeInfo(): TypeInfo = delegate.schemaTypeInfo
 
     override fun getAttributes(): WrappingNamedNodeMap = WrappingNamedNodeMap(delegate.attributes)
+
+    override fun hasAttributes(): Boolean = delegate.hasAttributes()
 
     override fun getAttributeNode(qualifiedName: String): AttrImpl? {
         return delegate.getAttributeNode(qualifiedName)?.wrapAttr()
@@ -91,15 +97,22 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
     override fun hasAttributeNS(namespace: String?, localName: String): Boolean =
         delegate.hasAttributeNS(namespace, localName)
 
+    @Deprecated("Not implemented")
     override fun setIdAttribute(name: String, isId: Boolean) {
         delegate.setIdAttribute(name, isId)
     }
 
+    @Deprecated("Not implemented")
     override fun setIdAttributeNS(namespaceURI: String?, localName: String, isId: Boolean) {
         delegate.setIdAttributeNS(namespaceURI, localName, isId)
     }
 
+    @Deprecated("No-op for now")
     override fun setIdAttributeNode(idAttr: PlatformAttr?, isId: Boolean) {
         delegate.setIdAttributeNode(idAttr, isId)
+    }
+
+    override fun cloneNode(deep: Boolean): ElementImpl {
+        return ElementImpl(delegate.cloneNode(deep) as PlatformElement)
     }
 }

@@ -27,7 +27,7 @@ import org.w3c.dom.DocumentType as DOMDocumentType
 
 internal class DocumentTypeImpl(delegate: DOMDocumentType) : NodeImpl<DOMDocumentType>(delegate), DocumentType {
     override val parentElement: Element?
-        get() = super.parentElement
+        get() = getParentElement()
 
     override fun getNodeValue(): Nothing? = null
 

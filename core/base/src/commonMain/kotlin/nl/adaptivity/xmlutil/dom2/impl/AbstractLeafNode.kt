@@ -21,15 +21,15 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.NodeList
 import nl.adaptivity.xmlutil.dom2.parentNode
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
     ownerDocument: AbstractDocument<N, P>?,
-    parentNode: P? = null,
-) : AbstractNode<N, P>(ownerDocument, parentNode) {
+    parentOrOwner: P? = null,
+) : AbstractNode<N, P>(ownerDocument, parentOrOwner) {
 
     override fun getOwnerDocument(): AbstractDocument<N, P>? {
         return checkNotNull(super.getOwnerDocument()) { "Leaf nodes cannot have a null owner document" }
@@ -54,13 +54,20 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
 
     final override fun getChildNodes(): AbstractNodeList<N, P> = EmptyNodeList
 
-
     final override fun lookupPrefix(namespace: String): String? {
-        return parentNode?.lookupPrefix(namespace)
+        return parentNode?.lookupPrefix(namespace) ?: when (namespace) {
+            XMLConstants.XML_NS_URI -> XMLConstants.XML_NS_PREFIX
+            XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> XMLConstants.XMLNS_ATTRIBUTE
+            else -> null
+        }
     }
 
     final override fun lookupNamespaceURI(prefix: String): String? {
-        return parentNode?.lookupNamespaceURI(prefix)
+        return parentNode?.lookupNamespaceURI(prefix) ?: when (prefix) {
+            XMLConstants.XML_NS_PREFIX -> XMLConstants.XML_NS_URI
+            XMLConstants.XMLNS_ATTRIBUTE -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
+            else -> null
+        }
     }
 
 }

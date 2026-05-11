@@ -51,3 +51,4 @@ public actual interface PlatformCharacterData : PlatformNode {
 
 }
 
+public actual fun PlatformCharacterData.getData(): String = getData()

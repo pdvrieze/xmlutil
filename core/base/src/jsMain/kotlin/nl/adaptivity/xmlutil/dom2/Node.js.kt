@@ -28,16 +28,21 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(with = NodeSerializer::class)
 public actual interface Node : PlatformNode {
-    override val ownerDocument: Document?
-    override val parentNode: Node?
-    override val parentElement: Element?
-    override val childNodes: NodeList
-    override val firstChild: Node?
-    override val lastChild: Node?
-    override val previousSibling: Node?
-    override val nextSibling: Node?
+    override val ownerDocument: Document? get() = getOwnerDocument()
+    override val parentNode: Node? get() = getParentNode()
+    override val parentElement: Element? get() = getParentElement()
+    override val childNodes: NodeList get() = getChildNodes()
+    override val firstChild: Node? get() = getFirstChild()
+    override val lastChild: Node? get() = getLastChild()
+    override val previousSibling: Node? get() = getPreviousSibling()
+    override val nextSibling: Node? get() = getNextSibling()
 
-
+    override val nodeType: Short get() = getNodetype().value
+    override val nodeName: String get() = getNodeName()
+    override val nodeValue: String? get() = getNodeValue()
+    override var textContent: String?
+        get() = getTextContent()
+        set(value) { setTextContent(value) }
 
     public actual fun getNodetype(): NodeType
     public actual fun getNodeName(): String
@@ -45,7 +50,7 @@ public actual interface Node : PlatformNode {
     public actual fun getOwnerDocument(): Document?
     public actual fun getParentNode(): Node?
     public actual fun getTextContent(): String?
-    public actual fun setTextContent(value: String)
+    public actual fun setTextContent(value: String?)
     public actual fun getChildNodes(): NodeList
     public actual fun getFirstChild(): Node?
     public actual fun getLastChild(): Node?

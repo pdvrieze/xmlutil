@@ -26,8 +26,18 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface Attr : Node, PlatformAttr {
-    override val parentElement: Element?
+    override val parentElement: Element? get() = getParentElement()
     override val ownerDocument: Document get() = getOwnerDocument()
+
+    override val namespaceURI: String? get() = getNamespaceURI()
+    override val prefix: String? get() = getPrefix()
+    override val localName: String get() = getLocalName() ?: getName()
+    override val name: String get() = getName()
+    override var value: String
+        get() = getValue()
+        set(value) { setValue(value) }
+    override val ownerElement: Element?
+        get() = getOwnerElement()
 
     public actual fun getNamespaceURI(): String?
     public actual fun getPrefix(): String?

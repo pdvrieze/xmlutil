@@ -56,7 +56,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     final override fun getTextContent(): String? = delegate.textContent
 
-    final override fun setTextContent(value: String) {
+    final override fun setTextContent(value: String?) {
         delegate.textContent = value
     }
 
@@ -64,21 +64,22 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     override fun getNodeValue(): String? = delegate.nodeValue
 
-    final override fun setNodeValue(nodeValue: String?) {
+    override fun setNodeValue(nodeValue: String?) {
         delegate.nodeValue = nodeValue
     }
 
-    final override fun insertBefore(newChild: PlatformNode?, refChild: PlatformNode?): AbstractNodeImpl<*> {
+    fun insertBefore(newChild: PlatformNode?, refChild: PlatformNode?): AbstractNodeImpl<*> {
         return delegate.insertBefore(newChild?.unWrap(), refChild?.unWrap()).wrap()
     }
 
     final override fun hasChildNodes(): Boolean = delegate.hasChildNodes()
 
-    final override fun cloneNode(deep: Boolean): AbstractNodeImpl<*> {
+    override fun cloneNode(deep: Boolean): AbstractNodeImpl<*> {
         return delegate.cloneNode(deep).wrap()
     }
 
-    final override fun normalize() {
+    @Deprecated("No-op for now")
+    override fun normalize() {
         delegate.normalize()
     }
 
@@ -96,9 +97,9 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     override fun getLocalName(): String? = delegate.localName
 
-    final override fun hasAttributes(): Boolean = delegate.hasAttributes()
+    override fun hasAttributes(): Boolean = delegate.hasAttributes()
 
-    final override fun getBaseURI(): String = delegate.baseURI
+    override fun getBaseURI(): String = delegate.baseURI
 
     final override fun compareDocumentPosition(other: PlatformNode): Short {
         return delegate.compareDocumentPosition(other.unWrap())
@@ -108,7 +109,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     final override fun lookupPrefix(namespace: String): String? = delegate.lookupPrefix(namespace)
 
-    final override fun isDefaultNamespace(namespaceURI: String): Boolean = delegate.isDefaultNamespace(namespaceURI)
+    final override fun isDefaultNamespace(namespaceURI: String?): Boolean = delegate.isDefaultNamespace(namespaceURI)
 
     final override fun lookupNamespaceURI(prefix: String): String? = delegate.lookupNamespaceURI(prefix)
 
@@ -116,7 +117,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
         return delegate.isEqualNode(arg.unWrap())
     }
 
-    final override fun getFeature(feature: String, version: String?): Any? {
+    final override fun getFeature(feature: String?, version: String?): Any? {
         return delegate.getFeature(feature, version)
     }
 

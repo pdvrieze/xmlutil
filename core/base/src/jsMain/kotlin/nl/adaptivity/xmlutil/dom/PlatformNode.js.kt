@@ -30,7 +30,6 @@ package nl.adaptivity.xmlutil.dom
 public actual external interface PlatformNode {
     public val nodeType: Short
     public val nodeName: String
-    public val baseURI: String
     public val ownerDocument: PlatformDocument?
     public val parentNode: PlatformNode?
     public val parentElement: PlatformElement?
@@ -39,7 +38,7 @@ public actual external interface PlatformNode {
     public val lastChild: PlatformNode?
     public val previousSibling: PlatformNode?
     public val nextSibling: PlatformNode?
-    public var nodeValue: String?
+    public val nodeValue: String?
     public var textContent: String?
 
     public fun lookupPrefix(namespace: String): String?
@@ -48,3 +47,4 @@ public actual external interface PlatformNode {
 }
 
 public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument
+public val PlatformNode.baseURI: String get() = asDynamic().baseURI

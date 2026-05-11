@@ -20,17 +20,19 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-internal typealias LeafNodeImpl = NodeImpl
+import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.dom.PlatformComment
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom2.impl.AbstractComment
 
-internal fun Appendable.appendTextContent(node: NodeImpl) {
-    when (node) {
-        is DocumentFragmentImpl,
-        is ElementImpl -> for (n in node.getChildNodes()) {
-            appendTextContent(n)
-        }
+@XmlUtilInternal
+public class CommentImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
+    CharacterDataImpl(ownerDocument, data), AbstractComment<NodeImpl, ParentNodeImpl> {
 
-        is AttrImpl -> append(node.getValue())
+    internal constructor(ownerDocument: DocumentImpl, original: PlatformComment) :
+            this(ownerDocument, original.getData())
 
-        is CharacterDataImpl -> append(node.getData())
+    override fun toString(): String {
+        return "<!--${getData()}-->"
     }
 }

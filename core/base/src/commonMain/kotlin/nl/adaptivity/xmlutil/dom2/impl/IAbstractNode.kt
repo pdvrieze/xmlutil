@@ -21,10 +21,31 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
 
 @ExperimentalXmlUtilApi
 public interface IAbstractNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> : Node {
+    override fun getParentNode(): P?
 
+    override fun getChildNodes(): AbstractNodeList<N, P>
+
+    override fun getFirstChild(): N?
+
+    override fun getLastChild(): N?
+
+    override fun getPreviousSibling(): N?
+
+    override fun getNextSibling(): N?
+
+    override fun getOwnerDocument(): AbstractDocument<N, P>?
+
+    override fun getParentElement(): AbstractElement<N, P>?
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N
+
+    override fun appendChild(node: PlatformNode): N
+
+    override fun removeChild(node: PlatformNode): N
 }
 

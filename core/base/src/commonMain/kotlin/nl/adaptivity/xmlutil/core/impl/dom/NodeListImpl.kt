@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,24 +18,33 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.dom2.impl
+package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.NodeList
+import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 
-@ExperimentalXmlUtilApi
-public interface AbstractNodeList<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> : NodeList {
-    override fun getLength(): Int = iterator().asSequence().count()
+public interface INodeListImpl: AbstractNodeList<NodeImpl, ParentNodeImpl>, NodeList {
+    override fun get(index: Int): NodeImpl? = item(index)
 
-    public fun isEmpty(): Boolean = getLength() == 0
+    override fun item(index: Int): NodeImpl?
 
-    override fun item(index: Int): N? {
-        return get(index)
+    override fun iterator(): Iterator<NodeImpl>
+}
+
+internal class NodeListImpl(
+    internal val elements: MutableList<NodeImpl> = mutableListOf()
+) : INodeListImpl {
+    override fun getLength(): Int {
+        return elements.size
     }
 
-    override fun get(index: Int): N? {
-        return iterator().asSequence().elementAtOrNull(index)
+    override fun item(index: Int): NodeImpl? = when (index) {
+        in elements.indices -> elements[index]
+
+        else -> null
     }
 
-    abstract override fun iterator(): Iterator<N>
+    override fun iterator(): Iterator<NodeImpl> {
+        return elements.iterator()
+    }
 }

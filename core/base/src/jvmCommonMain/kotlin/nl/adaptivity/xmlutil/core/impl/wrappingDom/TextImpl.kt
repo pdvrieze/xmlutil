@@ -38,10 +38,14 @@ internal open class TextImpl(delegate: PlatformText) : CharacterDataImpl<Platfor
 
     override fun getAttributes(): Nothing? = null
 
-    override fun replaceWholeText(content: String): TextImpl =
+    fun replaceWholeText(content: String): TextImpl =
         delegate.replaceWholeText(content).wrap()
 
     override fun toString(): String {
         return delegate.toString()
+    }
+
+    override fun cloneNode(deep: Boolean): TextImpl {
+        return TextImpl(delegate.cloneNode(deep) as PlatformText)
     }
 }

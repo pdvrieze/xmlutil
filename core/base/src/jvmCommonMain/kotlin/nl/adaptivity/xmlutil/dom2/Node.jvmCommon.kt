@@ -25,6 +25,8 @@ package nl.adaptivity.xmlutil.dom2
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import org.w3c.dom.NamedNodeMap
+import org.w3c.dom.UserDataHandler
 
 @Serializable(with = NodeSerializer::class)
 public actual interface Node: PlatformNode {
@@ -34,7 +36,7 @@ public actual interface Node: PlatformNode {
     public actual override fun getOwnerDocument(): Document?
     public actual override fun getParentNode(): Node?
     public actual override fun getTextContent(): String?
-    public actual override fun setTextContent(value: String)
+    public actual override fun setTextContent(value: String?)
     public actual override fun getChildNodes(): NodeList
     public actual override fun getFirstChild(): Node?
     public actual override fun getLastChild(): Node?
@@ -49,6 +51,78 @@ public actual interface Node: PlatformNode {
 
     @IgnorableReturnValue
     public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node
+
+    override fun getNodeType(): Short = getNodetype().value
+
+    @Deprecated("No-op for now")
+    override fun normalize() {}
+
+    override fun getAttributes(): NamedNodeMap? = null
+
+    override fun hasChildNodes(): Boolean {
+        return getChildNodes().length > 0
+    }
+
+    override fun isSupported(feature: String?, version: String?): Boolean = when (feature) {
+        "Core", "XML" -> when (version) {
+            "1.0", "2.0" -> true
+            else -> false
+        }
+
+        else -> false
+    }
+
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: org.w3c.dom.Node, refChild: org.w3c.dom.Node?): org.w3c.dom.Node? = when (refChild) {
+        null -> appendChild(newChild)
+        else -> throw UnsupportedOperationException("insertBefore is not supported yet")
+    }
+
+    override fun setPrefix(prefix: String?) {
+        throw UnsupportedOperationException("setPrefix is not supported yet")
+    }
+
+    override fun hasAttributes(): Boolean = false
+
+    override fun getBaseURI(): String? = ownerDocument?.baseURI
+
+    override fun compareDocumentPosition(other: org.w3c.dom.Node): Short {
+        throw UnsupportedOperationException("compareDocumentPosition is not supported yet")
+    }
+
+    override fun isSameNode(other: org.w3c.dom.Node?): Boolean {
+        return this == other
+    }
+
+    override fun isDefaultNamespace(namespaceURI: String?): Boolean {
+        return lookupNamespaceURI("") == namespaceURI
+    }
+
+    override fun isEqualNode(arg: org.w3c.dom.Node): Boolean {
+        TODO("not implemented")
+    }
+
+    override fun getFeature(feature: String?, version: String?): Any? {
+        return null
+    }
+
+    override fun setUserData(
+        key: String,
+        data: Any?,
+        handler: UserDataHandler?
+    ): Any? {
+        throw UnsupportedOperationException("UserData is not supported")
+    }
+
+    override fun getUserData(key: String): Any? {
+        throw UnsupportedOperationException("UserData is not supported")
+    }
+
+    override fun getNamespaceURI(): String? = null
+
+    override fun getPrefix(): String? = null
+
+    override fun getLocalName(): String? = null
 
     @IgnorableReturnValue
     public actual override fun removeChild(node: PlatformNode): Node

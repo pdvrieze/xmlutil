@@ -28,6 +28,8 @@ import nl.adaptivity.xmlutil.dom2.Text
 public interface AbstractText<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
     IAbstractNode<N, P>, Text {
 
+    override fun getOwnerDocument(): AbstractDocument<N, P>
+
     override fun getNodetype(): NodeType = NodeType.TEXT_NODE
 
     override fun getNodeName(): String = "#text"

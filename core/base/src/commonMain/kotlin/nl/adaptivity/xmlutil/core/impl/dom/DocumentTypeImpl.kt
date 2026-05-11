@@ -21,18 +21,25 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+import nl.adaptivity.xmlutil.dom.getName
+import nl.adaptivity.xmlutil.dom.getOwnerDocument
+import nl.adaptivity.xmlutil.dom.getPublicId
+import nl.adaptivity.xmlutil.dom.getSystemId
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
 
 @XmlUtilInternal
 public class DocumentTypeImpl internal constructor(
     maybeOwnerDocument: DocumentImpl?,
-    private val name: String,
-    private val publicId: String,
-    private val systemId: String
+    name: String,
+    publicId: String,
+    systemId: String
 ) : AbstractDocumentType<NodeImpl, ParentNodeImpl>(maybeOwnerDocument), NodeImpl, DocumentType {
+    private val _name = name
+    private val _publicId = publicId
+    private val _systemId = systemId
+
     internal constructor(original: PlatformDocumentType) : this(
         original.getOwnerDocument()?.let { DocumentImpl.coerce(it) },
         original.getName(),
@@ -44,17 +51,11 @@ public class DocumentTypeImpl internal constructor(
         return super.getOwnerDocument() as DocumentImpl?
     }
 
-    override fun getName(): String = name
+    override fun getName(): String = _name
 
-    override fun getPublicId(): String = publicId
+    override fun getPublicId(): String = _publicId
 
-    override fun getSystemId(): String = systemId
-
-    override fun getTextContent(): String? = null
-
-    override fun setTextContent(value: String) {
-        throw DOMException.hierarchyRequestErr("Documents have no (direct) text content")
-    }
+    override fun getSystemId(): String = _systemId
 
     public companion object {
         internal fun coerce(doctype: PlatformDocumentType): DocumentTypeImpl {

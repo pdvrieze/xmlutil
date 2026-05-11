@@ -47,5 +47,15 @@ public actual interface CharacterData : Node, PlatformCharacterData {
     public actual override fun getLastChild(): Nothing?
 
     actual override fun getNodeValue(): String
+
+    override fun normalize() {}
+    override fun setNodeValue(nodeValue: String?) {
+        setData(nodeValue ?: "")
+    }
+
+    override fun cloneNode(deep: Boolean): CharacterData
+
     actual override fun getOwnerDocument(): Document
+
+    override fun getLength(): Int = data.length
 }

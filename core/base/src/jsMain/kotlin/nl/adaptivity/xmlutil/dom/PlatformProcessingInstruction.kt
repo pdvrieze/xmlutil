@@ -34,3 +34,5 @@ public actual external interface PlatformProcessingInstruction : PlatformNode {
     public var data: String
 }
 
+public actual fun PlatformProcessingInstruction.getNodeName(): String = target
+public actual fun PlatformProcessingInstruction.getData(): String = data

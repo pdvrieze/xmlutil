@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,22 +18,16 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.dom
+package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.PlatformComment
-import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.impl.AbstractComment
+import nl.adaptivity.xmlutil.core.impl.dom.NodeImpl
+import org.w3c.dom.Node
+import org.w3c.dom.EntityReference as DOMEntityReference
 
-@XmlUtilInternal
-public class CommentImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
-    CharacterDataImpl(ownerDocument, data), AbstractComment<NodeImpl, ParentNodeImpl> {
+internal class EntityReferenceImpl(delegate: DOMEntityReference) : AbstractNodeImpl<DOMEntityReference>(delegate),
+    DOMEntityReference {
 
-    internal constructor(ownerDocument: DocumentImpl, original: PlatformComment) :
-            this(ownerDocument, original.getData())
-
-    override fun toString(): String {
-        return "<!--${getData()}-->"
+    override fun insertBefore(newChild: Node, refChild: Node?): NodeImpl? {
+        return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap()).wrap() as NodeImpl?
     }
 }

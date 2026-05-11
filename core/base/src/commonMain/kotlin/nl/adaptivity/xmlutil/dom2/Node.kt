@@ -33,7 +33,7 @@ public expect interface Node : PlatformNode {
     public fun getOwnerDocument(): Document?
     public fun getParentNode(): Node?
     public fun getTextContent(): String?
-    public fun setTextContent(value: String)
+    public fun setTextContent(value: String?)
     public fun getChildNodes(): NodeList
     public fun getFirstChild(): Node?
     public fun getLastChild(): Node?

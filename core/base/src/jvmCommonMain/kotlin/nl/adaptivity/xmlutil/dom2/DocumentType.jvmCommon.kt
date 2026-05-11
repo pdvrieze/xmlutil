@@ -24,6 +24,7 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import org.w3c.dom.NamedNodeMap
 
 public actual interface DocumentType : Node, PlatformDocumentType {
     public actual override fun getName(): String
@@ -43,4 +44,21 @@ public actual interface DocumentType : Node, PlatformDocumentType {
 
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
+
+    override fun cloneNode(deep: Boolean): DocumentType? =
+        throw UnsupportedOperationException("Not yet implemented")
+
+    @Deprecated("No-op for now")
+    override fun setNodeValue(nodeValue: String?) {}
+
+    @Deprecated("No-op for now")
+    override fun getEntities(): NamedNodeMap? = null
+
+    @Deprecated("No-op for now")
+    override fun getNotations(): NamedNodeMap? = null
+
+    @Deprecated("No-op for now")
+    override fun getInternalSubset(): String? {
+        return null
+    }
 }

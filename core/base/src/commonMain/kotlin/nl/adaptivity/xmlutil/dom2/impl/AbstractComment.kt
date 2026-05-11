@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 @ExperimentalXmlUtilApi
 public interface AbstractComment<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
     IAbstractNode<N, P>, Comment {
+    override fun getOwnerDocument(): AbstractDocument<N, P>
 
     override fun getNodetype(): NodeType = NodeType.COMMENT_NODE
 

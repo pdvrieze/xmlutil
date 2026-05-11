@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Element
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractNode<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>
@@ -47,8 +46,9 @@ internal constructor(
         _ownerDocument = ownerDocument
     }
 
-    override fun getParentElement(): Element? {
-        return _parentNode as? Element
+    override fun getParentElement(): AbstractElement<N, P>? {
+        @Suppress("UNCHECKED_CAST")
+        return _parentNode as? AbstractElement<N, P>
     }
 
 

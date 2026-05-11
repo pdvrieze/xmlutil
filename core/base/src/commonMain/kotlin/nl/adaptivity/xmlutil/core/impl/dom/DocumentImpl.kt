@@ -25,14 +25,15 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
-import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeStorage
+import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 import nl.adaptivity.xmlutil.dom2.impl.SiblingIterator
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XmlUtilInternal
-public class DocumentImpl private constructor(private val doctype: DocumentTypeImpl?) :
+public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
     AbstractDocument<NodeImpl, ParentNodeImpl>({ (it as DocumentImpl).NodeStorage() }), ParentNodeImpl, Document {
 
     init {
@@ -40,88 +41,23 @@ public class DocumentImpl private constructor(private val doctype: DocumentTypeI
         doctype?.setOwnerDocument(this)
     }
 
+    private val _doctype = doctype
     override val self: DocumentImpl get() = this
-
-    private inner class NodeStorage(): AbstractNodeStorage<NodeImpl, ParentNodeImpl>, AbstractNodeList<NodeImpl, ParentNodeImpl> {
-        override fun getNodeList(): AbstractNodeList<NodeImpl, ParentNodeImpl> = this
-
-        @XmlUtilInternal
-        override fun checkTypeAndOwner(parent: ParentNodeImpl, node: PlatformNode): ElementImpl {
-            if (node !is ElementImpl) throw DOMException.wrongDocumentErr("Only elements of the same type can be added to the document")
-            if (node.ownerDocument != parent) throw DOMException.wrongDocumentErr("Node not owned by this document")
-            return node
-        }
-
-        override fun appendChild(parent: ParentNodeImpl, node: NodeImpl) {
-            when (node) {
-                is TextImpl -> when {
-                    isXmlWhitespace(node.getData()) -> return
-
-                    else -> throw DOMException.notSupportedErr("Non-whitespace nodes cannot be added directly to a document")
-                }
-
-                is DocumentFragmentImpl -> node.getChildNodes().forEach { appendChild(parent, it as NodeImpl) }
-            }
-
-            if (_documentElement != null) throw DOMException.hierarchyRequestErr("Only one root element is supported for now")
-
-
-            _documentElement = node as ElementImpl
-        }
-
-        override fun removeChild(parent: ParentNodeImpl, node: NodeImpl): NodeImpl {
-            if (node !== _documentElement) throw DOMException.notFoundErr("Node is not a child of this document")
-            _documentElement = null
-            return node
-        }
-
-        override fun replaceChild(parent: ParentNodeImpl, newChild: NodeImpl, oldChild: NodeImpl): NodeImpl {
-            if (newChild.ownerDocument != this@DocumentImpl) throw DOMException.wrongDocumentErr("Node not owned by this document")
-
-            _documentElement = newChild as ElementImpl
-            return oldChild
-        }
-
-        override fun iterator(): Iterator<NodeImpl> {
-            return _documentElement?.let { SiblingIterator(it) } ?: emptyList<Nothing>().iterator()
-        }
-    }
 
     private val docId = nextDocId()
 
     internal constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(DocumentTypeImpl::coerce))
 
-    override fun getDoctype(): DocumentTypeImpl? = doctype
+    override fun getDoctype(): DocumentTypeImpl? = _doctype
 
     override fun getImplementation(): DOMImplementation = SimpleDOMImplementation
 
     private var _documentElement: ElementImpl? = null
     override fun getDocumentElement(): ElementImpl? = _documentElement
 
-    override var characterSet: String = "UTF-8"
+    private var _inputEncoding: String = "UTF-8"
 
-    override fun getInputEncoding(): String = characterSet
-
-    override fun getParentNode(): Nothing? = null
-    override fun getParentElement(): Nothing? = null
-
-    private val _childNodes: NodeListImpl = NodeListImpl()
-
-    override fun getChildNodes(): INodeListImpl = _childNodes
-
-    override fun getFirstChild(): NodeImpl? = _childNodes.elements.firstOrNull()
-
-    override fun getLastChild(): NodeImpl? = _childNodes.elements.lastOrNull()
-
-    override fun getPreviousSibling(): NodeImpl? = null
-
-    override fun getNextSibling(): NodeImpl? = null
-
-    override fun getTextContent(): String? = null
-
-    override fun setTextContent(value: String) {
-        throw DOMException.notSupportedErr("Documents have no (direct) text content")
-    }
+    override fun getInputEncoding(): String = _inputEncoding
 
     override fun adoptNode(node: PlatformNode): NodeImpl {
         if (node !is NodeImpl) throw DOMException.notSupportedErr("node is of a different implementation and cannot be adopted")
@@ -174,13 +110,7 @@ public class DocumentImpl private constructor(private val doctype: DocumentTypeI
         return ProcessingInstructionImpl(this, target, data)
     }
 
-    override fun lookupPrefix(namespace: String): String? {
-        return (_documentElement ?: return null).lookupPrefix(namespace)
-    }
 
-    override fun lookupNamespaceURI(prefix: String): String? {
-        return (_documentElement ?: return null).lookupNamespaceURI(prefix)
-    }
 
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
@@ -197,21 +127,68 @@ public class DocumentImpl private constructor(private val doctype: DocumentTypeI
             return (document as? DocumentImpl) ?: throw DOMException.notSupportedErr("Documents can not be adopted")
         }
     }
-}
 
-internal fun PlatformNode.checkNode(node: PlatformNode): NodeImpl {
-    if (node is DocumentImpl) return node
-    if (getOwnerDocument() != node.getOwnerDocument()) throw DOMException.wrongDocumentErr("Node (${node.getNodetype()}) not owned by this document (${getOwnerDocument()} != ${node.getOwnerDocument()})")
-    when (node) {
-        !is NodeImpl -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+    private inner class NodeStorage(): LinearNodeStorage<NodeImpl, ParentNodeImpl>(storageAdapter), AbstractNodeList<NodeImpl, ParentNodeImpl> {
+
+        override fun appendChild(parent: ParentNodeImpl, node: NodeImpl) {
+            when (node) {
+                is ElementImpl -> when (_documentElement) {
+                    null -> _documentElement = node
+                    else -> throw DOMException.hierarchyRequestErr("Documents may only have one root element")
+
+                }
+
+                is CDATASectionImpl -> throw DOMException.hierarchyRequestErr("CDATA sections cannot be added directly to a document")
+
+                is TextImpl if (! isXmlWhitespace(node.getData())) ->
+                    throw DOMException.hierarchyRequestErr("Non-whitespace text nodes cannot be added directly to a document")
+            }
+            super.appendChild(parent, node)
+        }
+
+        override fun removeChild(parent: ParentNodeImpl, node: NodeImpl): NodeImpl {
+            if (node === _documentElement) _documentElement = null
+            return super.removeChild(parent, node)
+        }
+
+        override fun replaceChild(parent: ParentNodeImpl, newChild: NodeImpl, oldChild: NodeImpl): NodeImpl {
+            if (oldChild === _documentElement) _documentElement = null
+
+            when (newChild) {
+                is ElementImpl -> when (_documentElement) {
+                    null -> _documentElement = newChild
+                    else -> throw DOMException.hierarchyRequestErr("Document may only have one root element")
+                }
+
+                is CDATASectionImpl -> throw DOMException.hierarchyRequestErr("CDATA sections cannot be added directly to a document")
+
+                is TextImpl if (! isXmlWhitespace(newChild.getData())) ->
+                    throw DOMException.hierarchyRequestErr("Non-whitespace text nodes cannot be added directly to a document")
+            }
+
+            return super.replaceChild(parent, newChild, oldChild)
+        }
+
+        override fun iterator(): Iterator<NodeImpl> {
+            return _documentElement?.let { SiblingIterator(it) } ?: emptyList<Nothing>().iterator()
+        }
     }
-//    if (node !is NodeImpl) throw DOMException("Unexpected node implementation, try importing")
-    return node
-}
 
-internal fun Node.checkNode(node: Node): NodeImpl {
-    if (node is DocumentImpl) return node
-    if (ownerDocument != node.getOwnerDocument()) throw DOMException.wrongDocumentErr("Node (${node.getNodetype()}) not owned by this document")
-    if (node !is LeafNodeImpl) throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
-    return node
+    internal val storageAdapter = StorageAdapter(this)
+
+    internal class StorageAdapter(private val ownerDocument: DocumentImpl): LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl>, AbstractAttrStorage.Adapter<AttrImpl> {
+        override fun checkTypeAndOwner(node: PlatformNode): NodeImpl = when (node) {
+            !is NodeImpl -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+            else if node.getOwnerDocument() != ownerDocument -> throw DOMException.wrongDocumentErr("Node not owned by this document")
+            else -> node
+        }
+
+        override fun checkAttr(a: PlatformNode): AttrImpl {
+            return when (a) {
+                is AttrImpl -> a
+                else -> throw DOMException.wrongDocumentErr("Unexpected node implementation, try importing")
+            }
+        }
+    }
+
 }

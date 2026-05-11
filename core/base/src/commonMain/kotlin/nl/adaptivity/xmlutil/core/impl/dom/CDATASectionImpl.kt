@@ -21,10 +21,9 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.dom.PlatformCDATASection
-import nl.adaptivity.xmlutil.dom2.CDATASection
+import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractCDataSection
-import nl.adaptivity.xmlutil.dom2.impl.AbstractText
 
 public class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
     TextImpl(ownerDocument, data), AbstractCDataSection<NodeImpl, ParentNodeImpl> {
