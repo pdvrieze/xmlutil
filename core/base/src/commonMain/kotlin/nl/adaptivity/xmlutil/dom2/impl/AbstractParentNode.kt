@@ -36,7 +36,7 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
     protected abstract val self: P
 
     @Suppress("UNCHECKED_CAST")
-    private val _nodeStorage: MutableAbstractNodeStorage<N, P> by lazy { nodeStorage(this as P) }
+    private val _nodeStorage: MutableAbstractNodeStorage<N, P> = nodeStorage(this as P)
     protected val nodeStorage: AbstractNodeStorage<N, P> get() = _nodeStorage
 
     override fun setOwnerDocument(ownerDocument: AbstractDocument<@UnsafeVariance N, @UnsafeVariance P>) {
