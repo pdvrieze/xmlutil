@@ -36,11 +36,11 @@ import org.w3c.dom.Node as DomNode
 import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 import org.w3c.dom.Text as DomText
 
-internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
+internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
     @Suppress("UNCHECKED_CAST")
     val delegate: N = delegate.unWrap() as N
 
-    override val ownerDocument: DocumentImpl? get() = delegate.ownerDocument?.wrap()
+    override val ownerDocument: JsWrappedDocument? get() = delegate.ownerDocument?.wrap()
 
     override val parentNode: Node? get() = delegate.parentNode?.wrap()
     override val parentElement: Element? get() = parentNode as? Element
@@ -76,8 +76,8 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
         textContent = value
     }
 
-    override val childNodes: WrappingNodeList
-        get() = WrappingNodeList(delegate.childNodes)
+    override val childNodes: JsWrappedNodeList
+        get() = JsWrappedNodeList(delegate.childNodes)
 
     fun insertBefore(newChild: DomNode?, refChild: DomNode?): Node {
         return delegate.insertBefore(newChild!!, refChild?.unWrap()).wrap()
@@ -130,7 +130,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
         if (this === other) return true
         if (other == null || this::class.js != other::class.js) return false
 
-        other as NodeImpl<*>
+        other as JsWrappedNode<*>
 
         return delegate == other.delegate
     }
@@ -143,7 +143,7 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
     }
 
     override fun getNodeName(): String = nodeName
-    override fun getOwnerDocument(): DocumentImpl? = delegate.ownerDocument?.wrap()
+    override fun getOwnerDocument(): JsWrappedDocument? = delegate.ownerDocument?.wrap()
     override fun getParentNode(): Node? = parentNode
     override fun getParentElement(): Element? = parentElement
     override fun getFirstChild(): Node? = firstChild
@@ -159,86 +159,86 @@ internal abstract class NodeImpl<out N : DomNode>(delegate: N) : Node {
 
 @Suppress("CAST_NEVER_SUCCEEDS")
 internal fun DomNode.unWrap(): DomNode = when (this) {
-    is Node -> (this as NodeImpl<*>).delegate
+    is Node -> (this as JsWrappedNode<*>).delegate
     else -> this
 }
 
 internal fun Node1.unWrap(): DomNode = when (this) {
-    is NodeImpl<*> -> delegate
+    is JsWrappedNode<*> -> delegate
     else -> this as DomNode // works in JavaScript
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
 internal fun DomAttr.unWrap(): DomAttr = when (this) {
-    is Attr2 -> (this as AttrImpl).delegate
+    is Attr2 -> (this as JsWrappedAttr).delegate
     else -> this
 }
 
 internal fun Attr1.unWrap(): DomAttr = when (this) {
-    is AttrImpl -> delegate
+    is JsWrappedAttr -> delegate
     else -> this as DomAttr
 }
 
 internal fun Attr2.unWrap(): DomAttr = when (this) {
-    is AttrImpl -> delegate
+    is JsWrappedAttr -> delegate
     is DomAttr -> this
     else -> throw IllegalArgumentException("Attribute can not be resolved")
 }
 
 internal fun Node.unWrap(): DomNode = when (this) {
-    is NodeImpl<*> -> delegate
+    is JsWrappedNode<*> -> delegate
     else -> throw IllegalArgumentException("Can not be unwrapped") // has to be actually wrapped to "work"
 }
 
-internal fun DomNode.wrap(): NodeImpl<DomNode> = when (nodeType) {
-    NodeConsts.ATTRIBUTE_NODE -> AttrImpl(this as DomAttr)
-    NodeConsts.CDATA_SECTION_NODE -> CDATASectionImpl(this as DomCDATASection)
-    NodeConsts.COMMENT_NODE -> CommentImpl(this as DomComment)
-    NodeConsts.DOCUMENT_NODE -> DocumentImpl(this as DomDocument)
-    NodeConsts.DOCUMENT_FRAGMENT_NODE -> DocumentFragmentImpl(this as DocumentFragment)
-    NodeConsts.DOCUMENT_TYPE_NODE -> DocumentTypeImpl(this as DomDocumentType)
-    NodeConsts.ELEMENT_NODE -> ElementImpl(this as DomElement)
-    NodeConsts.PROCESSING_INSTRUCTION_NODE -> ProcessingInstructionImpl(this as DomProcessingInstruction)
-    NodeConsts.TEXT_NODE -> TextImpl(this as DomText)
+internal fun DomNode.wrap(): JsWrappedNode<DomNode> = when (nodeType) {
+    NodeConsts.ATTRIBUTE_NODE -> JsWrappedAttr(this as DomAttr)
+    NodeConsts.CDATA_SECTION_NODE -> JsWrappedCDATASection(this as DomCDATASection)
+    NodeConsts.COMMENT_NODE -> JsWrappedComment(this as DomComment)
+    NodeConsts.DOCUMENT_NODE -> JsWrappedDocument(this as DomDocument)
+    NodeConsts.DOCUMENT_FRAGMENT_NODE -> JsWrappedDocumentFragment(this as DocumentFragment)
+    NodeConsts.DOCUMENT_TYPE_NODE -> JsWrappedDocumentType(this as DomDocumentType)
+    NodeConsts.ELEMENT_NODE -> JsWrappedElement(this as DomElement)
+    NodeConsts.PROCESSING_INSTRUCTION_NODE -> JsWrappedProcessingInstruction(this as DomProcessingInstruction)
+    NodeConsts.TEXT_NODE -> JsWrappedText(this as DomText)
     else -> error("Node type ${NodeType(nodeType)} not supported")
 }
 
-internal fun Node1.wrap(): NodeImpl<*> = when (this) {
-    is NodeImpl<*> -> this
+internal fun Node1.wrap(): JsWrappedNode<*> = when (this) {
+    is JsWrappedNode<*> -> this
     else -> (this as DomNode).wrap()
 }
 
-internal fun Node.wrap(): NodeImpl<*> = when (this) {
-    is NodeImpl<*> -> this
+internal fun Node.wrap(): JsWrappedNode<*> = when (this) {
+    is JsWrappedNode<*> -> this
     else -> error("Node type ${getNodetype()} not supported")
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomDocument.wrap(): DocumentImpl = when (this) {
-    is Document -> this as DocumentImpl
-    else -> DocumentImpl(this)
+internal fun DomDocument.wrap(): JsWrappedDocument = when (this) {
+    is Document -> this as JsWrappedDocument
+    else -> JsWrappedDocument(this)
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomElement.wrap(): ElementImpl = when (this) {
-    is Element -> this as ElementImpl
-    else -> ElementImpl(this)
+internal fun DomElement.wrap(): JsWrappedElement = when (this) {
+    is Element -> this as JsWrappedElement
+    else -> JsWrappedElement(this)
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomText.wrap(): TextImpl = when (this) {
-    is Text -> this as TextImpl
-    else -> TextImpl(this)
+internal fun DomText.wrap(): JsWrappedText = when (this) {
+    is Text -> this as JsWrappedText
+    else -> JsWrappedText(this)
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomDocumentType.wrap(): DocumentTypeImpl = when (this) {
-    is DocumentType -> this as DocumentTypeImpl
-    else -> DocumentTypeImpl(this)
+internal fun DomDocumentType.wrap(): JsWrappedDocumentType = when (this) {
+    is DocumentType -> this as JsWrappedDocumentType
+    else -> JsWrappedDocumentType(this)
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomAttr.wrap(): AttrImpl = when (this) {
-    is Attr2 -> this as AttrImpl
-    else -> AttrImpl(this)
+internal fun DomAttr.wrap(): JsWrappedAttr = when (this) {
+    is Attr2 -> this as JsWrappedAttr
+    else -> JsWrappedAttr(this)
 }

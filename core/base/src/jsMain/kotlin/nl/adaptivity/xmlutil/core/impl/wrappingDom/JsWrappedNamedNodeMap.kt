@@ -22,33 +22,33 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap as NamedNodeMap2
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.NamedNodeMap as DomNamedNodeMap
 
-internal class WrappingNamedNodeMap(val delegate: DomNamedNodeMap) : NamedNodeMap2 {
+internal class JsWrappedNamedNodeMap(val delegate: DomNamedNodeMap) : NamedNodeMap {
     override val size: Int get() = delegate.length
 
     @Deprecated("Use size instead", replaceWith = ReplaceWith("size"), level = DeprecationLevel.WARNING)
     override fun getLength(): Int = delegate.length
 
-    override fun item(index: Int): AttrImpl? {
+    override fun item(index: Int): JsWrappedAttr? {
         return delegate.item(index)?.wrapAttr()
     }
 
-    override fun get(index: Int): AttrImpl? {
+    override fun get(index: Int): JsWrappedAttr? {
         return item(index)
     }
 
-    override fun getNamedItem(qualifiedName: String): AttrImpl? {
+    override fun getNamedItem(qualifiedName: String): JsWrappedAttr? {
         return delegate.getNamedItem(qualifiedName)?.wrapAttr()
     }
 
-    override fun getNamedItemNS(namespace: String?, localName: String): AttrImpl? {
+    override fun getNamedItemNS(namespace: String?, localName: String): JsWrappedAttr? {
         return delegate.getNamedItemNS(namespace, localName)?.wrapAttr()
     }
 
-    fun setNamedItem(attr: DomAttr): AttrImpl? {
+    fun setNamedItem(attr: DomAttr): JsWrappedAttr? {
         return delegate.setNamedItem(attr.unWrap())?.wrapAttr()
     }
 
@@ -56,29 +56,29 @@ internal class WrappingNamedNodeMap(val delegate: DomNamedNodeMap) : NamedNodeMa
         return delegate.setNamedItem((attr as DomAttr).unWrap())?.wrapAttr()
     }
 
-    fun setNamedItemNS(attr: DomAttr): AttrImpl? {
+    fun setNamedItemNS(attr: DomAttr): JsWrappedAttr? {
         return delegate.setNamedItemNS(attr.unWrap())?.wrapAttr()
     }
 
-    override fun setNamedItemNS(attr: PlatformNode): AttrImpl? {
+    override fun setNamedItemNS(attr: PlatformNode): JsWrappedAttr? {
         return delegate.setNamedItemNS((attr as DomAttr).unWrap())?.wrapAttr()
     }
 
-    override fun removeNamedItem(qualifiedName: String): AttrImpl {
+    override fun removeNamedItem(qualifiedName: String): JsWrappedAttr {
         return delegate.removeNamedItem(qualifiedName).wrapAttr()
     }
 
-    override fun removeNamedItemNS(namespace: String?, localName: String): AttrImpl {
+    override fun removeNamedItemNS(namespace: String?, localName: String): JsWrappedAttr {
         return delegate.removeNamedItemNS(namespace, localName).wrapAttr()
     }
 
-    override fun iterator(): Iterator<AttrImpl> {
+    override fun iterator(): Iterator<JsWrappedAttr> {
         return IteratorImpl(delegate)
     }
 
-    private class IteratorImpl(private val delegate: DomNamedNodeMap) : Iterator<AttrImpl> {
+    private class IteratorImpl(private val delegate: DomNamedNodeMap) : Iterator<JsWrappedAttr> {
         private var next: Int = 0
-        override fun next(): AttrImpl {
+        override fun next(): JsWrappedAttr {
             return delegate.item(next++)!!.wrapAttr()
         }
 

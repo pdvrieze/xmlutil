@@ -20,23 +20,15 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom2.NodeList
-import nl.adaptivity.xmlutil.dom2.NodeListIterator
-import org.w3c.dom.Node as DomNode
+import nl.adaptivity.xmlutil.dom2.DocumentFragment
+import org.w3c.dom.DocumentFragment as DOMDocumentFragment
 
-internal class WrappingNodeList(val delegate: Any) : NodeList {
-    override fun getLength(): Int = delegate.asDynamic().length
+internal class JsWrappedDocumentFragment(delegate: DOMDocumentFragment) :
+    JsWrappedNode<DOMDocumentFragment>(delegate), DocumentFragment {
 
-    override fun get(index: Int): NodeImpl<DomNode> {
-        return item(index)
-    }
+    override fun getNodeValue(): Nothing? = null
 
-    override fun iterator(): Iterator<NodeImpl<DomNode>> {
-        return NodeListIterator(this)
-    }
+    override val ownerDocument: JsWrappedDocument get() = checkNotNull(delegate.ownerDocument).wrap()
 
-    override fun item(index: Int): NodeImpl<DomNode> {
-        val node: DomNode = delegate.asDynamic().item(index) as DomNode? ?: throw IndexOutOfBoundsException("$index")
-        return node.wrap()
-    }
+    override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(delegate.ownerDocument).wrap()
 }

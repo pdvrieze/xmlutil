@@ -20,7 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
-import org.w3c.dom.CDATASection as DOMCDATASection
+import nl.adaptivity.xmlutil.dom2.Comment as Comment2
+import org.w3c.dom.Comment as DOMComment
 
-internal class CDATASectionImpl(delegate: DOMCDATASection) : TextImpl(delegate), CDATASection2
+internal class JsWrappedComment(delegate: DOMComment) : JsWrappedCharacterData<DOMComment>(delegate), Comment2

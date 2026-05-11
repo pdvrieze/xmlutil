@@ -20,7 +20,23 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom2.Text as Text2
-import org.w3c.dom.Text as DOMText
+import nl.adaptivity.xmlutil.dom2.NodeList
+import nl.adaptivity.xmlutil.dom2.NodeListIterator
+import org.w3c.dom.Node as DomNode
 
-internal open class TextImpl(delegate: DOMText) : CharacterDataImpl<DOMText>(delegate), Text2
+internal class JsWrappedNodeList(val delegate: Any) : NodeList {
+    override fun getLength(): Int = delegate.asDynamic().length
+
+    override fun get(index: Int): JsWrappedNode<DomNode> {
+        return item(index)
+    }
+
+    override fun iterator(): Iterator<JsWrappedNode<DomNode>> {
+        return NodeListIterator(this)
+    }
+
+    override fun item(index: Int): JsWrappedNode<DomNode> {
+        val node: DomNode = delegate.asDynamic().item(index) as DomNode? ?: throw IndexOutOfBoundsException("$index")
+        return node.wrap()
+    }
+}

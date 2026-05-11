@@ -20,15 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom2.DocumentFragment
-import org.w3c.dom.DocumentFragment as DOMDocumentFragment
+import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
+import org.w3c.dom.CDATASection as DOMCDATASection
 
-internal class DocumentFragmentImpl(delegate: DOMDocumentFragment) :
-    NodeImpl<DOMDocumentFragment>(delegate), DocumentFragment {
-
-    override fun getNodeValue(): Nothing? = null
-
-    override val ownerDocument: DocumentImpl get() = checkNotNull(delegate.ownerDocument).wrap()
-
-    override fun getOwnerDocument(): DocumentImpl = checkNotNull(delegate.ownerDocument).wrap()
-}
+internal class JsWrappedCDATASection(delegate: DOMCDATASection) : JsWrappedText(delegate), CDATASection2

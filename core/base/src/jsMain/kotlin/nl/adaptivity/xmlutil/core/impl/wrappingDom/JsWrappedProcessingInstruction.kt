@@ -22,11 +22,11 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction as ProcessingInstruction2
 import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 
-internal class ProcessingInstructionImpl(delegate: DomProcessingInstruction) :
-    NodeImpl<DomProcessingInstruction>(delegate), ProcessingInstruction2 {
-    override val ownerDocument: DocumentImpl get() = checkNotNull(super<NodeImpl>.ownerDocument)
+internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction) :
+    JsWrappedNode<DomProcessingInstruction>(delegate), ProcessingInstruction2 {
+    override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
 
-    override fun getOwnerDocument(): DocumentImpl = checkNotNull(super.getOwnerDocument())
+    override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
 
     override fun getNodeValue(): String {
         return delegate.data

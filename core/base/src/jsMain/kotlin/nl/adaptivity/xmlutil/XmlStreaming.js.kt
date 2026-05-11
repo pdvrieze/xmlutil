@@ -23,9 +23,10 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.core.impl.wrappingDom.JsWrappedDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom.PlatformNode
@@ -111,11 +112,11 @@ internal actual object XmlStreaming : IXmlStreaming {
     }
 
     actual override val genericDomImplementation: DOMImplementation
-        get() = DOMImplementationImpl
+        get() = SimpleDOMImplementation
 
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     actual override val platformDOMImplementation: PlatformDOMImplementation
-        get() = DOMImplementationImpl.delegate
+        get() = JsWrappedDOMImplementation.delegate
 }
 
 /**
