@@ -22,7 +22,6 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.DOMImplementationImpl.createDocument
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformNode
@@ -55,11 +54,7 @@ public actual interface Document : Node, PlatformDocument {
     public actual override fun getNodeValue(): Nothing?
     override fun setNodeValue(nodeValue: String?) {} // nothing to do
 
-    override fun cloneNode(deep: Boolean): Document {
-        val d = createDocument(null, null, getDoctype()?.cloneNode(false))
-        if (deep) for (c in getChildNodes()) d.appendChild(c.cloneNode(true))
-        return d
-    }
+    actual override fun cloneNode(deep: Boolean): Document
 
     override fun getBaseURI(): String? = when (val du = documentURI) {
         null -> null

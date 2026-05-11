@@ -23,4 +23,8 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom2.Text as Text2
 import org.w3c.dom.Text as DOMText
 
-internal open class JsWrappedText(delegate: DOMText) : JsWrappedCharacterData<DOMText>(delegate), Text2
+internal open class JsWrappedText(delegate: DOMText) : JsWrappedCharacterData<DOMText>(delegate), Text2 {
+    override fun cloneNode(deep: Boolean): JsWrappedText {
+        return JsWrappedText(delegate.cloneNode(deep) as DOMText)
+    }
+}

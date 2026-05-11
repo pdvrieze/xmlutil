@@ -58,7 +58,7 @@ public actual interface Element : Node, PlatformElement {
     actual override fun getNodeValue(): Nothing?
     actual override fun getOwnerDocument(): Document
 
-    override fun cloneNode(deep: Boolean): Element {
+    actual override fun cloneNode(deep: Boolean): Element/* {
         val e = when (val u = namespaceURI) {
             null, "" -> ownerDocument.createElement(localName)
             else -> ownerDocument.createElementNS(u, tagName)
@@ -70,7 +70,7 @@ public actual interface Element : Node, PlatformElement {
 
         if (deep) for (c in getChildNodes()) e.appendChild(c.cloneNode(true))
         return e
-    }
+    }*/
 
     override fun hasAttributes(): Boolean = attributes.size > 0
 

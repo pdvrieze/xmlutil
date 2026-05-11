@@ -22,4 +22,7 @@ package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 
-public expect interface CDATASection : Text, PlatformCDATASection
+public expect interface CDATASection : Text, PlatformCDATASection {
+    override fun cloneNode(deep: Boolean): CDATASection
+
+}

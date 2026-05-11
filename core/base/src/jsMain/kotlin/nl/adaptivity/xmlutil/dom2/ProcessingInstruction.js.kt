@@ -39,5 +39,8 @@ public actual interface ProcessingInstruction : Node, PlatformProcessingInstruct
     public actual fun getData(): String
     public actual fun setData(data: String)
 
-    actual override fun getNodeValue(): String
+    public actual override fun getNodeValue(): String
+
+    public actual override fun cloneNode(deep: Boolean): ProcessingInstruction
+
 }

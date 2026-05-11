@@ -63,6 +63,7 @@ public expect interface Element : Node, PlatformElement {
 
     override fun getNodeValue(): Nothing?
 
+    override fun cloneNode(deep: Boolean): Element
 }
 
 public val Element.namespaceURI: String? get() = getNamespaceURI()

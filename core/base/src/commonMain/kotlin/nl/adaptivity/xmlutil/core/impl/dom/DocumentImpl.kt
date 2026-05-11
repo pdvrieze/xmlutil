@@ -122,6 +122,16 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
         return super.importNode(node, deep)
     }
 
+    override fun cloneNode(deep: Boolean): DocumentImpl {
+        return DocumentImpl(doctype = _doctype?.cloneNode(deep) as DocumentTypeImpl?).also { d ->
+            if (deep) {
+                for (c in getChildNodes()) d.appendChild(
+                    c.cloneNode(deep)
+                )
+            }
+        }
+    }
+
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
         else -> "document<$docId>"

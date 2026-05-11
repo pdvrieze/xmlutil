@@ -24,9 +24,7 @@ import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
 public actual interface Text : CharacterData, PlatformText {
-    override fun cloneNode(deep: Boolean): Text {
-        return getOwnerDocument().createTextNode(data)
-    }
+    actual override fun cloneNode(deep: Boolean): Text
 
     override fun splitText(offset: Int): Text? {
         if (offset >= length) return null

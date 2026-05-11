@@ -23,4 +23,10 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom2.CDATASection as CDATASection2
 import org.w3c.dom.CDATASection as DOMCDATASection
 
-internal class JsWrappedCDATASection(delegate: DOMCDATASection) : JsWrappedText(delegate), CDATASection2
+internal class JsWrappedCDATASection(delegate: DOMCDATASection) : JsWrappedText(delegate), CDATASection2 {
+
+    override fun cloneNode(deep: Boolean): JsWrappedCDATASection {
+        return JsWrappedCDATASection(delegate.cloneNode(deep) as DOMCDATASection)
+    }
+
+}

@@ -60,6 +60,9 @@ public actual interface Document : Node, PlatformDocument {
     actual override fun getNodeValue(): Nothing?
 
     actual override fun getAttributes(): Nothing?
+
+    public actual override fun cloneNode(deep: Boolean): Document
+
 }
 
 public actual fun Document.importNode(node: PlatformNode, deep: Boolean): Node {

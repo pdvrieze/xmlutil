@@ -57,6 +57,10 @@ public class DocumentTypeImpl internal constructor(
 
     override fun getSystemId(): String = _systemId
 
+    override fun cloneNode(deep: Boolean): AbstractDocumentType<NodeImpl, ParentNodeImpl> {
+        return DocumentTypeImpl(null, getName(), getPublicId(), getSystemId())
+    }
+
     public companion object {
         internal fun coerce(doctype: PlatformDocumentType): DocumentTypeImpl {
             return (doctype as? DocumentTypeImpl)?.takeIf { it.getOwnerDocument() == null } ?: DocumentTypeImpl(doctype)

@@ -34,4 +34,7 @@ internal class JsWrappedDocumentFragment(delegate: DOMDocumentFragment) :
 
     override fun getAttributes(): Nothing? = null
 
+    override fun cloneNode(deep: Boolean): JsWrappedDocumentFragment {
+        return JsWrappedDocumentFragment(delegate.cloneNode(deep) as DOMDocumentFragment)
+    }
 }

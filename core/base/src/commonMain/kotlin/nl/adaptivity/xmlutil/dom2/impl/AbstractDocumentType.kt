@@ -36,4 +36,6 @@ public abstract class AbstractDocumentType<out N: IAbstractNode<N, P>, out P: IA
 
     final override fun setTextContent(value: String?) {/* Defined as NO-OP*/ }
     final override fun getTextContent(): Nothing? = null
+
+    abstract override fun cloneNode(deep: Boolean): AbstractDocumentType<N, P>
 }

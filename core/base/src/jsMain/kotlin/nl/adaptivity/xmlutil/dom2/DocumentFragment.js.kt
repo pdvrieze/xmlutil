@@ -27,4 +27,5 @@ public actual interface DocumentFragment : Node, PlatformDocumentFragment {
     actual override fun getNodeValue(): Nothing?
     actual override fun getOwnerDocument(): Document
     actual override fun getAttributes(): Nothing?
+    public actual override fun cloneNode(deep: Boolean): DocumentFragment
 }

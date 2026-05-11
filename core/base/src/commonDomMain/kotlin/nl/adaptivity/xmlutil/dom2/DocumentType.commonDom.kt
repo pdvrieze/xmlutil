@@ -26,4 +26,5 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     override fun getOwnerDocument(): Document?
     actual override fun getNodeValue(): Nothing?
     actual override fun getAttributes(): Nothing?
+    public actual override fun cloneNode(deep: Boolean): DocumentType
 }

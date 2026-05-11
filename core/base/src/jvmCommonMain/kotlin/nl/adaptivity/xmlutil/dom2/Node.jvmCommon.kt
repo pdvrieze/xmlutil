@@ -53,6 +53,8 @@ public actual interface Node: PlatformNode {
 
     override fun getNodeType(): Short = getNodetype().value
 
+    actual override fun cloneNode(deep: Boolean): Node
+
     @Deprecated("No-op for now")
     override fun normalize() {}
 

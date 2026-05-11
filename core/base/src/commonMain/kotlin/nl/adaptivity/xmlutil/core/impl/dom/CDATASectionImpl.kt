@@ -33,4 +33,8 @@ public class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, 
     override fun getNodetype(): NodeType = super<AbstractCDataSection>.getNodetype()
 
     override fun getNodeName(): String = super<AbstractCDataSection>.getNodeName()
+
+    override fun cloneNode(deep: Boolean): CDATASectionImpl {
+        return CDATASectionImpl(getOwnerDocument(), getData())
+    }
 }

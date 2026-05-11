@@ -85,6 +85,9 @@ internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegat
     override fun getFirstChild(): Nothing? = null
     override fun getLastChild(): Nothing? = null
 
+    override fun cloneNode(deep: Boolean): JsWrappedAttr {
+        return JsWrappedAttr(delegate.cloneNode(deep) as DomAttr)
+    }
 }
 
 internal fun DomNode.wrapAttr(): JsWrappedAttr {

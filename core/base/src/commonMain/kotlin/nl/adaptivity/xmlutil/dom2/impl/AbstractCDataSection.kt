@@ -26,10 +26,14 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 
 @ExperimentalXmlUtilApi
 public interface AbstractCDataSection<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
-    CDATASection {
+    IAbstractNode<N, P>, CDATASection {
+    override fun getOwnerDocument(): AbstractDocument<N, P>
 
     override fun getNodetype(): NodeType = NodeType.CDATA_SECTION_NODE
 
     override fun getNodeName(): String = "#data-section"
 
+    override fun cloneNode(deep: Boolean): AbstractCDataSection<N, P> {
+        return getOwnerDocument().createCDATASection(getData())
+    }
 }

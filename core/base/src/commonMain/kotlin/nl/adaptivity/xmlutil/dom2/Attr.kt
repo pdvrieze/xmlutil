@@ -49,6 +49,8 @@ public expect interface Attr : Node, PlatformAttr {
     public override fun getAttributes(): Nothing?
 
     override fun getNodeValue(): String
+
+    override fun cloneNode(deep: Boolean): Attr
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

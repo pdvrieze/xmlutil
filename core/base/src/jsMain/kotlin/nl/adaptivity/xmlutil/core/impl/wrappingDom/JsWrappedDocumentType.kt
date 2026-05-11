@@ -52,4 +52,7 @@ internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<
 
     override fun getAttributes(): Nothing? = null
 
+    override fun cloneNode(deep: Boolean): JsWrappedDocumentType {
+        return JsWrappedDocumentType(delegate.cloneNode(deep) as DOMDocumentType)
+    }
 }

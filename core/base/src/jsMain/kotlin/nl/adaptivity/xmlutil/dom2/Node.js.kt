@@ -71,6 +71,7 @@ public actual interface Node : PlatformNode {
 
     public actual fun hasChildNodes(): Boolean
     public actual fun getAttributes(): NamedNodeMap?
+    public actual fun cloneNode(deep: Boolean): Node
 }
 
 @IgnorableReturnValue

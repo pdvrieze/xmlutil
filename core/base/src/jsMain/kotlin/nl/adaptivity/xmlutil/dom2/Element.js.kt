@@ -52,6 +52,7 @@ public actual interface Element : Node, PlatformElement {
         localName: String
     ): NodeList
 
-    actual override fun getOwnerDocument(): Document
-    actual override fun getNodeValue(): Nothing?
+    public actual override fun getOwnerDocument(): Document
+    public actual override fun getNodeValue(): Nothing?
+    public actual override fun cloneNode(deep: Boolean): Element
 }

@@ -56,11 +56,7 @@ public actual interface Attr : Node, PlatformAttr {
 
     override fun normalize() {}
 
-    override fun cloneNode(deep: Boolean): Attr {
-        return getOwnerDocument().createAttributeNS(getNamespaceURI(), getName()).also {
-            it.setValue(getValue())
-        }
-    }
+    actual override fun cloneNode(deep: Boolean): Attr
 
     /**
      * Always true for processing that does not have defaults

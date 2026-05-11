@@ -49,4 +49,6 @@ public interface IAbstractParentNode<out N : IAbstractNode<N, P>, out P : IAbstr
     public fun getSiblingAfter(ref: Node): N?
 
     public override fun getChildNodes(): AbstractNodeList<N, P>
+
+    override fun cloneNode(deep: Boolean): IAbstractParentNode<N, P>
 }

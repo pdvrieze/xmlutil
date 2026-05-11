@@ -45,4 +45,7 @@ public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>,
         setData(value ?: "")
     }
 
+    override fun cloneNode(deep: Boolean): AbstractProcessingInstruction<N, P> {
+        return getOwnerDocument().createProcessingInstruction(getTarget(), getData())
+    }
 }

@@ -186,4 +186,19 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
             else -> attr.value
         }
     }
+
+    override fun cloneNode(deep: Boolean): AbstractElement<N, P> {
+        val ownerDocument = getOwnerDocument()
+        val e = when (val u = namespaceURI) {
+            null, "" -> ownerDocument.createElement(localName)
+            else -> ownerDocument.createElementNS(u, tagName)
+        }
+        for (a in attributes) when (val n = a.namespaceURI) {
+            null, "" -> setAttribute(a.name, a.value)
+            else -> setAttributeNS(n, a.name, a.value)
+        }
+
+        if (deep) for (c in getChildNodes()) e.appendChild(c.cloneNode(true))
+        return e
+    }
 }
