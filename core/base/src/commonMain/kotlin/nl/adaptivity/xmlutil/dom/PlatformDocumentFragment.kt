@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,3 +21,5 @@
 package nl.adaptivity.xmlutil.dom
 
 public expect interface PlatformDocumentFragment : PlatformNode
+
+public expect val PlatformDocumentFragment.childNodes: PlatformNodeList

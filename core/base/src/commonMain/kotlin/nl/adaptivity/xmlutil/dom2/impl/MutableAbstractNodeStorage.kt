@@ -30,6 +30,8 @@ public interface AbstractNodeStorage <out N : IAbstractNode<N, P>, out P : IAbst
 
     public fun getNodeList(): AbstractNodeList<N, P>
 
+    public fun iterator(): Iterator<N>
+
     @Suppress("UNCHECKED_CAST")
     public fun getFirstChild(): N? = getNodeList().asSequence().firstOrNull() as N?
 
@@ -40,23 +42,21 @@ public interface AbstractNodeStorage <out N : IAbstractNode<N, P>, out P : IAbst
     public fun checkTypeAndOwner(node: PlatformNode): N
 
     public fun getSiblingBefore(ref: Node): N? {
-        var cur: N? = getFirstChild() ?: return null
-        while (cur != null) {
-            @Suppress("UNCHECKED_CAST")
-            val n = cur.getNextSibling()
-
-            if (n == ref) return cur
-            cur = n
+        val it = iterator()
+        if (!it.hasNext()) return null
+        var cur = it.next()
+        while (it.hasNext()) {
+            if (cur == ref) return cur
+            cur = it.next()
         }
         return null
     }
 
     public fun getSiblingAfter(ref: Node): N? {
-        var cur: N? = getFirstChild() ?: return null
-        @Suppress("UNCHECKED_CAST")
-        while (cur != null) {
-            if (cur == ref) return cur.getNextSibling()
-            cur = cur.getNextSibling()
+        val it = iterator()
+        while (it.hasNext()) {
+            val cur = it.next()
+            if (cur == ref) return if (it.hasNext()) it.next() else null
         }
         return null
     }

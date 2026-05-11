@@ -44,6 +44,7 @@ public actual interface PlatformAttr : PlatformNode {
 }
 
 public actual fun PlatformAttr.getNamespaceURI(): String? = getNamespaceURI()
+public actual fun PlatformAttr.getName(): String = getName()
 public actual fun PlatformAttr.getLocalName(): String? = getLocalName()
 public actual fun PlatformAttr.getPrefix(): String? = getPrefix()
 public actual fun PlatformAttr.getValue(): String = getValue()

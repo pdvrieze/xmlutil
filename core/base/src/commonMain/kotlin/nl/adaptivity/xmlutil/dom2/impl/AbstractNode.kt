@@ -58,14 +58,7 @@ internal constructor(
     }
 
     override fun getNextSibling(): N? {
-        val siblingsIt = (getParentNode() ?: return null).getChildNodes().iterator()
-        while (siblingsIt.hasNext()) {
-            val s = siblingsIt.next()
-            if (s == this) {
-                return if (siblingsIt.hasNext()) siblingsIt.next() else null
-            }
-        }
-        return null
+        return getParentNode()?.getSiblingAfter(this)
     }
 
     abstract override fun getFirstChild(): N?

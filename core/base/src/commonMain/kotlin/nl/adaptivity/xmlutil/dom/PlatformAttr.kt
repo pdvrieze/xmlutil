@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.dom
 public expect interface PlatformAttr : PlatformNode
 
 public expect fun PlatformAttr.getNamespaceURI(): String?
+public expect fun PlatformAttr.getName(): String
 public expect fun PlatformAttr.getLocalName(): String?
 public expect fun PlatformAttr.getPrefix(): String?
 public expect fun PlatformAttr.getValue(): String

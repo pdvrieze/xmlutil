@@ -45,6 +45,8 @@ public actual interface PlatformNamedNodeMap : Iterable<Attr> {
     public fun removeNamedItemNS(namespace: String?, localName: String): PlatformAttr?
 }
 
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = iterator()
+
 /**
  * Cross platform function for those implementations that do not implement get in the main class.
  */

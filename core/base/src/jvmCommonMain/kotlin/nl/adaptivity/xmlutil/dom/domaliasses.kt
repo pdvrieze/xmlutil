@@ -32,18 +32,24 @@ public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.own
 public actual typealias PlatformAttr = org.w3c.dom.Attr
 
 public actual fun PlatformAttr.getNamespaceURI(): String? = getNamespaceURI()
+public actual fun PlatformAttr.getName(): String = getName()
 public actual fun PlatformAttr.getLocalName(): String? = getLocalName()
 public actual fun PlatformAttr.getPrefix(): String? = getPrefix()
 public actual fun PlatformAttr.getValue(): String = getValue()
 
 
 public actual typealias PlatformDocumentFragment = org.w3c.dom.DocumentFragment
+public actual val PlatformDocumentFragment.childNodes: PlatformNodeList
+    get() = childNodes
 
 public actual typealias PlatformElement = org.w3c.dom.Element
 
 public actual val PlatformElement.namespaceURI: String? get() = getNamespaceURI()
 public actual val PlatformElement.prefix: String? get() = getPrefix()
+public actual val PlatformElement.name: String get() = getNodeName()
 public actual val PlatformElement.localName: String get() = getLocalName()
+public actual val PlatformElement.attributes: PlatformNamedNodeMap get() = getAttributes()
+public actual val PlatformElement.childNodes: PlatformNodeList get() = childNodes
 
 public actual typealias PlatformText = org.w3c.dom.Text
 
@@ -68,6 +74,31 @@ public actual fun PlatformDocumentType.getSystemId(): String = systemId
 
 public actual typealias PlatformNamedNodeMap = org.w3c.dom.NamedNodeMap
 
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = IteratorImpl(this)
+
+private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMap): Iterator<N> {
+    var idx = 0
+
+    override fun hasNext(): Boolean = idx < map.length
+
+    override fun next(): N {
+        @Suppress("UNCHECKED_CAST")
+        return map.item(idx++) as N
+    }
+}
+
+
 public actual typealias PlatformNodeList = org.w3c.dom.NodeList
+
+
+private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
+    private var index = 0
+    override fun hasNext(): Boolean = index < list.length
+    override fun next(): PlatformNode = list.item(index++)!!
+}
+
+public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
+    NodeListIterator(this)
+
 
 
