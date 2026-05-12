@@ -21,10 +21,10 @@
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.*
 import org.w3c.dom.DocumentFragment
 import nl.adaptivity.xmlutil.dom.PlatformAttr as Attr1
-import nl.adaptivity.xmlutil.dom.PlatformNode as Node1
 import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.CDATASection as DomCDATASection
@@ -109,14 +109,14 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         return delegate.isEqualNode(arg.unWrap())
     }
 
-    override fun appendChild(node: Node1): Node = appendChild(node.unWrap())
+    override fun appendChild(node: PlatformNode): Node = appendChild(node.unWrap())
 
 
     fun appendChild(newChild: DomNode): Node {
         return delegate.appendChild(newChild.unWrap()).wrap()
     }
 
-    override fun replaceChild(newChild: Node1, oldChild: Node1): Node {
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node {
         return delegate.replaceChild(oldChild.unWrap(), newChild.unWrap()).wrap()
     }
 
@@ -124,7 +124,7 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         return delegate.replaceChild(oldChild.unWrap(), newChild.unWrap()).wrap()
     }
 
-    override fun removeChild(node: Node1): Node = removeChild(node.unWrap())
+    override fun removeChild(node: PlatformNode): Node = removeChild(node.unWrap())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -154,6 +154,9 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
 
     override fun getNodetype(): NodeType = NodeType(nodeType)
 
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? {
+        return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap()).wrap()
+    }
 }
 
 
@@ -163,7 +166,7 @@ internal fun DomNode.unWrap(): DomNode = when (this) {
     else -> this
 }
 
-internal fun Node1.unWrap(): DomNode = when (this) {
+internal fun PlatformNode.unWrap(): DomNode = when (this) {
     is JsWrappedNode<*> -> delegate
     else -> this as DomNode // works in JavaScript
 }
@@ -204,7 +207,7 @@ internal fun DomNode.wrap(): JsWrappedNode<DomNode> = when (nodeType) {
     else -> error("Node type ${NodeType(nodeType)} not supported")
 }
 
-internal fun Node1.wrap(): JsWrappedNode<*> = when (this) {
+internal fun PlatformNode.wrap(): JsWrappedNode<*> = when (this) {
     is JsWrappedNode<*> -> this
     else -> (this as DomNode).wrap()
 }

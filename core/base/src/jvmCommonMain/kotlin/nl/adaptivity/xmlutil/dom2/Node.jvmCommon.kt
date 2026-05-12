@@ -72,10 +72,10 @@ public actual interface Node: PlatformNode {
     }
 
     @IgnorableReturnValue
-    override fun insertBefore(newChild: org.w3c.dom.Node, refChild: org.w3c.dom.Node?): org.w3c.dom.Node? = when (refChild) {
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? /*= when (refChild) {
         null -> appendChild(newChild)
         else -> throw UnsupportedOperationException("insertBefore is not supported yet")
-    }
+    }*/
 
     override fun setPrefix(prefix: String?) {
         throw UnsupportedOperationException("setPrefix is not supported yet")
@@ -85,11 +85,11 @@ public actual interface Node: PlatformNode {
 
     override fun getBaseURI(): String? = ownerDocument?.baseURI
 
-    override fun compareDocumentPosition(other: org.w3c.dom.Node): Short {
+    override fun compareDocumentPosition(other: PlatformNode): Short {
         throw UnsupportedOperationException("compareDocumentPosition is not supported yet")
     }
 
-    override fun isSameNode(other: org.w3c.dom.Node?): Boolean {
+    override fun isSameNode(other: PlatformNode?): Boolean {
         return this == other
     }
 
@@ -97,7 +97,7 @@ public actual interface Node: PlatformNode {
         return lookupNamespaceURI("") == namespaceURI
     }
 
-    override fun isEqualNode(arg: org.w3c.dom.Node): Boolean {
+    override fun isEqualNode(arg: PlatformNode): Boolean {
         TODO("not implemented")
     }
 

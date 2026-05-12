@@ -159,6 +159,11 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
         return delegate.removeChild(node.unWrap()).wrap()
     }
 
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? {
+        return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap())?.wrap()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

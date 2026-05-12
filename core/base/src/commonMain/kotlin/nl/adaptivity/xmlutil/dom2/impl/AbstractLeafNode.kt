@@ -22,7 +22,9 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.parentNode
 
 @ExperimentalXmlUtilApi
@@ -70,6 +72,10 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
             XMLConstants.XMLNS_ATTRIBUTE -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
             else -> null
         }
+    }
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing? {
+        throw DOMException.hierarchyRequestErr("Cannot insert a child node into a leaf node")
     }
 
     abstract override fun cloneNode(deep: Boolean): AbstractLeafNode<N, P>

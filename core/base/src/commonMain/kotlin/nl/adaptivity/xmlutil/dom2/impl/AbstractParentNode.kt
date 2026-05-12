@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.isXmlWhitespace
@@ -90,6 +91,19 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
     }
 
     abstract override fun cloneNode(deep: Boolean): AbstractParentNode<N, P>
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? {
+        val realOwner = this as? AbstractDocument<N, P> ?: getOwnerDocument()!!
+        if (refChild == null) return appendChild(newChild)
+        if (refChild !is IAbstractNode<*, *> || refChild.getParentNode() != this) throw DOMException.notFoundErr("Reference child is not a child of this node")
+        if (newChild !is IAbstractNode<*, *>) throw DOMException.wrongDocumentErr("New child must be an AbstractNode")
+        if (newChild.getOwnerDocument() != realOwner) throw DOMException.wrongDocumentErr("New child must be an AbstractNode")
+        newChild.getParentNode()?.removeChild(newChild)
+
+        @Suppress("UNCHECKED_CAST")
+        _nodeStorage.insertBefore(newChild as N, refChild as N)
+        return newChild
+    }
 
     public companion object {
         @JvmStatic

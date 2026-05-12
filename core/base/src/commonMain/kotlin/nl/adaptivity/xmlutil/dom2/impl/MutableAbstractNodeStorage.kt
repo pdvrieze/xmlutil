@@ -89,6 +89,8 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
     }
 
     public fun replaceChild(parent: @UnsafeVariance P, newChild: @UnsafeVariance N, oldChild: @UnsafeVariance N): N
+
+    public fun insertBefore(newChild: @UnsafeVariance N, refChild: @UnsafeVariance N)
 }
 
 @ExperimentalXmlUtilApi
@@ -121,9 +123,39 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
         val idx = elements.indexOf(oldChild)
         if (idx < 0) throw IllegalArgumentException("Node not in list")
         adapter.setParentAndUpdateChildPos(parent,oldChild, -1)
-        elements[idx] = newChild
-        adapter.setParentAndUpdateChildPos(parent,newChild, idx)
+
+        if (newChild !is AbstractDocumentFragment<*, *>) {
+            elements[idx] = newChild
+            adapter.setParentAndUpdateChildPos(parent,newChild, idx)
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            val childrenToAdd: List<N> = newChild.getChildNodes().toList() as List<N>
+
+            elements.addAll(idx, childrenToAdd)
+            for (i in idx until elements.size) {
+                adapter.setParentAndUpdateChildPos(parent, elements[i], i)
+            }
+        }
+
         return oldChild
+    }
+
+    override fun insertBefore(newChild: N, refChild: N) {
+        val parent = refChild.getParentNode() as P
+        val idx = elements.indexOf(refChild)
+        if (idx < 0) throw IllegalArgumentException("Node not in list")
+
+        if (newChild !is AbstractDocumentFragment<*, *>) {
+            elements.add(idx, newChild)
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            val childrenToAdd: List<N> = newChild.getChildNodes().toList() as List<N>
+
+            elements.addAll(idx, childrenToAdd)
+        }
+        for (i in idx until elements.size) {
+            adapter.setParentAndUpdateChildPos(parent, elements[i], i)
+        }
     }
 
     override fun iterator(): Iterator<N> = elements.iterator()

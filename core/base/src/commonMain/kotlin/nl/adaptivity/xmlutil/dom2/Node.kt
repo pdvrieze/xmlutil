@@ -58,6 +58,9 @@ public expect interface Node : PlatformNode {
     public fun hasChildNodes(): Boolean
     public fun getAttributes(): NamedNodeMap?
     public fun cloneNode(deep: Boolean): Node
+
+    @IgnorableReturnValue
+    public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
     //endregion
 }
 

@@ -51,6 +51,10 @@ public actual interface Node : PlatformNode {
     public actual fun getAttributes(): NamedNodeMap?
 
     public actual fun cloneNode(deep: Boolean): Node
+
+    @IgnorableReturnValue
+    public actual fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
+
 }
 
 @IgnorableReturnValue
