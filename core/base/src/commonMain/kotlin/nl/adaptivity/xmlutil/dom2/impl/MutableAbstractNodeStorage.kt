@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import nl.adaptivity.xmlutil.dom2.Node
@@ -90,7 +91,13 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
 
     public fun replaceChild(parent: @UnsafeVariance P, newChild: @UnsafeVariance N, oldChild: @UnsafeVariance N): N
 
+
     public fun insertBefore(newChild: @UnsafeVariance N, refChild: @UnsafeVariance N)
+    public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode): N {
+        return checkTypeAndOwner(newChild).also { new ->
+            insertBefore(new, checkTypeAndOwner(refChild))
+        }
+    }
 }
 
 @ExperimentalXmlUtilApi
@@ -105,6 +112,7 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
     final override fun getNodeList(): AbstractNodeList<N, P> = this
 
     override fun appendChild(parent: @UnsafeVariance P, node: N) {
+        if (isAncestor(parent, node)) throw DOMException.hierarchyRequestErr("Cannot insert node into itself")
         if (node is AbstractDocumentFragment<*, *>) {
             for (c in node.getChildNodes()) appendChild(parent, c)
         } else {
@@ -114,14 +122,27 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
     }
 
     override fun removeChild(parent: P, node: N): N {
-        if (!elements.remove(node)) throw IllegalArgumentException("Node not in list")
+        if (!elements.remove(node)) throw DOMException.notFoundErr("Node not in list")
         adapter.setParentAndUpdateChildPos(parent, node, -1)
         return node
     }
 
+    private fun elementIndex(parent: P, node: N): Int {
+        if (parent != node.getParentNode()) throw DOMException.notFoundErr("Node not in list")
+        val hint = adapter.getChildPosHint(node)
+        return when {
+            hint >= 0 -> hint
+
+            else -> elements.indexOf(node).also {
+                if (it < 0) throw DOMException.notFoundErr("Node not in list")
+            }
+        }
+    }
+
     override fun replaceChild(parent: P, newChild: N, oldChild: N): N {
-        val idx = elements.indexOf(oldChild)
-        if (idx < 0) throw IllegalArgumentException("Node not in list")
+        if (isAncestor(parent, newChild)) throw DOMException.hierarchyRequestErr("Cannot insert node into itself")
+        val idx = elementIndex(parent, oldChild)
+
         adapter.setParentAndUpdateChildPos(parent,oldChild, -1)
 
         if (newChild !is AbstractDocumentFragment<*, *>) {
@@ -140,10 +161,20 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
         return oldChild
     }
 
+    private fun isAncestor(parent: P?, node: N): Boolean {
+        var cur: P? = parent
+        while (cur != null) {
+            if (cur == node) return true
+            @Suppress("UNCHECKED_CAST")
+            cur = cur.getParentNode()
+        }
+        return false
+    }
+
     override fun insertBefore(newChild: N, refChild: N) {
+        if (newChild == refChild || isAncestor(refChild.getParentNode(), newChild)) throw DOMException.hierarchyRequestErr("Cannot insert node into itself")
         val parent = refChild.getParentNode() as P
-        val idx = elements.indexOf(refChild)
-        if (idx < 0) throw IllegalArgumentException("Node not in list")
+        val idx = elementIndex(parent, refChild)
 
         if (newChild !is AbstractDocumentFragment<*, *>) {
             elements.add(idx, newChild)
@@ -166,6 +197,13 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
             val newParent = if (newPos >= 0) parent else null
             @Suppress("UNCHECKED_CAST")
             (node as AbstractNode<N, P>).setParentNode(newParent)
+        }
+
+        public fun getChildPosHint(node: N): Int = POS_UNKNOWN
+
+        public companion object {
+            public const val POS_NO_PARENT: Int = -1
+            public const val POS_UNKNOWN: Int = -2
         }
     }
 }
