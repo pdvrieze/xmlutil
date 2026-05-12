@@ -87,7 +87,7 @@ internal actual object XmlStreaming : IXmlStreaming {
         // fall back to generic reader for contexts without DOM (Node etc.)
         if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
-        return AppendableXmlWriter(output, DomWriter(xmlDeclMode))
+        return AppendableXmlWriter(output, DomWriter(JsWrappedDOMImplementation.createDocument(), xmlDeclMode = xmlDeclMode))
     }
 
     fun newGenericWriter(
