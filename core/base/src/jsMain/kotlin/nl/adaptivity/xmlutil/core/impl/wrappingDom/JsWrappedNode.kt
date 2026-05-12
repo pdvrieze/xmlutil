@@ -187,6 +187,7 @@ internal fun Attr2.unWrap(): DomAttr = when (this) {
 
 internal fun Node.unWrap(): DomNode = when (this) {
     is JsWrappedNode<*> -> delegate
+    is DomNode -> this
     else -> throw IllegalArgumentException("Can not be unwrapped") // has to be actually wrapped to "work"
 }
 

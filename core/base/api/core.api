@@ -485,6 +485,8 @@ public class nl/adaptivity/xmlutil/XmlException : java/io/IOException {
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;Ljava/lang/Throwable;)V
+	public final fun addErrorContext (Ljava/lang/String;)V
+	public final fun getErrContext ()Ljava/lang/String;
 	public final fun getLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
 	public fun getMessage ()Ljava/lang/String;
 	public final fun getRawMessage ()Ljava/lang/String;
@@ -1046,10 +1048,8 @@ public final class nl/adaptivity/xmlutil/dom/NodeConsts {
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/Attr {
 	public abstract fun appendChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Attr;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
-	public fun getAttributes ()Ljava/lang/Void;
-	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getAttributes ()Ljava/lang/Void;
 	public abstract fun getFirstChild ()Ljava/lang/Void;
 	public abstract fun getLastChild ()Ljava/lang/Void;
 	public abstract fun getLocalName ()Ljava/lang/String;
@@ -1058,8 +1058,6 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/
 	public abstract fun getNodeValue ()Ljava/lang/String;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public abstract fun getOwnerElement ()Lnl/adaptivity/xmlutil/dom2/Element;
-	public abstract fun getParentElement ()Lnl/adaptivity/xmlutil/dom2/Element;
-	public abstract fun getParentNode ()Lnl/adaptivity/xmlutil/dom2/Node;
 	public abstract fun getPrefix ()Ljava/lang/String;
 	public fun getSchemaTypeInfo ()Lorg/w3c/dom/TypeInfo;
 	public fun getSpecified ()Z
@@ -1083,10 +1081,7 @@ public final class nl/adaptivity/xmlutil/dom2/AttrKt {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/CDATASection : nl/adaptivity/xmlutil/dom2/Text, org/w3c/dom/CDATASection {
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CDATASection;
-	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
-	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Text;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CDATASection;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/CharacterData : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/CharacterData {
@@ -1094,6 +1089,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/CharacterData : nl/ad
 	public abstract fun appendData (Ljava/lang/String;)V
 	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
 	public abstract fun deleteData (II)V
+	public abstract fun getAttributes ()Ljava/lang/Void;
 	public abstract fun getData ()Ljava/lang/String;
 	public abstract fun getFirstChild ()Ljava/lang/Void;
 	public abstract fun getLastChild ()Ljava/lang/Void;
@@ -1116,9 +1112,7 @@ public final class nl/adaptivity/xmlutil/dom2/CharacterDataKt {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Comment : nl/adaptivity/xmlutil/dom2/CharacterData, org/w3c/dom/Comment {
-	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Comment;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Comment;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/DOMImplementation : org/w3c/dom/DOMImplementation {
@@ -1147,8 +1141,7 @@ public final class nl/adaptivity/xmlutil/dom2/DOMVersion : java/lang/Enum {
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Document : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/Document {
 	public abstract fun adoptNode (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Document;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Document;
 	public abstract fun createAttribute (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
 	public abstract fun createAttributeNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
 	public abstract fun createCDATASection (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/CDATASection;
@@ -1159,6 +1152,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/Document : nl/adaptiv
 	public fun createEntityReference (Ljava/lang/String;)Lorg/w3c/dom/EntityReference;
 	public abstract fun createProcessingInstruction (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;
 	public abstract fun createTextNode (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Text;
+	public abstract fun getAttributes ()Ljava/lang/Void;
 	public fun getBaseURI ()Ljava/lang/String;
 	public abstract fun getDoctype ()Lnl/adaptivity/xmlutil/dom2/DocumentType;
 	public abstract fun getDocumentElement ()Lnl/adaptivity/xmlutil/dom2/Element;
@@ -1187,8 +1181,8 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/Document : nl/adaptiv
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/DocumentFragment : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/DocumentFragment {
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/DocumentFragment;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/DocumentFragment;
+	public abstract fun getAttributes ()Ljava/lang/Void;
 	public abstract fun getNodeValue ()Ljava/lang/Void;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public fun setNodeValue (Ljava/lang/String;)V
@@ -1206,8 +1200,8 @@ public final class nl/adaptivity/xmlutil/dom2/DocumentKt {
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/DocumentType : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/DocumentType {
 	public abstract fun appendChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/DocumentType;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/DocumentType;
+	public abstract fun getAttributes ()Ljava/lang/Void;
 	public fun getEntities ()Lorg/w3c/dom/NamedNodeMap;
 	public abstract fun getFirstChild ()Ljava/lang/Void;
 	public fun getInternalSubset ()Ljava/lang/String;
@@ -1235,8 +1229,7 @@ public final class nl/adaptivity/xmlutil/dom2/Document_jvmCommonKt {
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Element : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/Element {
 	public static final field Companion Lnl/adaptivity/xmlutil/dom2/Element$Companion;
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Element;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Element;
 	public abstract fun getAttribute (Ljava/lang/String;)Ljava/lang/String;
 	public abstract fun getAttributeNS (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public abstract fun getAttributeNode (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
@@ -1296,8 +1289,9 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/NamedNodeMap : java/l
 public abstract interface class nl/adaptivity/xmlutil/dom2/Node : org/w3c/dom/Node {
 	public static final field Companion Lnl/adaptivity/xmlutil/dom2/Node$Companion;
 	public abstract fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun compareDocumentPosition (Lorg/w3c/dom/Node;)S
-	public fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
+	public abstract fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
 	public fun getBaseURI ()Ljava/lang/String;
 	public abstract fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/NodeList;
 	public fun getFeature (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
@@ -1318,7 +1312,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/Node : org/w3c/dom/No
 	public abstract fun getTextContent ()Ljava/lang/String;
 	public fun getUserData (Ljava/lang/String;)Ljava/lang/Object;
 	public fun hasAttributes ()Z
-	public fun hasChildNodes ()Z
+	public abstract fun hasChildNodes ()Z
 	public fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 	public fun isDefaultNamespace (Ljava/lang/String;)Z
 	public fun isEqualNode (Lorg/w3c/dom/Node;)Z
@@ -1393,8 +1387,7 @@ public final class nl/adaptivity/xmlutil/dom2/Node_jvmCommonKt {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/ProcessingInstruction : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/ProcessingInstruction {
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;
 	public abstract fun getData ()Ljava/lang/String;
 	public abstract fun getNodeValue ()Ljava/lang/String;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
@@ -1421,9 +1414,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/SupportedFeatures : java/lang/E
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Text : nl/adaptivity/xmlutil/dom2/CharacterData, org/w3c/dom/Text {
-	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
-	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Text;
-	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Text;
 	public fun getWholeText ()Ljava/lang/String;
 	public fun isElementContentWhitespace ()Z
 	public fun replaceWholeText (Ljava/lang/String;)Lorg/w3c/dom/Text;
@@ -1435,6 +1426,16 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractAttr : nl/adaptivi
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;)V
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public fun getAttributes ()Ljava/lang/Void;
+	public synthetic fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
 	public abstract fun getLocalName ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getNodeName ()Ljava/lang/String;
@@ -1487,14 +1488,23 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractAttrStorage : nl/a
 	public synthetic fun setNamedItemNS (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 }
 
-public abstract interface class nl/adaptivity/xmlutil/dom2/impl/AbstractCDataSection : nl/adaptivity/xmlutil/dom2/CDATASection {
+public abstract interface class nl/adaptivity/xmlutil/dom2/impl/AbstractCDataSection : nl/adaptivity/xmlutil/dom2/CDATASection, nl/adaptivity/xmlutil/dom2/impl/IAbstractNode {
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CDATASection;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Text;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractCDataSection;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
 	public fun getNodeName ()Ljava/lang/String;
 	public fun getNodetype ()Lnl/adaptivity/xmlutil/dom2/NodeType;
+	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
 }
 
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractCharacterData : nl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode, nl/adaptivity/xmlutil/dom2/CharacterData {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractCharacterData;
 	public final fun getNodeValue ()Ljava/lang/String;
 	public synthetic fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
@@ -1504,6 +1514,13 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractCharacterData : nl
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/impl/AbstractComment : nl/adaptivity/xmlutil/dom2/Comment, nl/adaptivity/xmlutil/dom2/impl/IAbstractNode {
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Comment;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractComment;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public abstract fun getAttributes ()Ljava/lang/Void;
 	public fun getNodeName ()Ljava/lang/String;
 	public fun getNodetype ()Lnl/adaptivity/xmlutil/dom2/NodeType;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
@@ -1521,6 +1538,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocument : nl/adap
 	public fun <init> (Lkotlin/jvm/functions/Function1;)V
 	public abstract fun adoptNode (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	protected final fun adoptNodeImpl (Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
 	public synthetic fun createAttribute (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
 	public fun createAttribute (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun createAttribute (Ljava/lang/String;)Lorg/w3c/dom/Attr;
@@ -1534,6 +1552,9 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocument : nl/adap
 	public abstract fun createElementNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;
 	public abstract fun createProcessingInstruction (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractProcessingInstruction;
 	public abstract fun createTextNode (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractText;
+	public final fun getAttributes ()Ljava/lang/Void;
+	public synthetic fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
 	public abstract fun getDocumentElement ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;
 	public final fun getNextSibling ()Ljava/lang/Void;
 	public synthetic fun getNextSibling ()Lnl/adaptivity/xmlutil/dom2/Node;
@@ -1572,6 +1593,17 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocument : nl/adap
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocumentFragment : nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode, nl/adaptivity/xmlutil/dom2/DocumentFragment {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/DocumentFragment;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocumentFragment;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractParentNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
+	public final fun getAttributes ()Ljava/lang/Void;
+	public synthetic fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
 	public final fun getNextSibling ()Ljava/lang/Void;
 	public synthetic fun getNextSibling ()Lnl/adaptivity/xmlutil/dom2/Node;
 	public synthetic fun getNextSibling ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
@@ -1597,6 +1629,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocumentFragment :
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocumentType : nl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode, nl/adaptivity/xmlutil/dom2/DocumentType {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocumentType;
 	public final fun getNodeName ()Ljava/lang/String;
 	public synthetic fun getNodeValue ()Ljava/lang/String;
 	public final fun getNodeValue ()Ljava/lang/Void;
@@ -1609,6 +1642,14 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocumentType : nl/
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractElement : nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode, nl/adaptivity/xmlutil/dom2/Element {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Element;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractParentNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
 	public final fun getAttribute (Ljava/lang/String;)Ljava/lang/String;
 	public final fun getAttributeNS (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public synthetic fun getAttributeNode (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
@@ -1659,6 +1700,10 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode : nl/adap
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode;
+	public fun getAttributes ()Ljava/lang/Void;
+	public synthetic fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
 	public synthetic fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/NodeList;
 	public final fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractNodeList;
 	public synthetic fun getChildNodes ()Lorg/w3c/dom/NodeList;
@@ -1687,6 +1732,9 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode : nl/adap
 
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractNode : nl/adaptivity/xmlutil/dom2/impl/IAbstractNode {
 	public abstract fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNode;
+	public fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
 	public abstract fun getFirstChild ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public abstract fun getLastChild ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun getNextSibling ()Lnl/adaptivity/xmlutil/dom2/Node;
@@ -1703,6 +1751,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractNode : nl/adaptivi
 	public synthetic fun getPreviousSibling ()Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun getPreviousSibling ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun getPreviousSibling ()Lorg/w3c/dom/Node;
+	public fun hasChildNodes ()Z
 	public abstract fun removeChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public abstract fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 }
@@ -1734,6 +1783,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode : nl/ad
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public final fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractParentNode;
 	public synthetic fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/NodeList;
 	public final fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractNodeList;
 	public synthetic fun getChildNodes ()Lorg/w3c/dom/NodeList;
@@ -1764,6 +1814,13 @@ public final class nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode$Companion 
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractProcessingInstruction : nl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode, nl/adaptivity/xmlutil/dom2/ProcessingInstruction {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNode;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractProcessingInstruction;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
 	public final fun getNodeName ()Ljava/lang/String;
 	public final fun getNodeValue ()Ljava/lang/String;
 	public final fun getNodetype ()Lnl/adaptivity/xmlutil/dom2/NodeType;
@@ -1775,6 +1832,12 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractProcessingInstruct
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/impl/AbstractText : nl/adaptivity/xmlutil/dom2/Text, nl/adaptivity/xmlutil/dom2/impl/IAbstractNode {
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/CharacterData;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Text;
+	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractText;
+	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun cloneNode (Z)Lorg/w3c/dom/Node;
 	public fun getNodeName ()Ljava/lang/String;
 	public fun getNodetype ()Lnl/adaptivity/xmlutil/dom2/NodeType;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
@@ -1782,6 +1845,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/impl/AbstractText : n
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/impl/IAbstractNode : nl/adaptivity/xmlutil/dom2/Node {
 	public abstract fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public abstract fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractNodeList;
 	public abstract fun getFirstChild ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public abstract fun getLastChild ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
@@ -1796,6 +1860,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/impl/IAbstractNode : 
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode : nl/adaptivity/xmlutil/dom2/impl/IAbstractNode {
 	public abstract fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;
 	public abstract fun getChildNodes ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractNodeList;
 	public abstract fun getFirstChild ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public abstract fun getLastChild ()Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
