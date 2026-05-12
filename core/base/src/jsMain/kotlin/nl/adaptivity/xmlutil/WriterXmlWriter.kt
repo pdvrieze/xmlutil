@@ -22,9 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.unWrap
 import nl.adaptivity.xmlutil.dom2.Node
-import org.w3c.dom.parsing.XMLSerializer
 
 internal class WriterXmlWriter(private val target: Writer, private val delegate: DomWriter) : XmlWriter by delegate {
 
@@ -32,15 +30,9 @@ internal class WriterXmlWriter(private val target: Writer, private val delegate:
 
     override fun close() {
         try {
-            val xmls = XMLSerializer()
-
             if (delegate.currentNode != null) {
                 val domText = buildString {
-                    var c = owner.firstChild
-                    while (c != null) {
-                        append(xmls.serializeToString(c.unWrap()))
-                        c = c.nextSibling
-                    }
+                    for (c in owner.childNodes) c.appendToTarget(this)
                 }
 
                 val xmlDeclMode = delegate.xmlDeclMode.resolve(delegate.requestedVersion?.let { XmlVersion.fromStringOrNull(it) })
