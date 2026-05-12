@@ -21,7 +21,6 @@
 package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.JsWrappedDocument
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.unWrap
 import nl.adaptivity.xmlutil.dom2.CDATASection
 import nl.adaptivity.xmlutil.dom2.Comment
 import nl.adaptivity.xmlutil.dom2.Document
@@ -37,43 +36,16 @@ import org.w3c.dom.parsing.XMLSerializer
 internal class AppendableXmlWriter(private val target: Appendable, private val delegate: DomWriter) :
     XmlWriter by delegate {
 
-    private fun appendToTarget(node: Node) {
-        when (node) {
-            is Document -> for (c in node.childNodes) appendToTarget(c)
-            is DocumentFragment -> for (c in node.childNodes) appendToTarget(c)
-            is Comment -> target.append("<!--${node.textContent}-->")
-            is CDATASection -> target.append("<![CDATA[${node.textContent}]]>")
-            is Text -> target.append(node.textContent)
-            is ProcessingInstruction -> target.append("<?${node.target} ${node.data}?>")
-            is DocumentType -> target.append("<!DOCTYPE ${node.name} ${node.publicId} ${node.systemId}>")
-            is Element -> {
-                target.append("<${node.nodeName}")
-                for (attr in node.attributes) {
-                    target.append(" ${attr.nodeName}=\"${attr.nodeValue}\"")
-                }
-                if (! node.hasChildNodes()) {
-                    target.append("/>")
-                } else {
-                    target.append(">")
-                    for (child in node.childNodes) {
-                        appendToTarget(child)
-                    }
-                    target.append("</${node.nodeName}>")
-                }
-            }
-        }
-    }
-
     override fun close() {
         try {
-            when (val t = delegate.target) {
+            when (val doc = delegate.target) {
                 is JsWrappedDocument -> {
                     val xmls = XMLSerializer()
-                    val domText = xmls.serializeToString(delegate.target.unWrap())
+                    val domText = xmls.serializeToString(doc.delegate)
                     target.append(domText)
                 }
 
-                else -> appendToTarget(t)
+                else -> doc.appendToTarget(target)
             }
         } finally {
             delegate.close()
@@ -98,3 +70,31 @@ internal class AppendableXmlWriter(private val target: Appendable, private val d
         delegate.processingInstruction(target, data)
     }
 }
+
+internal fun Node.appendToTarget(target: Appendable) {
+    when (this) {
+        is Document -> for (c in childNodes) c.appendToTarget(target)
+        is DocumentFragment -> for (c in childNodes) c.appendToTarget(target)
+        is Comment -> target.append("<!--${textContent}-->")
+        is CDATASection -> target.append("<![CDATA[${textContent}]]>")
+        is Text -> target.append(textContent?.xmlEncode())
+        is ProcessingInstruction -> target.append("<?${target} ${data}?>")
+        is DocumentType -> target.append("<!DOCTYPE ${name} ${publicId} ${systemId}>")
+        is Element -> {
+            target.append("<${nodeName}")
+            for (attr in attributes) {
+                target.append(" ${attr.nodeName}=\"${attr.nodeValue}\"")
+            }
+            if (!hasChildNodes()) {
+                target.append("/>")
+            } else {
+                target.append(">")
+                for (child in childNodes) {
+                    child.appendToTarget(target)
+                }
+                target.append("</${nodeName}>")
+            }
+        }
+    }
+}
+
