@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil
 
+import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.JsWrappedDocument
 import nl.adaptivity.xmlutil.dom2.CDATASection
 import nl.adaptivity.xmlutil.dom2.Comment
@@ -36,6 +37,35 @@ import org.w3c.dom.parsing.XMLSerializer
 internal class AppendableXmlWriter(private val target: Appendable, private val delegate: DomWriter) :
     XmlWriter by delegate {
 
+    private fun writeXmlDecl() {
+        val xmlDeclMode = delegate.xmlDeclMode.resolve(delegate.requestedVersion?.let { XmlVersion.fromStringOrNull(it) })
+        if (xmlDeclMode != XmlDeclMode.None) {
+            val encoding = when (xmlDeclMode) {
+                XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
+                else -> when (delegate.requestedEncoding?.lowercase()?.startsWith("utf-")) {
+                    false -> delegate.requestedEncoding
+                    else -> null
+                }
+            }
+
+            val xmlVersion = delegate.requestedVersion ?: "1.0"
+
+            target.append("<?xml version=\"")
+            target.append(xmlVersion)
+            target.append("\"")
+            if (encoding != null) {
+                target.append(" encoding=\"")
+                target.append(encoding)
+                target.append("\"")
+            }
+            target.append("?>")
+            if (delegate.indentSequence.isNotEmpty()) {
+                target.append("\n")
+            }
+        }
+
+    }
+
     override fun close() {
         try {
             when (val doc = delegate.target) {
@@ -45,7 +75,10 @@ internal class AppendableXmlWriter(private val target: Appendable, private val d
                     target.append(domText)
                 }
 
-                else -> doc.appendToTarget(target)
+                else -> {
+                    writeXmlDecl()
+                    doc.appendToTarget(target)
+                }
             }
         } finally {
             delegate.close()

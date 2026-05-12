@@ -108,7 +108,8 @@ internal actual object XmlStreaming : IXmlStreaming {
         if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
         val document = xmlStreaming.genericDomImplementation.createDocument()
-        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
+        return AppendableXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
+//        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
     }
 
     actual override val genericDomImplementation: DOMImplementation
