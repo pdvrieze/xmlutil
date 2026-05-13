@@ -36,6 +36,8 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
     parentNode: P? = null
 ) : AbstractLeafNode<N, P>(ownerDocument, parentNode), CharacterData {
 
+    override fun normalize() {}
+
     override fun getOwnerDocument(): AbstractDocument<N, P> {
         return checkNotNull(super.getOwnerDocument()) { "Attributes cannot have a null owner document" }
     }

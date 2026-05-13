@@ -48,7 +48,7 @@ public actual interface CharacterData : Node, PlatformCharacterData {
 
     actual override fun getNodeValue(): String
 
-    override fun normalize() {}
+    override fun normalize()
     override fun setNodeValue(nodeValue: String?) {
         setData(nodeValue ?: "")
     }

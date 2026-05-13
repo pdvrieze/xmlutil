@@ -54,8 +54,6 @@ public actual interface Attr : Node, PlatformAttr {
         setValue(nodeValue ?: "")
     }
 
-    override fun normalize() {}
-
     actual override fun cloneNode(deep: Boolean): Attr
 
     /**

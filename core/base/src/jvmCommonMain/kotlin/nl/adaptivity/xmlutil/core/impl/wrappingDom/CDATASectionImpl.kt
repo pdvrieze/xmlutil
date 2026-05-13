@@ -37,4 +37,8 @@ internal class CDATASectionImpl(delegate: PlatformCDATASection) : TextImpl(deleg
     override fun normalize() {
         delegate.normalize()
     }
+
+    override fun toString(): String {
+        return "<![CDATA[$data]]>"
+    }
 }

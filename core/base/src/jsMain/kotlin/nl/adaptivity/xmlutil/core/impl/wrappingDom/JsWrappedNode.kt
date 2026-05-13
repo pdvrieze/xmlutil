@@ -89,7 +89,7 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         return delegate.cloneNode(deep).wrap()
     }
 
-    fun normalize() {
+    override fun normalize() {
         delegate.normalize()
     }
 

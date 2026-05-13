@@ -81,6 +81,8 @@ public interface AbstractNodeStorage <out N : IAbstractNode<N, P>, out P : IAbst
 public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
     AbstractNodeStorage<N, P> {
 
+    override fun iterator(): MutableIterator<N>
+
     public fun appendChild(parent: @UnsafeVariance P, node: PlatformNode): N = checkTypeAndOwner(node).also {
         when (it) {
             is DocumentFragment -> for (child in it.getChildNodes()) {
@@ -96,6 +98,7 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
     public fun removeChild(parent: @UnsafeVariance P, node: PlatformNode): N = removeChild(parent, checkTypeAndOwner(
         node
     ))
+
     public fun removeChild(parent: @UnsafeVariance P, node: @UnsafeVariance N): N
 
     public fun replaceChild(parent: @UnsafeVariance P, newChild: PlatformNode, oldChild: PlatformNode): N {
@@ -103,7 +106,6 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
     }
 
     public fun replaceChild(parent: @UnsafeVariance P, newChild: @UnsafeVariance N, oldChild: @UnsafeVariance N): N
-
 
     public fun insertBefore(newChild: @UnsafeVariance N, refChild: @UnsafeVariance N)
     public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode): N {
@@ -202,14 +204,37 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
         }
     }
 
-    override fun iterator(): Iterator<N> = elements.iterator()
+    override fun iterator(): MutableIterator<N> = NodeIterator()
+
     override fun isEqualNodes(otherList: PlatformNodeList): Boolean {
         return length == otherList.length && super.isEqualNodes(otherList)
     }
 
+    private inner class NodeIterator() : MutableIterator<N> {
+        var nextPos: Int = 0
+
+        override fun remove() {
+            check(nextPos > 0) { "Iterator not started yet" }
+            val parent = elements[nextPos - 1].getParentNode() as P
+            adapter.setParentAndUpdateChildPos(null, elements[nextPos - 1], -1)
+            elements.removeAt(nextPos - 1)
+            for (i in (nextPos - 1) until elements.size) {
+                adapter.setParentAndUpdateChildPos(parent, elements[i], i)
+            }
+        }
+
+        override fun next(): N {
+            return elements[nextPos++]
+        }
+
+        override fun hasNext(): Boolean = nextPos < elements.size
+
+    }
+
     public interface Adapter<N: IAbstractNode<N, P>, P: IAbstractParentNode<N, P>> {
         public fun checkTypeAndOwner(node: PlatformNode): N
-        public fun setParentAndUpdateChildPos(parent: P, node: N, newPos: Int) {
+
+        public fun setParentAndUpdateChildPos(parent: P?, node: N, newPos: Int) {
             val newParent = if (newPos >= 0) parent else null
             @Suppress("UNCHECKED_CAST")
             (node as AbstractNode<N, P>).setParentNode(newParent)

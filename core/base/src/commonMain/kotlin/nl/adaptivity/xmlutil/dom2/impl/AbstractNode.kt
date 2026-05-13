@@ -85,4 +85,8 @@ internal constructor(
     override fun isSameNode(other: PlatformNode): Boolean {
         return this === other
     }
+
+    override fun normalize() {
+        // Do nothing
+    }
 }

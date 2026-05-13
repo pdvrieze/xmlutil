@@ -59,6 +59,8 @@ public expect interface Node : PlatformNode {
     public fun getAttributes(): NamedNodeMap?
     public fun cloneNode(deep: Boolean): Node
 
+    public fun normalize()
+
     @IgnorableReturnValue
     public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 

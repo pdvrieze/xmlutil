@@ -21,9 +21,9 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.isXmlWhitespace
 import kotlin.jvm.JvmStatic
 
@@ -97,6 +97,23 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
 
         @Suppress("UNCHECKED_CAST")
         return _nodeStorage.insertBefore(newChild, refChild)
+    }
+
+    override fun normalize() {
+        var prev: N? = null
+
+        val it = _nodeStorage.iterator()
+        for (n in it) {
+            n.normalize()
+            if (n.getNodetype() == NodeType.TEXT_NODE) {
+                if (prev != null) {
+                    prev.setTextContent(prev.getTextContent() + n.getTextContent())
+                    it.remove()
+                } else {
+                    prev = n
+                }
+            }
+        }
     }
 
     public companion object {

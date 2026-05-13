@@ -52,6 +52,8 @@ public actual interface Node : PlatformNode {
 
     public actual fun cloneNode(deep: Boolean): Node
 
+    public actual fun normalize()
+
     @IgnorableReturnValue
     public actual fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 

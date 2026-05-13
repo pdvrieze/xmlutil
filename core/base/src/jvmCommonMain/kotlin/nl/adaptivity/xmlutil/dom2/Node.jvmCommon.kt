@@ -55,8 +55,7 @@ public actual interface Node: PlatformNode {
 
     actual override fun cloneNode(deep: Boolean): Node
 
-    @Deprecated("No-op for now")
-    override fun normalize() {}
+    actual override fun normalize()
 
     actual override fun getAttributes(): NamedNodeMap?
 
