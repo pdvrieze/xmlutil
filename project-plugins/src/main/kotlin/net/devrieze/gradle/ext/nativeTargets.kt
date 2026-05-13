@@ -161,21 +161,33 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
     val singleTargetMode = /*ideaActive || */nativeState == NativeState.SINGLE
 
     val ext = extensions.getByName<ExtraPropertiesExtension>("ext")
-    val manager = HostManager()//ext["hostManager"] as HostManager
     val kotlin = extensions.getByName<KotlinMultiplatformExtension>("kotlin")
 
-    val hostTarget = manager.targetByName("host")
-
-    val host = when {
-        hostTarget.name.startsWith("mingw") -> Host.Windows
-        hostTarget.name.startsWith("macos") -> Host.Macos
+    val host = when(HostManager.hostOs()) {
+        "windows" -> Host.Windows
+        "macos" -> Host.Macos
         else -> Host.Linux
     }
 
+    val manager = HostManager()//ext["hostManager"] as HostManager
+    val hostTarget = manager.targetByName("host")
+
     ext["ideaPreset"] = when (host) {
-        Host.Windows -> fun KotlinMultiplatformExtension.() { mingwX64() }// presets.nativePreset("mingwX64")
-        Host.Macos -> fun KotlinMultiplatformExtension.() { macosX64() }//presets.nativePreset("macosX64")
-        Host.Linux -> fun KotlinMultiplatformExtension.() { linuxX64() } //presets.nativePreset("linuxX64")
+        Host.Windows -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> fun KotlinMultiplatformExtension.() { mingwX64() }
+            "aarch64" -> fun KotlinMultiplatformExtension.() { /* No-op as not supported as native target yet */ }
+            else -> return // unknown/unsupported target
+        }
+        Host.Macos -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> fun KotlinMultiplatformExtension.() { macosX64() }
+            "aarch64" -> fun KotlinMultiplatformExtension.() { macosArm64() }
+            else -> fun KotlinMultiplatformExtension.() { /** No op, not supported */ }
+        }
+        Host.Linux -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> fun KotlinMultiplatformExtension.() { linuxX64() }
+            "aarch64" -> fun KotlinMultiplatformExtension.() { linuxArm64() }
+            else -> fun KotlinMultiplatformExtension.() { /** No op, unsupported target */ }
+        }
     }
 
     with(kotlin) {
@@ -200,7 +212,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         }
 
         if (singleTargetMode) {
-            logger.lifecycle("Single target mode: $host")
+            logger.lifecycle("Single target mode: $host (${HostManager.hostArchOrNull()})")
             @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
             targetFun()
         } else {
@@ -249,11 +261,12 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         project.tasks.register("nativeTest") {
             group = "verification"
             val testTasks = tasks.withType<KotlinNativeTest>().filter {
-                it is KotlinNativeHostTest &&
-                        hostTarget.family.name in it.targetName!!.uppercase() &&
-                        hostTarget.architecture.name in it.targetName!!.uppercase()
+                val upperTarget = it.targetName ?: "UNSUPPORTED_TARGET"
+                it is KotlinNativeHostTest
+                        upperTarget.contains(host.name, true) &&
+                        HostManager.hostArchOrNull().let { a -> a != null && upperTarget.contains(a, true) }
             }
-            project.logger.debug("Configuring ${path} with hostTarget: ${hostTarget.visibleName} to depend on ${testTasks.joinToString { it.path}}")
+            project.logger.debug("Configuring $path with host/target: ${host.name}/${HostManager.hostArchOrNull()} to depend on ${testTasks.joinToString { it.path}}")
             dependsOn(testTasks)
         }
     }
