@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom
 
 public expect interface PlatformNodeList
+public expect val PlatformNodeList.length: Int
 
 public expect operator fun PlatformNodeList.iterator(): Iterator<PlatformNode>
 

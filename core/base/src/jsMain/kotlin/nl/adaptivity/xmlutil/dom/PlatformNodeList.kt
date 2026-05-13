@@ -31,6 +31,7 @@ public actual external interface PlatformNodeList {
     public val length: Int
     public fun item(index: Int): PlatformNode?
 }
+public actual val PlatformNodeList.length: Int get() = length
 
 private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
     private var index = 0

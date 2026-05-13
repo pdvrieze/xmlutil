@@ -157,6 +157,15 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
     override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? {
         return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap()).wrap()
     }
+
+    override fun isSameNode(other: PlatformNode): Boolean {
+        return delegate.isSameNode(other.unWrap())
+    }
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        return delegate.isEqualNode(other.unWrap())
+    }
+
 }
 
 

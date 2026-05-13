@@ -75,6 +75,9 @@ public actual interface Node : PlatformNode {
 
     @IgnorableReturnValue
     public actual fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
+
+    public actual fun isSameNode(other: PlatformNode): Boolean
+    public actual fun isEqualNode(other: PlatformNode): Boolean
 }
 
 @IgnorableReturnValue

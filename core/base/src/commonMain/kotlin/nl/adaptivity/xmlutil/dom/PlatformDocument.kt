@@ -26,6 +26,8 @@ import nl.adaptivity.xmlutil.dom2.Node
 
 public expect interface PlatformDocument : PlatformNode
 
+public expect val PlatformDocument.childNodes: PlatformNodeList
+
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @Deprecated("Use member instead", level = DeprecationLevel.HIDDEN)
 public expect fun Document.adoptNode(node: PlatformNode): Node?

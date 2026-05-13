@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
+import nl.adaptivity.xmlutil.dom2.NodeList
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
@@ -59,4 +60,6 @@ public actual external interface PlatformDocument : PlatformNode {
     public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 }
 
+public actual val PlatformDocument.childNodes: PlatformNodeList
+    get() = childNodes
 public actual fun Document2.adoptNode(node: PlatformNode): Node2? = adoptNode(node.wrap())

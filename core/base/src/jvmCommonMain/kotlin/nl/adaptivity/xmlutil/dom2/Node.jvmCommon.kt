@@ -72,10 +72,7 @@ public actual interface Node: PlatformNode {
     }
 
     @IgnorableReturnValue
-    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? /*= when (refChild) {
-        null -> appendChild(newChild)
-        else -> throw UnsupportedOperationException("insertBefore is not supported yet")
-    }*/
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
     override fun setPrefix(prefix: String?) {
         throw UnsupportedOperationException("setPrefix is not supported yet")
@@ -89,16 +86,12 @@ public actual interface Node: PlatformNode {
         throw UnsupportedOperationException("compareDocumentPosition is not supported yet")
     }
 
-    override fun isSameNode(other: PlatformNode?): Boolean {
-        return this == other
-    }
+    actual override fun isSameNode(other: PlatformNode): Boolean
+
+    actual override fun isEqualNode(other: PlatformNode): Boolean
 
     override fun isDefaultNamespace(namespaceURI: String?): Boolean {
         return lookupNamespaceURI("") == namespaceURI
-    }
-
-    override fun isEqualNode(arg: PlatformNode): Boolean {
-        TODO("not implemented")
     }
 
     override fun getFeature(feature: String?, version: String?): Any? {

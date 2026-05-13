@@ -176,4 +176,14 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
             AbstractProcessingInstruction<N, P>
 
     abstract override fun cloneNode(deep: Boolean): AbstractDocument<N, P>
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        return when {
+            this === other -> true
+            nodeType != other.nodeType -> false //handle javascript instance check issues
+            other !is PlatformDocument -> false
+
+            else -> nodeStorage.isEqualNodes(other.childNodes)
+        }
+    }
 }

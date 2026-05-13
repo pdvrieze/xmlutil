@@ -21,9 +21,20 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.getLocalName
+import nl.adaptivity.xmlutil.dom.getNamespaceURI
+import nl.adaptivity.xmlutil.dom.getPrefix
+import nl.adaptivity.xmlutil.dom.getValue
+import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.localName
+import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.dom2.nodeType
+import nl.adaptivity.xmlutil.dom2.prefix
+import nl.adaptivity.xmlutil.dom2.value
 
 @Suppress("UNCHECKED_CAST")
 @ExperimentalXmlUtilApi
@@ -68,6 +79,18 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
     override fun cloneNode(deep: Boolean): AbstractAttr<N, P> {
         return getOwnerDocument().createAttributeNS(getNamespaceURI(), getName()).also {
             it.setValue(getValue())
+        }
+    }
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        return when {
+            this === other -> true
+            nodeType != other.nodeType -> false //handle javascript instance check issues
+            other !is PlatformAttr -> false
+            localName != other.getLocalName() -> false
+            namespaceURI != other.getNamespaceURI() -> false
+            prefix != other.getPrefix() -> false
+            else -> getValue() == other.getValue()
         }
     }
 }

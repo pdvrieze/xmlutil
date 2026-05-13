@@ -23,4 +23,6 @@ package nl.adaptivity.xmlutil.dom
 public expect interface PlatformNamedNodeMap
 
 public expect operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr>
+public expect val PlatformNamedNodeMap.length: Int
+public expect fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode?
 

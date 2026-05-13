@@ -25,3 +25,4 @@ package nl.adaptivity.xmlutil.dom
 public expect interface PlatformNode
 
 public expect val PlatformNode.ownerDocument: PlatformDocument?
+public expect val PlatformNode.nodeType: Short

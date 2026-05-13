@@ -21,8 +21,15 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformDocument
+import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.childNodes
+import nl.adaptivity.xmlutil.dom.childNodes
+import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.nodeType
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
@@ -55,6 +62,16 @@ public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out 
             if (deep) {
                 for (c in getChildNodes()) f.appendChild(c.cloneNode(deep))
             }
+        }
+    }
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        return when {
+            this === other -> true
+            nodeType != other.nodeType -> false //handle javascript instance check issues
+            other !is PlatformDocumentFragment -> false
+
+            else -> nodeStorage.isEqualNodes(other.childNodes)
         }
     }
 }

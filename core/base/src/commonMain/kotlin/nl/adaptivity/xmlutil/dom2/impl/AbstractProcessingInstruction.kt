@@ -21,6 +21,11 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.getNodeName
+import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
 
@@ -47,5 +52,17 @@ public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>,
 
     override fun cloneNode(deep: Boolean): AbstractProcessingInstruction<N, P> {
         return getOwnerDocument().createProcessingInstruction(getTarget(), getData())
+    }
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        return when {
+            this === other -> true
+            nodeType != other.nodeType -> false //handle javascript instance check issues
+            other !is PlatformProcessingInstruction -> false
+            getTarget() != other.getNodeName() -> false
+
+            else -> getData() == other.getData()
+        }
+
     }
 }

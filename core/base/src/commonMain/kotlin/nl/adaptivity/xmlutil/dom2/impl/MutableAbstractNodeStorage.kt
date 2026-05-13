@@ -24,8 +24,12 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformNodeList
+import nl.adaptivity.xmlutil.dom.iterator
+import nl.adaptivity.xmlutil.dom.length
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.length
 
 public interface AbstractNodeStorage <out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> {
 
@@ -60,6 +64,15 @@ public interface AbstractNodeStorage <out N : IAbstractNode<N, P>, out P : IAbst
             if (cur == ref) return if (it.hasNext()) it.next() else null
         }
         return null
+    }
+
+    public fun isEqualNodes(otherList: PlatformNodeList): Boolean {
+        val left = iterator()
+        val right = otherList.iterator()
+        while (left.hasNext() && right.hasNext()) {
+            if (! left.next().isEqualNode(right.next())) return false
+        }
+        return !left.hasNext() && !right.hasNext()
     }
 
 }
@@ -190,6 +203,9 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
     }
 
     override fun iterator(): Iterator<N> = elements.iterator()
+    override fun isEqualNodes(otherList: PlatformNodeList): Boolean {
+        return length == otherList.length && super.isEqualNodes(otherList)
+    }
 
     public interface Adapter<N: IAbstractNode<N, P>, P: IAbstractParentNode<N, P>> {
         public fun checkTypeAndOwner(node: PlatformNode): N

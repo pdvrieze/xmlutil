@@ -21,6 +21,9 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.NodeType
 
@@ -38,4 +41,14 @@ public abstract class AbstractDocumentType<out N: IAbstractNode<N, P>, out P: IA
     final override fun getTextContent(): Nothing? = null
 
     abstract override fun cloneNode(deep: Boolean): AbstractDocumentType<N, P>
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        return when {
+            this === other -> true
+            nodeType != other.nodeType -> false //handle javascript instance check issues
+            other !is PlatformDocumentType -> false
+            else -> true // TODO have more expansive documentType
+        }
+
+    }
 }

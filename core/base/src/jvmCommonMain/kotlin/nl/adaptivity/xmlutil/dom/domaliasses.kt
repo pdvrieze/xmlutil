@@ -26,8 +26,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import org.w3c.dom.NodeList as DomNodeList
+
 public actual typealias PlatformNode = org.w3c.dom.Node
 public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument
+public actual val PlatformNode.nodeType: Short get() = nodeType
 
 public actual typealias PlatformAttr = org.w3c.dom.Attr
 
@@ -75,6 +78,11 @@ public actual fun PlatformDocumentType.getSystemId(): String = systemId
 public actual typealias PlatformNamedNodeMap = org.w3c.dom.NamedNodeMap
 
 public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = IteratorImpl(this)
+public actual val PlatformNamedNodeMap.length: Int get() = length
+public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
+    return getNamedItemNS(namespace, localName)
+}
+
 
 private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMap): Iterator<N> {
     var idx = 0
@@ -88,7 +96,8 @@ private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMa
 }
 
 
-public actual typealias PlatformNodeList = org.w3c.dom.NodeList
+public actual typealias PlatformNodeList = DomNodeList
+public actual val PlatformNodeList.length: Int get() = length
 
 
 private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {

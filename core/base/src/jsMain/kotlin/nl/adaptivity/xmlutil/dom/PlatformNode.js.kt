@@ -48,3 +48,4 @@ public actual external interface PlatformNode {
 
 public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument
 public val PlatformNode.baseURI: String get() = asDynamic().baseURI
+public actual val PlatformNode.nodeType: Short get() = nodeType

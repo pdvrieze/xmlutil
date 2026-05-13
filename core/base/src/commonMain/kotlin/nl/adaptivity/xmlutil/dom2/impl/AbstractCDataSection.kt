@@ -21,8 +21,17 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformCDATASection
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.CDATASection
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.localName
+import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.dom2.nodeType
+import nl.adaptivity.xmlutil.dom2.prefix
+import nl.adaptivity.xmlutil.dom2.value
 
 @ExperimentalXmlUtilApi
 public interface AbstractCDataSection<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
@@ -36,4 +45,5 @@ public interface AbstractCDataSection<out N : IAbstractNode<N, P>, out P : IAbst
     override fun cloneNode(deep: Boolean): AbstractCDataSection<N, P> {
         return getOwnerDocument().createCDATASection(getData())
     }
+
 }

@@ -73,5 +73,7 @@ public actual interface PlatformDocument : PlatformNode {
 
 public val PlatformDocument.characterSet: String? get() = getInputEncoding()
 
+public actual val PlatformDocument.childNodes: PlatformNodeList
+    get() = getChildNodes()
 
 public actual fun Document.adoptNode(node: PlatformNode): Node? = adoptNode(node)

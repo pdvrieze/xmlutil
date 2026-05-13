@@ -33,7 +33,10 @@ public actual external interface PlatformNamedNodeMap {
 
 }
 
-public val PlatformNamedNodeMap.length: Int get() = asDynamic().length
+public actual val PlatformNamedNodeMap.length: Int get() = asDynamic().length
+public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
+    return getNamedItemNS(namespace, localName)
+}
 
 public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> =
     IteratorImpl(this)

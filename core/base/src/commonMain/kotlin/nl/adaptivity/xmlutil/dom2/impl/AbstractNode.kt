@@ -78,4 +78,11 @@ internal constructor(
     abstract override fun removeChild(node: PlatformNode): N
 
     abstract override fun cloneNode(deep: Boolean): AbstractNode<N, P>
+
+    /**
+     * By default compare by identity.
+     */
+    override fun isSameNode(other: PlatformNode): Boolean {
+        return this === other
+    }
 }

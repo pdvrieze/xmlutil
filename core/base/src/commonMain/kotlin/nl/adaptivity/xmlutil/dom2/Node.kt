@@ -61,6 +61,9 @@ public expect interface Node : PlatformNode {
 
     @IgnorableReturnValue
     public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
+
+    public fun isSameNode(other: PlatformNode): Boolean
+    public fun isEqualNode(other: PlatformNode): Boolean
     //endregion
 }
 

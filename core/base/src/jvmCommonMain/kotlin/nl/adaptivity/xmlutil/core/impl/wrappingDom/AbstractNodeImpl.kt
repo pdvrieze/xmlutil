@@ -105,7 +105,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
         return delegate.compareDocumentPosition(other.unWrap())
     }
 
-    final override fun isSameNode(other: PlatformNode?): Boolean = delegate.isSameNode(other?.unWrap())
+    final override fun isSameNode(other: PlatformNode): Boolean = delegate.isSameNode(other.unWrap())
 
     final override fun lookupPrefix(namespace: String): String? = delegate.lookupPrefix(namespace)
 
@@ -113,8 +113,8 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     final override fun lookupNamespaceURI(prefix: String): String? = delegate.lookupNamespaceURI(prefix)
 
-    final override fun isEqualNode(arg: PlatformNode): Boolean {
-        return delegate.isEqualNode(arg.unWrap())
+    final override fun isEqualNode(other: PlatformNode): Boolean {
+        return delegate.isEqualNode(other.unWrap())
     }
 
     final override fun getFeature(feature: String?, version: String?): Any? {

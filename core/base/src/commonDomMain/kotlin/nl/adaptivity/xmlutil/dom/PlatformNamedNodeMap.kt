@@ -46,6 +46,10 @@ public actual interface PlatformNamedNodeMap : Iterable<Attr> {
 }
 
 public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = iterator()
+public actual val PlatformNamedNodeMap.length: Int get() = getLength()
+public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
+    return getNamedItemNS(namespace, localName)
+}
 
 /**
  * Cross platform function for those implementations that do not implement get in the main class.

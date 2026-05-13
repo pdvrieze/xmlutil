@@ -34,3 +34,6 @@ public actual typealias PlatformDocument = org.w3c.dom.Document
 
 
 public actual fun Document2.adoptNode(node: PlatformNode): Node2? = adoptNode(node.wrap())
+public actual val PlatformDocument.childNodes: PlatformNodeList
+    get() = childNodes
+

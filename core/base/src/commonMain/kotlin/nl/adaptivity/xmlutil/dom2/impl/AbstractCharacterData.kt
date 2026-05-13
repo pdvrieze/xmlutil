@@ -21,7 +21,14 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformCharacterData
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformText
+import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.CharacterData
+import nl.adaptivity.xmlutil.dom2.data
+import nl.adaptivity.xmlutil.dom2.nodeType
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
@@ -42,4 +49,15 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
     }
 
     abstract override fun cloneNode(deep: Boolean): AbstractCharacterData<N, P>
+
+    override fun isEqualNode(other: PlatformNode): Boolean {
+        when {
+            this === other -> return true
+            nodeType != other.nodeType -> false //handle javascript instance check issues
+            other !is PlatformCharacterData -> return false
+            data != other.getData() -> return false
+        }
+        return true
+    }
+
 }
