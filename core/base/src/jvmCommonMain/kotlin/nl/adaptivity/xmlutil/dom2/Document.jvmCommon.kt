@@ -56,10 +56,10 @@ public actual interface Document : Node, PlatformDocument {
 
     actual override fun cloneNode(deep: Boolean): Document
 
-    override fun getBaseURI(): String? = when (val du = documentURI) {
-        null -> null
-        else -> du.substringBeforeLast('/')
-    }
+
+    override fun getBaseURI(): String?
+
+
 
     override fun getElementsByTagName(tagname: String?): NodeList? =
         TODO("Note yet implemented")
@@ -115,9 +115,7 @@ public actual interface Document : Node, PlatformDocument {
 
     override fun getDocumentURI(): String? = null
 
-    @Deprecated("No-op for now")
-    override fun setDocumentURI(documentURI: String?) {
-    }
+    actual override fun setDocumentURI(documentURI: String?)
 
     override fun getDomConfig(): DOMConfiguration? {
         TODO("not implemented")

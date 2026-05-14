@@ -77,6 +77,11 @@ internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocum
 
     override fun getAttributes(): Nothing? = null
 
+    override fun setDocumentURI(documentURI: String?) {
+        // use asDynamic to write it if possible (or throw an error if not)
+        delegate.asDynamic().documentURI = documentURI
+    }
+
     override fun cloneNode(deep: Boolean): JsWrappedDocument {
         return JsWrappedDocument(delegate.cloneNode(deep) as DomDocument)
     }

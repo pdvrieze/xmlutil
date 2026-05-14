@@ -29,6 +29,7 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.attributes
 import nl.adaptivity.xmlutil.dom.childNodes
 import nl.adaptivity.xmlutil.dom.getName
+import nl.adaptivity.xmlutil.dom.getNamedItemNS
 import nl.adaptivity.xmlutil.dom.getNamespaceURI
 import nl.adaptivity.xmlutil.dom.getValue
 import nl.adaptivity.xmlutil.dom.iterator
@@ -210,6 +211,14 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
 
         if (deep) for (c in getChildNodes()) e.appendChild(c.cloneNode(true))
         return e
+    }
+
+    override fun getBaseURI(): String? {
+        val baseAttr = _attrStorage.getNamedItemNS(XMLConstants.XML_NS_URI, "base")
+        return when {
+            baseAttr != null -> baseAttr.getValue()
+            else -> super.getBaseURI()
+        }
     }
 
     override fun isEqualNode(other: PlatformNode): Boolean {

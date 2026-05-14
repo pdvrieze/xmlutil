@@ -132,6 +132,7 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
         }
     }
 
+
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
         else -> "document<$docId>"

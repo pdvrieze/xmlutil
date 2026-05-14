@@ -23,6 +23,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(NodeSerializer::class)
@@ -41,8 +42,10 @@ public expect interface Node : PlatformNode {
     public fun getNextSibling(): Node?
     public fun getParentElement(): Element?// = parentNode as? Element
 
+    @ExperimentalXmlUtilApi
     public fun lookupPrefix(namespace: String): String?
 
+    @ExperimentalXmlUtilApi
     public fun lookupNamespaceURI(prefix: String): String?
 
     @IgnorableReturnValue
@@ -55,17 +58,30 @@ public expect interface Node : PlatformNode {
     public fun removeChild(node: PlatformNode): Node
 
     //region dom 3
+    @ExperimentalXmlUtilApi
     public fun hasChildNodes(): Boolean
+
+    @ExperimentalXmlUtilApi
     public fun getAttributes(): NamedNodeMap?
+
+    @ExperimentalXmlUtilApi
     public fun cloneNode(deep: Boolean): Node
 
+    @ExperimentalXmlUtilApi
     public fun normalize()
 
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
+    @ExperimentalXmlUtilApi
     public fun isSameNode(other: PlatformNode): Boolean
+
+    @ExperimentalXmlUtilApi
     public fun isEqualNode(other: PlatformNode): Boolean
+
+    @ExperimentalXmlUtilApi
+    public fun getBaseURI(): String?
     //endregion
 }
 

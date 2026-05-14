@@ -97,6 +97,10 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         return delegate.compareDocumentPosition(other.unWrap())
     }
 
+    override fun getBaseURI(): String? {
+        return delegate.baseURI
+    }
+
     fun isSameNode(other: DomNode?): Boolean = delegate.isSameNode(other?.unWrap())
 
     final override fun lookupPrefix(namespace: String): String? = delegate.lookupPrefix(namespace)

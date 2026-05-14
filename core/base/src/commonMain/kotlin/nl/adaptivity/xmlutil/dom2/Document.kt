@@ -68,6 +68,8 @@ public expect interface Document : Node, PlatformDocument {
     override fun getAttributes(): Nothing?
 
     override fun cloneNode(deep: Boolean): Document
+
+    public fun setDocumentURI(documentURI: String?)
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

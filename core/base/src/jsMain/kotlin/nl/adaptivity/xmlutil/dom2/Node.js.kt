@@ -23,6 +23,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
@@ -42,7 +43,9 @@ public actual interface Node : PlatformNode {
     override val nodeValue: String? get() = getNodeValue()
     override var textContent: String?
         get() = getTextContent()
-        set(value) { setTextContent(value) }
+        set(value) {
+            setTextContent(value)
+        }
 
     public actual fun getNodetype(): NodeType
     public actual fun getNodeName(): String
@@ -57,29 +60,49 @@ public actual interface Node : PlatformNode {
     public actual fun getPreviousSibling(): Node?
     public actual fun getNextSibling(): Node?
     public actual fun getParentElement(): Element?
+
+    @ExperimentalXmlUtilApi
     public actual override fun lookupPrefix(namespace: String): String?
+
+    @ExperimentalXmlUtilApi
     public actual override fun lookupNamespaceURI(prefix: String): String?
 
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     public actual fun appendChild(node: PlatformNode): Node
 
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     public actual fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node
 
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     public actual fun removeChild(node: PlatformNode): Node
 
+    @ExperimentalXmlUtilApi
     public actual fun hasChildNodes(): Boolean
+
+    @ExperimentalXmlUtilApi
     public actual fun getAttributes(): NamedNodeMap?
+
+    @ExperimentalXmlUtilApi
     public actual fun cloneNode(deep: Boolean): Node
 
+    @ExperimentalXmlUtilApi
     public actual fun normalize()
 
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     public actual fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
+    @ExperimentalXmlUtilApi
     public actual fun isSameNode(other: PlatformNode): Boolean
+
+    @ExperimentalXmlUtilApi
     public actual fun isEqualNode(other: PlatformNode): Boolean
+
+    @ExperimentalXmlUtilApi
+    public actual fun getBaseURI(): String?
 }
 
 @IgnorableReturnValue

@@ -23,6 +23,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import org.w3c.dom.UserDataHandler
@@ -53,14 +54,19 @@ public actual interface Node: PlatformNode {
 
     override fun getNodeType(): Short = getNodetype().value
 
+    @ExperimentalXmlUtilApi
     actual override fun cloneNode(deep: Boolean): Node
 
+    @ExperimentalXmlUtilApi
     actual override fun normalize()
 
+    @ExperimentalXmlUtilApi
     actual override fun getAttributes(): NamedNodeMap?
 
+    @ExperimentalXmlUtilApi
     actual override fun hasChildNodes(): Boolean
 
+    @ExperimentalXmlUtilApi
     override fun isSupported(feature: String?, version: String?): Boolean = when (feature) {
         "Core", "XML" -> when (version) {
             "1.0", "2.0" -> true
@@ -70,33 +76,43 @@ public actual interface Node: PlatformNode {
         else -> false
     }
 
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
+    @ExperimentalXmlUtilApi
     override fun setPrefix(prefix: String?) {
         throw UnsupportedOperationException("setPrefix is not supported yet")
     }
 
+    @ExperimentalXmlUtilApi
     override fun hasAttributes(): Boolean = false
 
-    override fun getBaseURI(): String? = ownerDocument?.baseURI
+    @ExperimentalXmlUtilApi
+    actual override fun getBaseURI(): String?
 
+    @ExperimentalXmlUtilApi
     override fun compareDocumentPosition(other: PlatformNode): Short {
         throw UnsupportedOperationException("compareDocumentPosition is not supported yet")
     }
 
+    @ExperimentalXmlUtilApi
     actual override fun isSameNode(other: PlatformNode): Boolean
 
+    @ExperimentalXmlUtilApi
     actual override fun isEqualNode(other: PlatformNode): Boolean
 
+    @ExperimentalXmlUtilApi
     override fun isDefaultNamespace(namespaceURI: String?): Boolean {
         return lookupNamespaceURI("") == namespaceURI
     }
 
+    @ExperimentalXmlUtilApi
     override fun getFeature(feature: String?, version: String?): Any? {
         return null
     }
 
+    @ExperimentalXmlUtilApi
     override fun setUserData(
         key: String,
         data: Any?,
@@ -105,6 +121,7 @@ public actual interface Node: PlatformNode {
         throw UnsupportedOperationException("UserData is not supported")
     }
 
+    @ExperimentalXmlUtilApi
     override fun getUserData(key: String): Any? {
         throw UnsupportedOperationException("UserData is not supported")
     }

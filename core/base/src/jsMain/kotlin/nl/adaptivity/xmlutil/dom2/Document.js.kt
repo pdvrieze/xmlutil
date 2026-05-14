@@ -55,6 +55,7 @@ public actual interface Document : Node, PlatformDocument {
 
     public actual override fun cloneNode(deep: Boolean): Document
 
+    public actual fun setDocumentURI(documentURI: String?)
 }
 
 public actual fun Document.importNode(

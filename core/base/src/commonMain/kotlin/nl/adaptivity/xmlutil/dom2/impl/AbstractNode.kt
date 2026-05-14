@@ -79,6 +79,10 @@ internal constructor(
 
     abstract override fun cloneNode(deep: Boolean): AbstractNode<N, P>
 
+    override fun getBaseURI(): String? {
+        return (getParentNode() ?: getOwnerDocument())?.getBaseURI()
+    }
+
     /**
      * By default compare by identity.
      */

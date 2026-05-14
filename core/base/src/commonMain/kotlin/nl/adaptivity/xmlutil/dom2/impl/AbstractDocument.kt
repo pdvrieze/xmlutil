@@ -31,6 +31,8 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 ) : AbstractParentNode<N, P>(null, nodeStorage = nodeStorage), Document {
     override fun getOwnerDocument(): Nothing? = null
 
+    private var documentURI: String? = null
+
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_NODE
     final override fun getNodeValue(): Nothing? = null
     final override fun getNodeName(): String = "#document"
@@ -185,5 +187,13 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 
             else -> nodeStorage.isEqualNodes(other.childNodes)
         }
+    }
+
+    override fun getBaseURI(): String? {
+        return documentURI
+    }
+
+    override fun setDocumentURI(documentURI: String?) {
+        this.documentURI = documentURI
     }
 }
