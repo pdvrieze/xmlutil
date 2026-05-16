@@ -1064,6 +1064,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/Attr : nl/adaptivity/
 	public fun getSchemaTypeInfo ()Lorg/w3c/dom/TypeInfo;
 	public fun getSpecified ()Z
 	public abstract fun getValue ()Ljava/lang/String;
+	public abstract fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun isId ()Z
 	public abstract fun removeChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
@@ -1096,6 +1097,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/CharacterData : nl/ad
 	public fun getLength ()I
 	public abstract fun getNodeValue ()Ljava/lang/String;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
+	public abstract fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun insertData (ILjava/lang/String;)V
 	public abstract fun normalize ()V
 	public abstract fun removeChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
@@ -1208,6 +1210,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/DocumentType : nl/ada
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public abstract fun getPublicId ()Ljava/lang/String;
 	public abstract fun getSystemId ()Ljava/lang/String;
+	public abstract fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun removeChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 }
@@ -1379,11 +1382,15 @@ public final class nl/adaptivity/xmlutil/dom2/Node_jvmCommonKt {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/ProcessingInstruction : nl/adaptivity/xmlutil/dom2/Node, org/w3c/dom/ProcessingInstruction {
+	public abstract fun appendChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/ProcessingInstruction;
 	public abstract fun getData ()Ljava/lang/String;
 	public abstract fun getNodeValue ()Ljava/lang/String;
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public abstract fun getTarget ()Ljava/lang/String;
+	public abstract fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
+	public abstract fun removeChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
+	public abstract fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun setData (Ljava/lang/String;)V
 }
 
@@ -1759,7 +1766,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractLeafNode : nl/adap
 	public synthetic fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
 	public synthetic fun getOwnerDocument ()Lorg/w3c/dom/Document;
-	public fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
+	public final fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public synthetic fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public synthetic fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 	public final fun lookupNamespaceURI (Ljava/lang/String;)Ljava/lang/String;

@@ -42,15 +42,21 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
     final override fun getLastChild(): Nothing? = null
 
     final override fun appendChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Leaf nodes cannot have children")
+        throw DOMException.hierarchyRequestErr("Cannot insert a child node into a leaf node")
+    }
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    final override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing {
+        throw DOMException.hierarchyRequestErr("Cannot insert a child node into a leaf node")
     }
 
     final override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Leaf nodes cannot have children")
+        throw DOMException.hierarchyRequestErr("Cannot insert a child node into a leaf node")
     }
 
     final override fun removeChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("Leaf nodes cannot have children")
+        throw DOMException.hierarchyRequestErr("Cannot insert a child node into a leaf node")
     }
 
     final override fun getChildNodes(): AbstractNodeList<N, P> = EmptyNodeList
@@ -71,10 +77,6 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
             XMLConstants.XMLNS_ATTRIBUTE -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
             else -> null
         }
-    }
-
-    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing? {
-        throw DOMException.hierarchyRequestErr("Cannot insert a child node into a leaf node")
     }
 
     abstract override fun cloneNode(deep: Boolean): AbstractLeafNode<N, P>

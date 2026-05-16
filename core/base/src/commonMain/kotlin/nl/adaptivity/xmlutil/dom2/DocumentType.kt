@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
@@ -29,6 +30,9 @@ public expect interface DocumentType : Node, PlatformDocumentType {
     public fun getSystemId(): String
 
     public override fun appendChild(node: PlatformNode): Nothing
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
     public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
     public override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?

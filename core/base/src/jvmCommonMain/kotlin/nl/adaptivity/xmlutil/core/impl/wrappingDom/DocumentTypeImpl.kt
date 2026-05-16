@@ -20,9 +20,11 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
+import nl.adaptivity.xmlutil.dom2.Node
 
 internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeImpl<PlatformDocumentType>(delegate),
     DocumentType {
@@ -56,13 +58,16 @@ internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeIm
     override fun getLastChild(): Nothing? = null
 
     override fun appendChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in documenttype")
+        throw DOMException.hierarchyRequestErr("No children in documenttype")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in documenttype")
 
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in documenttype")
+        throw DOMException.hierarchyRequestErr("No children in documenttype")
 
     override fun removeChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in documenttype")
+        throw DOMException.hierarchyRequestErr("No children in documenttype")
 
     override fun cloneNode(deep: Boolean): DocumentTypeImpl {
         return DocumentTypeImpl(delegate.cloneNode(deep) as PlatformDocumentType)

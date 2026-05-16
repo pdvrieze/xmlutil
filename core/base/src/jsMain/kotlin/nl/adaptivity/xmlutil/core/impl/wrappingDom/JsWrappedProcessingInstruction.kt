@@ -19,6 +19,8 @@
  */
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction as ProcessingInstruction2
 import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 
@@ -54,4 +56,17 @@ internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction
     override fun cloneNode(deep: Boolean): JsWrappedProcessingInstruction {
         return JsWrappedProcessingInstruction(delegate.cloneNode(deep) as DomProcessingInstruction)
     }
+
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
+
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
+
 }

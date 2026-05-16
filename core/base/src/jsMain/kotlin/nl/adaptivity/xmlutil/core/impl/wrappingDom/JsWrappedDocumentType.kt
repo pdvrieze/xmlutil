@@ -21,9 +21,11 @@
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.DocumentType as DOMDocumentType
 
 internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<DOMDocumentType>(delegate), DocumentType {
@@ -46,13 +48,16 @@ internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<
     override fun getLocalName(): Nothing? = null
 
     override fun appendChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in document type")
+        throw DOMException.hierarchyRequestErr("No children in document type")
 
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in document type")
+        throw DOMException.hierarchyRequestErr("No children in document type")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in document type")
 
     override fun removeChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in document type")
+        throw DOMException.hierarchyRequestErr("No children in document type")
 
     public override fun getFirstChild(): Nothing? = null
 

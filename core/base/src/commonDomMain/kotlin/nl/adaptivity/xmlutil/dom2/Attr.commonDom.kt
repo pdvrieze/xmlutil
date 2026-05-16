@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface Attr : Node, PlatformAttr {
     actual override fun getOwnerElement(): Element?
@@ -29,4 +31,18 @@ public actual interface Attr : Node, PlatformAttr {
     actual override fun getAttributes(): Nothing?
     actual override fun cloneNode(deep: Boolean): Attr
     actual override fun isId(): Boolean
+
+    @IgnorableReturnValue
+    actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
+    @IgnorableReturnValue
+    actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    actual override fun removeChild(node: PlatformNode): Nothing
+
 }

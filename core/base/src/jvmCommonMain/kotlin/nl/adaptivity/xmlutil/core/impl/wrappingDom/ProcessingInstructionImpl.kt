@@ -19,8 +19,10 @@
  */
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
 
 internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction) :
@@ -43,17 +45,17 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
         return checkNotNull(super.getOwnerDocument())
     }
 
-    override fun appendChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("No children in processing instruction")
-    }
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
 
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing {
-        throw UnsupportedOperationException("No children in processing instruction")
-    }
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
 
-    override fun removeChild(node: PlatformNode): Nothing {
-        throw UnsupportedOperationException("No children in processing instruction")
-    }
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
+
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in processing instruction")
 
     override fun getAttributes(): Nothing? = null
 

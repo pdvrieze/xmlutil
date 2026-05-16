@@ -21,7 +21,9 @@
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.CharacterData as CharacterData2
 import org.w3c.dom.CharacterData as DOMCharacterData
 
@@ -74,15 +76,18 @@ internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N
 
     @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in character nodes")
+        throw DOMException.hierarchyRequestErr("No children in character nodes")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in character nodes")
 
     @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in character nodes")
+        throw DOMException.hierarchyRequestErr("No children in character nodes")
 
     @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in character nodes")
+        throw DOMException.hierarchyRequestErr("No children in character nodes")
 
     override fun getFirstChild(): Nothing? = null
     override fun getLastChild(): Nothing? = null

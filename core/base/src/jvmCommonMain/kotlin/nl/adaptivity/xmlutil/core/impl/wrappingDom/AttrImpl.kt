@@ -20,9 +20,11 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.TypeInfo
 
 internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>(delegate), Attr {
@@ -70,15 +72,22 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
 
     @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in attributes")
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+
+    override fun insertBefore(
+        newChild: PlatformNode,
+        refChild: PlatformNode?
+    ): Nothing {
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+    }
 
     @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in attributes")
+        throw DOMException.hierarchyRequestErr("No children in attributes")
 
     @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in attributes")
+        throw DOMException.hierarchyRequestErr("No children in attributes")
 
     override fun getAttributes(): Nothing? = null
 }

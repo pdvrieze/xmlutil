@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
@@ -44,6 +45,10 @@ public actual interface CharacterData : Node, PlatformCharacterData {
 
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
     public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing

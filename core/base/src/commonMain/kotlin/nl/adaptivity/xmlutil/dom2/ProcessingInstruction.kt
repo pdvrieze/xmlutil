@@ -22,6 +22,8 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
 public expect interface ProcessingInstruction : Node, PlatformProcessingInstruction {
@@ -36,6 +38,20 @@ public expect interface ProcessingInstruction : Node, PlatformProcessingInstruct
     override fun getNodeValue(): String
 
     override fun cloneNode(deep: Boolean): ProcessingInstruction
+
+    @IgnorableReturnValue
+    override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
+    @IgnorableReturnValue
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    override fun removeChild(node: PlatformNode): Nothing
+
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

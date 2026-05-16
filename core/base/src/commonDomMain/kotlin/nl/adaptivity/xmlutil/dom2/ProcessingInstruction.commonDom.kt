@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
 public actual interface ProcessingInstruction : Node, PlatformProcessingInstruction {
@@ -28,4 +30,18 @@ public actual interface ProcessingInstruction : Node, PlatformProcessingInstruct
     actual override fun getNodeValue(): String
 
     actual override fun cloneNode(deep: Boolean): ProcessingInstruction
+
+    @IgnorableReturnValue
+    actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
+    @IgnorableReturnValue
+    actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    actual override fun removeChild(node: PlatformNode): Nothing
+
 }

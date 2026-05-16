@@ -730,12 +730,16 @@ abstract interface nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction : nl.
 abstract interface nl.adaptivity.xmlutil.dom/PlatformText : nl.adaptivity.xmlutil.dom/PlatformCharacterData // nl.adaptivity.xmlutil.dom/PlatformText|null[0]
 
 abstract interface nl.adaptivity.xmlutil.dom2/Attr : nl.adaptivity.xmlutil.dom/PlatformAttr, nl.adaptivity.xmlutil.dom2/Node { // nl.adaptivity.xmlutil.dom2/Attr|null[0]
+    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     abstract fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2/Attr // nl.adaptivity.xmlutil.dom2/Attr.cloneNode|cloneNode(kotlin.Boolean){}[0]
     abstract fun getAttributes(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2/Attr.getAttributes|getAttributes(){}[0]
     abstract fun getNodeValue(): kotlin/String // nl.adaptivity.xmlutil.dom2/Attr.getNodeValue|getNodeValue(){}[0]
     abstract fun getOwnerDocument(): nl.adaptivity.xmlutil.dom2/Document // nl.adaptivity.xmlutil.dom2/Attr.getOwnerDocument|getOwnerDocument(){}[0]
     abstract fun getOwnerElement(): nl.adaptivity.xmlutil.dom2/Element? // nl.adaptivity.xmlutil.dom2/Attr.getOwnerElement|getOwnerElement(){}[0]
+    abstract fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
     abstract fun isId(): kotlin/Boolean // nl.adaptivity.xmlutil.dom2/Attr.isId|isId(){}[0]
+    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
     open val localName // nl.adaptivity.xmlutil.dom2/Attr.localName|{}localName[0]
@@ -771,9 +775,6 @@ abstract interface nl.adaptivity.xmlutil.dom2/Attr : nl.adaptivity.xmlutil.dom/P
         open fun <set-value>(kotlin/String) // nl.adaptivity.xmlutil.dom2/Attr.value.<set-value>|<set-value>(kotlin.String){}[0]
 
     // Targets: [js]
-    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-
-    // Targets: [js]
     abstract fun getFirstChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2/Attr.getFirstChild|getFirstChild(){}[0]
 
     // Targets: [js]
@@ -786,12 +787,6 @@ abstract interface nl.adaptivity.xmlutil.dom2/Attr : nl.adaptivity.xmlutil.dom/P
     abstract fun getValue(): kotlin/String // nl.adaptivity.xmlutil.dom2/Attr.getValue|getValue(){}[0]
 
     // Targets: [js]
-    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-
-    // Targets: [js]
-    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/Attr.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-
-    // Targets: [js]
     abstract fun setValue(kotlin/String) // nl.adaptivity.xmlutil.dom2/Attr.setValue|setValue(kotlin.String){}[0]
 }
 
@@ -800,10 +795,14 @@ abstract interface nl.adaptivity.xmlutil.dom2/CDATASection : nl.adaptivity.xmlut
 }
 
 abstract interface nl.adaptivity.xmlutil.dom2/CharacterData : nl.adaptivity.xmlutil.dom/PlatformCharacterData, nl.adaptivity.xmlutil.dom2/Node { // nl.adaptivity.xmlutil.dom2/CharacterData|null[0]
+    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     abstract fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2/CharacterData // nl.adaptivity.xmlutil.dom2/CharacterData.cloneNode|cloneNode(kotlin.Boolean){}[0]
     abstract fun getAttributes(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2/CharacterData.getAttributes|getAttributes(){}[0]
     abstract fun getNodeValue(): kotlin/String // nl.adaptivity.xmlutil.dom2/CharacterData.getNodeValue|getNodeValue(){}[0]
     abstract fun getOwnerDocument(): nl.adaptivity.xmlutil.dom2/Document // nl.adaptivity.xmlutil.dom2/CharacterData.getOwnerDocument|getOwnerDocument(){}[0]
+    abstract fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
+    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
     open val ownerDocument // nl.adaptivity.xmlutil.dom2/CharacterData.ownerDocument|{}ownerDocument[0]
@@ -813,9 +812,6 @@ abstract interface nl.adaptivity.xmlutil.dom2/CharacterData : nl.adaptivity.xmlu
     open var data // nl.adaptivity.xmlutil.dom2/CharacterData.data|{}data[0]
         open fun <get-data>(): kotlin/String // nl.adaptivity.xmlutil.dom2/CharacterData.data.<get-data>|<get-data>(){}[0]
         open fun <set-data>(kotlin/String) // nl.adaptivity.xmlutil.dom2/CharacterData.data.<set-data>|<set-data>(kotlin.String){}[0]
-
-    // Targets: [js]
-    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
     abstract fun appendData(kotlin/String) // nl.adaptivity.xmlutil.dom2/CharacterData.appendData|appendData(kotlin.String){}[0]
@@ -834,12 +830,6 @@ abstract interface nl.adaptivity.xmlutil.dom2/CharacterData : nl.adaptivity.xmlu
 
     // Targets: [js]
     abstract fun insertData(kotlin/Int, kotlin/String) // nl.adaptivity.xmlutil.dom2/CharacterData.insertData|insertData(kotlin.Int;kotlin.String){}[0]
-
-    // Targets: [js]
-    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-
-    // Targets: [js]
-    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/CharacterData.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
     abstract fun replaceData(kotlin/Int, kotlin/Int, kotlin/String) // nl.adaptivity.xmlutil.dom2/CharacterData.replaceData|replaceData(kotlin.Int;kotlin.Int;kotlin.String){}[0]
@@ -933,9 +923,13 @@ abstract interface nl.adaptivity.xmlutil.dom2/DocumentFragment : nl.adaptivity.x
 }
 
 abstract interface nl.adaptivity.xmlutil.dom2/DocumentType : nl.adaptivity.xmlutil.dom/PlatformDocumentType, nl.adaptivity.xmlutil.dom2/Node { // nl.adaptivity.xmlutil.dom2/DocumentType|null[0]
+    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     abstract fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2/DocumentType // nl.adaptivity.xmlutil.dom2/DocumentType.cloneNode|cloneNode(kotlin.Boolean){}[0]
     abstract fun getAttributes(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2/DocumentType.getAttributes|getAttributes(){}[0]
     abstract fun getNodeValue(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2/DocumentType.getNodeValue|getNodeValue(){}[0]
+    abstract fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
+    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [native, wasmJs, wasmWasi]
     abstract fun getOwnerDocument(): nl.adaptivity.xmlutil.dom2/Document? // nl.adaptivity.xmlutil.dom2/DocumentType.getOwnerDocument|getOwnerDocument(){}[0]
@@ -953,9 +947,6 @@ abstract interface nl.adaptivity.xmlutil.dom2/DocumentType : nl.adaptivity.xmlut
         open fun <get-systemId>(): kotlin/String // nl.adaptivity.xmlutil.dom2/DocumentType.systemId.<get-systemId>|<get-systemId>(){}[0]
 
     // Targets: [js]
-    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-
-    // Targets: [js]
     abstract fun getFirstChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2/DocumentType.getFirstChild|getFirstChild(){}[0]
 
     // Targets: [js]
@@ -969,12 +960,6 @@ abstract interface nl.adaptivity.xmlutil.dom2/DocumentType : nl.adaptivity.xmlut
 
     // Targets: [js]
     abstract fun getSystemId(): kotlin/String // nl.adaptivity.xmlutil.dom2/DocumentType.getSystemId|getSystemId(){}[0]
-
-    // Targets: [js]
-    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-
-    // Targets: [js]
-    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/DocumentType.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 }
 
 abstract interface nl.adaptivity.xmlutil.dom2/Element : nl.adaptivity.xmlutil.dom/PlatformElement, nl.adaptivity.xmlutil.dom2/Node { // nl.adaptivity.xmlutil.dom2/Element|null[0]
@@ -1153,9 +1138,13 @@ abstract interface nl.adaptivity.xmlutil.dom2/NodeList : kotlin.collections/Iter
 }
 
 abstract interface nl.adaptivity.xmlutil.dom2/ProcessingInstruction : nl.adaptivity.xmlutil.dom/PlatformProcessingInstruction, nl.adaptivity.xmlutil.dom2/Node { // nl.adaptivity.xmlutil.dom2/ProcessingInstruction|null[0]
+    abstract fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     abstract fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2/ProcessingInstruction // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.cloneNode|cloneNode(kotlin.Boolean){}[0]
     abstract fun getNodeValue(): kotlin/String // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.getNodeValue|getNodeValue(){}[0]
     abstract fun getOwnerDocument(): nl.adaptivity.xmlutil.dom2/Document // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.getOwnerDocument|getOwnerDocument(){}[0]
+    abstract fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
+    abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 
     // Targets: [js]
     open val ownerDocument // nl.adaptivity.xmlutil.dom2/ProcessingInstruction.ownerDocument|{}ownerDocument[0]
@@ -1562,13 +1551,13 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
     final fun getChildNodes(): nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.getChildNodes|getChildNodes(){}[0]
     final fun getFirstChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.getFirstChild|getFirstChild(){}[0]
     final fun getLastChild(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.getLastChild|getLastChild(){}[0]
+    final fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): kotlin/Nothing // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
     final fun lookupNamespaceURI(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.lookupNamespaceURI|lookupNamespaceURI(kotlin.String){}[0]
     final fun lookupPrefix(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.lookupPrefix|lookupPrefix(kotlin.String){}[0]
     final fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     final fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Nothing // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     open fun getAttributes(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.getAttributes|getAttributes(){}[0]
     open fun getOwnerDocument(): nl.adaptivity.xmlutil.dom2.impl/AbstractDocument<#A, #B>? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.getOwnerDocument|getOwnerDocument(){}[0]
-    open fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2.impl/AbstractLeafNode.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
 }
 
 abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #B: out nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode<#A, #B>> nl.adaptivity.xmlutil.dom2.impl/AbstractNode : nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B> { // nl.adaptivity.xmlutil.dom2.impl/AbstractNode|null[0]

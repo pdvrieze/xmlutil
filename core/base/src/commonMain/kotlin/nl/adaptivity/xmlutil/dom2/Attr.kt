@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
@@ -34,6 +35,11 @@ public expect interface Attr : Node, PlatformAttr {
     //region overrides
     public override fun getOwnerDocument(): Document
     public override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
     public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
     public override fun removeChild(node: PlatformNode): Nothing
     public override fun getFirstChild(): Nothing?

@@ -21,10 +21,12 @@
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.isId
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.Node as DomNode
 
@@ -85,13 +87,16 @@ internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegat
         get() = delegate.ownerElement?.wrap()
 
     override fun appendChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in attributes")
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in attributes")
 
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in attributes")
+        throw DOMException.hierarchyRequestErr("No children in attributes")
 
     override fun removeChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in attributes")
+        throw DOMException.hierarchyRequestErr("No children in attributes")
 
     override fun getFirstChild(): Nothing? = null
     override fun getLastChild(): Nothing? = null

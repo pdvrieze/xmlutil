@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import org.w3c.dom.TypeInfo
@@ -36,6 +37,10 @@ public actual interface Attr : Node, PlatformAttr {
 
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
     public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing

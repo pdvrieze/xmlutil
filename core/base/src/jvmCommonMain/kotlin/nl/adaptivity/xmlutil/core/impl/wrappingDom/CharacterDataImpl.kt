@@ -22,9 +22,11 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.CharacterData
+import nl.adaptivity.xmlutil.dom2.Node
 
 internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N) : AbstractNodeImpl<N>(delegate),
     CharacterData {
@@ -74,19 +76,22 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
 
     @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in character data")
+        throw DOMException.hierarchyRequestErr("No children in character data")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in character data")
 
     @IgnorableReturnValue
     override fun appendChild(node: AbstractNodeImpl<*>): Nothing =
-        throw UnsupportedOperationException("No children in character data")
+        throw DOMException.hierarchyRequestErr("No children in character data")
 
     @IgnorableReturnValue
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in character data")
+        throw DOMException.hierarchyRequestErr("No children in character data")
 
     @IgnorableReturnValue
     override fun removeChild(node: PlatformNode): Nothing =
-        throw UnsupportedOperationException("No children in character data")
+        throw DOMException.hierarchyRequestErr("No children in character data")
 
     abstract override fun cloneNode(deep: Boolean): CharacterDataImpl<N>
 }
