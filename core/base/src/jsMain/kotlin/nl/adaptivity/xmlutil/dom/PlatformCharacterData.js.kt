@@ -20,24 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
-/*
-@Suppress(
-    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
-)
-*/
-@JsName("NodeList")
-public actual external interface PlatformNodeList {
-    public val length: Int
-    public fun item(index: Int): PlatformNode?
-}
-public actual val PlatformNodeList.length: Int get() = length
+@JsName("CharacterData")
+public actual external interface PlatformCharacterData : PlatformNode {
+    override val ownerDocument: PlatformDocument
 
-private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
-    private var index = 0
-    override fun hasNext(): Boolean = index < list.length
-    override fun next(): PlatformNode = list.item(index++)!!
+    public var data: String
 }
 
-public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
-    NodeListIterator(this)
+public actual fun PlatformCharacterData.getData(): String = data

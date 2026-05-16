@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,3 +20,13 @@
 
 package nl.adaptivity.xmlutil.dom
 
+@JsName("ProcessingInstruction")
+public actual external interface PlatformProcessingInstruction : PlatformNode {
+    override val ownerDocument: PlatformDocument
+
+    public val target: String
+    public var data: String
+}
+
+public actual fun PlatformProcessingInstruction.getNodeName(): String = target
+public actual fun PlatformProcessingInstruction.getData(): String = data

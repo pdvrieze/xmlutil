@@ -20,19 +20,14 @@
 
 package nl.adaptivity.xmlutil.dom
 
-/*
-@Suppress(
-    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
-)
-*/
-@JsName("ProcessingInstruction")
-public actual external interface PlatformProcessingInstruction : PlatformNode {
-    override val ownerDocument: PlatformDocument
-
-    public val target: String
-    public var data: String
+@JsName("DocumentType")
+public actual external interface PlatformDocumentType : PlatformNode {
+    public val name: String
+    public val publicId: String
+    public val systemId: String
 }
 
-public actual fun PlatformProcessingInstruction.getNodeName(): String = target
-public actual fun PlatformProcessingInstruction.getData(): String = data
+public actual fun PlatformDocumentType.getOwnerDocument(): PlatformDocument? = ownerDocument
+public actual fun PlatformDocumentType.getName(): String = name
+public actual fun PlatformDocumentType.getPublicId(): String = publicId
+public actual fun PlatformDocumentType.getSystemId(): String = systemId

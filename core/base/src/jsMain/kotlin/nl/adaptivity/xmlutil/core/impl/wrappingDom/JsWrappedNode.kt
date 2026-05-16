@@ -21,11 +21,13 @@
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.dom.NodeConsts
+import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.NodeList
+import nl.adaptivity.xmlutil.dom2.NodeType
 import org.w3c.dom.DocumentFragment
-import nl.adaptivity.xmlutil.dom.PlatformAttr as Attr1
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.CDATASection as DomCDATASection
 import org.w3c.dom.Comment as DomComment
@@ -173,9 +175,8 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
 }
 
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomNode.unWrap(): DomNode = when (this) {
-    is Node -> (this as JsWrappedNode<*>).delegate
+internal fun DomNode.unWrap(): DomNode = when (val n = this as Any) {
+    is JsWrappedNode<*> -> n.delegate
     else -> this
 }
 
@@ -185,26 +186,14 @@ internal fun PlatformNode.unWrap(): DomNode = when (this) {
 }
 
 @Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomAttr.unWrap(): DomAttr = when (this) {
-    is Attr2 -> (this as JsWrappedAttr).delegate
+internal fun DomAttr.unWrap(): DomAttr = when (val n = this as Any) {
+    is JsWrappedAttr -> n.delegate
     else -> this
 }
 
-internal fun Attr1.unWrap(): DomAttr = when (this) {
+internal fun PlatformAttr.unWrap(): DomAttr = when (this) {
     is JsWrappedAttr -> delegate
     else -> this as DomAttr
-}
-
-internal fun Attr2.unWrap(): DomAttr = when (this) {
-    is JsWrappedAttr -> delegate
-    is DomAttr -> this
-    else -> throw IllegalArgumentException("Attribute can not be resolved")
-}
-
-internal fun Node.unWrap(): DomNode = when (this) {
-    is JsWrappedNode<*> -> delegate
-    is DomNode -> this
-    else -> throw IllegalArgumentException("Can not be unwrapped") // has to be actually wrapped to "work"
 }
 
 internal fun DomNode.wrap(): JsWrappedNode<DomNode> = when (nodeType) {
@@ -220,42 +209,38 @@ internal fun DomNode.wrap(): JsWrappedNode<DomNode> = when (nodeType) {
     else -> error("Node type ${NodeType(nodeType)} not supported")
 }
 
-internal fun PlatformNode.wrap(): JsWrappedNode<*> = when (this) {
-    is JsWrappedNode<*> -> this
+internal fun PlatformNode.wrap(): JsWrappedNode<*> = when (val n = this as Any) {
+    is JsWrappedNode<*> -> n
     else -> (this as DomNode).wrap()
 }
 
-internal fun Node.wrap(): JsWrappedNode<*> = when (this) {
-    is JsWrappedNode<*> -> this
+internal fun Node.wrap(): JsWrappedNode<*> = when (val n = this as Any) {
+    is JsWrappedNode<*> -> n
+    is DomNode -> n.wrap()
     else -> error("Node type ${getNodetype()} not supported")
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomDocument.wrap(): JsWrappedDocument = when (this) {
-    is Document -> this as JsWrappedDocument
+internal fun DomDocument.wrap(): JsWrappedDocument = when (val n = this as Any) {
+    is JsWrappedDocument -> n
     else -> JsWrappedDocument(this)
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomElement.wrap(): JsWrappedElement = when (this) {
-    is Element -> this as JsWrappedElement
+internal fun DomElement.wrap(): JsWrappedElement = when (val n = this as Any) {
+    is JsWrappedElement -> n
     else -> JsWrappedElement(this)
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomText.wrap(): JsWrappedText = when (this) {
-    is Text -> this as JsWrappedText
+internal fun DomText.wrap(): JsWrappedText = when (val n = this as Any) {
+    is JsWrappedText -> n
     else -> JsWrappedText(this)
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomDocumentType.wrap(): JsWrappedDocumentType = when (this) {
-    is DocumentType -> this as JsWrappedDocumentType
+internal fun DomDocumentType.wrap(): JsWrappedDocumentType = when (val n = this as Any) {
+    is JsWrappedDocumentType -> n
     else -> JsWrappedDocumentType(this)
 }
 
-@Suppress("CAST_NEVER_SUCCEEDS")
-internal fun DomAttr.wrap(): JsWrappedAttr = when (this) {
-    is Attr2 -> this as JsWrappedAttr
+internal fun DomAttr.wrap(): JsWrappedAttr = when (val n = this as Any) {
+    is JsWrappedAttr -> n
     else -> JsWrappedAttr(this)
 }

@@ -25,6 +25,7 @@ package nl.adaptivity.xmlutil.dom2
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import org.w3c.dom.UserDataHandler
 
@@ -84,7 +85,7 @@ public actual interface Node: PlatformNode {
 
     @ExperimentalXmlUtilApi
     override fun setPrefix(prefix: String?) {
-        throw UnsupportedOperationException("setPrefix is not supported yet")
+        throw DOMException.notSupportedErr("setPrefix is not supported by this implementation")
     }
 
     @ExperimentalXmlUtilApi
@@ -95,7 +96,7 @@ public actual interface Node: PlatformNode {
 
     @ExperimentalXmlUtilApi
     override fun compareDocumentPosition(other: PlatformNode): Short {
-        throw UnsupportedOperationException("compareDocumentPosition is not supported yet")
+        throw DOMException.notSupportedErr("compareDocumentPosition is not supported by this implementation")
     }
 
     @ExperimentalXmlUtilApi
@@ -113,17 +114,13 @@ public actual interface Node: PlatformNode {
     }
 
     @ExperimentalXmlUtilApi
-    override fun setUserData(
-        key: String,
-        data: Any?,
-        handler: UserDataHandler?
-    ): Any? {
-        throw UnsupportedOperationException("UserData is not supported")
+    override fun setUserData(key: String, data: Any?, handler: UserDataHandler?): Any? {
+        throw DOMException.notSupportedErr("UserData is not supported")
     }
 
     @ExperimentalXmlUtilApi
     override fun getUserData(key: String): Any? {
-        throw UnsupportedOperationException("UserData is not supported")
+        throw DOMException.notSupportedErr("UserData is not supported")
     }
 
     actual override fun getNamespaceURI(): String?

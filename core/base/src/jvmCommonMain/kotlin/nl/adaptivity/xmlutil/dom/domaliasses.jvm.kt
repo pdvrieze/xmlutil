@@ -18,15 +18,20 @@
  * permissions and limitations under the License.
  */
 
-@file:Suppress(
-    "NOTHING_TO_INLINE", "EXTENSION_SHADOWED_BY_MEMBER",
-    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING"
-)
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.NodeList as DomNodeList
+
+
+public actual typealias PlatformDocument = org.w3c.dom.Document
+
+public actual fun Document.adoptNode(node: PlatformNode): Node? = adoptNode(node.wrap())
+public actual val PlatformDocument.childNodes: PlatformNodeList
+    get() = childNodes
 
 public actual typealias PlatformNode = org.w3c.dom.Node
 public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument

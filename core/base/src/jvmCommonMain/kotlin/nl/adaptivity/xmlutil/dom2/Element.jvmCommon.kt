@@ -23,9 +23,11 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
 import org.w3c.dom.TypeInfo
+import org.w3c.dom.Attr as DomAttr
 
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
@@ -53,44 +55,25 @@ public actual interface Element : Node, PlatformElement {
         localName: String
     ): NodeList
 
-    actual override fun getNodeValue(): Nothing?
+    public actual override fun getNodeValue(): Nothing?
 
-    actual override fun getOwnerDocument(): Document
+    public actual override fun getOwnerDocument(): Document
 
-    actual override fun cloneNode(deep: Boolean): Element/* {
-        val e = when (val u = namespaceURI) {
-            null, "" -> ownerDocument.createElement(localName)
-            else -> ownerDocument.createElementNS(u, tagName)
-        }
-        for (a in attributes) when (val n = a.namespaceURI) {
-            null, "" -> setAttribute(a.name, a.value)
-            else -> setAttributeNS(n, a.name, a.value)
-        }
+    public actual override fun cloneNode(deep: Boolean): Element
 
-        if (deep) for (c in getChildNodes()) e.appendChild(c.cloneNode(true))
-        return e
-    }*/
+    public override fun hasAttributes(): Boolean = attributes.size > 0
 
-    override fun hasAttributes(): Boolean = attributes.size > 0
+    public override fun getSchemaTypeInfo(): TypeInfo? = null
 
-    override fun getSchemaTypeInfo(): TypeInfo? = null
-
-    @Deprecated("Not implemented")
-    override fun setIdAttribute(name: String, isId: Boolean) {
-        throw UnsupportedOperationException("setIdAttribute is not supported yet")
+    public override fun setIdAttribute(name: String, isId: Boolean) {
+        throw DOMException.notSupportedErr("setIdAttribute is not supported for this implementation")
     }
 
-    @Deprecated("Not implemented")
-    override fun setIdAttributeNS(
-        namespaceURI: String?,
-        localName: String,
-        isId: Boolean
-    ) {
-        throw UnsupportedOperationException("setIdAttribute is not supported yet")
+    public override fun setIdAttributeNS(namespaceURI: String?, localName: String, isId: Boolean) {
+        throw DOMException.notSupportedErr("setIdAttribute is not supported by this implementation")
     }
 
-    @Deprecated("No-op for now")
-    override fun setIdAttributeNode(idAttr: org.w3c.dom.Attr?, isId: Boolean) {
-        throw UnsupportedOperationException("setIdAttribute is not supported yet")
+    public override fun setIdAttributeNode(idAttr: DomAttr?, isId: Boolean) {
+        throw DOMException.notSupportedErr("setIdAttribute is not supported yet")
     }
 }

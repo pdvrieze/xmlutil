@@ -22,6 +22,7 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.*
 
@@ -218,7 +219,7 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 
             is PlatformComment -> createComment(node.getData())
             is PlatformProcessingInstruction -> createProcessingInstruction(node.getNodeName(), node.getData())
-            else -> throw IllegalArgumentException("Cannot import node of type ${node::class.simpleName}")
+            else -> throw DOMException.notSupportedErr("Cannot import node of type ${node::class.simpleName}")
         }
 
         @Suppress("UNCHECKED_CAST")

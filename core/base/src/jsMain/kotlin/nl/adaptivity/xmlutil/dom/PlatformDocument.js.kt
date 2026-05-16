@@ -25,12 +25,6 @@ import nl.adaptivity.xmlutil.dom2.NodeList
 import nl.adaptivity.xmlutil.dom2.Document as Document2
 import nl.adaptivity.xmlutil.dom2.Node as Node2
 
-/*
-@Suppress(
-    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
-)
-*/
 @JsName("Document")
 public actual external interface PlatformDocument : PlatformNode {
     public val implementation: PlatformDOMImplementation

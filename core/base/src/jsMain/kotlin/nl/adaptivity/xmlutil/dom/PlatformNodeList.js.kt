@@ -18,22 +18,20 @@
  * permissions and limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
-
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
-import nl.adaptivity.xmlutil.dom2.Document as Document2
-import nl.adaptivity.xmlutil.dom2.Node as Node2
+@JsName("NodeList")
+public actual external interface PlatformNodeList {
+    public val length: Int
+    public fun item(index: Int): PlatformNode?
+}
+public actual val PlatformNodeList.length: Int get() = length
 
-//@Suppress(
-//    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-//    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_SUPERTYPES_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING"
-//)
-public actual typealias PlatformDocument = org.w3c.dom.Document
+private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
+    private var index = 0
+    override fun hasNext(): Boolean = index < list.length
+    override fun next(): PlatformNode = list.item(index++)!!
+}
 
-
-public actual fun Document2.adoptNode(node: PlatformNode): Node2? = adoptNode(node.wrap())
-public actual val PlatformDocument.childNodes: PlatformNodeList
-    get() = childNodes
-
+public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
+    NodeListIterator(this)

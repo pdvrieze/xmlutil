@@ -30,7 +30,7 @@ public actual interface Text : CharacterData, PlatformText {
         if (offset >= length) return null
         val newText = ownerDocument.createTextNode(substringData(offset, length-offset))
         setNodeValue(substringData(0, offset))
-        insertBefore(newText, nextSibling)
+        getParentElement()?.insertBefore(newText, nextSibling)
         return newText
     }
 

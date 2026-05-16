@@ -52,7 +52,6 @@ public actual interface Attr : Node, PlatformAttr {
     public actual override fun getLastChild(): Nothing?
 
     actual override fun getNodeValue(): String
-//    actual override fun setNodeValue(value: String)
 
     actual override fun cloneNode(deep: Boolean): Attr
 

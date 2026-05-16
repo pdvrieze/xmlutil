@@ -45,65 +45,59 @@ public actual interface Document : Node, PlatformDocument {
     public actual override fun createCDATASection(data: String): CDATASection
     public actual override fun createComment(data: String): Comment
     public actual override fun createProcessingInstruction(target: String, data: String): ProcessingInstruction
-    override fun createEntityReference(name: String?): EntityReference? {
+    public override fun createEntityReference(name: String?): EntityReference? {
         throw UnsupportedOperationException("Entity references are not supported")
     }
 
     public actual override fun getOwnerDocument(): Nothing?
     public actual override fun getNodeValue(): Nothing?
 
-    actual override fun cloneNode(deep: Boolean): Document
+    public actual override fun cloneNode(deep: Boolean): Document
 
+    public override fun getBaseURI(): String?
 
-    override fun getBaseURI(): String?
+    public actual override fun getElementsByTagName(qualifiedName: String): NodeList
 
+    public actual override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 
+    public actual override fun getElementById(elementId: String): Element?
 
-    actual override fun getElementsByTagName(qualifiedName: String): NodeList
-
-
-    actual override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
-
-    actual override fun getElementById(elementId: String): Element?
-
-    override fun getXmlEncoding(): String? {
+    public override fun getXmlEncoding(): String? {
         return inputEncoding
     }
 
     @Deprecated("For now always false")
-    override fun getXmlStandalone(): Boolean {
+    public override fun getXmlStandalone(): Boolean {
         return false
     }
 
     @Deprecated("No-op for now")
-    override fun setXmlStandalone(xmlStandalone: Boolean) {}
+    public override fun setXmlStandalone(xmlStandalone: Boolean) {}
 
     @Deprecated("1.0 for now")
-    override fun getXmlVersion(): String? {
+    public override fun getXmlVersion(): String? {
         return "1.0"
     }
 
     @Deprecated("No-op for now")
-    override fun setXmlVersion(xmlVersion: String?) {}
+    public override fun setXmlVersion(xmlVersion: String?) {}
 
-    override fun getStrictErrorChecking(): Boolean {
+    public override fun getStrictErrorChecking(): Boolean {
         return true
     }
 
     @Deprecated("No-op for now")
-    override fun setStrictErrorChecking(strictErrorChecking: Boolean) {}
+    public override fun setStrictErrorChecking(strictErrorChecking: Boolean) {}
 
-    override fun getDocumentURI(): String? = null
+    public override fun getDocumentURI(): String? = null
 
-    actual override fun setDocumentURI(documentURI: String?)
+    public actual override fun setDocumentURI(documentURI: String?)
 
-    override fun getDomConfig(): DOMConfiguration? {
+    public override fun getDomConfig(): DOMConfiguration? {
         TODO("not implemented")
     }
 
-    @Deprecated("No-op for now")
-    override fun normalizeDocument() {
-        @Suppress("DEPRECATION")
+    public override fun normalizeDocument() {
         normalize()
     }
 

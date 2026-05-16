@@ -37,18 +37,9 @@ public expect interface DOMImplementation : PlatformDOMImplementation {
 
     public fun getFeature(feature: String, version: String): Any?
 
-    public fun hasFeature(feature: String, version: String?): Boolean /*{
-        val f = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
-        val v = when {
-            version.isNullOrEmpty() -> null
-            else -> DOMVersion.entries.firstOrNull { it.strName == version } ?: return false
-        }
-        return hasFeature(f, v)
-    }*/
+    public fun hasFeature(feature: String, version: String?): Boolean
 
-    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean /*{
-        return version == null || feature.isSupportedVersion(version)
-    }*/
+    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
 
 
 }

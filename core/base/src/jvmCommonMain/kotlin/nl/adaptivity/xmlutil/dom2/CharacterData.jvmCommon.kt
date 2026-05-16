@@ -40,7 +40,7 @@ public actual interface CharacterData : Node, PlatformCharacterData {
 
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
-    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+    public actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
     public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
@@ -51,16 +51,14 @@ public actual interface CharacterData : Node, PlatformCharacterData {
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
 
-    actual override fun getNodeValue(): String
+    public actual override fun getNodeValue(): String
 
-    override fun normalize()
+    public actual override fun cloneNode(deep: Boolean): CharacterData
 
-    actual override fun cloneNode(deep: Boolean): CharacterData
+    public actual override fun getOwnerDocument(): Document
 
-    actual override fun getOwnerDocument(): Document
+    public override fun getLength(): Int = data.length
 
-    override fun getLength(): Int = data.length
-
-    actual override fun getAttributes(): Nothing?
+    public actual override fun getAttributes(): Nothing?
 
 }
