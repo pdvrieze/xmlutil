@@ -39,9 +39,6 @@ public actual interface Attr : Node, PlatformAttr {
     override val ownerElement: Element?
         get() = getOwnerElement()
 
-    public actual fun getNamespaceURI(): String?
-    public actual fun getPrefix(): String?
-    public actual fun getLocalName(): String?
     public actual fun getName(): String
     public actual fun getValue(): String
     public actual fun setValue(value: String)
@@ -64,4 +61,6 @@ public actual interface Attr : Node, PlatformAttr {
 
     actual override fun getAttributes(): Nothing?
     actual override fun cloneNode(deep: Boolean): Attr
+
+    public actual fun isId(): Boolean
 }

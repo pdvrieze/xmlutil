@@ -39,8 +39,8 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
     }
 
     override fun getNodeValue(): String = delegate.nodeValue
-    override fun setNodeValue(nodeValue: String?) {
-        data = nodeValue ?: ""
+    override fun setNodeValue(value: String?) {
+        data = value ?: ""
     }
 
     override fun getLength(): Int = delegate.length

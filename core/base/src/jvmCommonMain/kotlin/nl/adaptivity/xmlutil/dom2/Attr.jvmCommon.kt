@@ -27,9 +27,6 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import org.w3c.dom.TypeInfo
 
 public actual interface Attr : Node, PlatformAttr {
-    public actual override fun getNamespaceURI(): String?
-    public actual override fun getPrefix(): String?
-    public actual override fun getLocalName(): String?
     public actual override fun getName(): String
     public actual override fun getValue(): String
     public actual override fun setValue(value: String)
@@ -50,9 +47,7 @@ public actual interface Attr : Node, PlatformAttr {
     public actual override fun getLastChild(): Nothing?
 
     actual override fun getNodeValue(): String
-    override fun setNodeValue(nodeValue: String?) {
-        setValue(nodeValue ?: "")
-    }
+//    actual override fun setNodeValue(value: String)
 
     actual override fun cloneNode(deep: Boolean): Attr
 
@@ -65,7 +60,7 @@ public actual interface Attr : Node, PlatformAttr {
         return null
     }
 
-    override fun isId(): Boolean = false
+    actual override fun isId(): Boolean
 
     actual override fun getOwnerDocument(): Document
 }

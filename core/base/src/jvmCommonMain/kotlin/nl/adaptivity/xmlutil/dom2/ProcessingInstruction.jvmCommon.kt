@@ -33,8 +33,4 @@ public actual interface ProcessingInstruction : Node, PlatformProcessingInstruct
     actual override fun getOwnerDocument(): Document
 
     actual override fun cloneNode(deep: Boolean): ProcessingInstruction
-
-    override fun setNodeValue(nodeValue: String?) {
-        setData(nodeValue ?: "")
-    }
 }

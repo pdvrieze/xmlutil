@@ -21,12 +21,7 @@
 package nl.adaptivity.xmlutil.core.impl.dom
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.getLocalName
-import nl.adaptivity.xmlutil.dom.getNamespaceURI
-import nl.adaptivity.xmlutil.dom.getPrefix
-import nl.adaptivity.xmlutil.dom.getValue
+import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 
@@ -51,6 +46,8 @@ public class AttrImpl internal constructor(
         original.getPrefix(),
         original.getValue()
     )
+
+    override fun isId(): Boolean = false
 
     override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
 

@@ -35,7 +35,19 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_NODE
     final override fun getNodeValue(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        /** defined as NO-OP */
+    }
+
     final override fun getNodeName(): String = "#document"
+
+    final override fun getNamespaceURI(): Nothing? = null
+
+    final override fun getPrefix(): Nothing? = null
+
+    final override fun getLocalName(): Nothing? = null
 
     final override fun getTextContent(): Nothing? = null
 
@@ -81,6 +93,69 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
             XMLConstants.XMLNS_ATTRIBUTE -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
             else -> null
         }
+    }
+
+    private fun AbstractElement<N, P>.getElementById(elementId: String): AbstractElement<N, P>? {
+        for (a in getAttributes()) {
+            if (a.isId() && a.getValue() == elementId) {
+                return this
+            }
+        }
+
+        return getChildNodes().asSequence()
+            .filterIsInstance<AbstractElement<N, P>>()
+            .map { it.getElementById(elementId) }
+            .firstOrNull()
+    }
+
+    override fun getElementById(elementId: String): AbstractElement<N, P>? {
+        return getChildNodes().asSequence()
+            .filterIsInstance<AbstractElement<N, P>>()
+            .map { it.getElementById(elementId) }
+            .firstOrNull()
+    }
+
+    private fun addElementsWithTagName(target: MutableList<AbstractElement<N, P>>, elem: AbstractElement<N, P>, qualifiedName: String) {
+        if (elem.tagName == qualifiedName) {
+            target.add(elem)
+        }
+        getChildNodes().asSequence()
+            .filterIsInstance<AbstractElement<N, P>>()
+            .forEach { addElementsWithTagName(target, it, qualifiedName) }
+    }
+
+    override fun getElementsByTagName(qualifiedName: String): AbstractNodeList<N, P> {
+
+        val result = ArrayList<AbstractElement<N, P>>()
+        getChildNodes().asSequence()
+            .filterIsInstance<AbstractElement<N, P>>()
+            .forEach { addElementsWithTagName(result, it, qualifiedName) }
+
+        @Suppress("UNCHECKED_CAST")
+        return NodeListImpl(result) as AbstractNodeList<N, P>
+    }
+
+    private fun addElementsWithTagNameNS(target: MutableList<AbstractElement<N, P>>, elem: AbstractElement<N, P>, namespace: String?, localName: String) {
+        if (elem.namespaceURI == namespace && elem.localName == localName) {
+            target.add(elem)
+        }
+        getChildNodes().asSequence()
+            .filterIsInstance<AbstractElement<N, P>>()
+            .forEach { addElementsWithTagNameNS(target, it, namespace, localName) }
+    }
+
+    override fun getElementsByTagNameNS(
+        namespace: String?,
+        localName: String
+    ): AbstractNodeList<N, P> {
+
+        val result = ArrayList<AbstractElement<N, P>>()
+        getChildNodes().asSequence()
+            .filterIsInstance<AbstractElement<N, P>>()
+            .forEach { addElementsWithTagNameNS(result, it, namespace, localName) }
+
+        @Suppress("UNCHECKED_CAST")
+        return NodeListImpl(result) as AbstractNodeList<N, P>
     }
 
     /**
@@ -196,4 +271,5 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
     override fun setDocumentURI(documentURI: String?) {
         this.documentURI = documentURI
     }
+
 }

@@ -105,7 +105,7 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
 
     final override fun lookupPrefix(namespace: String): String? = delegate.lookupPrefix(namespace)
 
-    fun isDefaultNamespace(namespaceURI: String): Boolean = delegate.isDefaultNamespace(namespaceURI)
+    override fun isDefaultNamespace(namespaceURI: String): Boolean = delegate.isDefaultNamespace(namespaceURI)
 
     final override fun lookupNamespaceURI(prefix: String): String? = delegate.lookupNamespaceURI(prefix)
 

@@ -20,9 +20,12 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.NodeList
 import org.w3c.dom.Document as DomDocument
 import org.w3c.dom.Node as DomNode
 
@@ -32,7 +35,14 @@ internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocum
     // TODO might need to be added to Document2
     val documentURI: String = delegate.documentURI
 
+    override fun getNamespaceURI(): Nothing? = null
+    override fun getPrefix(): Nothing? = null
+    override fun getLocalName(): Nothing? = null
+
     override fun getNodeValue(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {}
 
     override fun getInputEncoding(): String = delegate.inputEncoding
 
@@ -76,6 +86,18 @@ internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocum
         delegate.importNode(node.unWrap(), deep).wrap()
 
     override fun getAttributes(): Nothing? = null
+
+    override fun getElementById(elementId: String): Element? {
+        return delegate.getElementById(elementId)?.wrap()
+    }
+
+    override fun getElementsByTagName(qualifiedName: String): NodeList {
+        return JsWrappedNodeList(delegate.getElementsByTagName(qualifiedName))
+    }
+
+    override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList {
+        return JsWrappedNodeList(delegate.getElementsByTagNameNS(namespace, localName))
+    }
 
     override fun setDocumentURI(documentURI: String?) {
         // use asDynamic to write it if possible (or throw an error if not)

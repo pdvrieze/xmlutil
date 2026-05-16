@@ -51,7 +51,12 @@ internal object SimpleDOMImplementation : AbstractDOMImplementation() {
     }
 
     override fun hasFeature(feature: String, version: String?): Boolean {
-        val feature = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
+        if (feature.isEmpty()) return false
+        val featureName = when (feature[0]) {
+            '+' -> feature.substring(1)
+            else -> feature
+        }
+        val feature = SupportedFeatures.entries.firstOrNull { it.strName == featureName } ?: return false
         val version = DOMVersion.entries.firstOrNull { it.strName == version }
         return hasFeature(feature, version)
     }
@@ -65,6 +70,9 @@ internal object SimpleDOMImplementation : AbstractDOMImplementation() {
     }
 
     override fun getFeature(feature: String, version: String): Any? {
-        return null
+        return when {
+            hasFeature(feature, version) -> this
+            else -> null
+        }
     }
 }

@@ -23,13 +23,11 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformElement
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.attributes
 import nl.adaptivity.xmlutil.dom.childNodes
 import nl.adaptivity.xmlutil.dom.getName
-import nl.adaptivity.xmlutil.dom.getNamedItemNS
 import nl.adaptivity.xmlutil.dom.getNamespaceURI
 import nl.adaptivity.xmlutil.dom.getValue
 import nl.adaptivity.xmlutil.dom.iterator
@@ -50,9 +48,15 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
     final override fun getNodetype(): NodeType = NodeType.ELEMENT_NODE
     final override fun getNodeValue(): Nothing? = null
 
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        /** defined as NO-OP */
+    }
+
+
     final override fun getNodeName(): String = when (val p = getPrefix()) {
-        null, "" -> getLocalName()
-        else -> "$p:${getLocalName()}"
+        null, "" -> checkNotNull(getLocalName()) { "Missing name in node" }
+        else -> "$p:${getLocalName() ?: ""}"
     }
 
     override fun getOwnerDocument(): AbstractDocument<N, P> {

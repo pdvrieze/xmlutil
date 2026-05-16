@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.CharacterData as CharacterData2
 import org.w3c.dom.CharacterData as DOMCharacterData
@@ -30,6 +31,10 @@ internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N
         set(value) {
             delegate.data = value
         }
+
+    override fun getNamespaceURI(): Nothing? = null
+    override fun getPrefix(): Nothing? = null
+    override fun getLocalName(): Nothing? = null
 
     override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
@@ -42,6 +47,10 @@ internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N
 
     override fun getNodeValue(): String = data
 
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {
+        data = value ?: ""
+    }
 //    override fun getLength(): Int = delegate.length
 
     override fun substringData(offset: Int, count: Int): String =

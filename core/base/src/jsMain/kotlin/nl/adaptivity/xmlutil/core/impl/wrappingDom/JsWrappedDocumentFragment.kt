@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import org.w3c.dom.DocumentFragment as DOMDocumentFragment
 
@@ -28,9 +29,16 @@ internal class JsWrappedDocumentFragment(delegate: DOMDocumentFragment) :
 
     override fun getNodeValue(): Nothing? = null
 
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {}
+
     override val ownerDocument: JsWrappedDocument get() = checkNotNull(delegate.ownerDocument).wrap()
 
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(delegate.ownerDocument).wrap()
+
+    override fun getNamespaceURI(): Nothing? = null
+    override fun getPrefix(): Nothing? = null
+    override fun getLocalName(): Nothing? = null
 
     override fun getAttributes(): Nothing? = null
 

@@ -64,8 +64,8 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     override fun getNodeValue(): String? = delegate.nodeValue
 
-    override fun setNodeValue(nodeValue: String?) {
-        delegate.nodeValue = nodeValue
+    override fun setNodeValue(value: String?) {
+        delegate.nodeValue = value
     }
 
     fun insertBefore(newChild: PlatformNode?, refChild: PlatformNode?): AbstractNodeImpl<*> {
@@ -109,7 +109,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
     final override fun lookupPrefix(namespace: String): String? = delegate.lookupPrefix(namespace)
 
-    final override fun isDefaultNamespace(namespaceURI: String?): Boolean = delegate.isDefaultNamespace(namespaceURI)
+    final override fun isDefaultNamespace(namespaceURI: String): Boolean = delegate.isDefaultNamespace(namespaceURI)
 
     final override fun lookupNamespaceURI(prefix: String): String? = delegate.lookupNamespaceURI(prefix)
 

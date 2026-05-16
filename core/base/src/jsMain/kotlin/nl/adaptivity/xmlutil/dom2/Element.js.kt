@@ -28,9 +28,6 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 public actual interface Element : Node, PlatformElement {
     override val ownerDocument: Document get() = getOwnerDocument()
 
-    public actual fun getNamespaceURI(): String?
-    public actual fun getPrefix(): String?
-    public actual fun getLocalName(): String
     public actual fun getTagName(): String
     public actual override fun getAttributes(): NamedNodeMap
     public actual override fun getAttribute(qualifiedName: String): String?
@@ -46,6 +43,7 @@ public actual interface Element : Node, PlatformElement {
     public actual override fun setAttributeNode(attr: PlatformAttr): Attr?
     public actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?
     public actual override fun removeAttributeNode(attr: PlatformAttr): Attr
+
     public actual override fun getElementsByTagName(qualifiedName: String): NodeList
     public actual override fun getElementsByTagNameNS(
         namespace: String?,

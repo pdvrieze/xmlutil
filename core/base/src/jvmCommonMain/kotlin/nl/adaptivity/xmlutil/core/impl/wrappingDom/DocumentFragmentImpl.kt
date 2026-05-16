@@ -31,7 +31,7 @@ internal class DocumentFragmentImpl(delegate: PlatformDocumentFragment) :
         return checkNotNull(super.getOwnerDocument())
     }
 
-    override fun setNodeValue(nodeValue: String?) {}
+    override fun setNodeValue(value: String?) {}
 
     override fun getAttributes(): Nothing? = null
 

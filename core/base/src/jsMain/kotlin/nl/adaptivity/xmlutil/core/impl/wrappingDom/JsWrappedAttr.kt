@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.isId
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.Element
 import org.w3c.dom.Attr as DomAttr
@@ -51,15 +53,24 @@ internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegat
         return getValue()
     }
 
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {
+        this.value = value ?: ""
+    }
+
     override fun getPrefix(): String? = prefix
 
     override fun getNamespaceURI(): String? = namespaceURI
 
-    override fun getLocalName(): String? = localName
+    override fun getLocalName(): String = localName
 
     override fun getName(): String = name
 
     override fun getAttributes(): Nothing? = null
+
+    override fun isId(): Boolean {
+        return delegate.isId()
+    }
 
     override val namespaceURI: String? get() = delegate.namespaceURI
 

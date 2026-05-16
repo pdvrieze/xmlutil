@@ -61,6 +61,10 @@ public actual interface Document : Node, PlatformDocument {
 
     actual override fun getAttributes(): Nothing?
 
+    public actual fun getElementById(elementId: String): Element?
+    public actual fun getElementsByTagName(qualifiedName: String): NodeList
+    public actual fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
+
     public actual override fun cloneNode(deep: Boolean): Document
 
     public actual fun setDocumentURI(documentURI: String?)

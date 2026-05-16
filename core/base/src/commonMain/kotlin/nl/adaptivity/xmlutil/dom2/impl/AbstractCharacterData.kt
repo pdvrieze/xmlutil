@@ -23,7 +23,6 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.CharacterData
@@ -42,7 +41,18 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
         return checkNotNull(super.getOwnerDocument()) { "Attributes cannot have a null owner document" }
     }
 
+    final override fun getNamespaceURI(): Nothing? = null
+
+    final override fun getPrefix(): Nothing? = null
+
+    final override fun getLocalName(): Nothing? = null
+
     final override fun getNodeValue(): String = getData()
+
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        setData(value ?: "")
+    }
 
     final override fun getTextContent(): String = getData()
 

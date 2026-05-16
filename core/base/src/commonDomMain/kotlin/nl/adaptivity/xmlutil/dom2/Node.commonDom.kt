@@ -71,6 +71,16 @@ public actual interface Node : PlatformNode {
     @ExperimentalXmlUtilApi
     public actual fun getBaseURI(): String?
 
+    @ExperimentalXmlUtilApi
+    public actual override fun getNodeValue(): String?
+    @ExperimentalXmlUtilApi
+    public actual fun setNodeValue(value: String?)
+    public actual fun getNamespaceURI(): String?
+    public actual fun getPrefix(): String?
+    public actual fun getLocalName(): String?
+    @ExperimentalXmlUtilApi
+    public actual fun isDefaultNamespace(namespaceURI: String): Boolean
+
 }
 
 @IgnorableReturnValue

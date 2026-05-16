@@ -33,6 +33,8 @@ public actual interface Node: PlatformNode {
     public actual fun getNodetype(): NodeType
     public actual override fun getNodeName(): String
     public actual override fun getNodeValue(): String?
+    @ExperimentalXmlUtilApi
+    public actual override fun setNodeValue(value: String?)
     public actual override fun getOwnerDocument(): Document?
     public actual override fun getParentNode(): Node?
     public actual override fun getTextContent(): String?
@@ -103,9 +105,7 @@ public actual interface Node: PlatformNode {
     actual override fun isEqualNode(other: PlatformNode): Boolean
 
     @ExperimentalXmlUtilApi
-    override fun isDefaultNamespace(namespaceURI: String?): Boolean {
-        return lookupNamespaceURI("") == namespaceURI
-    }
+    actual override fun isDefaultNamespace(namespaceURI: String): Boolean
 
     @ExperimentalXmlUtilApi
     override fun getFeature(feature: String?, version: String?): Any? {
@@ -126,11 +126,11 @@ public actual interface Node: PlatformNode {
         throw UnsupportedOperationException("UserData is not supported")
     }
 
-    override fun getNamespaceURI(): String? = null
+    actual override fun getNamespaceURI(): String?
 
-    override fun getPrefix(): String? = null
+    actual override fun getPrefix(): String?
 
-    override fun getLocalName(): String? = null
+    actual override fun getLocalName(): String?
 
     @IgnorableReturnValue
     public actual override fun removeChild(node: PlatformNode): Node

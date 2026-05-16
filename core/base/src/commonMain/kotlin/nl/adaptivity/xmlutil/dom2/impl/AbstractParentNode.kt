@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.NodeType
@@ -87,7 +88,11 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
     }
 
     override fun setTextContent(value: String?) {
-        TODO("not implemented")
+        _nodeStorage.clear()
+        if (! value.isNullOrEmpty()) {
+            val doc = checkNotNull(getOwnerDocument() ?: this as? AbstractDocument<N, P>)
+            appendChild((doc.createTextNode(value)))
+        }
     }
 
     abstract override fun cloneNode(deep: Boolean): AbstractParentNode<N, P>

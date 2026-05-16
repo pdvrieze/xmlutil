@@ -49,9 +49,6 @@ public actual interface CharacterData : Node, PlatformCharacterData {
     actual override fun getNodeValue(): String
 
     override fun normalize()
-    override fun setNodeValue(nodeValue: String?) {
-        setData(nodeValue ?: "")
-    }
 
     actual override fun cloneNode(deep: Boolean): CharacterData
 

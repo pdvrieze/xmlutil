@@ -20,12 +20,12 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom.PlatformAttr as DomAttr
-import nl.adaptivity.xmlutil.dom2.Attr as Attr2
-import nl.adaptivity.xmlutil.dom2.Element as Element2
 import org.w3c.dom.Element as DomElement
 
-internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement>(delegate), Element2 {
+internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement>(delegate), Element {
     override val ownerDocument: JsWrappedDocument get() = getOwnerDocument()
 
     override fun getNamespaceURI(): String? = delegate.namespaceURI
@@ -37,6 +37,9 @@ internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement
     override fun getTagName(): String = delegate.tagName
 
     override fun getNodeValue(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {}
 
     override fun getOwnerDocument(): JsWrappedDocument {
         return super.getOwnerDocument() as JsWrappedDocument
@@ -52,22 +55,22 @@ internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement
 
     override fun getAttributes(): JsWrappedNamedNodeMap = JsWrappedNamedNodeMap(delegate.attributes)
 
-    override fun getAttributeNode(qualifiedName: String): Attr2? {
+    override fun getAttributeNode(qualifiedName: String): JsWrappedAttr? {
         return delegate.getAttributeNode(qualifiedName)?.wrapAttr()
     }
 
-    override fun getAttributeNodeNS(namespace: String?, localName: String): Attr2? {
+    override fun getAttributeNodeNS(namespace: String?, localName: String): JsWrappedAttr? {
         return delegate.getAttributeNodeNS(namespace, localName)?.wrapAttr()
     }
 
-    override fun setAttributeNode(attr: DomAttr): Attr2? {
+    override fun setAttributeNode(attr: DomAttr): JsWrappedAttr? {
         return delegate.setAttributeNode(attr.unWrap())?.wrap()
     }
 
-    override fun setAttributeNodeNS(attr: DomAttr): Attr2? =
+    override fun setAttributeNodeNS(attr: DomAttr): JsWrappedAttr? =
         delegate.setAttributeNodeNS(attr.unWrap())?.wrap()
 
-    override fun removeAttributeNode(attr: DomAttr): Attr2 =
+    override fun removeAttributeNode(attr: DomAttr): JsWrappedAttr =
         delegate.removeAttributeNode(attr.unWrap()).wrap()
 
     override fun getAttribute(qualifiedName: String): String? =

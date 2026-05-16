@@ -32,11 +32,20 @@ internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction
         return delegate.data
     }
 
+    override fun setNodeValue(value: String?) {
+        delegate.data = value ?: ""
+    }
+
     override fun setData(data: String) {
         delegate.data = data
     }
 
     override fun getData(): String = delegate.data
+
+
+    override fun getNamespaceURI(): Nothing? = null
+    override fun getPrefix(): Nothing? = null
+    override fun getLocalName(): String? = delegate.target
 
     override fun getTarget(): String = delegate.target
 

@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import org.w3c.dom.Attr as DomAttr
+
 /*
 @Suppress(
     "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
@@ -42,3 +44,8 @@ public actual fun PlatformAttr.getName(): String = name
 public actual fun PlatformAttr.getLocalName(): String? = localName
 public actual fun PlatformAttr.getPrefix(): String? = prefix
 public actual fun PlatformAttr.getValue(): String = value
+
+public fun DomAttr.isId(): Boolean = when {
+    asDynamic().isId === undefined -> false
+    else -> asDynamic().isId
+}

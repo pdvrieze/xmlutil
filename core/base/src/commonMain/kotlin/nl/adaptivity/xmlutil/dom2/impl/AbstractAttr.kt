@@ -34,7 +34,6 @@ import nl.adaptivity.xmlutil.dom2.localName
 import nl.adaptivity.xmlutil.dom2.namespaceURI
 import nl.adaptivity.xmlutil.dom2.nodeType
 import nl.adaptivity.xmlutil.dom2.prefix
-import nl.adaptivity.xmlutil.dom2.value
 
 @Suppress("UNCHECKED_CAST")
 @ExperimentalXmlUtilApi
@@ -63,6 +62,11 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
     final override fun getNodeName(): String = getName()
 
     final override fun getNodeValue(): String = getValue()
+
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        setValue(value ?: "")
+    }
 
     final override fun getTextContent(): String = getValue()
 

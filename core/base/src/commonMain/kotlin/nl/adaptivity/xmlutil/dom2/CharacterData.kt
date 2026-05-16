@@ -26,23 +26,19 @@ import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public expect interface CharacterData : Node, PlatformCharacterData {
-    public override fun getOwnerDocument(): Document
+    //region dom 1
+    public fun getData(): String
+    public fun setData(data: String)
+    public fun substringData(offset: Int, count: Int): String
+    public fun appendData(data: String)
+    public fun insertData(offset: Int, data: String)
+    public fun deleteData(offset: Int, count: Int)
+    public fun replaceData(offset: Int, count: Int, data: String)
 
+    //region overrides
     override fun getNodeValue(): String
 
-    public fun getData(): String
-
-    public fun setData(data: String)
-
-    public fun substringData(offset: Int, count: Int): String
-
-    public fun appendData(data: String)
-
-    public fun insertData(offset: Int, data: String)
-
-    public fun deleteData(offset: Int, count: Int)
-
-    public fun replaceData(offset: Int, count: Int, data: String)
+    public override fun getOwnerDocument(): Document
 
     @IgnorableReturnValue
     override fun appendChild(node: PlatformNode): Nothing
@@ -57,6 +53,10 @@ public expect interface CharacterData : Node, PlatformCharacterData {
     override fun getAttributes(): Nothing?
 
     override fun cloneNode(deep: Boolean): CharacterData
+
+    //endregion
+
+    //endregion
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

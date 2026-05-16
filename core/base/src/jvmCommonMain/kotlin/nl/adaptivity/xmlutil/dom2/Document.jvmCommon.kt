@@ -27,7 +27,6 @@ import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import org.w3c.dom.DOMConfiguration
 import org.w3c.dom.EntityReference
-import org.w3c.dom.NodeList
 import org.w3c.dom.Node as DomNode
 
 public actual interface Document : Node, PlatformDocument {
@@ -52,7 +51,6 @@ public actual interface Document : Node, PlatformDocument {
 
     public actual override fun getOwnerDocument(): Nothing?
     public actual override fun getNodeValue(): Nothing?
-    override fun setNodeValue(nodeValue: String?) {} // nothing to do
 
     actual override fun cloneNode(deep: Boolean): Document
 
@@ -61,30 +59,12 @@ public actual interface Document : Node, PlatformDocument {
 
 
 
-    override fun getElementsByTagName(tagname: String?): NodeList? =
-        TODO("Note yet implemented")
+    actual override fun getElementsByTagName(qualifiedName: String): NodeList
 
 
-    override fun getElementsByTagNameNS(
-        namespaceURI: String?,
-        localName: String
-    ): NodeList? = TODO("Note yet implemented")
+    actual override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 
-    override fun getElementById(elementId: String): Element? {
-        fun getElementById(parent: Element, id: String): Element? {
-            val idAttr = parent.attributes.firstOrNull { it.isId }
-            if (idAttr!=null && idAttr.value==id) return parent
-            return parent.childNodes.asSequence()
-                .filterIsInstance<Element>()
-                .map { getElementById(it, id) }
-                .firstOrNull()
-        }
-
-        return childNodes.asSequence()
-            .filterIsInstance<Element>()
-            .map { getElementById(it, elementId) }
-            .firstOrNull()
-    }
+    actual override fun getElementById(elementId: String): Element?
 
     override fun getXmlEncoding(): String? {
         return inputEncoding

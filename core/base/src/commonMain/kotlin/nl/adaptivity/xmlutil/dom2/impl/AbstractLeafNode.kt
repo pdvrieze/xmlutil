@@ -37,7 +37,6 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
         return checkNotNull(super.getOwnerDocument()) { "Leaf nodes cannot have a null owner document" }
     }
 
-
     final override fun getFirstChild(): Nothing? = null
 
     final override fun getLastChild(): Nothing? = null
@@ -79,4 +78,5 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
     }
 
     abstract override fun cloneNode(deep: Boolean): AbstractLeafNode<N, P>
+
 }

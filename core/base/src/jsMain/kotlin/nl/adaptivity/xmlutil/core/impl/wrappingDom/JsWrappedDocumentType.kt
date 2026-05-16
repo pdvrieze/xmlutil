@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.Element
@@ -31,11 +32,18 @@ internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<
 
     override fun getNodeValue(): Nothing? = null
 
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {}
+
     override fun getName(): String = delegate.name
 
     override fun getPublicId(): String = delegate.publicId
 
     override fun getSystemId(): String = delegate.systemId
+
+    override fun getNamespaceURI(): Nothing? = null
+    override fun getPrefix(): Nothing? = null
+    override fun getLocalName(): Nothing? = null
 
     override fun appendChild(node: PlatformNode): Nothing =
         throw UnsupportedOperationException("No children in document type")

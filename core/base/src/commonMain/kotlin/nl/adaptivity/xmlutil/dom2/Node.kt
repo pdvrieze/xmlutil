@@ -28,28 +28,33 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(NodeSerializer::class)
 public expect interface Node : PlatformNode {
-    public fun getNodetype(): NodeType
+    public fun getParentElement(): Element?// = parentNode as? Element
+
+    //region dom 1
     public fun getNodeName(): String
+
+    @ExperimentalXmlUtilApi
     public fun getNodeValue(): String?
-    public fun getOwnerDocument(): Document?
+
+    @ExperimentalXmlUtilApi
+    public fun setNodeValue(value: String?)
+
+    public fun getNodetype(): NodeType
     public fun getParentNode(): Node?
-    public fun getTextContent(): String?
-    public fun setTextContent(value: String?)
     public fun getChildNodes(): NodeList
     public fun getFirstChild(): Node?
     public fun getLastChild(): Node?
     public fun getPreviousSibling(): Node?
     public fun getNextSibling(): Node?
-    public fun getParentElement(): Element?// = parentNode as? Element
 
     @ExperimentalXmlUtilApi
-    public fun lookupPrefix(namespace: String): String?
+    public fun getAttributes(): NamedNodeMap?
+
+    public fun getOwnerDocument(): Document?
 
     @ExperimentalXmlUtilApi
-    public fun lookupNamespaceURI(prefix: String): String?
-
     @IgnorableReturnValue
-    public fun appendChild(node: PlatformNode): Node
+    public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
     @IgnorableReturnValue
     public fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node
@@ -57,22 +62,31 @@ public expect interface Node : PlatformNode {
     @IgnorableReturnValue
     public fun removeChild(node: PlatformNode): Node
 
-    //region dom 3
+    @IgnorableReturnValue
+    public fun appendChild(node: PlatformNode): Node
+
     @ExperimentalXmlUtilApi
     public fun hasChildNodes(): Boolean
 
     @ExperimentalXmlUtilApi
-    public fun getAttributes(): NamedNodeMap?
-
-    @ExperimentalXmlUtilApi
     public fun cloneNode(deep: Boolean): Node
+
+
+    //endregion
+
+    //region dom 2
+
+    // public fun isSupported(feature: String, version: String): Boolean
+    public fun getNamespaceURI(): String?
+    public fun getPrefix(): String?
+    public fun getLocalName(): String?
+
+    //endregion
+
+    //region dom 3
 
     @ExperimentalXmlUtilApi
     public fun normalize()
-
-    @ExperimentalXmlUtilApi
-    @IgnorableReturnValue
-    public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
     @ExperimentalXmlUtilApi
     public fun isSameNode(other: PlatformNode): Boolean
@@ -82,6 +96,20 @@ public expect interface Node : PlatformNode {
 
     @ExperimentalXmlUtilApi
     public fun getBaseURI(): String?
+    public fun getTextContent(): String?
+    public fun setTextContent(value: String?)
+
+    @ExperimentalXmlUtilApi
+    public fun lookupPrefix(namespace: String): String?
+
+    @ExperimentalXmlUtilApi
+    public fun lookupNamespaceURI(prefix: String): String?
+
+    @ExperimentalXmlUtilApi
+    public fun isDefaultNamespace(namespaceURI: String): Boolean
+    //TODO public fun compareDocumentPosition(other: Node): Int
+    //TODO public fun getFeature(feature: String, version: String): Any?
+
     //endregion
 }
 

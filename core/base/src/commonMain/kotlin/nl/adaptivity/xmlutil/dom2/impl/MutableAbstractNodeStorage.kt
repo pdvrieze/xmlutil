@@ -113,6 +113,8 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
             insertBefore(new, checkTypeAndOwner(refChild))
         }
     }
+
+    public fun clear()
 }
 
 @ExperimentalXmlUtilApi
@@ -174,6 +176,13 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
         }
 
         return oldChild
+    }
+
+    override fun clear() {
+        // defensive copy to handle update checking the parent.
+        val oldElements = elements.toList()
+        elements.clear()
+        for (e in oldElements) adapter.setParentAndUpdateChildPos(null, e, -1)
     }
 
     private fun isAncestor(parent: P?, node: N): Boolean {

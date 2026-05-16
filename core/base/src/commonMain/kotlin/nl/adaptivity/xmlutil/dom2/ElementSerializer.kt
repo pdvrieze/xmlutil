@@ -116,7 +116,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
             if (!namespaceURI.isNullOrEmpty()) {
                 encodeStringElement(descriptor, 0, namespaceURI)
             }
-            encodeStringElement(descriptor, 1, value.getLocalName())
+            encodeStringElement(descriptor, 1, value.getLocalName() ?: value.getTagName())
 
             if (value.getAttributes().size > 0) {
                 val attrIterator: Iterator<Attr> = value.getAttributes().iterator()
@@ -185,7 +185,11 @@ private fun <T> DeserializationStrategy<T>.wrap(document: Document): WrappedDese
 }
 
 private fun writeElem(output: XmlWriter, value: Element) {
-    output.smartStartTag(value.getNamespaceURI(), value.getLocalName(), value.getPrefix()) {
+    val localName = when (value.getNamespaceURI()) {
+        null -> value.getTagName()
+        else -> checkNotNull(value.getLocalName()) { "Missing local name for element" }
+    }
+    output.smartStartTag(value.getNamespaceURI(), localName, value.getPrefix()) {
         for (n: Attr in value.getAttributes()) {
             writeAttr(output, n)
         }

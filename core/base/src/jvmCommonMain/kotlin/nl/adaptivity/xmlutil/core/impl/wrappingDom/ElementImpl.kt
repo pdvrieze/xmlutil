@@ -34,8 +34,8 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
 
     override fun getNodeValue(): Nothing? = null
 
-    override fun setNodeValue(nodeValue: String?) {
-        delegate.nodeValue = nodeValue
+    override fun setNodeValue(value: String?) {
+        delegate.nodeValue = value
     }
 
     override fun getOwnerDocument(): DocumentImpl {

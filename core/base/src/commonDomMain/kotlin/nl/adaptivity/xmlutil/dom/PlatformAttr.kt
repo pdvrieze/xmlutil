@@ -33,6 +33,8 @@ public actual interface PlatformAttr : PlatformNode {
     public fun getValue(): String
     public fun setValue(value: String)
 
+    public fun isId(): Boolean
+
     public fun getOwnerElement(): PlatformElement?
     public override fun getOwnerDocument(): PlatformDocument
 

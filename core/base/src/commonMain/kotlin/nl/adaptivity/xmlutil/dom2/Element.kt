@@ -28,12 +28,6 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 public expect interface Element : Node, PlatformElement {
     public override fun getOwnerDocument(): Document
 
-    public fun getNamespaceURI(): String?
-
-    public fun getPrefix(): String?
-
-    public fun getLocalName(): String
-
     public fun getTagName(): String
 
     public override fun getAttributes(): NamedNodeMap
@@ -68,6 +62,6 @@ public expect interface Element : Node, PlatformElement {
 
 public val Element.namespaceURI: String? get() = getNamespaceURI()
 public val Element.prefix: String? get() = getPrefix()
-public val Element.localName: String get() = getLocalName()
+public val Element.localName: String get() = getLocalName() ?: getTagName()
 public val Element.tagName: String get() = getTagName()
 public val Element.attributes: NamedNodeMap get() = getAttributes()

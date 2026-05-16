@@ -35,6 +35,18 @@ public abstract class AbstractDocumentType<out N: IAbstractNode<N, P>, out P: IA
 
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_TYPE_NODE
     final override fun getNodeValue(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        /** defined as NO-OP */
+    }
+
+    final override fun getNamespaceURI(): Nothing? = null
+
+    final override fun getPrefix(): Nothing? = null
+
+    final override fun getLocalName(): Nothing? = null
+
     final override fun getNodeName(): String = getName()
 
     final override fun setTextContent(value: String?) {/* Defined as NO-OP*/ }

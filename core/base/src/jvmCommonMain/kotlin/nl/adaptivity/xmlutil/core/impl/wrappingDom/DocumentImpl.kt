@@ -24,7 +24,6 @@ import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Document
 import org.w3c.dom.DOMConfiguration
-import org.w3c.dom.NodeList
 
 internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<PlatformDocument>(delegate), Document {
     override fun getInputEncoding(): String? = delegate.inputEncoding
@@ -35,8 +34,8 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
 
     override fun getNodeValue(): Nothing? = null
 
-    override fun setNodeValue(nodeValue: String?) {
-        delegate.nodeValue = nodeValue
+    override fun setNodeValue(value: String?) {
+        delegate.nodeValue = value
     }
 
     override fun getDoctype(): DocumentTypeImpl? = delegate.doctype?.let(::DocumentTypeImpl)
@@ -85,15 +84,15 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
 
     override fun getAttributes(): Nothing? = null
 
-    fun getElementsByTagName(tagname: String): WrappingNodeList {
-        return WrappingNodeList(delegate.getElementsByTagName(tagname))
+    override fun getElementsByTagName(qualifiedName: String): WrappingNodeList {
+        return WrappingNodeList(delegate.getElementsByTagName(qualifiedName))
     }
 
-    override fun getElementsByTagNameNS(namespaceURI: String?, localName: String): NodeList {
-        return WrappingNodeList(delegate.getElementsByTagNameNS(namespaceURI, localName))
+    override fun getElementsByTagNameNS(namespace: String?, localName: String): WrappingNodeList {
+        return WrappingNodeList(delegate.getElementsByTagNameNS(namespace, localName))
     }
 
-    override fun getElementById(elementId: String): ElementImpl = delegate.getElementById(elementId).wrap()
+    override fun getElementById(elementId: String): ElementImpl? = delegate.getElementById(elementId)?.wrap()
 
     override fun createElement(localName: String): ElementImpl =
         ElementImpl(delegate.createElement(localName))

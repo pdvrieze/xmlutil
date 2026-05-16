@@ -40,9 +40,20 @@ public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>,
 
     final override fun getNodetype(): NodeType = NodeType.PROCESSING_INSTRUCTION_NODE
 
+    final override fun getNamespaceURI(): Nothing? = null
+
+    final override fun getPrefix(): Nothing? = null
+
+    final override fun getLocalName(): Nothing? = null
+
     final override fun getNodeName(): String = getTarget()
 
     final override fun getNodeValue(): String = getData()
+
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        setData(value ?: "")
+    }
 
     final override fun getTextContent(): String = getData()
 

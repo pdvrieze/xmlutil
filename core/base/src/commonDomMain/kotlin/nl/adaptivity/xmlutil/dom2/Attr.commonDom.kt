@@ -28,4 +28,5 @@ public actual interface Attr : Node, PlatformAttr {
     actual override fun getNodeValue(): String
     actual override fun getAttributes(): Nothing?
     actual override fun cloneNode(deep: Boolean): Attr
+    actual override fun isId(): Boolean
 }

@@ -50,9 +50,6 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     actual override fun cloneNode(deep: Boolean): DocumentType
 
     @Deprecated("No-op for now")
-    override fun setNodeValue(nodeValue: String?) {}
-
-    @Deprecated("No-op for now")
     override fun getEntities(): NamedNodeMap? = null
 
     @Deprecated("No-op for now")

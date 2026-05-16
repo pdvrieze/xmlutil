@@ -29,9 +29,6 @@ import org.w3c.dom.TypeInfo
 
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
-    public actual override fun getNamespaceURI(): String?
-    public actual override fun getPrefix(): String?
-    public actual override fun getLocalName(): String
     public actual override fun getTagName(): String
     public actual override fun getAttributes(): NamedNodeMap
     @Suppress("WRONG_TYPE_FOR_JAVA_OVERRIDE") // we don't return empty value if missing
@@ -49,6 +46,7 @@ public actual interface Element : Node, PlatformElement {
     public actual override fun setAttributeNode(attr: PlatformAttr): Attr?
     public actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?
     public actual override fun removeAttributeNode(attr: PlatformAttr): Attr
+
     public actual override fun getElementsByTagName(qualifiedName: String): NodeList
     public actual override fun getElementsByTagNameNS(
         namespace: String?,
@@ -56,6 +54,7 @@ public actual interface Element : Node, PlatformElement {
     ): NodeList
 
     actual override fun getNodeValue(): Nothing?
+
     actual override fun getOwnerDocument(): Document
 
     actual override fun cloneNode(deep: Boolean): Element/* {
@@ -73,9 +72,6 @@ public actual interface Element : Node, PlatformElement {
     }*/
 
     override fun hasAttributes(): Boolean = attributes.size > 0
-
-    @Deprecated("No-op for now")
-    override fun setNodeValue(nodeValue: String?) {}
 
     override fun getSchemaTypeInfo(): TypeInfo? = null
 

@@ -32,7 +32,6 @@ public expect interface NamedNodeMap : PlatformNamedNodeMap, Iterable<Attr> {
      */
     public val size: Int
 
-    @Deprecated("Use size instead", ReplaceWith("size"), level = DeprecationLevel.WARNING)
     public fun getLength(): Int /*= size*/
 
     public fun item(index: Int): Attr?

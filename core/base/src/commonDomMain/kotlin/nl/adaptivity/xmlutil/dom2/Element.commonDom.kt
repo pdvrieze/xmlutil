@@ -38,4 +38,7 @@ public actual interface Element : Node, PlatformElement {
 
     actual override fun cloneNode(deep: Boolean): Element
 
+    actual override fun getElementsByTagName(qualifiedName: String): NodeList
+    actual override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
+
 }

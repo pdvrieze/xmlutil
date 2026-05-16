@@ -26,11 +26,6 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 public actual interface NamedNodeMap : Iterable<Attr>, PlatformNamedNodeMap {
     public actual val size: Int
 
-    @Deprecated(
-        message = "Use size instead",
-        replaceWith = ReplaceWith(expression = "size"),
-        level = DeprecationLevel.WARNING
-    )
     public actual fun getLength(): Int
     public actual override fun item(index: Int): Attr?
     public actual operator fun get(index: Int): Attr?

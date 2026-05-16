@@ -35,8 +35,8 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
 
     override fun getNodeValue(): String = delegate.nodeValue
 
-    override fun setNodeValue(nodeValue: String?) {
-        delegate.nodeValue = nodeValue
+    override fun setNodeValue(value: String?) {
+        delegate.nodeValue = value
     }
 
     override fun getOwnerDocument(): DocumentImpl {

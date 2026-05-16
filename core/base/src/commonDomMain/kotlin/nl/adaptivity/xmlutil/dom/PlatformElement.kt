@@ -24,6 +24,7 @@ package nl.adaptivity.xmlutil.dom
 
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.ElementSerializer
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.NodeList
@@ -35,7 +36,7 @@ public actual interface PlatformElement : PlatformNode {
 
     public fun getNamespaceURI(): String?
     public fun getPrefix(): String?
-    public fun getLocalName(): String
+    public fun getLocalName(): String?
     public fun getTagName(): String
 
     public fun getAttributes(): NamedNodeMap
@@ -65,6 +66,6 @@ public actual interface PlatformElement : PlatformNode {
 public actual val PlatformElement.namespaceURI: String? get() = getNamespaceURI()
 public actual val PlatformElement.prefix: String? get() = getPrefix()
 public actual val PlatformElement.name: String get() = getNodeName()
-public actual val PlatformElement.localName: String get() = getLocalName()
+public actual val PlatformElement.localName: String get() = getLocalName() ?: getNodeName()
 public actual val PlatformElement.attributes: PlatformNamedNodeMap get() = getAttributes()
 public actual val PlatformElement.childNodes: PlatformNodeList get() = getChildNodes()

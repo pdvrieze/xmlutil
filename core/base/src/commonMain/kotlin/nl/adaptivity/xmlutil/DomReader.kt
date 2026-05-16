@@ -51,7 +51,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
         get() {
             val current = current
             return when (current?.nodeType) {
-                NodeConsts.ELEMENT_NODE -> (current as Element).getLocalName()
+                NodeConsts.ELEMENT_NODE -> (current as Element).run { getLocalName() ?: getTagName() }
                 NodeConsts.ENTITY_REFERENCE_NODE if (!expandEntities) -> current.nodeName
                 else -> throw XmlException("Only elements have a local name")
             }

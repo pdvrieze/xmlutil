@@ -24,22 +24,15 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public expect interface Attr : Node, PlatformAttr {
-    public override fun getOwnerDocument(): Document
-
-    public fun getNamespaceURI(): String?
-
-    public fun getPrefix(): String?
-
-    public fun getLocalName(): String?
+    //region dom 1
 
     public fun getName(): String
-
     public fun getValue(): String
-
     public fun setValue(value: String)
+    //TODO public fun isSpecified(): Boolean
 
-    public fun getOwnerElement(): Element?
-
+    //region overrides
+    public override fun getOwnerDocument(): Document
     public override fun appendChild(node: PlatformNode): Nothing
     public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
     public override fun removeChild(node: PlatformNode): Nothing
@@ -51,6 +44,20 @@ public expect interface Attr : Node, PlatformAttr {
     override fun getNodeValue(): String
 
     override fun cloneNode(deep: Boolean): Attr
+
+    //endregion
+    //endregion
+
+    //region dom 2
+    public fun getOwnerElement(): Element?
+
+    //endregion
+
+    //region dom 3
+    //TODO public fun getSchemaTypeInfo(): TypeInfo?
+    public fun isId(): Boolean
+    //endregion
+
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")

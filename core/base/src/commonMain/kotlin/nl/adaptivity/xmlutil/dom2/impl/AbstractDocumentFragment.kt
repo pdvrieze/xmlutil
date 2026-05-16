@@ -21,10 +21,8 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.childNodes
 import nl.adaptivity.xmlutil.dom.childNodes
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
@@ -46,6 +44,18 @@ public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out 
 
     final override fun getNodetype(): NodeType = NodeType.DOCUMENT_FRAGMENT_NODE
     final override fun getNodeValue(): Nothing? = null
+
+    final override fun getNamespaceURI(): Nothing? = null
+
+    final override fun getPrefix(): Nothing? = null
+
+    final override fun getLocalName(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    final override fun setNodeValue(value: String?) {
+        /** defined as NO-OP */
+    }
+
     final override fun getNodeName(): String = "#document-fragment"
     final override fun getAttributes(): Nothing? = null
 

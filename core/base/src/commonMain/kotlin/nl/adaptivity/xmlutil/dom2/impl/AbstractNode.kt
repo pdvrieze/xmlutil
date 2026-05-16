@@ -83,6 +83,24 @@ internal constructor(
         return (getParentNode() ?: getOwnerDocument())?.getBaseURI()
     }
 
+    @ExperimentalXmlUtilApi
+    public override fun lookupPrefix(namespace: String): String? {
+        return getParentNode()?.lookupPrefix(namespace)
+    }
+
+    @ExperimentalXmlUtilApi
+    public override fun lookupNamespaceURI(prefix: String): String? {
+        return getParentNode()?.lookupNamespaceURI(prefix)
+    }
+
+    @ExperimentalXmlUtilApi
+    public override fun isDefaultNamespace(namespaceURI: String): Boolean {
+        return getParentNode()?.isDefaultNamespace(namespaceURI) ?: namespaceURI.isEmpty()
+    }
+    //TODO public fun compareDocumentPosition(other: Node): Int
+    //TODO public fun getFeature(feature: String, version: String): Any?
+
+
     /**
      * By default compare by identity.
      */

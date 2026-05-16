@@ -42,8 +42,8 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
 
     override fun getNodeValue(): String = delegate.nodeValue
 
-    override fun setNodeValue(nodeValue: String?) {
-        value = nodeValue ?: ""
+    override fun setNodeValue(value: String?) {
+        delegate.value = value
     }
 
     override fun normalize() {

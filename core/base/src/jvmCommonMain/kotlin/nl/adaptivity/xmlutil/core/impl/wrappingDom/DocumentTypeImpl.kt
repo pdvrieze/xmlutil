@@ -24,7 +24,9 @@ import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
 
-internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeImpl<PlatformDocumentType>(delegate), DocumentType {
+internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeImpl<PlatformDocumentType>(delegate),
+    DocumentType {
+
     override fun getName(): String = delegate.name
 
     @Deprecated("No-op for now")
@@ -36,8 +38,8 @@ internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeIm
     }
 
     override fun getNodeValue(): Nothing? = null
-    override fun setNodeValue(nodeValue: String?) {
-        delegate.nodeValue = nodeValue
+    override fun setNodeValue(value: String?) {
+        delegate.nodeValue = value
     }
 
     override fun getAttributes(): Nothing? = null
