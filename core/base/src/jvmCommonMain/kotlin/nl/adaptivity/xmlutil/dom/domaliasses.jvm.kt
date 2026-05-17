@@ -24,7 +24,10 @@ package nl.adaptivity.xmlutil.dom
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.Node
+import org.w3c.dom.Entity as DomEntity
+import org.w3c.dom.EntityReference as DomEntityReference
 import org.w3c.dom.NodeList as DomNodeList
+import org.w3c.dom.Notation as DomNotation
 
 
 public actual typealias PlatformDocument = org.w3c.dom.Document
@@ -114,5 +117,12 @@ private class NodeListIterator(private val list: PlatformNodeList) : Iterator<Pl
 public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
     NodeListIterator(this)
 
+public actual typealias PlatformNotation = DomNotation
+public actual val PlatformNotation.publicId: String? get() = publicId
+public actual val PlatformNotation.systemId: String? get() = systemId
 
+public actual typealias PlatformEntity = DomEntity
+public actual val PlatformEntity.publicId: String? get() = publicId
+public actual val PlatformEntity.systemId: String? get() = systemId
 
+public actual typealias PlatformEntityReference = DomEntityReference

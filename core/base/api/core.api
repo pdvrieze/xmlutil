@@ -1026,7 +1026,11 @@ public final class nl/adaptivity/xmlutil/dom/Domaliasses_jvmKt {
 	public static final fun getPrefix (Lorg/w3c/dom/Attr;)Ljava/lang/String;
 	public static final fun getPrefix (Lorg/w3c/dom/Element;)Ljava/lang/String;
 	public static final fun getPublicId (Lorg/w3c/dom/DocumentType;)Ljava/lang/String;
+	public static final fun getPublicId (Lorg/w3c/dom/Entity;)Ljava/lang/String;
+	public static final fun getPublicId (Lorg/w3c/dom/Notation;)Ljava/lang/String;
 	public static final fun getSystemId (Lorg/w3c/dom/DocumentType;)Ljava/lang/String;
+	public static final fun getSystemId (Lorg/w3c/dom/Entity;)Ljava/lang/String;
+	public static final fun getSystemId (Lorg/w3c/dom/Notation;)Ljava/lang/String;
 	public static final fun getValue (Lorg/w3c/dom/Attr;)Ljava/lang/String;
 	public static final fun iterator (Lorg/w3c/dom/NamedNodeMap;)Ljava/util/Iterator;
 	public static final fun iterator (Lorg/w3c/dom/NodeList;)Ljava/util/Iterator;
