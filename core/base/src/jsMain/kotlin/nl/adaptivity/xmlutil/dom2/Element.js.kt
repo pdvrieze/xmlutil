@@ -29,7 +29,7 @@ public actual interface Element : Node, PlatformElement {
     override val ownerDocument: Document get() = getOwnerDocument()
 
     public actual fun getTagName(): String
-    public actual override fun getAttributes(): NamedNodeMap
+    public actual override fun getAttributes(): NamedNodeMap<Attr>
     public actual override fun getAttribute(qualifiedName: String): String?
     public actual override fun getAttributeNS(namespace: String?, localName: String): String?
     public actual override fun setAttribute(qualifiedName: String, value: String)

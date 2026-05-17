@@ -48,7 +48,7 @@ public expect interface Node : PlatformNode {
     public fun getNextSibling(): Node?
 
     @ExperimentalXmlUtilApi
-    public fun getAttributes(): NamedNodeMap?
+    public fun getAttributes(): NamedNodeMap<Attr>?
 
     public fun getOwnerDocument(): Document?
 

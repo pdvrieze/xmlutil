@@ -25,10 +25,10 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Document
 import org.w3c.dom.DOMConfiguration
 
-internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<PlatformDocument>(delegate), Document {
+internal class WrappedJvmDocument(delegate: PlatformDocument) : WrappedJvmNode<PlatformDocument>(delegate), Document {
     override fun getInputEncoding(): String? = delegate.inputEncoding
 
-    override fun getImplementation(): DOMImplementationImpl = DOMImplementationImpl
+    override fun getImplementation(): WrappedJvmDOMImplementation = WrappedJvmDOMImplementation
 
     override fun getOwnerDocument(): Nothing? = null
 
@@ -38,9 +38,9 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
         delegate.nodeValue = value
     }
 
-    override fun getDoctype(): DocumentTypeImpl? = delegate.doctype?.let(::DocumentTypeImpl)
+    override fun getDoctype(): WrappedJvmDocumentType? = delegate.doctype?.let(::WrappedJvmDocumentType)
 
-    override fun getDocumentElement(): ElementImpl? = delegate.documentElement?.wrap()
+    override fun getDocumentElement(): WrappedJvmElement? = delegate.documentElement?.wrap()
 
     override fun getXmlEncoding(): String = delegate.xmlEncoding
 
@@ -92,35 +92,35 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
         return WrappingNodeList(delegate.getElementsByTagNameNS(namespace, localName))
     }
 
-    override fun getElementById(elementId: String): ElementImpl? = delegate.getElementById(elementId)?.wrap()
+    override fun getElementById(elementId: String): WrappedJvmElement? = delegate.getElementById(elementId)?.wrap()
 
-    override fun createElement(localName: String): ElementImpl =
-        ElementImpl(delegate.createElement(localName))
+    override fun createElement(localName: String): WrappedJvmElement =
+        WrappedJvmElement(delegate.createElement(localName))
 
-    override fun createDocumentFragment(): DocumentFragmentImpl =
-        DocumentFragmentImpl(delegate.createDocumentFragment())
+    override fun createDocumentFragment(): WrappedJvmDocumentFragment =
+        WrappedJvmDocumentFragment(delegate.createDocumentFragment())
 
-    override fun createTextNode(data: String): TextImpl = TextImpl(delegate.createTextNode(data))
+    override fun createTextNode(data: String): WrappedJvmText = WrappedJvmText(delegate.createTextNode(data))
 
-    override fun createCDATASection(data: String): CDATASectionImpl {
-        return CDATASectionImpl(delegate.createCDATASection(data))
+    override fun createCDATASection(data: String): WrappedJvmCDATASection {
+        return WrappedJvmCDATASection(delegate.createCDATASection(data))
     }
 
-    override fun createComment(data: String): CommentImpl = CommentImpl(delegate.createComment(data))
+    override fun createComment(data: String): WrappedJvmComment = WrappedJvmComment(delegate.createComment(data))
 
-    override fun createProcessingInstruction(target: String, data: String): ProcessingInstructionImpl =
-        ProcessingInstructionImpl(delegate.createProcessingInstruction(target, data))
+    override fun createProcessingInstruction(target: String, data: String): WrappedJvmProcessingInstruction =
+        WrappedJvmProcessingInstruction(delegate.createProcessingInstruction(target, data))
 
-    override fun createAttribute(localName: String): AttrImpl = AttrImpl(delegate.createAttribute(localName))
+    override fun createAttribute(localName: String): WrappedJvmAttr = WrappedJvmAttr(delegate.createAttribute(localName))
 
-    override fun createAttributeNS(namespace: String?, qualifiedName: String): AttrImpl =
-        AttrImpl(delegate.createAttributeNS(namespace, qualifiedName))
+    override fun createAttributeNS(namespace: String?, qualifiedName: String): WrappedJvmAttr =
+        WrappedJvmAttr(delegate.createAttributeNS(namespace, qualifiedName))
 
-    override fun createElementNS(namespaceURI: String, qualifiedName: String): ElementImpl =
-        ElementImpl(delegate.createElementNS(namespaceURI, qualifiedName))
+    override fun createElementNS(namespaceURI: String, qualifiedName: String): WrappedJvmElement =
+        WrappedJvmElement(delegate.createElementNS(namespaceURI, qualifiedName))
 
-    override fun createEntityReference(name: String?): EntityReferenceImpl {
-        return EntityReferenceImpl(delegate.createEntityReference(name))
+    override fun createEntityReference(name: String?): WrappedJvmEntityReference {
+        return WrappedJvmEntityReference(delegate.createEntityReference(name))
     }
 
     @Deprecated("No-op for now")
@@ -128,15 +128,15 @@ internal class DocumentImpl(delegate: PlatformDocument) : AbstractNodeImpl<Platf
         return delegate.normalizeDocument()
     }
 
-    override fun cloneNode(deep: Boolean): DocumentImpl {
-        return DocumentImpl(delegate.cloneNode(deep) as PlatformDocument)
+    override fun cloneNode(deep: Boolean): WrappedJvmDocument {
+        return WrappedJvmDocument(delegate.cloneNode(deep) as PlatformDocument)
     }
 
-    fun renameNode(n: PlatformNode, namespaceURI: String?, qualifiedName: String): AbstractNodeImpl<*> =
+    fun renameNode(n: PlatformNode, namespaceURI: String?, qualifiedName: String): WrappedJvmNode<*> =
         delegate.renameNode(n.unWrap(), namespaceURI, qualifiedName).wrap()
 
-    override fun adoptNode(node: PlatformNode): AbstractNodeImpl<*> = delegate.adoptNode(node.unWrap()).wrap()
+    override fun adoptNode(node: PlatformNode): WrappedJvmNode<*> = delegate.adoptNode(node.unWrap()).wrap()
 
-    override fun importNode(node: PlatformNode, deep: Boolean): AbstractNodeImpl<*> =
+    override fun importNode(node: PlatformNode, deep: Boolean): WrappedJvmNode<*> =
         delegate.importNode(node.unWrap(), deep).wrap()
 }

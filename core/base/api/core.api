@@ -1001,13 +1001,10 @@ public final class nl/adaptivity/xmlutil/dom/DOMException$Error : java/lang/Enum
 	public static fun values ()[Lnl/adaptivity/xmlutil/dom/DOMException$Error;
 }
 
-public final class nl/adaptivity/xmlutil/dom/Document_jvmKt {
+public final class nl/adaptivity/xmlutil/dom/Domaliasses_jvmKt {
 	public static final fun adoptNode (Lnl/adaptivity/xmlutil/dom2/Document;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
-	public static final fun getChildNodes (Lorg/w3c/dom/Document;)Lorg/w3c/dom/NodeList;
-}
-
-public final class nl/adaptivity/xmlutil/dom/DomaliassesKt {
 	public static final fun getAttributes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NamedNodeMap;
+	public static final fun getChildNodes (Lorg/w3c/dom/Document;)Lorg/w3c/dom/NodeList;
 	public static final fun getChildNodes (Lorg/w3c/dom/DocumentFragment;)Lorg/w3c/dom/NodeList;
 	public static final fun getChildNodes (Lorg/w3c/dom/Element;)Lorg/w3c/dom/NodeList;
 	public static final fun getData (Lorg/w3c/dom/CharacterData;)Ljava/lang/String;
@@ -1099,7 +1096,6 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/CharacterData : nl/ad
 	public abstract fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public abstract fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun insertData (ILjava/lang/String;)V
-	public abstract fun normalize ()V
 	public abstract fun removeChild (Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Ljava/lang/Void;
 	public abstract fun replaceData (IILjava/lang/String;)V
@@ -1267,17 +1263,17 @@ public final class nl/adaptivity/xmlutil/dom2/ElementKt {
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/NamedNodeMap : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker, org/w3c/dom/NamedNodeMap {
-	public abstract fun get (I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun get (I)Lnl/adaptivity/xmlutil/dom2/Node;
 	public abstract fun getLength ()I
-	public abstract fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
-	public abstract fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public abstract fun getSize ()I
-	public abstract fun item (I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun item (I)Lnl/adaptivity/xmlutil/dom2/Node;
 	public abstract fun iterator ()Ljava/util/Iterator;
-	public abstract fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
-	public abstract fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
-	public abstract fun setNamedItem (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Attr;
-	public abstract fun setNamedItemNS (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public abstract fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun setNamedItem (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun setNamedItemNS (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 }
 
 public abstract interface class nl/adaptivity/xmlutil/dom2/Node : org/w3c/dom/Node {
@@ -1457,15 +1453,15 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractAttr : nl/adaptivi
 
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractAttrStorage : nl/adaptivity/xmlutil/dom2/NamedNodeMap {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttrStorage$Adapter;)V
-	public synthetic fun get (I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun get (I)Lnl/adaptivity/xmlutil/dom2/Node;
 	public final fun get (I)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	protected fun getAttrIndex (Ljava/lang/String;)I
 	protected fun getAttrIndex (Ljava/lang/String;Ljava/lang/String;)I
 	public final fun getLength ()I
-	public synthetic fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun getNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun getNamedItem (Ljava/lang/String;)Lorg/w3c/dom/Node;
-	public synthetic fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun getNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Node;
 	public abstract fun getSize ()I
@@ -1474,17 +1470,17 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractAttrStorage : nl/a
 	public fun iterator ()Ljava/util/Iterator;
 	public final fun removeAttr (Lorg/w3c/dom/Attr;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public abstract fun removeAttrAt (I)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
-	public synthetic fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun removeNamedItem (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun removeNamedItem (Ljava/lang/String;)Lorg/w3c/dom/Node;
-	public synthetic fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun removeNamedItemNS (Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Node;
 	public abstract fun set (ILnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
-	public synthetic fun setNamedItem (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun setNamedItem (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun setNamedItem (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun setNamedItem (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
-	public synthetic fun setNamedItemNS (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun setNamedItemNS (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun setNamedItemNS (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun setNamedItemNS (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 }
@@ -1946,7 +1942,7 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/impl/IAbstractParentN
 public final class nl/adaptivity/xmlutil/dom2/impl/LinearAttrStorage : nl/adaptivity/xmlutil/dom2/impl/AbstractAttrStorage {
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttrStorage$Adapter;)V
 	public fun getSize ()I
-	public synthetic fun item (I)Lnl/adaptivity/xmlutil/dom2/Attr;
+	public synthetic fun item (I)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun item (I)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun item (I)Lorg/w3c/dom/Node;
 	public fun removeAttrAt (I)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;

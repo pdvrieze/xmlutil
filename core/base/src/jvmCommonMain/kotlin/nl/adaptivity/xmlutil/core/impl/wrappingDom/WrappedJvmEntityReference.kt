@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.core.impl.dom.NodeImpl
 import org.w3c.dom.Node
 import org.w3c.dom.EntityReference as DOMEntityReference
 
-internal class EntityReferenceImpl(delegate: DOMEntityReference) : AbstractNodeImpl<DOMEntityReference>(delegate),
+internal class WrappedJvmEntityReference(delegate: DOMEntityReference) : WrappedJvmNode<DOMEntityReference>(delegate),
     DOMEntityReference {
 
     override fun insertBefore(newChild: Node, refChild: Node?): NodeImpl? {

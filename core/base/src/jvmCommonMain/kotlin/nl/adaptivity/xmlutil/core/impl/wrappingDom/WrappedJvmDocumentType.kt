@@ -24,18 +24,17 @@ import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.Node
 
-internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeImpl<PlatformDocumentType>(delegate),
+internal class WrappedJvmDocumentType(delegate: PlatformDocumentType) : WrappedJvmNode<PlatformDocumentType>(delegate),
     DocumentType {
 
     override fun getName(): String = delegate.name
 
     @Deprecated("No-op for now")
-    override fun getEntities(): WrappingNamedNodeMap = WrappingNamedNodeMap(delegate.entities)
+    override fun getEntities(): WrappingNamedNodeMap<WrappedJvmNode<PlatformNode>> = WrappingNamedNodeMap(delegate.entities)
 
     @Deprecated("No-op for now")
-    override fun getNotations(): WrappingNamedNodeMap {
+    override fun getNotations(): WrappingNamedNodeMap<WrappedJvmNode<PlatformNode>> {
         return WrappingNamedNodeMap(delegate.notations)
     }
 
@@ -69,7 +68,7 @@ internal class DocumentTypeImpl(delegate: PlatformDocumentType) : AbstractNodeIm
     override fun removeChild(node: PlatformNode): Nothing =
         throw DOMException.hierarchyRequestErr("No children in documenttype")
 
-    override fun cloneNode(deep: Boolean): DocumentTypeImpl {
-        return DocumentTypeImpl(delegate.cloneNode(deep) as PlatformDocumentType)
+    override fun cloneNode(deep: Boolean): WrappedJvmDocumentType {
+        return WrappedJvmDocumentType(delegate.cloneNode(deep) as PlatformDocumentType)
     }
 }

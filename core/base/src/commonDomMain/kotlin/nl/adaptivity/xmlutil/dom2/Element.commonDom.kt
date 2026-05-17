@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
 
@@ -41,4 +42,6 @@ public actual interface Element : Node, PlatformElement {
     actual override fun getElementsByTagName(qualifiedName: String): NodeList
     actual override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 
+    @ExperimentalXmlUtilApi
+    actual override fun getAttributes(): NamedNodeMap<Attr>
 }

@@ -22,53 +22,62 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
 import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 
-internal class WrappingNamedNodeMap(val delegate: PlatformNamedNodeMap) : NamedNodeMap {
+internal class WrappingNamedNodeMap<out T : WrappedJvmNode<*>>(val delegate: PlatformNamedNodeMap) :
+    NamedNodeMap<T> {
+
     override val size: Int get() = delegate.length
 
-    override fun item(index: Int): AttrImpl? {
-        return delegate.item(index)?.wrapAttr()
+    override fun item(index: Int): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.item(index)?.wrap() as T?
     }
 
-    override fun getNamedItem(qualifiedName: String): AttrImpl? {
-        return delegate.getNamedItem(qualifiedName)?.wrapAttr()
+    override fun getNamedItem(qualifiedName: String): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.getNamedItem(qualifiedName)?.wrap() as T?
     }
 
-    override fun getNamedItemNS(namespace: String?, localName: String): AttrImpl? {
-        return delegate.getNamedItemNS(namespace, localName)?.wrapAttr()
+    override fun getNamedItemNS(namespace: String?, localName: String): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.getNamedItemNS(namespace, localName)?.wrap() as T?
     }
 
-    override fun setNamedItem(attr: PlatformNode): Attr? {
-        return delegate.setNamedItem(attr.unWrap())?.wrapAttr()
+    override fun setNamedItem(attr: PlatformNode): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.setNamedItem(attr.unWrap())?.wrap() as T?
     }
 
-    override fun setNamedItemNS(attr: PlatformNode): AttrImpl? {
-        return delegate.setNamedItemNS(attr.unWrap())?.wrapAttr()
+    override fun setNamedItemNS(attr: PlatformNode): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.setNamedItemNS(attr.unWrap())?.wrap() as T?
     }
 
-    override fun removeNamedItem(qualifiedName: String): AttrImpl? {
-        return delegate.removeNamedItem(qualifiedName)?.wrapAttr()
+    override fun removeNamedItem(qualifiedName: String): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.removeNamedItem(qualifiedName)?.wrap() as T?
     }
 
-    override fun removeNamedItemNS(namespace: String?, localName: String): AttrImpl? {
-        return delegate.removeNamedItemNS(namespace, localName)?.wrapAttr()
+    override fun removeNamedItemNS(namespace: String?, localName: String): T? {
+        @Suppress("UNCHECKED_CAST")
+        return delegate.removeNamedItemNS(namespace, localName)?.wrap() as T?
     }
 
-    override fun iterator(): Iterator<AttrImpl> {
+    override fun iterator(): Iterator<T> {
         return IteratorImpl(delegate)
     }
 
     @Deprecated("Use size instead", ReplaceWith("size"))
-    public override fun getLength(): Int = size
+    override fun getLength(): Int = size
 
-    override fun get(index: Int): AttrImpl? = item(index)
+    override fun get(index: Int): T? = item(index)
 
-    private class IteratorImpl(private val delegate: PlatformNamedNodeMap) : Iterator<AttrImpl> {
+    private class IteratorImpl<T : WrappedJvmNode<*>>(private val delegate: PlatformNamedNodeMap) : Iterator<T> {
         private var next: Int = 0
-        override fun next(): AttrImpl {
-            return delegate.item(next++).wrapAttr()
+        override fun next(): T {
+            @Suppress("UNCHECKED_CAST")
+            return delegate.item(next++).wrap() as T
         }
 
         override fun hasNext(): Boolean {

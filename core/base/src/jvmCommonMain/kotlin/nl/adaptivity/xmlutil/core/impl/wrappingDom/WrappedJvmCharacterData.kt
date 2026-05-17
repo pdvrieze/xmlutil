@@ -26,9 +26,8 @@ import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.CharacterData
-import nl.adaptivity.xmlutil.dom2.Node
 
-internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N) : AbstractNodeImpl<N>(delegate),
+internal abstract class WrappedJvmCharacterData<N : PlatformCharacterData>(delegate: N) : WrappedJvmNode<N>(delegate),
     CharacterData {
     override fun getData(): String = delegate.data
 
@@ -36,7 +35,7 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
         delegate.data = data
     }
 
-    override fun getOwnerDocument(): DocumentImpl {
+    override fun getOwnerDocument(): WrappedJvmDocument {
         return checkNotNull(super.getOwnerDocument())
     }
 
@@ -82,7 +81,7 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
         throw DOMException.hierarchyRequestErr("No children in character data")
 
     @IgnorableReturnValue
-    override fun appendChild(node: AbstractNodeImpl<*>): Nothing =
+    override fun appendChild(node: WrappedJvmNode<*>): Nothing =
         throw DOMException.hierarchyRequestErr("No children in character data")
 
     @IgnorableReturnValue
@@ -93,5 +92,5 @@ internal abstract class CharacterDataImpl<N : PlatformCharacterData>(delegate: N
     override fun removeChild(node: PlatformNode): Nothing =
         throw DOMException.hierarchyRequestErr("No children in character data")
 
-    abstract override fun cloneNode(deep: Boolean): CharacterDataImpl<N>
+    abstract override fun cloneNode(deep: Boolean): WrappedJvmCharacterData<N>
 }

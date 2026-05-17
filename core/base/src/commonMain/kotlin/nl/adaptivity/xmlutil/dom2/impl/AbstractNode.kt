@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.length
 
@@ -63,7 +64,7 @@ internal constructor(
         return getParentNode()?.getSiblingAfter(this)
     }
 
-    public override fun getAttributes(): NamedNodeMap? = null
+    public override fun getAttributes(): NamedNodeMap<Attr>? = null
 
     override fun hasChildNodes(): Boolean = getChildNodes().length > 0
 

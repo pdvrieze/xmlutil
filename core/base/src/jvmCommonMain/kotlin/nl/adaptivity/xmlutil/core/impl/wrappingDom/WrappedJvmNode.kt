@@ -29,25 +29,25 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 import org.w3c.dom.Text
 import org.w3c.dom.UserDataHandler
 
-internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
+internal abstract class WrappedJvmNode<N : PlatformNode>(delegate: N) : Node {
     @Suppress("UNCHECKED_CAST")
     val delegate: N = delegate.unWrap()
 
-    override fun getOwnerDocument(): DocumentImpl? = delegate.ownerDocument.wrap()
+    override fun getOwnerDocument(): WrappedJvmDocument? = delegate.ownerDocument.wrap()
 
-    override fun getParentElement(): ElementImpl? {
+    override fun getParentElement(): WrappedJvmElement? {
         return (delegate.parentNode as PlatformElement?)?.wrap()
     }
 
-    final override fun getParentNode(): AbstractNodeImpl<*>? = delegate.parentNode?.wrap()
+    final override fun getParentNode(): WrappedJvmNode<*>? = delegate.parentNode?.wrap()
 
-    override fun getFirstChild(): AbstractNodeImpl<*>? = delegate.firstChild?.wrap()
+    override fun getFirstChild(): WrappedJvmNode<*>? = delegate.firstChild?.wrap()
 
-    override fun getLastChild(): AbstractNodeImpl<*>? = delegate.lastChild?.wrap()
+    override fun getLastChild(): WrappedJvmNode<*>? = delegate.lastChild?.wrap()
 
-    final override fun getPreviousSibling(): AbstractNodeImpl<*>? = delegate.previousSibling?.wrap()
+    final override fun getPreviousSibling(): WrappedJvmNode<*>? = delegate.previousSibling?.wrap()
 
-    final override fun getNextSibling(): AbstractNodeImpl<*>? = delegate.nextSibling?.wrap()
+    final override fun getNextSibling(): WrappedJvmNode<*>? = delegate.nextSibling?.wrap()
 
     final override fun getNodeName(): String = delegate.nodeName
     final override fun getNodetype(): NodeType = NodeType(delegate.nodeType)
@@ -68,13 +68,13 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
         delegate.nodeValue = value
     }
 
-    fun insertBefore(newChild: PlatformNode?, refChild: PlatformNode?): AbstractNodeImpl<*> {
+    fun insertBefore(newChild: PlatformNode?, refChild: PlatformNode?): WrappedJvmNode<*> {
         return delegate.insertBefore(newChild?.unWrap(), refChild?.unWrap()).wrap()
     }
 
     final override fun hasChildNodes(): Boolean = delegate.hasChildNodes()
 
-    override fun cloneNode(deep: Boolean): AbstractNodeImpl<*> {
+    override fun cloneNode(deep: Boolean): WrappedJvmNode<*> {
         return delegate.cloneNode(deep).wrap()
     }
 
@@ -130,32 +130,32 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
     }
 
     @IgnorableReturnValue
-    open fun appendChild(node: AbstractNodeImpl<*>): AbstractNodeImpl<*> {
+    open fun appendChild(node: WrappedJvmNode<*>): WrappedJvmNode<*> {
         return delegate.appendChild(node.unWrap()).wrap()
     }
 
     @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): AbstractNodeImpl<*> {
+    override fun appendChild(node: PlatformNode): WrappedJvmNode<*> {
         return delegate.appendChild(node.unWrap()).wrap()
     }
 
     @IgnorableReturnValue
-    fun replaceChild(newChild: AbstractNodeImpl<*>, oldChild: AbstractNodeImpl<*>): AbstractNodeImpl<*> {
+    fun replaceChild(newChild: WrappedJvmNode<*>, oldChild: WrappedJvmNode<*>): WrappedJvmNode<*> {
         return delegate.replaceChild(newChild.unWrap(), oldChild.unWrap()).wrap()
     }
 
     @IgnorableReturnValue
-    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): AbstractNodeImpl<*> {
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): WrappedJvmNode<*> {
         return delegate.replaceChild(newChild.unWrap(), oldChild.unWrap()).wrap()
     }
 
     @IgnorableReturnValue
-    fun removeChild(node: AbstractNodeImpl<*>): AbstractNodeImpl<*> {
+    fun removeChild(node: WrappedJvmNode<*>): WrappedJvmNode<*> {
         return delegate.removeChild(node.unWrap()).wrap()
     }
 
     @IgnorableReturnValue
-    override fun removeChild(node: PlatformNode): AbstractNodeImpl<*> {
+    override fun removeChild(node: PlatformNode): WrappedJvmNode<*> {
         return delegate.removeChild(node.unWrap()).wrap()
     }
 
@@ -168,7 +168,7 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as AbstractNodeImpl<*>
+        other as WrappedJvmNode<*>
 
         return delegate === other.delegate
     }
@@ -181,70 +181,70 @@ internal abstract class AbstractNodeImpl<N : PlatformNode>(delegate: N) : Node {
 
 }
 
-internal fun <T : PlatformNode> AbstractNodeImpl<T>.unWrap(): T = delegate
+internal fun <T : PlatformNode> WrappedJvmNode<T>.unWrap(): T = delegate
 
 internal fun <T : PlatformNode> T.unWrap(): T =
     @Suppress("UNCHECKED_CAST")
     when (this) {
-        is AbstractNodeImpl<*> -> delegate as T
+        is WrappedJvmNode<*> -> delegate as T
         else -> this
     }
 
 internal fun PlatformAttr.unWrap(): PlatformAttr = when (this) {
-    is AttrImpl -> delegate
+    is WrappedJvmAttr -> delegate
     else -> this
 }
 
 internal fun Attr.unWrap(): PlatformAttr = when (this) {
-    is AttrImpl -> delegate
+    is WrappedJvmAttr -> delegate
     else -> this
 }
 
 internal fun Node.unWrap(): PlatformNode = when (this) {
-    is AbstractNodeImpl<*> -> delegate
+    is WrappedJvmNode<*> -> delegate
     else -> this.wrap() // has to be actually wrapped to "work"
 }
 
-internal fun PlatformNode.wrap(): AbstractNodeImpl<*> = when (this) {
-    is AbstractNodeImpl<*> -> this
-    is PlatformAttr -> AttrImpl(this)
-    is PlatformCDATASection -> CDATASectionImpl(this)
-    is PlatformComment -> CommentImpl(this)
-    is PlatformDocument -> DocumentImpl(this)
-    is PlatformDocumentFragment -> DocumentFragmentImpl(this)
-    is PlatformDocumentType -> DocumentTypeImpl(this)
-    is PlatformElement -> ElementImpl(this)
-    is PlatformProcessingInstruction -> ProcessingInstructionImpl(this)
-    is Text -> TextImpl(this)
+internal fun PlatformNode.wrap(): WrappedJvmNode<*> = when (this) {
+    is WrappedJvmNode<*> -> this
+    is PlatformAttr -> WrappedJvmAttr(this)
+    is PlatformCDATASection -> WrappedJvmCDATASection(this)
+    is PlatformComment -> WrappedJvmComment(this)
+    is PlatformDocument -> WrappedJvmDocument(this)
+    is PlatformDocumentFragment -> WrappedJvmDocumentFragment(this)
+    is PlatformDocumentType -> WrappedJvmDocumentType(this)
+    is PlatformElement -> WrappedJvmElement(this)
+    is PlatformProcessingInstruction -> WrappedJvmProcessingInstruction(this)
+    is Text -> WrappedJvmText(this)
     else -> error("Node type ${NodeType(nodeType)} not supported")
 }
 
-internal fun Node.wrap(): AbstractNodeImpl<*> = when (this) {
-    is AbstractNodeImpl<*> -> this
+internal fun Node.wrap(): WrappedJvmNode<*> = when (this) {
+    is WrappedJvmNode<*> -> this
     else -> error("Node type ${getNodetype()} not supported")
 }
 
-internal fun PlatformDocument.wrap(): DocumentImpl = when (this) {
-    is DocumentImpl -> this
-    else -> DocumentImpl(this)
+internal fun PlatformDocument.wrap(): WrappedJvmDocument = when (this) {
+    is WrappedJvmDocument -> this
+    else -> WrappedJvmDocument(this)
 }
 
-internal fun PlatformElement.wrap(): ElementImpl = when (this) {
-    is ElementImpl -> this
-    else -> ElementImpl(this)
+internal fun PlatformElement.wrap(): WrappedJvmElement = when (this) {
+    is WrappedJvmElement -> this
+    else -> WrappedJvmElement(this)
 }
 
-internal fun Text.wrap(): TextImpl = when (this) {
-    is TextImpl -> this
-    else -> TextImpl(this)
+internal fun Text.wrap(): WrappedJvmText = when (this) {
+    is WrappedJvmText -> this
+    else -> WrappedJvmText(this)
 }
 
-internal fun PlatformDocumentType.wrap(): DocumentTypeImpl = when (this) {
-    is DocumentTypeImpl -> this
-    else -> DocumentTypeImpl(this)
+internal fun PlatformDocumentType.wrap(): WrappedJvmDocumentType = when (this) {
+    is WrappedJvmDocumentType -> this
+    else -> WrappedJvmDocumentType(this)
 }
 
-internal fun PlatformAttr.wrap(): AttrImpl = when (this) {
-    is AttrImpl -> this
-    else -> AttrImpl(this)
+internal fun PlatformAttr.wrap(): WrappedJvmAttr = when (this) {
+    is WrappedJvmAttr -> this
+    else -> WrappedJvmAttr(this)
 }

@@ -24,28 +24,28 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom2.Text
 
-internal open class TextImpl(delegate: PlatformText) : CharacterDataImpl<PlatformText>(delegate), Text {
+internal open class WrappedJvmText(delegate: PlatformText) : WrappedJvmCharacterData<PlatformText>(delegate), Text {
 
-    override fun splitText(offset: Int): TextImpl = delegate.splitText(offset).wrap()
+    override fun splitText(offset: Int): WrappedJvmText = delegate.splitText(offset).wrap()
 
     override fun isElementContentWhitespace(): Boolean = delegate.isElementContentWhitespace
 
     override fun getWholeText(): String = delegate.wholeText
 
-    override fun getParentElement(): ElementImpl? {
+    override fun getParentElement(): WrappedJvmElement? {
         return (delegate.parentNode as PlatformElement).wrap()
     }
 
     override fun getAttributes(): Nothing? = null
 
-    fun replaceWholeText(content: String): TextImpl =
+    fun replaceWholeText(content: String): WrappedJvmText =
         delegate.replaceWholeText(content).wrap()
 
     override fun toString(): String {
         return delegate.toString()
     }
 
-    override fun cloneNode(deep: Boolean): TextImpl {
-        return TextImpl(delegate.cloneNode(deep) as PlatformText)
+    override fun cloneNode(deep: Boolean): WrappedJvmText {
+        return WrappedJvmText(delegate.cloneNode(deep) as PlatformText)
     }
 }

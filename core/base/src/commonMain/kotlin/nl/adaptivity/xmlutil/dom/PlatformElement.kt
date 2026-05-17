@@ -21,8 +21,6 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-
 public expect interface PlatformElement : PlatformNode
 
 public expect val PlatformElement.namespaceURI: String?

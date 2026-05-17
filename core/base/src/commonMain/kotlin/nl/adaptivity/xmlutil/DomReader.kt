@@ -25,7 +25,6 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.*
-import nl.adaptivity.xmlutil.util.filterTyped
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
@@ -113,7 +112,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
     private val namespaceAttrs: List<Attr>
         get() {
             return _namespaceAttrs ?: (
-                    requireCurrentElem.getAttributes().filterTyped {
+                    requireCurrentElem.getAttributes().filter {
                         (it.getNamespaceURI() == null || it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) &&
                                 (it.getPrefix() == "xmlns" || (it.getPrefix()
                                     .isNullOrEmpty() && it.getLocalName() == "xmlns")) &&

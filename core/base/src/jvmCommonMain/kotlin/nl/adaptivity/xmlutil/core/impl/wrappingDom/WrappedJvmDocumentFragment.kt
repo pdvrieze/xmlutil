@@ -23,11 +23,11 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
 import nl.adaptivity.xmlutil.dom2.DocumentFragment
 
-internal class DocumentFragmentImpl(delegate: PlatformDocumentFragment) :
-    AbstractNodeImpl<PlatformDocumentFragment>(delegate), DocumentFragment {
+internal class WrappedJvmDocumentFragment(delegate: PlatformDocumentFragment) :
+    WrappedJvmNode<PlatformDocumentFragment>(delegate), DocumentFragment {
     override fun getNodeValue(): Nothing? = null
 
-    override fun getOwnerDocument(): DocumentImpl {
+    override fun getOwnerDocument(): WrappedJvmDocument {
         return checkNotNull(super.getOwnerDocument())
     }
 
@@ -35,7 +35,7 @@ internal class DocumentFragmentImpl(delegate: PlatformDocumentFragment) :
 
     override fun getAttributes(): Nothing? = null
 
-    override fun cloneNode(deep: Boolean): DocumentFragmentImpl {
-        return DocumentFragmentImpl(delegate.cloneNode(deep) as PlatformDocumentFragment)
+    override fun cloneNode(deep: Boolean): WrappedJvmDocumentFragment {
+        return WrappedJvmDocumentFragment(delegate.cloneNode(deep) as PlatformDocumentFragment)
     }
 }

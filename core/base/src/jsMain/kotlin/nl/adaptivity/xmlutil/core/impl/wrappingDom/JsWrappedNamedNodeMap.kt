@@ -26,7 +26,7 @@ import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.NamedNodeMap as DomNamedNodeMap
 
-internal class JsWrappedNamedNodeMap(val delegate: DomNamedNodeMap) : NamedNodeMap {
+internal class JsWrappedNamedNodeMap(val delegate: DomNamedNodeMap) : NamedNodeMap<Attr> {
     override val size: Int get() = delegate.length
 
     @Deprecated("Use size instead", replaceWith = ReplaceWith("size"), level = DeprecationLevel.WARNING)

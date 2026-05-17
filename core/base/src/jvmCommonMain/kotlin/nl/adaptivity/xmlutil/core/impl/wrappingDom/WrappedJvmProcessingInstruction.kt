@@ -22,11 +22,10 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
 
-internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction) :
-    AbstractNodeImpl<PlatformProcessingInstruction>(delegate), ProcessingInstruction {
+internal class WrappedJvmProcessingInstruction(delegate: PlatformProcessingInstruction) :
+    WrappedJvmNode<PlatformProcessingInstruction>(delegate), ProcessingInstruction {
     override fun getTarget(): String = delegate.target
 
     override fun getData(): String = delegate.data
@@ -41,7 +40,7 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
         delegate.nodeValue = value
     }
 
-    override fun getOwnerDocument(): DocumentImpl {
+    override fun getOwnerDocument(): WrappedJvmDocument {
         return checkNotNull(super.getOwnerDocument())
     }
 
@@ -59,7 +58,7 @@ internal class ProcessingInstructionImpl(delegate: PlatformProcessingInstruction
 
     override fun getAttributes(): Nothing? = null
 
-    override fun cloneNode(deep: Boolean): ProcessingInstructionImpl {
-        return ProcessingInstructionImpl(delegate.cloneNode(deep) as PlatformProcessingInstruction)
+    override fun cloneNode(deep: Boolean): WrappedJvmProcessingInstruction {
+        return WrappedJvmProcessingInstruction(delegate.cloneNode(deep) as PlatformProcessingInstruction)
     }
 }

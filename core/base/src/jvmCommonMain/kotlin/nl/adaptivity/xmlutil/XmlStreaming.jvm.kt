@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.core.impl.wrappingDom.WrappedJvmDOMImplementation
 import nl.adaptivity.xmlutil.core.internal.StringInOutBuffer
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom.PlatformNode
@@ -128,7 +128,7 @@ internal actual object XmlStreaming : IXmlStreaming {
         get() = SimpleDOMImplementation
 
     actual override val platformDOMImplementation: PlatformDOMImplementation
-        get() = DOMImplementationImpl.delegate
+        get() = WrappedJvmDOMImplementation.delegate
 
     @Deprecated("Platform nodes are supertypes", level = DeprecationLevel.HIDDEN)
     @ExperimentalXmlUtilApi

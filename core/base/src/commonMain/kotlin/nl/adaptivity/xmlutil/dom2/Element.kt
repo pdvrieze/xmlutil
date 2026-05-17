@@ -30,8 +30,7 @@ public expect interface Element : Node, PlatformElement {
 
     public fun getTagName(): String
 
-    public override fun getAttributes(): NamedNodeMap
-
+    public override fun getAttributes(): NamedNodeMap<Attr>
 
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
@@ -64,4 +63,4 @@ public val Element.namespaceURI: String? get() = getNamespaceURI()
 public val Element.prefix: String? get() = getPrefix()
 public val Element.localName: String get() = getLocalName() ?: getTagName()
 public val Element.tagName: String get() = getTagName()
-public val Element.attributes: NamedNodeMap get() = getAttributes()
+public val Element.attributes: NamedNodeMap<Attr> get() = getAttributes()

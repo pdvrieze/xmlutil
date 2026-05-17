@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.dom.PlatformElement
 import nl.adaptivity.xmlutil.dom2.Element
 import org.w3c.dom.TypeInfo
 
-internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<PlatformElement>(delegate), Element {
+internal class WrappedJvmElement(delegate: PlatformElement) : WrappedJvmNode<PlatformElement>(delegate), Element {
     override fun getLocalName(): String = delegate.localName ?: delegate.tagName
 
     override fun getTagName(): String = delegate.tagName
@@ -38,7 +38,7 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
         delegate.nodeValue = value
     }
 
-    override fun getOwnerDocument(): DocumentImpl {
+    override fun getOwnerDocument(): WrappedJvmDocument {
         return checkNotNull(super.getOwnerDocument())
     }
 
@@ -52,27 +52,27 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
 
     override fun getSchemaTypeInfo(): TypeInfo = delegate.schemaTypeInfo
 
-    override fun getAttributes(): WrappingNamedNodeMap = WrappingNamedNodeMap(delegate.attributes)
+    override fun getAttributes(): WrappingNamedNodeMap<WrappedJvmAttr> = WrappingNamedNodeMap(delegate.attributes)
 
     override fun hasAttributes(): Boolean = delegate.hasAttributes()
 
-    override fun getAttributeNode(qualifiedName: String): AttrImpl? {
-        return delegate.getAttributeNode(qualifiedName)?.wrapAttr()
+    override fun getAttributeNode(qualifiedName: String): WrappedJvmAttr? {
+        return delegate.getAttributeNode(qualifiedName)?.wrap()
     }
 
-    override fun getAttributeNodeNS(namespace: String?, localName: String): AttrImpl? {
-        return delegate.getAttributeNodeNS(namespace, localName)?.wrapAttr()
+    override fun getAttributeNodeNS(namespace: String?, localName: String): WrappedJvmAttr? {
+        return delegate.getAttributeNodeNS(namespace, localName)?.wrap()
     }
 
-    override fun setAttributeNode(attr: PlatformAttr): AttrImpl? {
+    override fun setAttributeNode(attr: PlatformAttr): WrappedJvmAttr? {
         return delegate.setAttributeNode(attr.unWrap())?.wrap()
     }
 
-    override fun setAttributeNodeNS(attr: PlatformAttr): AttrImpl? {
+    override fun setAttributeNodeNS(attr: PlatformAttr): WrappedJvmAttr? {
         return delegate.setAttributeNodeNS(attr.unWrap())?.wrap()
     }
 
-    override fun removeAttributeNode(attr: PlatformAttr): AttrImpl =
+    override fun removeAttributeNode(attr: PlatformAttr): WrappedJvmAttr =
         delegate.removeAttributeNode(attr.unWrap()).wrap()
 
     override fun getAttribute(qualifiedName: String): String? =
@@ -112,7 +112,7 @@ internal class ElementImpl(delegate: PlatformElement) : AbstractNodeImpl<Platfor
         delegate.setIdAttributeNode(idAttr, isId)
     }
 
-    override fun cloneNode(deep: Boolean): ElementImpl {
-        return ElementImpl(delegate.cloneNode(deep) as PlatformElement)
+    override fun cloneNode(deep: Boolean): WrappedJvmElement {
+        return WrappedJvmElement(delegate.cloneNode(deep) as PlatformElement)
     }
 }

@@ -64,7 +64,7 @@ public actual interface Node: PlatformNode {
     actual override fun normalize()
 
     @ExperimentalXmlUtilApi
-    actual override fun getAttributes(): NamedNodeMap?
+    actual override fun getAttributes(): NamedNodeMap<Attr>?
 
     @ExperimentalXmlUtilApi
     actual override fun hasChildNodes(): Boolean

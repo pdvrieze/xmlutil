@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,16 +18,16 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.dom
+package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-internal object EmptyNodeList : INodeListImpl {
-    override fun getLength(): Int = 0
+import nl.adaptivity.xmlutil.dom.PlatformComment
+import nl.adaptivity.xmlutil.dom2.Comment
 
-    override fun item(index: Int): Nothing? = null
+internal class WrappedJvmComment(delegate: PlatformComment) : WrappedJvmCharacterData<PlatformComment>(delegate), Comment {
 
-    override fun get(index: Int): Nothing? = item(index)
+    override fun getAttributes(): Nothing? = null
 
-    override fun iterator(): Iterator<Nothing> {
-        return emptyList<Nothing>().iterator()
+    override fun cloneNode(deep: Boolean): WrappedJvmComment {
+        return WrappedJvmComment(delegate.cloneNode(deep) as PlatformComment)
     }
 }

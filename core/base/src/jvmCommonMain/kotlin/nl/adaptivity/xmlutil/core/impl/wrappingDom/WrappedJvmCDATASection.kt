@@ -20,14 +20,25 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.dom.PlatformComment
-import nl.adaptivity.xmlutil.dom2.Comment
+import nl.adaptivity.xmlutil.dom.PlatformCDATASection
+import nl.adaptivity.xmlutil.dom2.CDATASection
 
-internal class CommentImpl(delegate: PlatformComment) : CharacterDataImpl<PlatformComment>(delegate), Comment {
 
-    override fun getAttributes(): Nothing? = null
+internal class WrappedJvmCDATASection(delegate: PlatformCDATASection) : WrappedJvmText(delegate), CDATASection {
 
-    override fun cloneNode(deep: Boolean): CommentImpl {
-        return CommentImpl(delegate.cloneNode(deep) as PlatformComment)
+    override fun getOwnerDocument(): WrappedJvmDocument {
+        return checkNotNull(super.getOwnerDocument())
+    }
+
+    override fun cloneNode(deep: Boolean): WrappedJvmCDATASection {
+        return WrappedJvmCDATASection(delegate.cloneNode(deep) as PlatformCDATASection)
+    }
+
+    override fun normalize() {
+        delegate.normalize()
+    }
+
+    override fun toString(): String {
+        return "<![CDATA[$data]]>"
     }
 }

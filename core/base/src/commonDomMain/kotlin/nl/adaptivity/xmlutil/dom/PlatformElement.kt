@@ -39,7 +39,7 @@ public actual interface PlatformElement : PlatformNode {
     public fun getLocalName(): String?
     public fun getTagName(): String
 
-    public fun getAttributes(): NamedNodeMap
+    public fun getAttributes(): PlatformNamedNodeMap
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
 

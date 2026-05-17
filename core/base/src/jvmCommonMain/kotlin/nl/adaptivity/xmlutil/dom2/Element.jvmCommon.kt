@@ -32,7 +32,7 @@ import org.w3c.dom.Attr as DomAttr
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
     public actual override fun getTagName(): String
-    public actual override fun getAttributes(): NamedNodeMap
+    public actual override fun getAttributes(): NamedNodeMap<Attr>
     @Suppress("WRONG_TYPE_FOR_JAVA_OVERRIDE") // we don't return empty value if missing
     public actual override fun getAttribute(qualifiedName: String): String?
     @Suppress("WRONG_TYPE_FOR_JAVA_OVERRIDE") // we don't return empty value if missing

@@ -27,7 +27,7 @@ import nl.adaptivity.xmlutil.dom2.DOMVersion
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import javax.xml.parsers.DocumentBuilderFactory
 
-internal object DOMImplementationImpl : DOMImplementation {
+internal object WrappedJvmDOMImplementation : DOMImplementation {
     val delegate: PlatformDOMImplementation =
         DocumentBuilderFactory.newInstance().apply {
             isNamespaceAware = true
@@ -35,7 +35,7 @@ internal object DOMImplementationImpl : DOMImplementation {
 
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
-    override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentTypeImpl {
+    override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): WrappedJvmDocumentType {
         return delegate.createDocumentType(qualifiedName, publicId, systemId).wrap()
     }
 
@@ -56,7 +56,7 @@ internal object DOMImplementationImpl : DOMImplementation {
         namespace: String?,
         qualifiedName: String?,
         documentType: PlatformDocumentType?
-    ): DocumentImpl {
+    ): WrappedJvmDocument {
         return delegate.createDocument(namespace, qualifiedName, documentType?.unWrap()).wrap()
     }
 }

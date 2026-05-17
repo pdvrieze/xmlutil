@@ -23,29 +23,17 @@
 package nl.adaptivity.xmlutil.util
 
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.Node
 
 
 /** Implement forEach with a built-in cast to attr. */
-internal inline fun NamedNodeMap.forEachAttr(body: (Attr) -> Unit) {
+internal inline fun <T: Node> NamedNodeMap<T>.forEachAttr(body: (T) -> Unit) {
     val l = this.getLength()
     for (idx in 0 until l) {
-        body(item(idx) as Attr)
+        body(item(idx)!!)
     }
-}
-
-/** A filter function on a [NamedNodeMap] that returns a list of all
- * (attributes)[Attr] that meet the [predicate].
- */
-internal inline fun NamedNodeMap.filterTyped(predicate: (Attr) -> Boolean): List<Attr> {
-    val result = mutableListOf<Attr>()
-    forEachAttr { attr ->
-        if (predicate(attr)) result.add(attr)
-    }
-    return result
 }
 
 internal fun Node.myLookupPrefix(namespaceUri: String): String? {
@@ -75,10 +63,10 @@ private fun Element.myLookupPrefixImpl(namespaceUri: String, seenPrefixes: Mutab
 
 internal fun Node.myLookupNamespaceURI(prefix: String): String? = when (this) {
     is Element -> {
-        getAttributes().filterTyped {
+        getAttributes().firstOrNull {
             (prefix == "" && it.getLocalName() == "xmlns") ||
                     (it.getPrefix() == "xmlns" && it.getLocalName() == prefix)
-        }.firstOrNull()?.getValue() ?: getParentNode()?.myLookupNamespaceURI(prefix)
+        }?.getValue() ?: getParentNode()?.myLookupNamespaceURI(prefix)
 
     }
     else -> null

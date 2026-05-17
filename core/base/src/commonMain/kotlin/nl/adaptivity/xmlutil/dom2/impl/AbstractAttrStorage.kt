@@ -22,12 +22,7 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
-import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.getNamedItemNS
-import nl.adaptivity.xmlutil.dom.length
+import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.localName
 import nl.adaptivity.xmlutil.dom2.prefix
@@ -35,7 +30,7 @@ import nl.adaptivity.xmlutil.dom2.prefix
 @ExperimentalXmlUtilApi
 public abstract class AbstractAttrStorage<out A: AbstractAttr<*,*>>(
     private val adapter: Adapter<A>
-): NamedNodeMap {
+): NamedNodeMap<A> {
     abstract override val size: Int
 
     @Deprecated("Use size instead", replaceWith = ReplaceWith("size"), level = DeprecationLevel.WARNING)

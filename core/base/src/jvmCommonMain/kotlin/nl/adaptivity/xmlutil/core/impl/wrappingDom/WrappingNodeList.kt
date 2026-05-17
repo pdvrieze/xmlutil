@@ -32,8 +32,8 @@ internal class WrappingNodeList(val delegate: PlatformNodeList) : NodeList {
         return NodeListIterator(this)
     }
 
-    override fun item(index: Int): AbstractNodeImpl<*> = delegate.item(index).wrap()
-    override fun get(index: Int): AbstractNodeImpl<*> = item(index)
+    override fun item(index: Int): WrappedJvmNode<*> = delegate.item(index).wrap()
+    override fun get(index: Int): WrappedJvmNode<*> = item(index)
 
     @Deprecated("Use size", replaceWith = ReplaceWith("size"))
     override fun getLength(): Int = delegate.length

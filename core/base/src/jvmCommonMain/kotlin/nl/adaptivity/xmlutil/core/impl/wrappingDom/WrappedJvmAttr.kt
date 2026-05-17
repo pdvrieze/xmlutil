@@ -24,10 +24,9 @@ import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.TypeInfo
 
-internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>(delegate), Attr {
+internal class WrappedJvmAttr(delegate: PlatformAttr) : WrappedJvmNode<PlatformAttr>(delegate), Attr {
     override fun getLocalName(): String? = when {
         delegate.namespaceURI.isNullOrEmpty() -> delegate.name
         else -> delegate.localName
@@ -36,7 +35,7 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
 
     override fun getLastChild(): Nothing? = null
 
-    override fun getOwnerElement(): ElementImpl? = delegate.ownerElement?.wrap()
+    override fun getOwnerElement(): WrappedJvmElement? = delegate.ownerElement?.wrap()
 
     override fun getName(): String = delegate.name
 
@@ -52,11 +51,11 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
         delegate.normalize()
     }
 
-    override fun cloneNode(deep: Boolean): AttrImpl {
-        return AttrImpl(delegate.cloneNode(deep) as PlatformAttr)
+    override fun cloneNode(deep: Boolean): WrappedJvmAttr {
+        return WrappedJvmAttr(delegate.cloneNode(deep) as PlatformAttr)
     }
 
-    override fun getOwnerDocument(): DocumentImpl {
+    override fun getOwnerDocument(): WrappedJvmDocument {
         return checkNotNull(super.getOwnerDocument())
     }
 
@@ -90,8 +89,4 @@ internal class AttrImpl(delegate: PlatformAttr) : AbstractNodeImpl<PlatformAttr>
         throw DOMException.hierarchyRequestErr("No children in attributes")
 
     override fun getAttributes(): Nothing? = null
-}
-
-internal fun PlatformNode.wrapAttr(): AttrImpl {
-    return (this as PlatformAttr).wrap()
 }

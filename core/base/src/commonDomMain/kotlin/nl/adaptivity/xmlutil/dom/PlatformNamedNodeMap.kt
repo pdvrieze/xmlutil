@@ -25,24 +25,24 @@ package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.dom2.Attr
 
-public actual interface PlatformNamedNodeMap : Iterable<Attr> {
+public actual interface PlatformNamedNodeMap {
     public val size: Int
     public fun getLength(): Int //= size
 
-    public fun item(index: Int): PlatformAttr?
-    public operator fun get(index: Int): Attr? //= item((index))
+    public fun item(index: Int): PlatformNode?
+    public operator fun get(index: Int): PlatformNode? //= item((index))
 
-    public fun getNamedItem(qualifiedName: String): PlatformAttr?
+    public fun getNamedItem(qualifiedName: String): PlatformNode?
 
-    public fun getNamedItemNS(namespace: String?, localName: String): PlatformAttr?
+    public fun getNamedItemNS(namespace: String?, localName: String): PlatformNode?
 
-    public fun setNamedItem(attr: PlatformNode): PlatformAttr?
+    public fun setNamedItem(attr: PlatformNode): PlatformNode?
 
-    public fun setNamedItemNS(attr: PlatformNode): PlatformAttr?
+    public fun setNamedItemNS(attr: PlatformNode): PlatformNode?
 
-    public fun removeNamedItem(qualifiedName: String): PlatformAttr?
+    public fun removeNamedItem(qualifiedName: String): PlatformNode?
 
-    public fun removeNamedItemNS(namespace: String?, localName: String): PlatformAttr?
+    public fun removeNamedItemNS(namespace: String?, localName: String): PlatformNode?
 }
 
 public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = iterator()
@@ -55,6 +55,6 @@ public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localN
  * Cross platform function for those implementations that do not implement get in the main class.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public inline operator fun PlatformNamedNodeMap.get(index:Int): PlatformAttr? = item(index)
+public inline operator fun PlatformNamedNodeMap.get(index:Int): PlatformNode? = item(index)
 
 
