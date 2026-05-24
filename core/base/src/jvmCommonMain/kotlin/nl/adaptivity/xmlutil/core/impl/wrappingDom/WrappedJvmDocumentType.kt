@@ -31,10 +31,12 @@ internal class WrappedJvmDocumentType(delegate: PlatformDocumentType) : WrappedJ
     override fun getName(): String = delegate.name
 
     @Deprecated("No-op for now")
-    override fun getEntities(): WrappingNamedNodeMap<WrappedJvmNode<PlatformNode>> = WrappingNamedNodeMap(delegate.entities)
+    override fun getEntities(): WrappingNamedNodeMap<WrappedJvmEntity> {
+        return WrappingNamedNodeMap(delegate.entities)
+    }
 
     @Deprecated("No-op for now")
-    override fun getNotations(): WrappingNamedNodeMap<WrappedJvmNode<PlatformNode>> {
+    override fun getNotations(): WrappingNamedNodeMap<WrappedJvmNotation> {
         return WrappingNamedNodeMap(delegate.notations)
     }
 

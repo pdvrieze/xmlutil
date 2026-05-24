@@ -19,6 +19,7 @@
  */
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction as ProcessingInstruction2
@@ -52,6 +53,9 @@ internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction
     override fun getTarget(): String = delegate.target
 
     override fun getAttributes(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
 
     override fun cloneNode(deep: Boolean): JsWrappedProcessingInstruction {
         return JsWrappedProcessingInstruction(delegate.cloneNode(deep) as DomProcessingInstruction)

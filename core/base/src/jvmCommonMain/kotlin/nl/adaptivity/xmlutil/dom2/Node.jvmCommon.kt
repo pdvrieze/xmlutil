@@ -67,6 +67,9 @@ public actual interface Node: PlatformNode {
     actual override fun getAttributes(): NamedNodeMap<Attr>?
 
     @ExperimentalXmlUtilApi
+    actual override fun hasAttributes(): Boolean
+
+    @ExperimentalXmlUtilApi
     actual override fun hasChildNodes(): Boolean
 
     @ExperimentalXmlUtilApi
@@ -87,9 +90,6 @@ public actual interface Node: PlatformNode {
     override fun setPrefix(prefix: String?) {
         throw DOMException.notSupportedErr("setPrefix is not supported by this implementation")
     }
-
-    @ExperimentalXmlUtilApi
-    override fun hasAttributes(): Boolean = false
 
     @ExperimentalXmlUtilApi
     actual override fun getBaseURI(): String?

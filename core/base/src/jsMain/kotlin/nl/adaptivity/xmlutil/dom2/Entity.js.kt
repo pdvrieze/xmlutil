@@ -18,21 +18,11 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.wrappingDom
+package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.core.impl.dom.NodeImpl
-import nl.adaptivity.xmlutil.dom2.EntityReference
-import org.w3c.dom.Node
-import org.w3c.dom.EntityReference as DOMEntityReference
+import nl.adaptivity.xmlutil.dom.PlatformEntity
 
-internal class WrappedJvmEntityReference(delegate: DOMEntityReference) : WrappedJvmNode<DOMEntityReference>(delegate),
-    EntityReference {
-
-    override fun insertBefore(newChild: Node, refChild: Node?): NodeImpl? {
-        return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap()).wrap() as NodeImpl?
-    }
-
-    override fun getAttributes(): Nothing? = null
-
+public actual interface Entity : Node, PlatformEntity {
+    public actual fun getPublicId(): String?
+    public actual fun getSystemId(): String?
 }
-

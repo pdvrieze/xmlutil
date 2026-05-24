@@ -61,7 +61,7 @@ public actual interface Element : Node, PlatformElement {
 
     public actual override fun cloneNode(deep: Boolean): Element
 
-    public override fun hasAttributes(): Boolean = attributes.size > 0
+    public override fun hasAttributes(): Boolean
 
     public override fun getSchemaTypeInfo(): TypeInfo? = null
 

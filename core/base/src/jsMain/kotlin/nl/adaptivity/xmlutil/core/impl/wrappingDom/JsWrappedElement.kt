@@ -55,6 +55,9 @@ internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement
 
     override fun getAttributes(): JsWrappedNamedNodeMap = JsWrappedNamedNodeMap(delegate.attributes)
 
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = delegate.hasAttributes()
+
     override fun getAttributeNode(qualifiedName: String): JsWrappedAttr? {
         return delegate.getAttributeNode(qualifiedName)?.wrapAttr()
     }

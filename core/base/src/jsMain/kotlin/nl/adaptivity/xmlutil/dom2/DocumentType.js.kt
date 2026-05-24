@@ -35,6 +35,12 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     public actual fun getPublicId(): String
     public actual fun getSystemId(): String
 
+    /* @since DOM Level 2 */
+    public actual fun getEntities(): NamedNodeMap<Entity>
+
+    /* @since DOM Level 2 */
+    public actual fun getNotations(): NamedNodeMap<Notation>
+
     actual override fun getNodeValue(): Nothing?
 
     @IgnorableReturnValue
@@ -53,7 +59,7 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
 
-    actual override fun getAttributes(): Nothing?
+    public actual override fun getAttributes(): Nothing?
 
     public actual override fun cloneNode(deep: Boolean): DocumentType
 }

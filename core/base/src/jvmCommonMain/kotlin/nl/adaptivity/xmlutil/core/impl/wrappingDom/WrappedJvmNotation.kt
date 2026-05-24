@@ -20,19 +20,22 @@
 
 package nl.adaptivity.xmlutil.core.impl.wrappingDom
 
-import nl.adaptivity.xmlutil.core.impl.dom.NodeImpl
-import nl.adaptivity.xmlutil.dom2.EntityReference
-import org.w3c.dom.Node
-import org.w3c.dom.EntityReference as DOMEntityReference
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Notation
+import org.w3c.dom.Notation as DomNotation
 
-internal class WrappedJvmEntityReference(delegate: DOMEntityReference) : WrappedJvmNode<DOMEntityReference>(delegate),
-    EntityReference {
+internal class WrappedJvmNotation(delegate: DomNotation): WrappedJvmNode<DomNotation>(delegate), Notation {
+    @ExperimentalXmlUtilApi
+    override fun getAttributes(): NamedNodeMap<Nothing> = EmptyNamedNodeMap
 
-    override fun insertBefore(newChild: Node, refChild: Node?): NodeImpl? {
-        return delegate.insertBefore(newChild.unWrap(), refChild?.unWrap()).wrap() as NodeImpl?
+    override fun getSystemId(): String? {
+        return delegate.systemId
     }
 
-    override fun getAttributes(): Nothing? = null
-
+    override fun getPublicId(): String? {
+        return delegate.publicId
+    }
 }
-

@@ -86,6 +86,9 @@ public actual interface Node : PlatformNode {
     public actual fun getAttributes(): NamedNodeMap<Attr>?
 
     @ExperimentalXmlUtilApi
+    public actual fun hasAttributes(): Boolean
+
+    @ExperimentalXmlUtilApi
     public actual fun cloneNode(deep: Boolean): Node
 
     @ExperimentalXmlUtilApi

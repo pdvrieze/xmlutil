@@ -25,7 +25,11 @@ import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Entity
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.Notation
 import org.w3c.dom.DocumentType as DOMDocumentType
 
 internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<DOMDocumentType>(delegate), DocumentType {
@@ -42,6 +46,14 @@ internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<
     override fun getPublicId(): String = delegate.publicId
 
     override fun getSystemId(): String = delegate.systemId
+
+    override fun getEntities(): NamedNodeMap<Nothing> {
+        return EmptyNamedNodeMap
+    }
+
+    override fun getNotations(): NamedNodeMap<Notation> {
+        return EmptyNamedNodeMap
+    }
 
     override fun getNamespaceURI(): Nothing? = null
     override fun getPrefix(): Nothing? = null
@@ -64,6 +76,8 @@ internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<
     public override fun getLastChild(): Nothing? = null
 
     override fun getAttributes(): Nothing? = null
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
 
     override fun cloneNode(deep: Boolean): JsWrappedDocumentType {
         return JsWrappedDocumentType(delegate.cloneNode(deep) as DOMDocumentType)

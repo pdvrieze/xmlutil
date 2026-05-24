@@ -23,18 +23,6 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.nextSibling
 
-internal object EmptyNodeList : AbstractNodeList<Nothing, Nothing> {
-    override fun getLength(): Int = 0
-
-    override fun item(index: Int): Nothing? = null
-
-    override fun get(index: Int): Nothing? = null
-
-    override fun iterator(): Iterator<Nothing> {
-        return emptyList<Nothing>().iterator()
-    }
-}
-
 @ExperimentalXmlUtilApi
 public class LinkedNodeList<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(private val head: N) :
     AbstractNodeList<N, P> {

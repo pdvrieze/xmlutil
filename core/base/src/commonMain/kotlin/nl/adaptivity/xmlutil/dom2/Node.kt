@@ -29,56 +29,84 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 @Serializable(NodeSerializer::class)
 public expect interface Node : PlatformNode {
     public fun getParentElement(): Element?// = parentNode as? Element
+    public fun getNodetype(): NodeType
 
     //region dom 1
+    /** @since DOM Level 1 */
     public fun getNodeName(): String
 
+    /** @since DOM Level 1 */
     @ExperimentalXmlUtilApi
     public fun getNodeValue(): String?
 
+    /** @since DOM Level 1 */
     @ExperimentalXmlUtilApi
     public fun setNodeValue(value: String?)
 
-    public fun getNodetype(): NodeType
+    /** @since DOM Level 1 */
     public fun getParentNode(): Node?
+
+    /** @since DOM Level 1 */
     public fun getChildNodes(): NodeList
+
+    /** @since DOM Level 1 */
     public fun getFirstChild(): Node?
+
+    /** @since DOM Level 1 */
     public fun getLastChild(): Node?
+
+    /** @since DOM Level 1 */
     public fun getPreviousSibling(): Node?
+
+    /** @since DOM Level 1 */
     public fun getNextSibling(): Node?
 
+    /** @since DOM Level 1 */
     @ExperimentalXmlUtilApi
     public fun getAttributes(): NamedNodeMap<Attr>?
 
+    /** @since DOM Level 1 */
     public fun getOwnerDocument(): Document?
 
+    /** @since DOM Level 1 */
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
     public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
+    /** @since DOM Level 1 */
     @IgnorableReturnValue
     public fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node
 
+    /** @since DOM Level 1 */
     @IgnorableReturnValue
     public fun removeChild(node: PlatformNode): Node
 
+    /** @since DOM Level 1 */
     @IgnorableReturnValue
     public fun appendChild(node: PlatformNode): Node
 
+    /** @since DOM Level 1 */
     @ExperimentalXmlUtilApi
     public fun hasChildNodes(): Boolean
 
+    /** @since DOM Level 1 */
     @ExperimentalXmlUtilApi
     public fun cloneNode(deep: Boolean): Node
-
 
     //endregion
 
     //region dom 2
 
+    /** @since DOM Level 2 */
+    public fun hasAttributes(): Boolean
     // public fun isSupported(feature: String, version: String): Boolean
+
+    /** @since DOM Level 2 */
     public fun getNamespaceURI(): String?
+    /** @since DOM Level 2 */
     public fun getPrefix(): String?
+
+    /** @since DOM Level 2 */
     public fun getLocalName(): String?
 
     //endregion
@@ -94,9 +122,13 @@ public expect interface Node : PlatformNode {
     @ExperimentalXmlUtilApi
     public fun isEqualNode(other: PlatformNode): Boolean
 
+    /** @since DOM Level 3 */
     @ExperimentalXmlUtilApi
     public fun getBaseURI(): String?
+
+    /** @since DOM Level 3 */
     public fun getTextContent(): String?
+    /** @since DOM Level 3 */
     public fun setTextContent(value: String?)
 
     @ExperimentalXmlUtilApi

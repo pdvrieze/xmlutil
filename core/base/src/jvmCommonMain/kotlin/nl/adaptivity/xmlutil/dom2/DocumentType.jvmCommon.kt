@@ -25,12 +25,19 @@ package nl.adaptivity.xmlutil.dom2
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import org.w3c.dom.NamedNodeMap
 
 public actual interface DocumentType : Node, PlatformDocumentType {
     public actual override fun getName(): String
     public actual override fun getPublicId(): String
     public actual override fun getSystemId(): String
+
+    /* @since DOM Level 2 */
+    public actual override fun getEntities(): NamedNodeMap<Entity>
+
+    /* @since DOM Level 2 */
+    public actual override fun getNotations(): NamedNodeMap<Notation>
+
+
     actual override fun getNodeValue(): Nothing?
     override fun getOwnerDocument(): Document?
 
@@ -53,12 +60,6 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     actual override fun getAttributes(): Nothing?
 
     actual override fun cloneNode(deep: Boolean): DocumentType
-
-    @Deprecated("No-op for now")
-    override fun getEntities(): NamedNodeMap? = null
-
-    @Deprecated("No-op for now")
-    override fun getNotations(): NamedNodeMap? = null
 
     @Deprecated("No-op for now")
     override fun getInternalSubset(): String? {

@@ -29,6 +29,12 @@ public expect interface DocumentType : Node, PlatformDocumentType {
     public fun getPublicId(): String
     public fun getSystemId(): String
 
+    /* @since DOM Level 2 */
+    public fun getEntities(): NamedNodeMap<Entity>
+
+    /* @since DOM Level 2 */
+    public fun getNotations(): NamedNodeMap<Notation>
+
     public override fun appendChild(node: PlatformNode): Nothing
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue

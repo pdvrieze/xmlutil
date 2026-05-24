@@ -23,11 +23,15 @@ package nl.adaptivity.xmlutil.dom2
 import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
 
 public expect interface DocumentFragment : Node, PlatformDocumentFragment {
+    /** @since DOM Level 2 */
     public override fun getOwnerDocument(): Document
 
+    /** @since DOM Level 1 */
     override fun getNodeValue(): Nothing?
 
+    /** @since DOM Level 1 */
     override fun getAttributes(): Nothing?
 
+    /** @since DOM Level 1 */
     override fun cloneNode(deep: Boolean): DocumentFragment
 }

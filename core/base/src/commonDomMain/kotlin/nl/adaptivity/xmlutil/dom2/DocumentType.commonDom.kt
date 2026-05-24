@@ -30,6 +30,12 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     actual override fun getAttributes(): Nothing?
     public actual override fun cloneNode(deep: Boolean): DocumentType
 
+    /* @since DOM Level 2 */
+    public actual fun getEntities(): NamedNodeMap<Entity>
+
+    /* @since DOM Level 2 */
+    public actual fun getNotations(): NamedNodeMap<Notation>
+
     @IgnorableReturnValue
     actual override fun appendChild(node: PlatformNode): Nothing
 

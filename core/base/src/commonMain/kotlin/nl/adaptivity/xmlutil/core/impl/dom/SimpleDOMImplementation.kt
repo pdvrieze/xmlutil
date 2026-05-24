@@ -23,6 +23,7 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom2.DOMVersion
+import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDOMImplementation
 
@@ -34,9 +35,13 @@ internal object SimpleDOMImplementation : AbstractDOMImplementation() {
         return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)
     }
 
-    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): DocumentImpl {
+    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): DocumentImpl {
         return DocumentImpl(documentType).also { doc ->
-            (documentType as DocumentTypeImpl?)?.setOwnerDocument(doc)
+            if (documentType != null) {
+                if (documentType.getOwnerDocument() != null) throw DOMException.wrongDocumentErr("Document type already has an owner document")
+                if (documentType !is DocumentTypeImpl) throw DOMException.wrongDocumentErr("Incorrect document type implementation")
+                documentType.setOwnerDocument(doc)
+            }
             if (!qualifiedName.isNullOrBlank()) {
                 val elem = when (namespace) {
                     null -> doc.createElement(qualifiedName)

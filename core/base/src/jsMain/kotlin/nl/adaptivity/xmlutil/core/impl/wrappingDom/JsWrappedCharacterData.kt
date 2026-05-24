@@ -93,6 +93,8 @@ internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N
     override fun getLastChild(): Nothing? = null
 
     override fun getAttributes(): Nothing? = null
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
 
     abstract override fun cloneNode(deep: Boolean): JsWrappedCharacterData<N>
 }

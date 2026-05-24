@@ -27,6 +27,10 @@ import nl.adaptivity.xmlutil.dom.getOwnerDocument
 import nl.adaptivity.xmlutil.dom.getPublicId
 import nl.adaptivity.xmlutil.dom.getSystemId
 import nl.adaptivity.xmlutil.dom2.DocumentType
+import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Entity
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Notation
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
 
 @XmlUtilInternal
@@ -56,6 +60,14 @@ public class DocumentTypeImpl internal constructor(
     override fun getPublicId(): String = _publicId
 
     override fun getSystemId(): String = _systemId
+
+    override fun getEntities(): NamedNodeMap<Entity> {
+        return EmptyNamedNodeMap
+    }
+
+    override fun getNotations(): NamedNodeMap<Notation> {
+        return EmptyNamedNodeMap
+    }
 
     override fun cloneNode(deep: Boolean): AbstractDocumentType<NodeImpl, ParentNodeImpl> {
         return DocumentTypeImpl(null, getName(), getPublicId(), getSystemId())

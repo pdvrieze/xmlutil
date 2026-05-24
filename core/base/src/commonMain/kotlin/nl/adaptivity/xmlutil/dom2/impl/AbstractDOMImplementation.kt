@@ -22,7 +22,9 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
+import nl.adaptivity.xmlutil.core.impl.dom.DocumentTypeImpl
 import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
+import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Document
@@ -41,10 +43,17 @@ public abstract class AbstractDOMImplementation : DOMImplementation {
         systemId: String
     ): DocumentType
 
+    public override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document {
+        if (documentType !is DocumentType) throw DOMException.wrongDocumentErr("Incorrect document type implementation")
+
+        return SimpleDOMImplementation.createDocument(namespace, qualifiedName, null)
+    }
+
+
     abstract override fun createDocument(
         namespace: String?,
         qualifiedName: String?,
-        documentType: PlatformDocumentType?
+        documentType: DocumentType?
     ): Document
 
 }

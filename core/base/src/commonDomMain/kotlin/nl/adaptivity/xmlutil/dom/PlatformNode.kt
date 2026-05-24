@@ -50,6 +50,8 @@ public actual interface PlatformNode {
 
     public fun getChildNodes(): NodeList
 
+    public fun hasAttributes(): Boolean
+
     public fun getFirstChild(): PlatformNode?
 
     public fun getLastChild(): PlatformNode?

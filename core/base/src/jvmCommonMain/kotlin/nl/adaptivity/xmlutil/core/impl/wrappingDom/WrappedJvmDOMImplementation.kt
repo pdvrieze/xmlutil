@@ -24,6 +24,8 @@ import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.DOMVersion
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import javax.xml.parsers.DocumentBuilderFactory
 
@@ -57,6 +59,16 @@ internal object WrappedJvmDOMImplementation : DOMImplementation {
         qualifiedName: String?,
         documentType: PlatformDocumentType?
     ): WrappedJvmDocument {
-        return delegate.createDocument(namespace, qualifiedName, documentType?.unWrap()).wrap()
+        val dt = documentType?.unWrap()
+        return delegate.createDocument(namespace, qualifiedName, dt).wrap()
+    }
+
+    override fun createDocument(
+        namespace: String?,
+        qualifiedName: String?,
+        documentType: DocumentType?
+    ): WrappedJvmDocument {
+        val dt = documentType?.unWrap() as PlatformDocumentType?
+        return delegate.createDocument(namespace, qualifiedName, dt).wrap()
     }
 }

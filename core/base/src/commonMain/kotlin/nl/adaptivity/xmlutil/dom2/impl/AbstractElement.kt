@@ -67,6 +67,10 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
 
     final override fun getAttributes(): NamedNodeMap<Attr> = _attrStorage
 
+    override fun hasAttributes(): Boolean {
+        return _attrStorage.size > 0
+    }
+
     final override fun getAttribute(qualifiedName: String): String? {
         return _attrStorage.getNamedItem(qualifiedName)?.getValue()
     }

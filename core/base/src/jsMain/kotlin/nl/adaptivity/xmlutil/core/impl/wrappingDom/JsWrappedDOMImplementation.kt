@@ -47,8 +47,23 @@ internal object JsWrappedDOMImplementation : DOMImplementation2 {
         return delegate.createDocumentType(qualifiedName, publicId, systemId).wrap() as DocumentType
     }
 
+    override fun createDocument(
+        namespace: String?,
+        qualifiedName: String?,
+        documentType: PlatformDocumentType?
+    ): Document {
+        if (documentType != null && documentType !is JsWrappedDocumentType) {
+            throw IllegalArgumentException("Only JsWrappedDocumentType is supported")
+        }
+        return createDocument(
+            namespace,
+            qualifiedName,
+            documentType?.unWrap() as? DocumentType
+        )
+    }
+
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document {
+    override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document {
         val documentType1 = documentType?.unWrap() as? PlatformDocumentType
         return when (val d = delegate.createDocument(namespace, qualifiedName, documentType1)) {
             is Document -> d

@@ -207,6 +207,7 @@ internal fun Node.unWrap(): PlatformNode = when (this) {
 
 internal fun PlatformNode.wrap(): WrappedJvmNode<*> = when (this) {
     is WrappedJvmNode<*> -> this
+    is PlatformNotation -> WrappedJvmNotation(this)
     is PlatformAttr -> WrappedJvmAttr(this)
     is PlatformCDATASection -> WrappedJvmCDATASection(this)
     is PlatformComment -> WrappedJvmComment(this)

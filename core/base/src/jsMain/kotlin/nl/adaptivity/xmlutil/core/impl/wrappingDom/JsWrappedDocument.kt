@@ -86,6 +86,8 @@ internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocum
         delegate.importNode(node.unWrap(), deep).wrap()
 
     override fun getAttributes(): Nothing? = null
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
 
     override fun getElementById(elementId: String): Element? {
         return delegate.getElementById(elementId)?.wrap()

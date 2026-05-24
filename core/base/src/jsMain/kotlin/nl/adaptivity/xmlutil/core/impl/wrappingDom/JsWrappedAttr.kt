@@ -70,6 +70,9 @@ internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegat
 
     override fun getAttributes(): Nothing? = null
 
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
+
     override fun isId(): Boolean {
         return delegate.isId()
     }

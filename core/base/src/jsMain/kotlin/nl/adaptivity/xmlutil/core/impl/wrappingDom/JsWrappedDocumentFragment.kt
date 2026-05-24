@@ -41,6 +41,8 @@ internal class JsWrappedDocumentFragment(delegate: DOMDocumentFragment) :
     override fun getLocalName(): Nothing? = null
 
     override fun getAttributes(): Nothing? = null
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
 
     override fun cloneNode(deep: Boolean): JsWrappedDocumentFragment {
         return JsWrappedDocumentFragment(delegate.cloneNode(deep) as DOMDocumentFragment)

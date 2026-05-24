@@ -24,7 +24,6 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.parentNode
 
 @ExperimentalXmlUtilApi
@@ -62,6 +61,9 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
     final override fun getChildNodes(): AbstractNodeList<N, P> = EmptyNodeList
 
     override fun getAttributes(): Nothing? = null
+    final override fun hasAttributes(): Boolean {
+        return false
+    }
 
     final override fun lookupPrefix(namespace: String): String? {
         return parentNode?.lookupPrefix(namespace) ?: when (namespace) {
