@@ -27,6 +27,7 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
@@ -135,6 +136,7 @@ fun Project.isKlibValidationEnabled(): Boolean = when {
     else -> property("native.deploy")?.toString()?.lowercase() == "all"
 }
 
+@OptIn(ExperimentalWasmDsl::class)
 fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean = true) {
     val ideaActive = System.getProperty("idea.active") == "true"
     val nativeState = when(property("native.deploy")?.toString()?.lowercase()) {
@@ -168,9 +170,6 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         "macos" -> Host.Macos
         else -> Host.Linux
     }
-
-    val manager = HostManager()//ext["hostManager"] as HostManager
-    val hostTarget = manager.targetByName("host")
 
     ext["ideaPreset"] = when (host) {
         Host.Windows -> when (HostManager.hostArchOrNull()) {
