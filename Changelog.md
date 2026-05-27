@@ -14,6 +14,10 @@ Features:
   entities containing tags).
 
 Changes:
+- Move the native DOM implementation to the common module and make it available
+  to all platforms (making it also available on nodejs). The implementation has
+  also been extended to implement most DOM 3 features. Note that much of this
+  is still experimental, and has partial tests.
 - Add new context element to xml exception that should allow for more detailed
   context to be provided in exceptions. This generally covers element names. This
   helps in cases of attributes where the location information is insufficient 
