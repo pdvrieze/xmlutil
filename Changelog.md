@@ -49,6 +49,8 @@ Changes:
 Fixes:
 - Make ElementSerializer work better in an existing document context by
   extracting the document from the decoder if possible.
+- Fix serialization of contextual properties as attributes where preceded by
+  elements (#364). 
 
 # 1.0.0-rc2
 *(Jan 18, 2026)<br />*

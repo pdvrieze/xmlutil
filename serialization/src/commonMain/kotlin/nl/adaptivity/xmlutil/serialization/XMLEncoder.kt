@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.serializer
@@ -617,7 +618,19 @@ internal open class XmlEncoderBase internal constructor(
 
             val effectiveSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)
 
-            defer(index, effectiveSerializer.safeDeferredWrite(encoder, value, isValueChild(index)))
+            if (elementDescriptor !is XmlContextualDescriptor) {
+                defer(index, effectiveSerializer.safeDeferredWrite(encoder, value, isValueChild(index)))
+            } else if (effectiveSerializer is ContextualSerializer<*>) {
+                // Let the contextual serializer do the resolution and defer with the concrete serializer.
+                effectiveSerializer.serializeSafe(encoder, value, isValueChild(index))
+            } else { // should be handled by the encoder, but if not, this will also work
+                val actualDescriptor = elementDescriptor.resolve(this, effectiveSerializer.descriptor)
+                defer(
+                    index,
+                    actualDescriptor,
+                    effectiveSerializer.safeDeferredWrite(encoder, value, isValueChild(index))
+                )
+            }
         }
 
         @ExperimentalSerializationApi
