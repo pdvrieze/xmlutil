@@ -22,7 +22,6 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
@@ -35,8 +34,7 @@ import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
-@XmlUtilInternal
-public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
+internal class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
     AbstractDocument<NodeImpl, ParentNodeImpl>({
         NodeStorage(it as DocumentImpl)
     }), ParentNodeImpl, Document {
@@ -139,7 +137,7 @@ public class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
 //        else -> e.toString()
     }
 
-    public companion object {
+    companion object {
         private var nextDocId: Int = 1
 
         private fun nextDocId(): Int = nextDocId++

@@ -22,17 +22,12 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.dom.PlatformEntity
-import nl.adaptivity.xmlutil.dom.PlatformEntityReference
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNotation
 
+@ExperimentalXmlUtilApi
 public actual interface Notation : Node, PlatformNotation {
     public actual override fun getPublicId(): String?
     public actual override fun getSystemId(): String?
 }
 
-public actual interface EntityReference : Node, PlatformEntityReference
-public actual interface Entity : Node, PlatformEntity {
-    public actual override fun getPublicId(): String?
-    public actual override fun getSystemId(): String?
-}

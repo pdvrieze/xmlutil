@@ -65,4 +65,24 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     override fun getInternalSubset(): String? {
         return null
     }
+
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun appendChild(node: Node): Nothing = appendChild(node as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
+        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
+        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun removeChild(node: Node): Nothing = removeChild(node as PlatformNode)
+
 }

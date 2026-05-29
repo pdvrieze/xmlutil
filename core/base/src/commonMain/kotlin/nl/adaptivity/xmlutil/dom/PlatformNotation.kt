@@ -25,5 +25,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 @ExperimentalXmlUtilApi
 public expect interface PlatformNotation : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect val PlatformNotation.publicId: String?
+@ExperimentalXmlUtilApi
 public expect val PlatformNotation.systemId: String?

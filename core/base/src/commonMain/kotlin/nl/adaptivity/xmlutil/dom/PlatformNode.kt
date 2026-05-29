@@ -22,7 +22,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect val PlatformNode.ownerDocument: PlatformDocument?
+@ExperimentalXmlUtilApi
 public expect val PlatformNode.nodeType: Short

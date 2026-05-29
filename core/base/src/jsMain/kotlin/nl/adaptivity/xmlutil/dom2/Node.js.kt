@@ -40,7 +40,9 @@ public actual interface Node : PlatformNode {
 
     override val nodeType: Short get() = getNodetype().value
     override val nodeName: String get() = getNodeName()
-    override val nodeValue: String? get() = getNodeValue()
+    override var nodeValue: String?
+        get() = getNodeValue()
+        set(value) { setNodeValue(value) }
     override var textContent: String?
         get() = getTextContent()
         set(value) {
@@ -114,6 +116,30 @@ public actual interface Node : PlatformNode {
     public actual fun getLocalName(): String?
     @ExperimentalXmlUtilApi
     public actual fun isDefaultNamespace(namespaceURI: String): Boolean
+
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public fun appendChild(node: Node): Node = appendChild(node as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public fun insertBefore(newChild: Node, refChild: Node?): Node? =
+        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public fun replaceChild(newChild: Node, oldChild: Node): Node =
+        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public fun removeChild(node: Node): Node = removeChild(node as PlatformNode)
+
 }
 
 @IgnorableReturnValue

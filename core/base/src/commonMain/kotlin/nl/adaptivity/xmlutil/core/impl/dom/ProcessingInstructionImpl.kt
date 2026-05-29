@@ -26,8 +26,7 @@ import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom.getNodeName
 import nl.adaptivity.xmlutil.dom2.impl.AbstractProcessingInstruction
 
-@XmlUtilInternal
-public class ProcessingInstructionImpl internal constructor(
+internal class ProcessingInstructionImpl internal constructor(
     ownerDocument: DocumentImpl,
     target: String,
     data: String,

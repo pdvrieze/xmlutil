@@ -21,21 +21,17 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.core.impl.dom.DocumentImpl
-import nl.adaptivity.xmlutil.core.impl.dom.DocumentTypeImpl
-import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
-import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.DocumentType
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractDOMImplementation : DOMImplementation {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
-    public fun createDocument(namespace: String?, qualifiedName: String): DocumentImpl =
-        SimpleDOMImplementation.createDocument(namespace, qualifiedName, null)
+    public fun createDocument(namespace: String?, qualifiedName: String): AbstractDocument<*, *> =
+        createDocument(namespace, qualifiedName, null)
 
     abstract override fun createDocumentType(
         qualifiedName: String,
@@ -43,10 +39,10 @@ public abstract class AbstractDOMImplementation : DOMImplementation {
         systemId: String
     ): DocumentType
 
-    public override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document {
+    public override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): AbstractDocument<*,*> {
         if (documentType !is DocumentType) throw DOMException.wrongDocumentErr("Incorrect document type implementation")
 
-        return SimpleDOMImplementation.createDocument(namespace, qualifiedName, null)
+        return createDocument(namespace, qualifiedName, documentType)
     }
 
 
@@ -54,6 +50,6 @@ public abstract class AbstractDOMImplementation : DOMImplementation {
         namespace: String?,
         qualifiedName: String?,
         documentType: DocumentType?
-    ): Document
+    ): AbstractDocument<*, *>
 
 }

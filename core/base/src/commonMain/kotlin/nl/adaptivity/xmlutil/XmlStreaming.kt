@@ -154,10 +154,6 @@ internal expect object XmlStreaming : IXmlStreaming {
     override fun newReader(reader: Reader, expandEntities: Boolean): XmlReader
 
     @ExperimentalXmlUtilApi
-    @Deprecated("Platform nodes are supertypes", level = DeprecationLevel.HIDDEN)
-    override fun newReader(source: Node): XmlReader
-
-    @ExperimentalXmlUtilApi
     override fun newReader(source: PlatformNode): XmlReader
 
     override fun newGenericReader(reader: Reader, expandEntities: Boolean): XmlReader

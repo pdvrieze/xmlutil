@@ -20,11 +20,18 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformAttr : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect fun PlatformAttr.getNamespaceURI(): String?
+@ExperimentalXmlUtilApi
 public expect fun PlatformAttr.getName(): String
+@ExperimentalXmlUtilApi
 public expect fun PlatformAttr.getLocalName(): String?
+@ExperimentalXmlUtilApi
 public expect fun PlatformAttr.getPrefix(): String?
+@ExperimentalXmlUtilApi
 public expect fun PlatformAttr.getValue(): String
 

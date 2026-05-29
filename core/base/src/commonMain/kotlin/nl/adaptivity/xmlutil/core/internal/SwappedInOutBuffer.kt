@@ -135,11 +135,7 @@ public class SwappedInOutBuffer(public val reader: Reader): InOutBuffer {
 
         // no copy builder anymore
         copyBuilder = null
-/*
-        ifAssertions {
-            assert(copySequenceStart < 0 && copyBuilder == null) { "Copy sequence already started" }
-        }
-*/
+
         copySequenceStart = srcBufPos
     }
 

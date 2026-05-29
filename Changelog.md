@@ -13,11 +13,20 @@ Features:
   of injecting entity parsing results into the parser (i.e. defining
   entities containing tags).
 
+Incompatible API:
+- There are a few incompatible changes in the DOM API. In particular: some return
+  values have been made nullable (as they are defined as such explicitly by the
+  DOM specification); NamedNodeList is made generic with Node as the base type
+  (rather than Attr) -  Note that for the attributes of an element, the generic type
+  is still Attr; Some methods on platform only is 
+
 Changes:
 - Move the native DOM implementation to the common module and make it available
   to all platforms (making it also available on nodejs). The implementation has
   also been extended to implement most DOM 3 features. Note that much of this
   is still experimental, and has partial tests.
+- As a result of DOM work some signatures have been made nullable as that is
+  required per the DOM specification (and semantics).
 - Add new context element to xml exception that should allow for more detailed
   context to be provided in exceptions. This generally covers element names. This
   helps in cases of attributes where the location information is insufficient 

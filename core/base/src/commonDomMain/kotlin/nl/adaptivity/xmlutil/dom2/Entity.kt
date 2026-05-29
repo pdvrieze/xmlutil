@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,17 +18,13 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.impl.dom
+package nl.adaptivity.xmlutil.dom2
 
-internal fun Appendable.appendTextContent(node: NodeImpl) {
-    when (node) {
-        is DocumentFragmentImpl,
-        is ElementImpl -> for (n in node.getChildNodes()) {
-            appendTextContent(n)
-        }
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformEntity
 
-        is AttrImpl -> append(node.getValue())
-
-        is CharacterDataImpl -> append(node.getData())
-    }
+@ExperimentalXmlUtilApi
+public actual interface Entity : Node, PlatformEntity {
+    public actual override fun getPublicId(): String?
+    public actual override fun getSystemId(): String?
 }

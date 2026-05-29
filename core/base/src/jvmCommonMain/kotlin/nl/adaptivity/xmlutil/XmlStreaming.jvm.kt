@@ -130,12 +130,6 @@ internal actual object XmlStreaming : IXmlStreaming {
     actual override val platformDOMImplementation: PlatformDOMImplementation
         get() = WrappedJvmDOMImplementation.delegate
 
-    @Deprecated("Platform nodes are supertypes", level = DeprecationLevel.HIDDEN)
-    @ExperimentalXmlUtilApi
-    actual override fun newReader(source: Node): XmlReader {
-        return DomReader(source, true)
-    }
-
     @ExperimentalXmlUtilApi
     actual override fun newReader(source: PlatformNode): XmlReader {
         return DomReader(source)

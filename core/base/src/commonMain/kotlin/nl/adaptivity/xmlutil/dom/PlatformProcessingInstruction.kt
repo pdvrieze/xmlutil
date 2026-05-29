@@ -20,8 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformProcessingInstruction : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect fun PlatformProcessingInstruction.getNodeName(): String
+@ExperimentalXmlUtilApi
 public expect fun PlatformProcessingInstruction.getData(): String
-

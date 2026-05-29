@@ -24,7 +24,7 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformNodeList
 
 public actual interface NodeList : PlatformNodeList, Iterable<Node> {
-    actual override fun get(index: Int): Node?
-    actual override fun item(index: Int): Node?
-    actual override fun iterator(): Iterator<Node>
+    public actual override fun get(index: Int): Node?
+    public actual override fun item(index: Int): Node?
+    public actual override fun iterator(): Iterator<Node>
 }

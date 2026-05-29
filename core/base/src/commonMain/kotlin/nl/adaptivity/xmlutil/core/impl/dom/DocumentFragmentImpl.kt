@@ -27,9 +27,10 @@ import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentFragment
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
 @XmlUtilInternal
-public class DocumentFragmentImpl internal constructor(
-    ownerDocument: DocumentImpl,
-) : AbstractDocumentFragment<NodeImpl, ParentNodeImpl>(ownerDocument, { LinearNodeStorage(ownerDocument.storageAdapter) }), ParentNodeImpl {
+internal class DocumentFragmentImpl(ownerDocument: DocumentImpl) :
+    AbstractDocumentFragment<NodeImpl, ParentNodeImpl>(
+        ownerDocument,
+        { LinearNodeStorage(ownerDocument.storageAdapter) }), ParentNodeImpl {
 
     override val self: DocumentFragmentImpl get() = this
 

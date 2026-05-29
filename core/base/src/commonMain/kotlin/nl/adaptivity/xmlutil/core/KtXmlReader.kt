@@ -67,7 +67,6 @@ public class KtXmlReader(
             this(StringInOutBuffer(source), expandEntities = expandEntities, relaxed = relaxed)
 
     private var inOutBuffer: InOutBuffer = inOutBuffer
-        private set
 
     // must have different name than function.
     private var _isWhitespace: Boolean = false
@@ -156,24 +155,30 @@ public class KtXmlReader(
     //endregion Entities
 
     //region Document declaration
+    @ExperimentalXmlUtilApi
     public override var version: String? = null
         @XmlUtilInternal
         private set
 
+    @ExperimentalXmlUtilApi
     public override var standalone: Boolean? = null
         @XmlUtilInternal
         private set
 
+    @ExperimentalXmlUtilApi
     override var encoding: String? = encoding
         @XmlUtilInternal
         private set
 
+    @ExperimentalXmlUtilApi
     public var docTypeName: String? = null
         private set
 
+    @ExperimentalXmlUtilApi
     public var docTypePublicId: String? = null
         private set
 
+    @ExperimentalXmlUtilApi
     public var docTypeSystemId: String? = null
         private set
     //endregion Document declaration
@@ -343,10 +348,7 @@ public class KtXmlReader(
         }
 
     @JvmInline
-    private value class AttributeDelegate(public val index: Int)
-
-
-    private class AttributesCollection
+    private value class AttributeDelegate(val index: Int)
 
     //endregion Attributes
 
@@ -386,13 +388,13 @@ public class KtXmlReader(
         }
 
     @JvmInline
-    private value class ElementDelegate(public val index: Int)
+    private value class ElementDelegate(val index: Int)
 
     private inner class ElementStack {
 
-        public operator fun get(idx: Int): ElementDelegate = element(idx)
+        operator fun get(idx: Int): ElementDelegate = element(idx)
 
-        public fun ensureCapacity(required: Int) {
+        fun ensureCapacity(required: Int) {
             val requiredCapacity = required * 3 // three slots per element
             if (elementData.size >= requiredCapacity) return
 

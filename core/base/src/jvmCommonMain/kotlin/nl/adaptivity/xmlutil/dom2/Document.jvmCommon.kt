@@ -107,6 +107,11 @@ public actual interface Document : Node, PlatformDocument {
 
     actual override fun getAttributes(): Nothing?
 
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun adoptNode(node: Node): Node? = adoptNode(node as PlatformNode)
+
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun importNode(node: Node, deep: Boolean): Node? = importNode(node as PlatformNode, deep)
 }
 
 public actual fun Document.importNode(

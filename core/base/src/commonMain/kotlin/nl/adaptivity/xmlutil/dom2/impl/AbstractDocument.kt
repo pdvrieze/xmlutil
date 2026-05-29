@@ -22,7 +22,6 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.*
 
@@ -196,12 +195,13 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
                     null, "" -> createElement(node.localName)
                     else -> createElementNS(u, node.name)
                 }
-                for (a in node.attributes) {
-                    val n = a.getName()
+                for (n in node.attributes) {
+                    val a = n as PlatformAttr
+                    val name = a.getName()
                     when {
-                        ':' in n -> r.setAttributeNS(a.getNamespaceURI(), n, a.getValue())
-                        n == "xmlns" -> r.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, n, a.getValue())
-                        else -> r.setAttribute(n, a.getValue())
+                        ':' in name -> r.setAttributeNS(a.getNamespaceURI(), name, a.getValue())
+                        name == "xmlns" -> r.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, name, a.getValue())
+                        else -> r.setAttribute(name, a.getValue())
                     }
                 }
                 for (c in node.childNodes) r.appendChild(importNode(c, true))

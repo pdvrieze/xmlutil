@@ -65,16 +65,6 @@ public interface IXmlStreaming {
      * @return A (potentially platform specific) [XmlReader], generally a [DomReader]
      */
     @ExperimentalXmlUtilApi
-    @Deprecated("Platform nodes are supertypes", level = DeprecationLevel.HIDDEN)
-    public fun newReader(source: Node): XmlReader = newReader(source as PlatformNode)
-
-    /**
-     * Create a new XML reader with the given source node as starting point.  Depending on the
-     * configuration, this parser can be platform specific.
-     * @param source The node to expose
-     * @return A (potentially platform specific) [XmlReader], generally a [DomReader]
-     */
-    @ExperimentalXmlUtilApi
     public fun newReader(source: PlatformNode): XmlReader
 
     /**

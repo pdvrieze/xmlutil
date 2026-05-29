@@ -20,6 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public actual interface PlatformDocumentType : PlatformNode {
     public fun getName(): String
     public fun getPublicId(): String
@@ -33,7 +35,11 @@ public actual interface PlatformDocumentType : PlatformNode {
 
 }
 
+@ExperimentalXmlUtilApi
 public actual fun PlatformDocumentType.getOwnerDocument(): PlatformDocument? = ownerDocument
+@ExperimentalXmlUtilApi
 public actual fun PlatformDocumentType.getName(): String = getName()
+@ExperimentalXmlUtilApi
 public actual fun PlatformDocumentType.getPublicId(): String = getPublicId()
+@ExperimentalXmlUtilApi
 public actual fun PlatformDocumentType.getSystemId(): String = getSystemId()

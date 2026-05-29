@@ -20,9 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom2.impl
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 
-@XmlUtilInternal
+@ExperimentalXmlUtilApi
 public object EmptyNodeList : AbstractNodeList<Nothing, Nothing> {
     override fun getLength(): Int = 0
 

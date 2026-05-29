@@ -22,14 +22,8 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.PlatformElement
-import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom.attributes
-import nl.adaptivity.xmlutil.dom.childNodes
-import nl.adaptivity.xmlutil.dom.getName
-import nl.adaptivity.xmlutil.dom.getNamespaceURI
-import nl.adaptivity.xmlutil.dom.getValue
 import nl.adaptivity.xmlutil.dom.iterator
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.*
@@ -212,9 +206,12 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
             null, "" -> ownerDocument.createElement(localName)
             else -> ownerDocument.createElementNS(u, tagName)
         }
-        for (a in attributes) when (val n = a.getNamespaceURI()) {
-            null, "" -> setAttribute(a.getName(), a.getValue())
-            else -> setAttributeNS(n, a.getName(), a.getValue())
+        for (n in attributes) {
+            val a = n as PlatformAttr
+            when (val nsUri = a.getNamespaceURI()) {
+                null, "" -> setAttribute(a.getName(), a.getValue())
+                else -> setAttributeNS(nsUri, a.getName(), a.getValue())
+            }
         }
 
         if (deep) for (c in getChildNodes()) e.appendChild(c.cloneNode(true))

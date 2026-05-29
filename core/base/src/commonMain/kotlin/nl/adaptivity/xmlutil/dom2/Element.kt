@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
 
@@ -54,8 +55,10 @@ public expect interface Element : Node, PlatformElement {
     public fun getElementsByTagName(qualifiedName: String): NodeList
     public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 
+    @ExperimentalXmlUtilApi
     override fun getNodeValue(): Nothing?
 
+    @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): Element
 }
 

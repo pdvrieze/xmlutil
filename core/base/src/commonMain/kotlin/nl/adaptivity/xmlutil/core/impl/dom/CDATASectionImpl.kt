@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractCDataSection
 
-public class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
+internal class CDATASectionImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
     TextImpl(ownerDocument, data), AbstractCDataSection<NodeImpl, ParentNodeImpl> {
 
     internal constructor(ownerDocument: DocumentImpl, original: PlatformCDATASection) : this(ownerDocument, original.getData())

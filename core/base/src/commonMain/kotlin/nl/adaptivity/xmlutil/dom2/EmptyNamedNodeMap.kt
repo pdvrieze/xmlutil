@@ -20,10 +20,10 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
-@XmlUtilInternal
+@ExperimentalXmlUtilApi
 public object EmptyNamedNodeMap: NamedNodeMap<Nothing> {
     override fun getLength(): Int = 0
     override fun get(index: Int): Nothing? = null

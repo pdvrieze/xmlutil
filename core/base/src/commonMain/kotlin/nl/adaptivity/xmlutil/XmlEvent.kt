@@ -59,6 +59,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
      * Class holding document declaration information. Note that the internal subset is not recorded
      * at all with this.
      */
+    @ExperimentalXmlUtilApi
     public class DocumentDeclEvent(
         extLocationInfo: XmlReader.LocationInfo?,
         public val docTypeName: String,

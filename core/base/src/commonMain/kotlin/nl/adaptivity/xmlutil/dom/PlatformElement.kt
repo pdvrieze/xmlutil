@@ -21,12 +21,19 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformElement : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect val PlatformElement.namespaceURI: String?
+@ExperimentalXmlUtilApi
 public expect val PlatformElement.prefix: String?
+@ExperimentalXmlUtilApi
 public expect val PlatformElement.name: String
+@ExperimentalXmlUtilApi
 public expect val PlatformElement.localName: String
+@ExperimentalXmlUtilApi
 public expect val PlatformElement.attributes: PlatformNamedNodeMap
+@ExperimentalXmlUtilApi
 public expect val PlatformElement.childNodes: PlatformNodeList
-

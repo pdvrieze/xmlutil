@@ -20,9 +20,15 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformDocumentType : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect fun PlatformDocumentType.getOwnerDocument(): PlatformDocument?
+@ExperimentalXmlUtilApi
 public expect fun PlatformDocumentType.getName(): String
+@ExperimentalXmlUtilApi
 public expect fun PlatformDocumentType.getPublicId(): String
+@ExperimentalXmlUtilApi
 public expect fun PlatformDocumentType.getSystemId(): String

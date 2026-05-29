@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,18 +18,10 @@
  * permissions and limitations under the License.
  */
 
-
-package nl.adaptivity.xmlutil.dom
+package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.Node
-
-public expect interface PlatformDocument : PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformEntityReference
 
 @ExperimentalXmlUtilApi
-public expect val PlatformDocument.childNodes: PlatformNodeList
-
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-@Deprecated("Use member instead", level = DeprecationLevel.HIDDEN)
-public expect fun Document.adoptNode(node: PlatformNode): Node?
+public actual interface EntityReference : Node, PlatformEntityReference

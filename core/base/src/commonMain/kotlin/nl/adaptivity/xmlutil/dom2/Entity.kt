@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,9 +20,12 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformEntity
 
 public expect interface Entity: Node, PlatformEntity {
+    @ExperimentalXmlUtilApi
     public fun getPublicId(): String?
+    @ExperimentalXmlUtilApi
     public fun getSystemId(): String?
 }

@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformDocumentFragment : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect val PlatformDocumentFragment.childNodes: PlatformNodeList

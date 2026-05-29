@@ -20,4 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
+@ExperimentalXmlUtilApi
 public actual interface PlatformEntityReference : PlatformNode

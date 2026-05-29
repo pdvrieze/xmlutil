@@ -27,8 +27,7 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractLeafNode
 import nl.adaptivity.xmlutil.dom2.impl.AbstractText
 
-@XmlUtilInternal
-public open class TextImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
+internal open class TextImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
     CharacterDataImpl(ownerDocument, data), AbstractText<NodeImpl, ParentNodeImpl> {
 
     internal constructor(ownerDocument: DocumentImpl, original: PlatformText) : this(ownerDocument, original.getData())

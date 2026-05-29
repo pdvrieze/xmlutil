@@ -44,9 +44,12 @@ public expect interface DocumentType : Node, PlatformDocumentType {
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?
 
+    @ExperimentalXmlUtilApi
     override fun getNodeValue(): Nothing?
 
+    @ExperimentalXmlUtilApi
     override fun getAttributes(): Nothing?
+    @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): DocumentType
 }
 

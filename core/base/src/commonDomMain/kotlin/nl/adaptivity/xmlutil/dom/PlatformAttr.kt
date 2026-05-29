@@ -22,6 +22,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 //@Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
 //    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
 //)
@@ -33,9 +35,12 @@ public actual interface PlatformAttr : PlatformNode {
     public fun getValue(): String
     public fun setValue(value: String)
 
+    @ExperimentalXmlUtilApi
     public fun isId(): Boolean
 
     public fun getOwnerElement(): PlatformElement?
+
+    @ExperimentalXmlUtilApi
     public override fun getOwnerDocument(): PlatformDocument
 
     public override fun appendChild(node: PlatformNode): Nothing
@@ -45,8 +50,13 @@ public actual interface PlatformAttr : PlatformNode {
     override fun getLastChild(): Nothing?
 }
 
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getNamespaceURI(): String? = getNamespaceURI()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getName(): String = getName()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getLocalName(): String? = getLocalName()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getPrefix(): String? = getPrefix()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getValue(): String = getValue()

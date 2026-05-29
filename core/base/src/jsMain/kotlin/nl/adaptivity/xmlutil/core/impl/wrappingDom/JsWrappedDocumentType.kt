@@ -26,9 +26,7 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Entity
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.Notation
 import org.w3c.dom.DocumentType as DOMDocumentType
 

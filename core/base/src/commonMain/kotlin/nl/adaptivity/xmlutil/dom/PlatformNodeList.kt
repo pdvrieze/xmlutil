@@ -20,8 +20,12 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformNodeList
+@ExperimentalXmlUtilApi
 public expect val PlatformNodeList.length: Int
 
+@ExperimentalXmlUtilApi
 public expect operator fun PlatformNodeList.iterator(): Iterator<PlatformNode>
 

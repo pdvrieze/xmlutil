@@ -20,8 +20,10 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformText
 
 public expect interface Text : CharacterData, PlatformText {
+    @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): Text
 }

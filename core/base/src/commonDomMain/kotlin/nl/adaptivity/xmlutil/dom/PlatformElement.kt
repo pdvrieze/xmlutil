@@ -23,15 +23,15 @@
 package nl.adaptivity.xmlutil.dom
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.ElementSerializer
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.NodeList
 
 @Suppress("DEPRECATION", "SERIALIZER_TYPE_INCOMPATIBLE")
 @Serializable(with = ElementSerializer::class)
 public actual interface PlatformElement : PlatformNode {
+    @ExperimentalXmlUtilApi
     public override fun getOwnerDocument(): PlatformDocument
 
     public fun getNamespaceURI(): String?
@@ -63,9 +63,15 @@ public actual interface PlatformElement : PlatformNode {
     public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
 }
 
+@ExperimentalXmlUtilApi
 public actual val PlatformElement.namespaceURI: String? get() = getNamespaceURI()
+@ExperimentalXmlUtilApi
 public actual val PlatformElement.prefix: String? get() = getPrefix()
+@ExperimentalXmlUtilApi
 public actual val PlatformElement.name: String get() = getNodeName()
+@ExperimentalXmlUtilApi
 public actual val PlatformElement.localName: String get() = getLocalName() ?: getNodeName()
+@ExperimentalXmlUtilApi
 public actual val PlatformElement.attributes: PlatformNamedNodeMap get() = getAttributes()
+@ExperimentalXmlUtilApi
 public actual val PlatformElement.childNodes: PlatformNodeList get() = getChildNodes()

@@ -22,11 +22,9 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom2.impl.AbstractCharacterData
 
-@XmlUtilInternal
-public abstract class CharacterDataImpl internal constructor(
+internal abstract class CharacterDataImpl internal constructor(
     ownerDocument: DocumentImpl,
     data: String,
     parentNode: ParentNodeImpl? = null

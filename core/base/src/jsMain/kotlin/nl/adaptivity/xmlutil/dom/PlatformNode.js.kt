@@ -32,7 +32,7 @@ public actual external interface PlatformNode {
     public val lastChild: PlatformNode?
     public val previousSibling: PlatformNode?
     public val nextSibling: PlatformNode?
-    public val nodeValue: String?
+    public var nodeValue: String?
     public var textContent: String?
 
     public fun lookupPrefix(namespace: String): String?

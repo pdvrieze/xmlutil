@@ -20,8 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformEntity : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect val PlatformEntity.publicId: String?
+@ExperimentalXmlUtilApi
 public expect val PlatformEntity.systemId: String?
-

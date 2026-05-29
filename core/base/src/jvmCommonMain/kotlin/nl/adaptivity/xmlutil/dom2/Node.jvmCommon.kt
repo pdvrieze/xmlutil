@@ -131,6 +131,25 @@ public actual interface Node: PlatformNode {
 
     @IgnorableReturnValue
     public actual override fun removeChild(node: PlatformNode): Node
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun appendChild(node: Node): Node = appendChild(node as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun insertBefore(newChild: Node, refChild: Node?): Node? =
+        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun replaceChild(newChild: Node, oldChild: Node): Node =
+        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun removeChild(node: Node): Node = removeChild(node as PlatformNode)
+
 }
 
 @IgnorableReturnValue

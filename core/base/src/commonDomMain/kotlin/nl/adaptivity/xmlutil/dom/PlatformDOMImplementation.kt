@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.DOMVersion
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 
@@ -37,9 +38,15 @@ public actual interface PlatformDOMImplementation {
     public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
 
     public fun getFeature(feature: String, version: String): Any?
+
+    @Deprecated("Use createDocument(namespace, qualifiedName, documentType) instead", ReplaceWith("createDocument(namespace, qualifiedName, documentType)"))
+    public fun createDocument(namespace: String?, qualifiedName: String?): PlatformDocument =
+        createDocument(namespace, qualifiedName, null)
+
 }
 
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public fun PlatformDOMImplementation.createDocument(namespace: String?, qualifiedName: String): PlatformDocument =
     createDocument(namespace, qualifiedName, null)
 

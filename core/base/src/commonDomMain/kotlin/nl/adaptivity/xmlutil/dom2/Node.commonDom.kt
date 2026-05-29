@@ -29,13 +29,14 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(NodeSerializer::class)
 public actual interface Node : PlatformNode {
-    actual override fun getFirstChild(): Node?
-    actual override fun getParentNode(): Node?
-    actual override fun getLastChild(): Node?
-    actual override fun getPreviousSibling(): Node?
-    actual override fun getNextSibling(): Node?
-    actual override fun getOwnerDocument(): Document?
-    actual override fun getParentElement(): Element?
+    public actual override fun getFirstChild(): Node?
+    public actual override fun getParentNode(): Node?
+    public actual override fun getLastChild(): Node?
+    public actual override fun getPreviousSibling(): Node?
+    public actual override fun getNextSibling(): Node?
+    public actual override fun getOwnerDocument(): Document?
+    public actual override fun getParentElement(): Element?
+    public actual override fun getChildNodes(): NodeList
 
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Node
@@ -80,6 +81,24 @@ public actual interface Node : PlatformNode {
     public actual fun getLocalName(): String?
     @ExperimentalXmlUtilApi
     public actual fun isDefaultNamespace(namespaceURI: String): Boolean
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun appendChild(node: Node): Node = appendChild(node as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun insertBefore(newChild: Node, refChild: Node?): Node? =
+        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun replaceChild(newChild: Node, oldChild: Node): Node =
+        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public fun removeChild(node: Node): Node = removeChild(node as PlatformNode)
 
 }
 

@@ -20,9 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
-import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 
 public actual interface DOMImplementation : PlatformDOMImplementation {
@@ -39,7 +37,6 @@ public actual interface DOMImplementation : PlatformDOMImplementation {
     ): Document
 
     public actual override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document
-
 
 }
 

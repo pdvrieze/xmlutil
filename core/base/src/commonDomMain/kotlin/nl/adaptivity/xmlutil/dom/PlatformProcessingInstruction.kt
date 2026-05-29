@@ -23,11 +23,14 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 @Suppress(
     "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
     "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING"
 )
 public actual interface PlatformProcessingInstruction : PlatformNode {
+    @ExperimentalXmlUtilApi
     public override fun getOwnerDocument(): PlatformDocument
 
     public fun getData(): String
@@ -37,5 +40,7 @@ public actual interface PlatformProcessingInstruction : PlatformNode {
     public fun getTarget(): String
 }
 
+@ExperimentalXmlUtilApi
 public actual fun PlatformProcessingInstruction.getNodeName(): String = getTarget()
+@ExperimentalXmlUtilApi
 public actual fun PlatformProcessingInstruction.getData(): String = getData()

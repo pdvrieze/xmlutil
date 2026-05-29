@@ -35,8 +35,10 @@ public expect interface ProcessingInstruction : Node, PlatformProcessingInstruct
 
     public fun setData(data: String)
 
+    @ExperimentalXmlUtilApi
     override fun getNodeValue(): String
 
+    @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): ProcessingInstruction
 
     @IgnorableReturnValue

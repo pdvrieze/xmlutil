@@ -20,11 +20,15 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public actual interface PlatformDocumentFragment : PlatformNode {
+    @ExperimentalXmlUtilApi
     public override fun getOwnerDocument(): PlatformDocument
 //    public fun getName(): String
 //    public fun getPublicId(): String
 //    public fun getSystemId(): String
 }
 
+@ExperimentalXmlUtilApi
 public actual val PlatformDocumentFragment.childNodes: PlatformNodeList get() = getChildNodes()

@@ -26,8 +26,7 @@ import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.impl.AbstractComment
 import nl.adaptivity.xmlutil.dom2.impl.AbstractLeafNode
 
-@XmlUtilInternal
-public class CommentImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
+internal class CommentImpl internal constructor(ownerDocument: DocumentImpl, data: String) :
     CharacterDataImpl(ownerDocument, data), AbstractComment<NodeImpl, ParentNodeImpl> {
 
     internal constructor(ownerDocument: DocumentImpl, original: PlatformComment) :

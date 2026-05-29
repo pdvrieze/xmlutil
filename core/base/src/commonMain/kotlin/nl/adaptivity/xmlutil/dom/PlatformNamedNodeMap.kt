@@ -20,9 +20,14 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformNamedNodeMap
 
-public expect operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr>
+@ExperimentalXmlUtilApi
+public expect operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformNode>
+@ExperimentalXmlUtilApi
 public expect val PlatformNamedNodeMap.length: Int
+@ExperimentalXmlUtilApi
 public expect fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode?
 

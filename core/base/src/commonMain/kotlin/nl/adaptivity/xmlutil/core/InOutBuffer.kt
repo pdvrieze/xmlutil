@@ -225,6 +225,7 @@ public interface InOutBuffer {
                     cnt = 0
                     markPeekedAsRead() // does newlines for us
                 }
+
                 else -> break
             }
             c = peek(cnt)
@@ -243,6 +244,7 @@ public interface InOutBuffer {
      */
     public fun readToCopyBuffer()
 
+    @XmlUtilInternal
     public enum class State(internal val value: Int) {
         FINALIZED(-3), INACTIVE(-2), PAUSED(-1), ACTIVE(0)
     }
@@ -270,16 +272,18 @@ public inline fun InOutBuffer.addDelimitedToCopySequence(delimiter: String, paus
                 if (consumeDelimiter) skip(delimiter.length)
                 return
             }
+
+            else if stopSequenceOnChar(c) -> {
+                if (pauseOnDelimiter) pauseCopySequence()
+                if (consumeDelimiter) skip(delimiter.length)
+                return
+            }
+
             else -> {
-                if (stopSequenceOnChar(c)) {
-                    if (pauseOnDelimiter) pauseCopySequence()
-                    if (consumeDelimiter) skip(delimiter.length)
-                    return
-                }
+                markPeekedAsRead()
+                c = peekChar()
             }
         }
-        markPeekedAsRead()
-        c = peekChar()
     }
 }
 

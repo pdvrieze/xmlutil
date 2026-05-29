@@ -22,8 +22,10 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNotation
 
+@ExperimentalXmlUtilApi
 public expect interface Notation: Node, PlatformNotation {
     public fun getPublicId(): String?
     public fun getSystemId(): String?

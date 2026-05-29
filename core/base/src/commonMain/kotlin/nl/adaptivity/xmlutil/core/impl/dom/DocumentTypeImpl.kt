@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.dom2.Notation
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
 
 @XmlUtilInternal
-public class DocumentTypeImpl internal constructor(
+internal class DocumentTypeImpl internal constructor(
     maybeOwnerDocument: DocumentImpl?,
     name: String,
     publicId: String,

@@ -18,9 +18,11 @@
  * permissions and limitations under the License.
  */
 
+@file:JvmName("Document_jvmKt")
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.Node
@@ -42,10 +44,15 @@ public actual val PlatformNode.nodeType: Short get() = nodeType
 
 public actual typealias PlatformAttr = org.w3c.dom.Attr
 
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getNamespaceURI(): String? = getNamespaceURI()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getName(): String = getName()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getLocalName(): String? = getLocalName()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getPrefix(): String? = getPrefix()
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getValue(): String = getValue()
 
 
@@ -85,7 +92,7 @@ public actual fun PlatformDocumentType.getSystemId(): String = systemId
 
 public actual typealias PlatformNamedNodeMap = org.w3c.dom.NamedNodeMap
 
-public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = IteratorImpl(this)
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformNode> = IteratorImpl(this)
 public actual val PlatformNamedNodeMap.length: Int get() = length
 public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
     return getNamedItemNS(namespace, localName)

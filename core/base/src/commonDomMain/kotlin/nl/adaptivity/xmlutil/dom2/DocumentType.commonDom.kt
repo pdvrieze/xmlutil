@@ -37,16 +37,34 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     public actual fun getNotations(): NamedNodeMap<Notation>
 
     @IgnorableReturnValue
-    actual override fun appendChild(node: PlatformNode): Nothing
+    public actual override fun appendChild(node: PlatformNode): Nothing
 
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
-    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+    public actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
-    actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+    public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
 
     @IgnorableReturnValue
-    actual override fun removeChild(node: PlatformNode): Nothing
+    public actual override fun removeChild(node: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun appendChild(node: Node): Nothing = appendChild(node as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
+        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
+        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    public override fun removeChild(node: Node): Nothing = removeChild(node as PlatformNode)
 
 }

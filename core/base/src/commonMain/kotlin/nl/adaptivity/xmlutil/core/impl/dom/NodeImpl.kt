@@ -26,10 +26,10 @@ import nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractNode
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
-public interface NodeImpl : IAbstractNode<NodeImpl, ParentNodeImpl> {
-    public override fun getOwnerDocument(): DocumentImpl?
+internal interface NodeImpl : IAbstractNode<NodeImpl, ParentNodeImpl> {
+    override fun getOwnerDocument(): DocumentImpl?
 
-    public companion object {
+    companion object {
 
         internal class StorageAdapter(private val ownerDocument: DocumentImpl): LinearNodeStorage.Adapter<NodeImpl, ParentNodeImpl>, AbstractAttrStorage.Adapter<AttrImpl> {
             override fun checkTypeAndOwner(node: PlatformNode): NodeImpl = when (node) {

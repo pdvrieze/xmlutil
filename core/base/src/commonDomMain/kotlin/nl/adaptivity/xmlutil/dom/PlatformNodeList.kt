@@ -22,18 +22,28 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public actual interface PlatformNodeList {
     public fun item(index: Int): PlatformNode? = get(index)
     public fun getLength(): Int
+
+    @Deprecated("Use getLength()", ReplaceWith("getLength()"))
+    public val size: Int get() = getLength()
 
     public operator fun get(index: Int): PlatformNode?
 
     public operator fun iterator(): Iterator<PlatformNode>
 }
 
+// The shadowed member is deprecated.
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@ExperimentalXmlUtilApi
 public val PlatformNodeList.size: Int get() = getLength()
+@ExperimentalXmlUtilApi
 public actual val PlatformNodeList.length: Int get() = getLength()
 
+@ExperimentalXmlUtilApi
 public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
     NodeListIterator(this)
 

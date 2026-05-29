@@ -22,7 +22,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public actual interface PlatformCharacterData : PlatformNode {
+    @ExperimentalXmlUtilApi
     public override fun getOwnerDocument(): PlatformDocument
 
     public fun getData(): String
@@ -51,4 +54,5 @@ public actual interface PlatformCharacterData : PlatformNode {
 
 }
 
+@ExperimentalXmlUtilApi
 public actual fun PlatformCharacterData.getData(): String = getData()

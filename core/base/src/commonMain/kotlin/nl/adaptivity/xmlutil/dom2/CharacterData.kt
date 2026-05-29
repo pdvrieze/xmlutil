@@ -55,8 +55,10 @@ public expect interface CharacterData : Node, PlatformCharacterData {
     override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?
+    @ExperimentalXmlUtilApi
     override fun getAttributes(): Nothing?
 
+    @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): CharacterData
 
     //endregion

@@ -22,15 +22,11 @@
 
 package nl.adaptivity.xmlutil.core.impl.dom
 
-import nl.adaptivity.xmlutil.dom.PlatformElement
-import nl.adaptivity.xmlutil.dom.localName
-import nl.adaptivity.xmlutil.dom.namespaceURI
-import nl.adaptivity.xmlutil.dom.prefix
 import nl.adaptivity.xmlutil.dom2.impl.AbstractElement
 import nl.adaptivity.xmlutil.dom2.impl.LinearAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
-public class ElementImpl internal constructor(
+internal class ElementImpl internal constructor(
     ownerDocument: DocumentImpl,
     private val namespaceURI: String?,
     private val localName: String,
@@ -42,13 +38,6 @@ public class ElementImpl internal constructor(
     attrStorage = { LinearAttrStorage(ownerDocument.storageAdapter) },
     parentNode = parentNode
 ), ParentNodeImpl {
-
-    internal constructor(ownerDocument: DocumentImpl, original: PlatformElement) : this(
-        ownerDocument,
-        original.namespaceURI,
-        original.localName,
-        original.prefix
-    )
 
     override val self: ElementImpl get() = this
 

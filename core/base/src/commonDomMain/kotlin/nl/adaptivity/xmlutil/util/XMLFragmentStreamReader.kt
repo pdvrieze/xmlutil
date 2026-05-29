@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -43,7 +43,8 @@ public actual class XMLFragmentStreamReader private constructor(delegate: XmlRea
         if (delegate.isStarted && delegate.eventType === EventType.START_ELEMENT) extendNamespace()
     }
 
-    public constructor(source: String, namespaces: Iterable<Namespace>) : this(getDelegate(source, namespaces))
+    public constructor(source: String, namespaces: Iterable<Namespace>) :
+            this(getDelegate(source, namespaces))
 
     override fun getNamespaceURI(prefix: String): String? {
         if (WRAPPERPPREFIX.contentEquals(prefix)) return null

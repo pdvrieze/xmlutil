@@ -34,6 +34,7 @@ public expect interface Attr : Node, PlatformAttr {
 
     //region overrides
     public override fun getOwnerDocument(): Document
+
     public override fun appendChild(node: PlatformNode): Nothing
 
     @ExperimentalXmlUtilApi
@@ -45,10 +46,13 @@ public expect interface Attr : Node, PlatformAttr {
     public override fun getFirstChild(): Nothing?
     public override fun getLastChild(): Nothing?
 
+    @ExperimentalXmlUtilApi
     public override fun getAttributes(): Nothing?
 
+    @ExperimentalXmlUtilApi
     override fun getNodeValue(): String
 
+    @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): Attr
 
     //endregion
@@ -61,6 +65,7 @@ public expect interface Attr : Node, PlatformAttr {
 
     //region dom 3
     //TODO public fun getSchemaTypeInfo(): TypeInfo?
+    @ExperimentalXmlUtilApi
     public fun isId(): Boolean
     //endregion
 

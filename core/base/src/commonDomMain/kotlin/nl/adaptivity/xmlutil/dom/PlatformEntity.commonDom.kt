@@ -20,10 +20,15 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
+@ExperimentalXmlUtilApi
 public actual interface PlatformEntity : PlatformNode {
     public fun getPublicId(): String?
     public fun getSystemId(): String?
 }
 
+@ExperimentalXmlUtilApi
 public actual val PlatformEntity.publicId: String? get() = getPublicId()
+@ExperimentalXmlUtilApi
 public actual val PlatformEntity.systemId: String? get() = getSystemId()

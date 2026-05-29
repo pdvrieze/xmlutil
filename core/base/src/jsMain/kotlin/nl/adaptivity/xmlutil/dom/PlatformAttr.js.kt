@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import org.w3c.dom.Attr as DomAttr
 
 @JsName("Attr")
@@ -33,10 +34,15 @@ public actual external interface PlatformAttr : PlatformNode {
     override val ownerDocument: PlatformDocument
 }
 
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getNamespaceURI(): String? = namespaceURI
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getName(): String = name
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getLocalName(): String? = localName
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getPrefix(): String? = prefix
+@ExperimentalXmlUtilApi
 public actual fun PlatformAttr.getValue(): String = value
 
 public fun DomAttr.isId(): Boolean = when {

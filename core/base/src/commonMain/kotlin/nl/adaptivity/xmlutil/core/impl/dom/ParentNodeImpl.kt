@@ -23,5 +23,4 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractParentNode
 
-@XmlUtilInternal
-public interface ParentNodeImpl : NodeImpl, IAbstractParentNode<NodeImpl, ParentNodeImpl>
+internal interface ParentNodeImpl : NodeImpl, IAbstractParentNode<NodeImpl, ParentNodeImpl>

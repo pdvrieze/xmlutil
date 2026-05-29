@@ -20,7 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformCharacterData : PlatformNode
 
+@ExperimentalXmlUtilApi
 public expect fun PlatformCharacterData.getData(): String
-

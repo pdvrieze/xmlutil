@@ -22,15 +22,12 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
-import nl.adaptivity.xmlutil.prefix
 
 public actual interface PlatformDocument : PlatformNode {
+    @ExperimentalXmlUtilApi
     public override fun getOwnerDocument(): Nothing? = null
 
     public fun getImplementation(): PlatformDOMImplementation
@@ -39,13 +36,16 @@ public actual interface PlatformDocument : PlatformNode {
 
     public fun getDocumentElement(): PlatformElement?
 
+    @Deprecated("Use getInputEncoding", ReplaceWith("getInputEncoding()"))
+    public val characterSet: String? get() = getInputEncoding()
+
     public fun getInputEncoding(): String?
 
     public fun createElement(localName: String): PlatformElement
 
     public fun createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
 
-    public fun Document.createElementNS(qName: QName): Element = when {
+    public fun createElementNS(qName: QName): PlatformElement = when {
         qName.prefix.isEmpty() -> createElementNS(qName.namespaceURI, qName.localPart)
         else -> createElementNS(qName.namespaceURI, "${qName.prefix}:${qName.localPart}")
     }
@@ -71,8 +71,12 @@ public actual interface PlatformDocument : PlatformNode {
 
 }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@Deprecated("Use member", level = DeprecationLevel.HIDDEN)
+@ExperimentalXmlUtilApi
 public val PlatformDocument.characterSet: String? get() = getInputEncoding()
 
+@ExperimentalXmlUtilApi
 public actual val PlatformDocument.childNodes: PlatformNodeList
     get() = getChildNodes()
 

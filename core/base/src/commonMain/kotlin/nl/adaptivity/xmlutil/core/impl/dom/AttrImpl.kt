@@ -25,7 +25,7 @@ import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 
-public class AttrImpl internal constructor(
+internal class AttrImpl internal constructor(
     ownerDocument: DocumentImpl,
     namespaceURI: String?,
     localName: String,

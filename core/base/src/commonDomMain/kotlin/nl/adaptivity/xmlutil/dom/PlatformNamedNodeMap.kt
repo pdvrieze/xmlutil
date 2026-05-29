@@ -23,8 +23,6 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.dom2.Attr
-
 public actual interface PlatformNamedNodeMap {
     public val size: Int
     public fun getLength(): Int //= size
@@ -45,7 +43,16 @@ public actual interface PlatformNamedNodeMap {
     public fun removeNamedItemNS(namespace: String?, localName: String): PlatformNode?
 }
 
-public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> = iterator()
+private class NamedNodemapIterator(private val map: PlatformNamedNodeMap): Iterator<PlatformNode> {
+    private var pos: Int = 0
+    override fun hasNext(): Boolean = pos < map.size
+
+    override fun next(): PlatformNode {
+        return map.item(pos++) ?: throw NoSuchElementException("No more elements")
+    }
+}
+
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformNode> = NamedNodemapIterator(this)
 public actual val PlatformNamedNodeMap.length: Int get() = getLength()
 public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
     return getNamedItemNS(namespace, localName)

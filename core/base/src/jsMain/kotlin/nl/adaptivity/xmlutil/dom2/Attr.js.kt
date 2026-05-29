@@ -61,11 +61,33 @@ public actual interface Attr : Node, PlatformAttr {
     public actual override fun removeChild(node: PlatformNode): Nothing
 
     public actual override fun getFirstChild(): Nothing?
+
     public actual override fun getLastChild(): Nothing?
     actual override fun getNodeValue(): String
-
     actual override fun getAttributes(): Nothing?
-    actual override fun cloneNode(deep: Boolean): Attr
 
+    actual override fun cloneNode(deep: Boolean): Attr
     public actual fun isId(): Boolean
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun appendChild(node: Node): Nothing = appendChild(node as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
+        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
+        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun removeChild(node: Node): Nothing = removeChild(node as PlatformNode)
 }

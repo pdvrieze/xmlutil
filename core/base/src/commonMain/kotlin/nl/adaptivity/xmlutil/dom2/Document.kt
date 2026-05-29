@@ -104,6 +104,7 @@ public fun Document.importNode(nodeX: Node): Node = importNode(node = nodeX as P
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val Document.characterSet: String? get() = getInputEncoding()
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public fun Document.createElementNS(qName: QName): Element = when {
     qName.prefix.isEmpty() -> createElementNS(qName.namespaceURI, qName.localPart)
     else -> createElementNS(qName.namespaceURI, "${qName.prefix}:${qName.localPart}")

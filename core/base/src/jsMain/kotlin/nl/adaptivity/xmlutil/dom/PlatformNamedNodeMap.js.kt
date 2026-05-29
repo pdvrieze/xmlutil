@@ -38,7 +38,7 @@ public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localN
     return getNamedItemNS(namespace, localName)
 }
 
-public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformAttr> =
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformNode> =
     IteratorImpl(this)
 
 private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMap): Iterator<N> {
