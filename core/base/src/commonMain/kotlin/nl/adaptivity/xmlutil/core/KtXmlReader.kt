@@ -135,14 +135,6 @@ public class KtXmlReader(
         return namespaceHolder.getNamespaceUri(prefix)
     }
 
-    override fun require(type: EventType, namespace: String?, name: String?) {
-        if (type != this._eventType || (namespace != null && namespace != elementStack[depth - 1].namespace)
-            || (name != null && name != elementStack[depth - 1].localName)
-        ) {
-            exception("expected: $type {$namespace}$name, found: $_eventType {$namespaceURI}$localName")
-        }
-    }
-
     //region Entities
     private var entityName: String? = null
 
