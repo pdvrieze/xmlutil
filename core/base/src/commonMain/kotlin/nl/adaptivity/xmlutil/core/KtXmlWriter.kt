@@ -30,7 +30,6 @@ import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.XmlWriter
 import nl.adaptivity.xmlutil.core.impl.NamespaceHolder
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.validateIndentString
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 
@@ -628,15 +627,17 @@ public class KtXmlWriter(
     }
 
     override fun endDocument() {
-        assert(depth == 0)
-
         if (state != WriteState.InTagContent) {
             throw XmlException("Attempting to end document when in invalid state: $state")
         }
 
         // TODO make this repairing behaviour optional
         while (depth > 0) {
-            endTag(namespaceAt(depth - 1), prefixAt(depth - 1), localNameAt(depth - 1))
+            endTag(
+                namespace = namespaceAt(depth - 1),
+                localName = localNameAt(depth - 1),
+                prefix = prefixAt(depth - 1)
+            )
         }
         flush()
     }
