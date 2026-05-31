@@ -74,21 +74,23 @@ public open class XmlEntity(
                                 i += 1
                             }
                             appendCodepoint(current)
+                            // i points at ';'; outer i += 1 below advances past it
                         } else {
-                            i += 1 // start of entity name
+                            i += 1 // skip '&', i now points at start of entity name
                             val end = replacementValue.indexOf(';', i)
                             val name = replacementValue.substring(i, end)
-                            i = end + 1
+                            i = end // i points at ';'; outer i += 1 below advances past it
                             val entity = requireNotNull(entityMap[name]) { "Unknown entity: $name" }
                             if (entity.isSimple) {
-                                append(entity.replacementValue)
+                                append(entity.simpleValue)
                             } else {
                                 val replacement = entity.resolveEmbeddedEntities(entityMap)
                                 append(replacement)
                             }
                         }
-
                     }
+
+                    else -> append(replacementValue[i])
                 }
                 i += 1
             }
