@@ -103,6 +103,51 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
         return _nodeStorage.insertBefore(newChild, refChild)
     }
 
+
+    protected fun collectElementsByTagName(
+        parentElement: AbstractElement<@UnsafeVariance N, @UnsafeVariance P>,
+        qualifiedName: String,
+        elems: MutableList<@UnsafeVariance N>,
+        matchAll: Boolean = qualifiedName == "*",
+    ) {
+
+        if ((matchAll || qualifiedName == parentElement.getTagName())) {
+            @Suppress("UNCHECKED_CAST")
+            elems.add(parentElement as N)
+        }
+
+        for (child in parentElement.getChildNodes()) {
+            val c = child as IAbstractNode<N, P>
+            if (c is AbstractElement<N, P>) {
+                collectElementsByTagName(c, qualifiedName, elems, matchAll)
+            }
+        }
+    }
+
+    protected fun collectElementsByTagNameNS(
+        parentElement: AbstractElement<@UnsafeVariance N, @UnsafeVariance P>,
+        namespace: String,
+        localName: String,
+        elems: MutableList<@UnsafeVariance N>,
+        matchAllNs: Boolean = namespace == "*",
+        matchAllLocalname: Boolean = localName == "*",
+    ) {
+        if ((matchAllNs || (namespace == (parentElement.getNamespaceURI() ?: "")))&&
+            (matchAllLocalname || localName == parentElement.getLocalName())) {
+            @Suppress("UNCHECKED_CAST")
+            elems.add(parentElement as N)
+        }
+
+        for (child in parentElement.getChildNodes()) {
+            val c = child as IAbstractNode<N, P>
+            if (c is AbstractElement<N, P>) {
+                collectElementsByTagNameNS(c, namespace, localName, elems, matchAllNs, matchAllLocalname)
+            }
+        }
+    }
+
+
+
     override fun normalize() {
         var prev: N? = null
 

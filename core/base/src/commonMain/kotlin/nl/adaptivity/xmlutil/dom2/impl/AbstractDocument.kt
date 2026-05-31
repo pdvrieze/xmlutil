@@ -117,47 +117,21 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
             .firstOrNull()
     }
 
-    private fun addElementsWithTagName(target: MutableList<AbstractElement<N, P>>, elem: AbstractElement<N, P>, qualifiedName: String) {
-        if (elem.tagName == qualifiedName) {
-            target.add(elem)
-        }
-        getChildNodes().asSequence()
-            .filterIsInstance<AbstractElement<N, P>>()
-            .forEach { addElementsWithTagName(target, it, qualifiedName) }
-    }
-
     override fun getElementsByTagName(qualifiedName: String): AbstractNodeList<N, P> {
-
-        val result = ArrayList<AbstractElement<N, P>>()
-        getChildNodes().asSequence()
-            .filterIsInstance<AbstractElement<N, P>>()
-            .forEach { addElementsWithTagName(result, it, qualifiedName) }
-
-        @Suppress("UNCHECKED_CAST")
-        return NodeListImpl(result) as AbstractNodeList<N, P>
-    }
-
-    private fun addElementsWithTagNameNS(target: MutableList<AbstractElement<N, P>>, elem: AbstractElement<N, P>, namespace: String?, localName: String) {
-        if (elem.namespaceURI == namespace && elem.localName == localName) {
-            target.add(elem)
-        }
-        getChildNodes().asSequence()
-            .filterIsInstance<AbstractElement<N, P>>()
-            .forEach { addElementsWithTagNameNS(target, it, namespace, localName) }
+        val docElem = getDocumentElement() ?: return EmptyNodeList
+        val elems = mutableListOf<N>()
+        collectElementsByTagName(docElem, qualifiedName, elems)
+        return NodeListImpl(elems)
     }
 
     override fun getElementsByTagNameNS(
         namespace: String?,
         localName: String
     ): AbstractNodeList<N, P> {
-
-        val result = ArrayList<AbstractElement<N, P>>()
-        getChildNodes().asSequence()
-            .filterIsInstance<AbstractElement<N, P>>()
-            .forEach { addElementsWithTagNameNS(result, it, namespace, localName) }
-
-        @Suppress("UNCHECKED_CAST")
-        return NodeListImpl(result) as AbstractNodeList<N, P>
+        val docElem = getDocumentElement() ?: return EmptyNodeList
+        val elems = mutableListOf<N>()
+        collectElementsByTagNameNS(docElem, namespace?:"", localName, elems)
+        return NodeListImpl(elems)
     }
 
     /**

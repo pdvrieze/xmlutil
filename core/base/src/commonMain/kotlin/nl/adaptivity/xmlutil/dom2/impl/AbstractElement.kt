@@ -119,46 +119,33 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
         return _attrStorage.removeAttr(attr)
     }
 
+
     override fun getElementsByTagName(qualifiedName: String): AbstractNodeList<N, P> {
-        val matchAll = qualifiedName == "*"
-        val elems = mutableListOf<N>()
+        if (!hasChildNodes()) return EmptyNodeList
 
-        fun collect(p: AbstractElement<N, P>) {
-            for (c in p.getChildNodes()) {
-                if (c is AbstractElement<N, P>) {
-                    if (matchAll || c.getTagName() == qualifiedName) {
-                        elems.add(c)
-                    }
-                    collect(c)
-                }
+        val elems = mutableListOf<N>()
+        for (c in getChildNodes()) {
+            if (c is AbstractElement<N, P>) {
+                collectElementsByTagName(c, qualifiedName, elems)
             }
         }
-        collect(this)
         return NodeListImpl(elems)
     }
 
-    override fun getElementsByTagNameNS(namespace: String?, localName: String): NodeListImpl<N, P> {
-        val _namespace = namespace ?: ""
+    override fun getElementsByTagNameNS(
+        namespace: String?,
+        localName: String
+    ): AbstractNodeList<N, P> {
+        if (!hasChildNodes()) return EmptyNodeList
 
-        val matchAllNs = namespace == "*"
-        val matchAllLocalname = localName == "*"
         val elems = mutableListOf<N>()
-
-        fun collect(p: AbstractElement<N, P>) {
-            for (it in p.getChildNodes()) {
-                if (it is AbstractElement<N, P>) {
-                    if ((matchAllNs || ((it.getNamespaceURI() ?: "") == _namespace)) &&
-                        (matchAllLocalname || it.getLocalName() == localName)) {
-                        elems.add(it)
-                    }
-                    collect(it)
-                }
+        for (c in getChildNodes()) {
+            if (c is AbstractElement<N, P>) {
+                collectElementsByTagNameNS(c, namespace?:"", localName, elems)
             }
         }
-        collect(this)
         return NodeListImpl(elems)
     }
-
 
     override fun lookupPrefix(namespace: String): String? {
         when (namespace) {
