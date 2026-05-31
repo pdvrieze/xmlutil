@@ -23,8 +23,6 @@ package nl.adaptivity.xmlutil.dom2.impl
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.*
-import nl.adaptivity.xmlutil.dom.attributes
-import nl.adaptivity.xmlutil.dom.iterator
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.*
 
@@ -206,11 +204,10 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
             null, "" -> ownerDocument.createElement(localName)
             else -> ownerDocument.createElementNS(u, tagName)
         }
-        for (n in attributes) {
-            val a = n as PlatformAttr
+        for (a in getAttributes()) {
             when (val nsUri = a.getNamespaceURI()) {
-                null, "" -> setAttribute(a.getName(), a.getValue())
-                else -> setAttributeNS(nsUri, a.getName(), a.getValue())
+                null, "" -> e.setAttribute(a.getName(), a.getValue())
+                else -> e.setAttributeNS(nsUri, a.getName(), a.getValue())
             }
         }
 
