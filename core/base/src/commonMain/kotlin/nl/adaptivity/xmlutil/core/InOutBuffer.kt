@@ -275,7 +275,7 @@ public inline fun InOutBuffer.addDelimitedToCopySequence(delimiter: String, paus
 
             else if stopSequenceOnChar(c) -> {
                 if (pauseOnDelimiter) pauseCopySequence()
-                if (consumeDelimiter) skip(delimiter.length)
+                // Do not consume delimiter.length chars — no actual delimiter was found here
                 return
             }
 
