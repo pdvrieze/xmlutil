@@ -292,7 +292,7 @@ public class KtXmlReader(
 
     private fun addUnresolvedAttribute(attrPrefix: String?, attrLocalName: String, attrValue: String) {
         val oldSize = attributeCount
-        val newSize = if (oldSize < 0) 1 else oldSize + 1
+        val newSize = oldSize + 1
         attributeCount = newSize
 
         ensureAttributeBufferCapacity(newSize)
