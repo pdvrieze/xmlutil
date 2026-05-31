@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.xmlStreaming
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TestDom {
+class TestDomInitializedWithDomWriterFromTagSoup {
 
     /**
      * Test that getElementsByTagName works correctly. Thanks to #265
