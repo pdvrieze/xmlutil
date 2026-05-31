@@ -684,7 +684,7 @@ public class KtXmlReader(
                 }
 
                 ' '.code, '\t'.code, '\n'.code, '\r'.code -> {
-                    val _ = next() // ignore whitespace
+                    val _ = inOutBuffer.read() // ignore whitespace
                 }
 
                 else -> when {
