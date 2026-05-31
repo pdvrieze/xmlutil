@@ -21,10 +21,10 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.isXmlWhitespace
 import kotlin.jvm.JvmStatic
 
 @ExperimentalXmlUtilApi
@@ -62,6 +62,11 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
 
     final override fun removeChild(node: PlatformNode): N = _nodeStorage.removeChild(self, node)
 
+    @XmlUtilInternal
+    public fun clear() {
+        _nodeStorage.clear()
+    }
+
     public final override fun getSiblingBefore(ref: Node): N? = nodeStorage.getSiblingBefore(ref)
 
     public final override fun getSiblingAfter(ref: Node): N? = nodeStorage.getSiblingAfter(ref)
@@ -69,13 +74,11 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
     private fun getTextContent(receiver: StringBuilder, node: IAbstractNode<N, P>) {
         when (node) {
             is AbstractComment<*, *> -> {}
-            is AbstractCharacterData<N, P> -> if (!isXmlWhitespace(node.getTextContent())) {
-                receiver.append(node.getTextContent())
-            }
+            is AbstractCharacterData<N, P> -> receiver.append(node.getTextContent())
 
             is AbstractDocumentFragment<*, *>,
             is AbstractElement<N, *> -> {
-                for (c in getChildNodes()) {
+                for (c in node.getChildNodes()) {
                     getTextContent(receiver, c)
                 }
             }
@@ -146,20 +149,20 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
         }
     }
 
-
-
     override fun normalize() {
         var prev: N? = null
 
         val it = _nodeStorage.iterator()
         for (n in it) {
             n.normalize()
-            if (n.getNodetype() == NodeType.TEXT_NODE) {
-                if (prev != null) {
+            when {
+                n.getNodetype() != NodeType.TEXT_NODE -> prev = null
+
+                prev == null -> prev = n
+
+                else -> {
                     prev.setTextContent(prev.getTextContent() + n.getTextContent())
                     it.remove()
-                } else {
-                    prev = n
                 }
             }
         }

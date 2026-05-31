@@ -65,7 +65,7 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
     override fun isEqualNode(other: PlatformNode): Boolean {
         when {
             this === other -> return true
-            nodeType != other.nodeType -> false //handle javascript instance check issues
+            nodeType != other.nodeType -> return false //handle javascript instance check issues
             other !is PlatformCharacterData -> return false
             data != other.getData() -> return false
         }

@@ -32,7 +32,7 @@ public interface MutableAbstractNodeStorage<out N : IAbstractNode<N, P>, out P :
 
     public fun appendChild(parent: @UnsafeVariance P, node: PlatformNode): N = checkTypeAndOwner(node).also {
         when (it) {
-            is DocumentFragment -> for (child in it.getChildNodes()) {
+            is DocumentFragment -> for (child in it.getChildNodes().toList()) {
                 val _ = appendChild(parent, child)
             }
 

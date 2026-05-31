@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.test
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.length
 import nl.adaptivity.xmlutil.dom2.*
@@ -237,6 +238,129 @@ class TestDomInitializedWithDomImplementation {
         assertDomError(DOMException.Error.HIERARCHY_REQUEST_ERR) {
             document.appendChild(document.createCDATASection("not allowed"))
         }
+    }
+
+    @Test
+    fun textContentTraversesNestedDescendantsAndPreservesWhitespaceNodes() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+        val child = document.createElement("child")
+
+        root.appendChild(document.createTextNode("prefix"))
+        root.appendChild(document.createTextNode(" "))
+        root.appendChild(child)
+        child.appendChild(document.createTextNode("nested"))
+        root.appendChild(document.createTextNode("\n"))
+
+        assertEquals("prefix nested\n", root.textContent)
+    }
+
+    @Test
+    fun previousSiblingReturnsTheImmediateSibling() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+        val first = document.createElement("first")
+        val second = document.createElement("second")
+        val third = document.createElement("third")
+
+        root.appendChild(first)
+        root.appendChild(second)
+        root.appendChild(third)
+
+        assertNull(first.previousSibling)
+        assertSame(first, second.previousSibling)
+        assertSame(second, third.previousSibling)
+    }
+
+    @Test
+    fun appendChildDetachesMovedNodeFromItsOldParent() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+        val sourceParent = document.createElement("source").also(root::appendChild)
+        val targetParent = document.createElement("target").also(root::appendChild)
+        val child = document.createElement("child").also(sourceParent::appendChild)
+
+        targetParent.appendChild(child)
+
+        assertEquals(emptyList(), sourceParent.childNodes.toList())
+        assertEquals(listOf(child), targetParent.childNodes.toList())
+        assertSame(targetParent, child.parentNode)
+    }
+
+    @Test
+    fun appendChildMovesDocumentFragmentChildrenAndEmptiesTheFragment() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+        val fragment = document.createDocumentFragment()
+        val first = document.createElement("first").also(fragment::appendChild)
+        val second = document.createElement("second").also(fragment::appendChild)
+
+        root.appendChild(fragment)
+
+        assertEquals(listOf(first, second), root.childNodes.toList())
+        assertEquals(0, fragment.childNodes.length)
+        assertSame(root, first.parentNode)
+        assertSame(root, second.parentNode)
+    }
+
+    @Test
+    fun replaceChildWithDocumentFragmentRemovesOldChildAndEmptiesTheFragment() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+        val before = document.createElement("before").also(root::appendChild)
+        val oldChild = document.createElement("old").also(root::appendChild)
+        val after = document.createElement("after").also(root::appendChild)
+        val fragment = document.createDocumentFragment()
+        val replacement0 = document.createElement("replacement0").also(fragment::appendChild)
+        val replacement1 = document.createElement("replacement1").also(fragment::appendChild)
+
+        val replaced = root.replaceChild(fragment, oldChild)
+
+        assertSame(oldChild, replaced)
+        assertNull(oldChild.parentNode)
+        assertEquals(listOf(before, replacement0, replacement1, after), root.childNodes.toList())
+        assertEquals(0, fragment.childNodes.length)
+        assertSame(root, replacement0.parentNode)
+        assertSame(root, replacement1.parentNode)
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    @Test
+    fun normalizeMergesOnlyAdjacentTextNodes() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+        val middle = document.createElement("middle")
+
+        root.appendChild(document.createTextNode("a"))
+        root.appendChild(document.createTextNode("b"))
+        root.appendChild(middle)
+        root.appendChild(document.createTextNode("c"))
+        root.appendChild(document.createTextNode("d"))
+
+        root.normalize()
+
+        assertEquals(3, root.childNodes.length)
+        assertEquals("ab", root.childNodes[0]?.textContent)
+        assertSame(middle, root.childNodes[1])
+        assertEquals("cd", root.childNodes[2]?.textContent)
+    }
+
+    @OptIn(ExperimentalXmlUtilApi::class)
+    @Test
+    fun isEqualNodeRejectsDifferentCharacterDataTypes() {
+        val document = newDocument()
+        val text = document.createTextNode("same")
+        val comment = document.createComment("same")
+
+        assertFalse(text.isEqualNode(comment))
+        assertFalse(comment.isEqualNode(text))
+    }
+
+    @Test
+    fun cdataUsesTheStandardNodeName() {
+        val document = newDocument()
+
+        assertEquals("#cdata-section", document.createCDATASection("value").nodeName)
     }
 
 

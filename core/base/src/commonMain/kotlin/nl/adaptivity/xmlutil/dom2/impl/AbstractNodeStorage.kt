@@ -46,11 +46,13 @@ public interface AbstractNodeStorage <out N : IAbstractNode<N, P>, out P : IAbst
     public fun getSiblingBefore(ref: Node): N? {
         val it = iterator()
         if (!it.hasNext()) return null
-        var cur = it.next()
-        while (it.hasNext()) {
-            if (cur == ref) return cur
-            cur = it.next()
-        }
+        var cur: N? = null
+        do {
+            val next = it.next()
+            if (next == ref) return cur
+            cur = next
+        } while (it.hasNext())
+
         return null
     }
 

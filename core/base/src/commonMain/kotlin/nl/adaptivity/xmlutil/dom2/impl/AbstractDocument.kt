@@ -106,14 +106,14 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
 
         return getChildNodes().asSequence()
             .filterIsInstance<AbstractElement<N, P>>()
-            .map { it.getElementById(elementId) }
+            .mapNotNull { it.getElementById(elementId) }
             .firstOrNull()
     }
 
     override fun getElementById(elementId: String): AbstractElement<N, P>? {
         return getChildNodes().asSequence()
             .filterIsInstance<AbstractElement<N, P>>()
-            .map { it.getElementById(elementId) }
+            .mapNotNull { it.getElementById(elementId) }
             .firstOrNull()
     }
 

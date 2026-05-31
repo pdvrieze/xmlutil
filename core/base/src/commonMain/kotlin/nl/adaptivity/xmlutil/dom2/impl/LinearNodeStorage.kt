@@ -42,8 +42,14 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
     override fun appendChild(parent: @UnsafeVariance P, node: N) {
         if (isAncestor(parent, node)) throw DOMException.hierarchyRequestErr("Cannot insert node into itself")
         if (node is AbstractDocumentFragment<*, *>) {
-            for (c in node.getChildNodes()) appendChild(parent, c)
+            @Suppress("UNCHECKED_CAST")
+            val childNodes = node.getChildNodes().toList() as List<N>
+            node.clear()
+            for (c in childNodes) {
+                appendChild(parent, c)
+            }
         } else {
+            node.getParentNode()?.removeChild(node)
             elements.add(node)
             adapter.setParentAndUpdateChildPos(parent, node, elements.size - 1)
         }
@@ -74,11 +80,15 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
         adapter.setParentAndUpdateChildPos(parent,oldChild, -1)
 
         if (newChild !is AbstractDocumentFragment<*, *>) {
+            newChild.getParentElement()?.removeChild(newChild)
             elements[idx] = newChild
             adapter.setParentAndUpdateChildPos(parent,newChild, idx)
         } else {
+            // remove, as all children are added.
+            parent.removeChild(oldChild)
             @Suppress("UNCHECKED_CAST")
             val childrenToAdd: List<N> = newChild.getChildNodes().toList() as List<N>
+            newChild.clear() // make sure to clear first as this will remove the parent.
 
             elements.addAll(idx, childrenToAdd)
             for (i in idx until elements.size) {
@@ -141,6 +151,7 @@ public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParent
             for (i in (nextPos - 1) until elements.size) {
                 adapter.setParentAndUpdateChildPos(parent, elements[i], i)
             }
+            nextPos -= 1
         }
 
         override fun next(): N {
