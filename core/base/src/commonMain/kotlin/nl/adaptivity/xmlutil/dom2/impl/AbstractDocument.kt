@@ -181,6 +181,7 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
         deep: Boolean
     ): N {
         val newNode = when (node) {
+            is Attr,
             is PlatformAttr -> {
                 val n = node.getName()
                 when {
@@ -190,6 +191,7 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
                 }.also { it.value = node.getValue() }
             }
 
+            is Element,
             is PlatformElement -> {
                 val r = when (val u = node.namespaceURI) {
                     null, "" -> createElement(node.localName)
@@ -204,23 +206,34 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
                         else -> r.setAttribute(name, a.getValue())
                     }
                 }
-                for (c in node.childNodes) r.appendChild(importNode(c, true))
+                if (deep) {
+                    for (c in node.childNodes) r.appendChild(importNode(c, true))
+                }
 
                 r
             }
 
-            is PlatformDocumentFragment if deep -> createDocumentFragment().also { t ->
-                for (c in node.childNodes) t.appendChild(importNode(c, true))
+            is DocumentFragment,
+            is PlatformDocumentFragment -> when {
+                deep -> createDocumentFragment().also { t ->
+                    for (c in node.childNodes) t.appendChild(importNode(c, true))
+                }
+
+                else -> createDocumentFragment()
             }
 
-            is PlatformDocumentFragment -> createDocumentFragment()
-
+            is CDATASection,
             is PlatformCDATASection -> createCDATASection(node.getData())
 
+            is Text,
             is PlatformText -> createTextNode(node.getData())
 
+            is Comment,
             is PlatformComment -> createComment(node.getData())
+
+            is ProcessingInstruction,
             is PlatformProcessingInstruction -> createProcessingInstruction(node.getNodeName(), node.getData())
+
             else -> throw DOMException.notSupportedErr("Cannot import node of type ${node::class.simpleName}")
         }
 
