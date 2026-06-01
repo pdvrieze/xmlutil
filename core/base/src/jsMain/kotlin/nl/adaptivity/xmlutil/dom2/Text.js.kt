@@ -20,9 +20,13 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformText
 
 public actual interface Text : CharacterData, PlatformText {
     public actual override fun cloneNode(deep: Boolean): Text
+
+    @ExperimentalXmlUtilApi
+    public actual fun getWholeText(): String
 
 }

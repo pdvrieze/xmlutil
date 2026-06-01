@@ -18,6 +18,8 @@
  * permissions and limitations under the License.
  */
 
+@file:MustUseReturnValues
+
 package nl.adaptivity.xmlutil.dom2
 
 import nl.adaptivity.xmlutil.dom.PlatformText
@@ -38,18 +40,7 @@ public actual interface Text : CharacterData, PlatformText {
         return isXmlWhitespace(data)
     }
 
-    override fun getWholeText(): String {
-        var node: Text? = this
-        while (node?.previousSibling?.getNodetype() == NodeType.TEXT_NODE) { node = node.previousSibling as Text}
-
-        return buildString {
-            while (node?.getNodetype() == NodeType.TEXT_NODE) {
-                append(getData())
-
-                node = node.nextSibling as Text?
-            }
-        }
-    }
+    actual override fun getWholeText(): String
 
     override fun replaceWholeText(content: String?): org.w3c.dom.Text? {
         TODO("not implemented")

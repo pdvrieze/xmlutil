@@ -26,4 +26,7 @@ import nl.adaptivity.xmlutil.dom.PlatformText
 public expect interface Text : CharacterData, PlatformText {
     @ExperimentalXmlUtilApi
     override fun cloneNode(deep: Boolean): Text
+
+    @ExperimentalXmlUtilApi
+    public fun getWholeText(): String
 }

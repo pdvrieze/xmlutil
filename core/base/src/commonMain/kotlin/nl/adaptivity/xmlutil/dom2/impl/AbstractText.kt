@@ -21,16 +21,10 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.Text
-import nl.adaptivity.xmlutil.dom2.data
-import nl.adaptivity.xmlutil.dom2.localName
-import nl.adaptivity.xmlutil.dom2.namespaceURI
-import nl.adaptivity.xmlutil.dom2.nodeType
-import nl.adaptivity.xmlutil.dom2.prefix
-import nl.adaptivity.xmlutil.dom2.value
+import nl.adaptivity.xmlutil.dom2.nextSibling
+import nl.adaptivity.xmlutil.dom2.previousSibling
 
 @ExperimentalXmlUtilApi
 public interface AbstractText<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>> :
@@ -46,5 +40,18 @@ public interface AbstractText<out N : IAbstractNode<N, P>, out P : IAbstractPare
         return getOwnerDocument().createTextNode(getData())
     }
 
+    @ExperimentalXmlUtilApi
+    override fun getWholeText(): String {
+        var node: Text? = this
+        while (node?.previousSibling is Text) { node = node.previousSibling as Text}
+
+        return buildString {
+            while (node != null) {
+                append(node.getData())
+
+                node = node.nextSibling as? Text
+            }
+        }
+    }
 }
 

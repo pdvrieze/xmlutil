@@ -363,6 +363,41 @@ class TestDomInitializedWithDomImplementation {
         assertEquals("#cdata-section", document.createCDATASection("value").nodeName)
     }
 
+    @Test
+    fun getWholeTextConcatenatesAdjacentTextSiblings() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+
+        val text1 = document.createTextNode("left")
+        val text2 = document.createTextNode("middle")
+        val text3 = document.createTextNode("right")
+
+        root.appendChild(text1)
+        root.appendChild(text2)
+        root.appendChild(text3)
+
+        assertEquals("leftmiddleright", text1.getWholeText())
+        assertEquals("leftmiddleright", text2.getWholeText())
+        assertEquals("leftmiddleright", text3.getWholeText())
+    }
+
+    @Test
+    fun getWholeTextStopsAtNonTextSibling() {
+        val document = newDocument("root")
+        val root = requireNotNull(document.documentElement)
+
+        val text1 = document.createTextNode("left")
+        val comment = document.createComment("break")
+        val text2 = document.createTextNode("right")
+
+        root.appendChild(text1)
+        root.appendChild(comment)
+        root.appendChild(text2)
+
+        assertEquals("left", text1.getWholeText())
+        assertEquals("right", text2.getWholeText())
+    }
+
 
     private fun assertDomError(expected: DOMException.Error, block: () -> Unit) {
         val exception = assertFailsWith<DOMException>(block = block)
