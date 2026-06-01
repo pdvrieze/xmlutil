@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,10 +18,9 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xml.serialization
+package nl.adaptivity.xmlutil.core.internal
 
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.core.internal.QNameMap
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -87,6 +86,32 @@ class QNameMapTest {
         assertEquals(2, defaultMap.size)
         assertFalse(defaultMap.containsKey("ns2", "local1"))
 
-        assertEquals(listOf(QName("ns1", "local1"), QName("ns1", "local2")), defaultMap.keys.sortedBy { it.getLocalPart() })
+        assertEquals(
+            listOf(QName("ns1", "local1"), QName("ns1", "local2")),
+            defaultMap.keys.sortedBy { it.getLocalPart() })
     }
+
+    @Test
+    fun entriesAddOnlyIncrementsSizeOnce() {
+        val map = QNameMap<String>()
+
+        map.entries.add(object : MutableMap.MutableEntry<QName, String> {
+            override val key: QName = QName("urn:test", "value")
+            override val value: String = "payload"
+            override fun setValue(newValue: String): String = error("unused")
+        })
+
+        assertEquals(1, map.size)
+        assertEquals("payload", map[QName("urn:test", "value")])
+    }
+
+    @Test
+    fun containsValueHandlesMultipleEntriesInSameNamespace() {
+        val map = QNameMap<String>()
+        map[QName("urn:test", "first")] = "one"
+        map[QName("urn:test", "second")] = "two"
+
+        assertFalse(map.containsValue("missing"))
+    }
+
 }
