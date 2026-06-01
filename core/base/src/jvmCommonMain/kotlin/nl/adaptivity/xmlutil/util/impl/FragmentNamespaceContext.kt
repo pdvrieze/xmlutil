@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -44,9 +44,8 @@ public class FragmentNamespaceContext(
         else -> uri
     }
 
-    override fun getPrefix(namespaceURI: String): String {
-        return delegate.getPrefix(namespaceURI) ?: parent?.getPrefix(namespaceURI) ?: ""
-    }
+    override fun getPrefix(namespaceURI: String): String? =
+        delegate.getPrefix(namespaceURI) ?: parent?.getPrefix(namespaceURI)
 
     override fun iterator(): Iterator<Namespace> = when {
         parent == null ||
