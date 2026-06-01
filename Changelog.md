@@ -60,6 +60,8 @@ Changes:
   consume platform nodes
 
 Fixes:
+- Various small fixes in core (mainly DOM) as a result of asking copilot to
+  find bugs.
 - Make ElementSerializer work better in an existing document context by
   extracting the document from the decoder if possible.
 - Fix serialization of contextual properties as attributes where preceded by
