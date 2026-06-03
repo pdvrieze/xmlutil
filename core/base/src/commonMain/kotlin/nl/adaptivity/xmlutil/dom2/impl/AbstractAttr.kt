@@ -90,7 +90,7 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
         return when {
             this === other -> true
             nodeType != other.nodeType -> false //handle javascript instance check issues
-            other !is PlatformAttr -> false
+            other !is AbstractAttr<*,*> -> false
             localName != other.getLocalName() -> false
             namespaceURI != other.getNamespaceURI() -> false
             prefix != other.getPrefix() -> false

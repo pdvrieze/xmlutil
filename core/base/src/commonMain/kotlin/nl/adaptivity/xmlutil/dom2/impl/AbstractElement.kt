@@ -214,10 +214,10 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
         return when {
             this === other -> true
             nodeType != other.nodeType -> false //handle javascript instance check issues
-            other !is PlatformElement -> false
+            other !is AbstractElement<*,*> -> false
             ! _attrStorage.isEqualNodes(other.attributes) -> false
 
-            else -> nodeStorage.isEqualNodes(other.childNodes)
+            else -> nodeStorage.isEqualNodes(other.getChildNodes())
         }
     }
 }

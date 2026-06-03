@@ -154,25 +154,27 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
         node: PlatformNode,
         deep: Boolean
     ): N {
-        val newNode = when (node) {
-            is Attr,
-            is PlatformAttr -> {
-                val n = node.getName()
+        val nt = (node as? Node)?.getNodetype()?.value ?: node.nodeType
+        val newNode = when (nt) {
+            NodeConsts.ATTRIBUTE_NODE -> {
+                val a = node.asPlatformAttr()
+                val n = a.getName()
                 when {
-                    ':' in n -> createAttributeNS(node.getNamespaceURI(), n)
+                    ':' in n -> createAttributeNS(a.getNamespaceURI(), n)
                     n == "xmlns" -> createAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, n)
                     else -> createAttribute(n)
-                }.also { it.value = node.getValue() }
+                }.also { it.value = a.getValue() }
             }
 
-            is Element,
-            is PlatformElement -> {
-                val r = when (val u = node.namespaceURI) {
-                    null, "" -> createElement(node.localName)
-                    else -> createElementNS(u, node.name)
+            NodeConsts.ELEMENT_NODE -> {
+                val elem = node.asPlatformElement()
+                val u = elem.namespaceURI
+                val r = when {
+                    u.isNullOrEmpty() -> createElement(elem.localName)
+                    else -> createElementNS(u, elem.name)
                 }
-                for (n in node.attributes) {
-                    val a = n as PlatformAttr
+                for (n in elem.attributes) {
+                    val a = n.asPlatformAttr()
                     val name = a.getName()
                     when {
                         ':' in name -> r.setAttributeNS(a.getNamespaceURI(), name, a.getValue())
@@ -181,34 +183,35 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
                     }
                 }
                 if (deep) {
-                    for (c in node.childNodes) r.appendChild(importNode(c, true))
+                    for (c in elem.childNodes) {
+                        val importedNode = importNode(c, true)
+                        r.appendChild(importedNode)
+                    }
                 }
 
                 r
             }
 
-            is DocumentFragment,
-            is PlatformDocumentFragment -> when {
+            NodeConsts.DOCUMENT_FRAGMENT_NODE -> when {
                 deep -> createDocumentFragment().also { t ->
-                    for (c in node.childNodes) t.appendChild(importNode(c, true))
+                    for (c in node.asPlatformDocumentFragment().childNodes) t.appendChild(importNode(c, true))
                 }
 
                 else -> createDocumentFragment()
             }
 
-            is CDATASection,
-            is PlatformCDATASection -> createCDATASection(node.getData())
+            NodeConsts.CDATA_SECTION_NODE -> createCDATASection(node.asPlatformCharacterData().getData())
 
-            is Text,
-            is PlatformText -> createTextNode(node.getData())
+            NodeConsts.TEXT_NODE -> createTextNode(node.asPlatformCharacterData().getData())
 
-            is Comment,
-            is PlatformComment -> createComment(node.getData())
+            NodeConsts.COMMENT_NODE -> createComment(node.asPlatformCharacterData().getData())
 
-            is ProcessingInstruction,
-            is PlatformProcessingInstruction -> createProcessingInstruction(node.getNodeName(), node.getData())
+            NodeConsts.PROCESSING_INSTRUCTION_NODE -> {
+                val pi = node.asPlatformProcessingInstruction()
+                createProcessingInstruction(pi.getNodeName(), pi.getData())
+            }
 
-            else -> throw DOMException.notSupportedErr("Cannot import node of type ${node::class.simpleName}")
+            else -> throw DOMException.notSupportedErr("Cannot import node  ${node}, nodeType: ${nt}")
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -220,6 +223,7 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
     }
 
     override fun createElement(localName: String): AbstractElement<N, P> {
+        checkNotNull(localName) { "Local name cannot be null or empty" }
         return createElementNS("", localName)
     }
 
@@ -248,9 +252,9 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
         return when {
             this === other -> true
             nodeType != other.nodeType -> false //handle javascript instance check issues
-            other !is PlatformDocument -> false
+            other !is AbstractDocument<*,*> -> false
 
-            else -> nodeStorage.isEqualNodes(other.childNodes)
+            else -> nodeStorage.isEqualNodes(other.getChildNodes())
         }
     }
 

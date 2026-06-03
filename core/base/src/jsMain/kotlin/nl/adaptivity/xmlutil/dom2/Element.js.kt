@@ -21,12 +21,12 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
-    override val ownerDocument: Document get() = getOwnerDocument()
 
     public actual fun getTagName(): String
     public actual override fun getAttributes(): NamedNodeMap<Attr>
@@ -53,4 +53,6 @@ public actual interface Element : Node, PlatformElement {
     public actual override fun getOwnerDocument(): Document
     public actual override fun getNodeValue(): Nothing?
     public actual override fun cloneNode(deep: Boolean): Element
+
+    public override val nodeType: Short get() = NodeConsts.ELEMENT_NODE
 }

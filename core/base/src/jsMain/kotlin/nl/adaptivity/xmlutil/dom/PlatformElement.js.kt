@@ -20,9 +20,14 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.Element
+import org.w3c.dom.Element as DomElement
+
 @JsName("Element")
 public actual external interface PlatformElement : PlatformNode {
+/*
     override val ownerDocument: PlatformDocument
+*/
 
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
@@ -42,9 +47,34 @@ public actual external interface PlatformElement : PlatformNode {
 }
 
 
-public actual val PlatformElement.namespaceURI: String? get() = asDynamic().namespaceURI
-public actual val PlatformElement.prefix: String? get() = asDynamic().prefix
-public actual val PlatformElement.name: String get() = asDynamic().name
-public actual val PlatformElement.localName: String get() = asDynamic().localName
-public actual val PlatformElement.attributes: PlatformNamedNodeMap get() = asDynamic().attributes
-public actual val PlatformElement.childNodes: PlatformNodeList get() = asDynamic().childNodes
+public actual val PlatformElement.namespaceURI: String?
+    get() = when (this) {
+        is Element -> getNamespaceURI()
+        else -> unsafeCast<DomElement>().namespaceURI
+    }
+
+public actual val PlatformElement.prefix: String?
+    get() = when (this) {
+        is Element -> getPrefix()
+        else -> unsafeCast<DomElement>().prefix
+    }
+public actual val PlatformElement.name: String
+    get() = when (this) {
+        is Element -> getTagName()
+        else -> unsafeCast<DomElement>().tagName
+    }
+public actual val PlatformElement.localName: String
+    get() = when (this) {
+        is Element -> getLocalName() ?: getTagName()
+        else -> unsafeCast<DomElement>().localName
+    }
+public actual val PlatformElement.attributes: PlatformNamedNodeMap
+    get() = when (this) {
+        is Element -> getAttributes()
+        else -> unsafeCast<DomElement>().attributes.asDynamic()
+    }
+public actual val PlatformElement.childNodes: PlatformNodeList
+    get() = when (this) {
+        is Element -> getChildNodes()
+        else -> unsafeCast<DomElement>().childNodes.asDynamic()
+    }

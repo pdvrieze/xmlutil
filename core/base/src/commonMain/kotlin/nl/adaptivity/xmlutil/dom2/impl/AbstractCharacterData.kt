@@ -66,7 +66,7 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
         when {
             this === other -> return true
             nodeType != other.nodeType -> return false //handle javascript instance check issues
-            other !is PlatformCharacterData -> return false
+            other !is AbstractCharacterData<*,*> -> return false
             data != other.getData() -> return false
         }
         return true

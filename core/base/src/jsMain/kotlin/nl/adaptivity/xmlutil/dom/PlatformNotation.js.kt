@@ -20,8 +20,20 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.Notation
+
+@JsNoRuntime
 public actual interface PlatformNotation : PlatformNode
 
-public actual val PlatformNotation.publicId: String? get() = asDynamic().publicId
-public actual val PlatformNotation.systemId: String? get() = asDynamic().systemId
+public actual val PlatformNotation.publicId: String?
+    get() = when (this) {
+        is Notation -> getPublicId()
+        else -> asDynamic().publicId
+    }
+
+public actual val PlatformNotation.systemId: String?
+    get() = when (this) {
+        is Notation -> getSystemId()
+        else -> asDynamic().systemId
+    }
 

@@ -20,13 +20,24 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
+import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
+
 @JsName("ProcessingInstruction")
 public actual external interface PlatformProcessingInstruction : PlatformNode {
+/*
     override val ownerDocument: PlatformDocument
 
     public val target: String
     public var data: String
+*/
 }
 
-public actual fun PlatformProcessingInstruction.getNodeName(): String = target
-public actual fun PlatformProcessingInstruction.getData(): String = data
+public actual fun PlatformProcessingInstruction.getNodeName(): String = when (this) {
+    is ProcessingInstruction -> getTarget()
+    else -> unsafeCast<DomProcessingInstruction>().nodeName
+}
+public actual fun PlatformProcessingInstruction.getData(): String = when (this) {
+    is ProcessingInstruction -> getData()
+    else -> unsafeCast<DomProcessingInstruction>().data
+}

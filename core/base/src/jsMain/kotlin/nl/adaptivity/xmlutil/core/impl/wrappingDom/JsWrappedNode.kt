@@ -42,32 +42,24 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
     @Suppress("UNCHECKED_CAST")
     val delegate: N = delegate.unWrap() as N
 
-    override val ownerDocument: JsWrappedDocument? get() = delegate.ownerDocument?.wrap()
+    val parentNode: Node? get() = delegate.parentNode?.wrap()
+    val parentElement: Element? get() = parentNode as? Element
 
-    override val parentNode: Node? get() = delegate.parentNode?.wrap()
-    override val parentElement: Element? get() = parentNode as? Element
+    val firstChild: Node? get() = delegate.firstChild?.wrap()
 
-    override val firstChild: Node? get() = delegate.firstChild?.wrap()
+    val lastChild: Node? get() = delegate.lastChild?.wrap()
 
-    override val lastChild: Node? get() = delegate.lastChild?.wrap()
+    val previousSibling: Node? get() = delegate.previousSibling?.wrap()
 
-    override val previousSibling: Node? get() = delegate.previousSibling?.wrap()
+    val nextSibling: Node? get() = delegate.nextSibling?.wrap()
 
-    override val nextSibling: Node? get() = delegate.nextSibling?.wrap()
-
-    override val nodeName: String get() = delegate.nodeName
+    val nodeName: String get() = delegate.nodeName
 
     override val nodeType: Short get() = delegate.nodeType
 
     val baseURI: String get() = delegate.baseURI
 
-    override var nodeValue: String?
-        get() = delegate.nodeValue
-        set(value) {
-            delegate.nodeValue = value
-        }
-
-    override var textContent: String?
+    var textContent: String?
         get() = delegate.textContent
         set(value) {
             delegate.textContent = value
@@ -78,7 +70,7 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         textContent = value
     }
 
-    override val childNodes: JsWrappedNodeList
+    val childNodes: JsWrappedNodeList
         get() = JsWrappedNodeList(delegate.childNodes)
 
     fun insertBefore(newChild: DomNode?, refChild: DomNode?): Node {

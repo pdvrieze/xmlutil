@@ -42,6 +42,14 @@ public actual typealias PlatformNode = org.w3c.dom.Node
 public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument
 public actual val PlatformNode.nodeType: Short get() = nodeType
 
+
+internal actual fun PlatformNode.asPlatformAttr(): PlatformAttr = this as PlatformAttr
+internal actual fun PlatformNode.asPlatformElement(): PlatformElement = this as PlatformElement
+internal actual fun PlatformNode.asPlatformDocumentFragment(): PlatformDocumentFragment = this as PlatformDocumentFragment
+internal actual fun PlatformNode.asPlatformCharacterData(): PlatformCharacterData = this as PlatformCharacterData
+internal actual fun PlatformNode.asPlatformText(): PlatformText = this as PlatformText
+internal actual fun PlatformNode.asPlatformProcessingInstruction(): PlatformProcessingInstruction = this as PlatformProcessingInstruction
+
 public actual typealias PlatformAttr = org.w3c.dom.Attr
 
 @ExperimentalXmlUtilApi

@@ -69,7 +69,7 @@ public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>,
         return when {
             this === other -> true
             nodeType != other.nodeType -> false //handle javascript instance check issues
-            other !is PlatformProcessingInstruction -> false
+            other !is AbstractProcessingInstruction<*,*> -> false
             getTarget() != other.getNodeName() -> false
 
             else -> getData() == other.getData()

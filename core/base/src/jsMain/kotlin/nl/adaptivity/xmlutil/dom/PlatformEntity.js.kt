@@ -20,7 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface PlatformEntity : PlatformNode
+@JsName("Entity")
+public actual external interface PlatformEntity : PlatformNode
 
 public actual val PlatformEntity.publicId: String? get() = asDynamic().publicId
 public actual val PlatformEntity.systemId: String? get() = asDynamic().systemId

@@ -20,12 +20,21 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.NodeList
+import org.w3c.dom.NodeList as DomNodeList
+
 @JsName("NodeList")
 public actual external interface PlatformNodeList {
+/*
     public val length: Int
+*/
     public fun item(index: Int): PlatformNode?
 }
-public actual val PlatformNodeList.length: Int get() = length
+
+public actual val PlatformNodeList.length: Int get() = when (this) {
+    is NodeList -> getLength()
+    else -> unsafeCast<DomNodeList>().length
+}
 
 private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
     private var index = 0
@@ -33,5 +42,7 @@ private class NodeListIterator(private val list: PlatformNodeList) : Iterator<Pl
     override fun next(): PlatformNode = list.item(index++)!!
 }
 
-public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> =
-    NodeListIterator(this)
+public actual operator fun PlatformNodeList.iterator(): Iterator<PlatformNode> = when (this) {
+    is NodeList -> iterator()
+    else -> NodeListIterator(this)
+}

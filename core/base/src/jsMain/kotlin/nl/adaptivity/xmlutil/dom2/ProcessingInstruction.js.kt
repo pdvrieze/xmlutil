@@ -27,15 +27,8 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
 public actual interface ProcessingInstruction : Node, PlatformProcessingInstruction {
-    override val ownerDocument: Document get() = getOwnerDocument()
 
     actual override fun getOwnerDocument(): Document
-
-    override val target: String get() = getTarget()
-
-    override var data: String
-        get() = getData()
-        set(value) { setData(value) }
 
     public actual fun getTarget(): String
     public actual fun getData(): String

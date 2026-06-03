@@ -22,7 +22,7 @@ package nl.adaptivity.xmlutil.dom
 
 @JsName("Node")
 public actual external interface PlatformNode {
-    public val nodeType: Short
+/*
     public val nodeName: String
     public val ownerDocument: PlatformDocument?
     public val parentNode: PlatformNode?
@@ -34,12 +34,21 @@ public actual external interface PlatformNode {
     public val nextSibling: PlatformNode?
     public var nodeValue: String?
     public var textContent: String?
+*/
 
     public fun lookupPrefix(namespace: String): String?
     public fun lookupNamespaceURI(prefix: String): String?
 
 }
 
-public actual val PlatformNode.ownerDocument: PlatformDocument? get() = this.ownerDocument
+public actual val PlatformNode.ownerDocument: PlatformDocument? get() = asDynamic().ownerDocument
 public val PlatformNode.baseURI: String get() = asDynamic().baseURI
-public actual val PlatformNode.nodeType: Short get() = nodeType
+public actual val PlatformNode.nodeType: Short get() = asDynamic().nodeType
+
+internal actual fun PlatformNode.asPlatformAttr(): PlatformAttr = asDynamic()
+internal actual fun PlatformNode.asPlatformElement(): PlatformElement = asDynamic()
+internal actual fun PlatformNode.asPlatformDocumentFragment(): PlatformDocumentFragment = asDynamic()
+internal actual fun PlatformNode.asPlatformCharacterData(): PlatformCharacterData = asDynamic()
+internal actual fun PlatformNode.asPlatformText(): PlatformText = asDynamic()
+internal actual fun PlatformNode.asPlatformProcessingInstruction(): PlatformProcessingInstruction = asDynamic()
+

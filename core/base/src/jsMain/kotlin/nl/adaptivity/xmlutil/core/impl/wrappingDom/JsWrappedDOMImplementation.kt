@@ -37,7 +37,7 @@ internal object JsWrappedDOMImplementation : DOMImplementation2 {
     val delegate: PlatformDOMImplementation by lazy {
         runCatching { document.implementation }
             .recoverCatching { DOMParser().parseFromString("<root></root>", "text/xml").implementation }
-            .map { it as PlatformDOMImplementation }
+            .map { it.unsafeCast<PlatformDOMImplementation>() }
             .getOrDefault(SimpleDOMImplementation)
     }
 
@@ -64,7 +64,7 @@ internal object JsWrappedDOMImplementation : DOMImplementation2 {
 
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document {
-        val documentType1 = documentType?.unWrap() as? PlatformDocumentType
+        val documentType1 = documentType?.run { unWrap().unsafeCast<PlatformDocumentType>() }
         return when (val d = delegate.createDocument(namespace, qualifiedName, documentType1)) {
             is Document -> d
             else -> JsWrappedDocument(d as DomDocument)

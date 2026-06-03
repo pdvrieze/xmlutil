@@ -26,20 +26,15 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.isId
 import nl.adaptivity.xmlutil.dom2.Attr
 import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.Node as DomNode
 
 internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegate), Attr {
-    override var value: String
+    var value: String
         get() = delegate.value
         set(value) {
             delegate.value = value
         }
-
-    override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
-
-    override val parentElement: Element? get() = ownerElement
 
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
 
@@ -77,16 +72,16 @@ internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegat
         return delegate.isId()
     }
 
-    override val namespaceURI: String? get() = delegate.namespaceURI
+    val namespaceURI: String? get() = delegate.namespaceURI
 
-    override val prefix: String? get() = delegate.prefix
+    val prefix: String? get() = delegate.prefix
 
-    override val localName: String
+    val localName: String
         get() = delegate.localName
 
-    override val name: String get() = delegate.name
+    val name: String get() = delegate.name
 
-    override val ownerElement: JsWrappedElement?
+    val ownerElement: JsWrappedElement?
         get() = delegate.ownerElement?.wrap()
 
     override fun appendChild(node: PlatformNode): Nothing =

@@ -23,12 +23,11 @@ package nl.adaptivity.xmlutil.core.impl.wrappingDom
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.CharacterData as CharacterData2
 import org.w3c.dom.CharacterData as DOMCharacterData
 
 internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N) : JsWrappedNode<N>(delegate), CharacterData2 {
-    override var data: String
+    var data: String
         get() = delegate.data
         set(value) {
             delegate.data = value
@@ -38,13 +37,12 @@ internal abstract class JsWrappedCharacterData<N : DOMCharacterData>(delegate: N
     override fun getPrefix(): Nothing? = null
     override fun getLocalName(): Nothing? = null
 
-    override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
 
-    override fun getData(): String = data
+    override fun getData(): String = delegate.data
 
     override fun setData(data: String) {
-        this.data = data
+        delegate.data = data
     }
 
     override fun getNodeValue(): String = data

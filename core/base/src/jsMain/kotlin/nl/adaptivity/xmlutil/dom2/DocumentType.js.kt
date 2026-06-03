@@ -27,9 +27,6 @@ import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface DocumentType : Node, PlatformDocumentType {
-    override val name: String get() = getName()
-    override val publicId: String get() = getPublicId()
-    override val systemId: String get() = getSystemId()
 
     public actual fun getName(): String
     public actual fun getPublicId(): String
@@ -67,23 +64,23 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-    public override fun appendChild(node: Node): Nothing = appendChild(node as PlatformNode)
+    public override fun appendChild(node: Node): Nothing = appendChild(node.unsafeCast<PlatformNode>())
 
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
-        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+        insertBefore(newChild.unsafeCast<PlatformNode>(), refChild?.unsafeCast<PlatformNode>())
 
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
-        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+        replaceChild(newChild.unsafeCast<PlatformNode>(), oldChild.unsafeCast<PlatformNode>())
 
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-    public override fun removeChild(node: Node): Nothing = removeChild(node as PlatformNode)
+    public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
 
 }

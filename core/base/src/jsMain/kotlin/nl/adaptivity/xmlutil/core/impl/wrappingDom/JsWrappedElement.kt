@@ -26,7 +26,6 @@ import nl.adaptivity.xmlutil.dom.PlatformAttr as DomAttr
 import org.w3c.dom.Element as DomElement
 
 internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement>(delegate), Element {
-    override val ownerDocument: JsWrappedDocument get() = getOwnerDocument()
 
     override fun getNamespaceURI(): String? = delegate.namespaceURI
 
@@ -37,6 +36,8 @@ internal class JsWrappedElement(delegate: DomElement) : JsWrappedNode<DomElement
     override fun getTagName(): String = delegate.tagName
 
     override fun getNodeValue(): Nothing? = null
+
+    override val nodeType: Short get() = delegate.nodeType
 
     @ExperimentalXmlUtilApi
     override fun setNodeValue(value: String?) {}

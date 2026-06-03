@@ -35,6 +35,7 @@ class TestCompactFragment {
     // -----------------------------------------------------------------------
 
     @Test
+    @Suppress("DEPRECATION")
     fun testStringConstructorWithEmptyString() {
         val frag = CompactFragment("")
         assertTrue(frag.isEmpty)
@@ -50,6 +51,7 @@ class TestCompactFragment {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testNamespacesAndNullCharArrayConstructorIsEmpty() {
         val frag = CompactFragment(emptyList(), null as CharArray?)
         assertTrue(frag.isEmpty)

@@ -30,3 +30,11 @@ public expect interface PlatformNode
 public expect val PlatformNode.ownerDocument: PlatformDocument?
 @ExperimentalXmlUtilApi
 public expect val PlatformNode.nodeType: Short
+
+internal expect fun PlatformNode.asPlatformAttr(): PlatformAttr
+internal expect fun PlatformNode.asPlatformElement(): PlatformElement
+internal expect fun PlatformNode.asPlatformDocumentFragment(): PlatformDocumentFragment
+internal expect fun PlatformNode.asPlatformCharacterData(): PlatformCharacterData
+internal expect fun PlatformNode.asPlatformText(): PlatformText
+internal expect fun PlatformNode.asPlatformProcessingInstruction(): PlatformProcessingInstruction
+

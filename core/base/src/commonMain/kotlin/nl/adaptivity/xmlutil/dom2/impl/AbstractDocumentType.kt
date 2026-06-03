@@ -58,7 +58,7 @@ public abstract class AbstractDocumentType<out N: IAbstractNode<N, P>, out P: IA
         return when {
             this === other -> true
             nodeType != other.nodeType -> false //handle javascript instance check issues
-            other !is PlatformDocumentType -> false
+            other !is AbstractDocumentType<*,*> -> false
             else -> true // TODO have more expansive documentType
         }
 

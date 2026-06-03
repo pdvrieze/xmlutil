@@ -99,7 +99,7 @@ public expect fun Document.importNode(node: PlatformNode, deep: Boolean): Node
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @Deprecated("Use member instead", level = DeprecationLevel.HIDDEN)
-public fun Document.importNode(nodeX: Node): Node = importNode(node = nodeX as PlatformNode, false)
+public fun Document.importNode(nodeX: Node): Node = importNode(node = nodeX, false)
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val Document.characterSet: String? get() = getInputEncoding()

@@ -29,25 +29,9 @@ import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(with = NodeSerializer::class)
 public actual interface Node : PlatformNode {
-    override val ownerDocument: Document? get() = getOwnerDocument()
-    override val parentNode: Node? get() = getParentNode()
-    override val parentElement: Element? get() = getParentElement()
-    override val childNodes: NodeList get() = getChildNodes()
-    override val firstChild: Node? get() = getFirstChild()
-    override val lastChild: Node? get() = getLastChild()
-    override val previousSibling: Node? get() = getPreviousSibling()
-    override val nextSibling: Node? get() = getNextSibling()
 
-    override val nodeType: Short get() = getNodetype().value
-    override val nodeName: String get() = getNodeName()
-    override var nodeValue: String?
-        get() = getNodeValue()
-        set(value) { setNodeValue(value) }
-    override var textContent: String?
-        get() = getTextContent()
-        set(value) {
-            setTextContent(value)
-        }
+    @JsName("nodeType")
+    public val nodeType: Short get() = getNodetype().value
 
     public actual fun getNodetype(): NodeType
     public actual fun getNodeName(): String
@@ -121,24 +105,24 @@ public actual interface Node : PlatformNode {
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-    public fun appendChild(node: Node): Node = appendChild(node as PlatformNode)
+    public fun appendChild(node: Node): Node = appendChild(node.unsafeCast<PlatformNode>())
 
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     public fun insertBefore(newChild: Node, refChild: Node?): Node? =
-        insertBefore(newChild as PlatformNode, refChild as PlatformNode?)
+        insertBefore(newChild.unsafeCast<PlatformNode>(), refChild?.unsafeCast<PlatformNode>())
 
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     public fun replaceChild(newChild: Node, oldChild: Node): Node =
-        replaceChild(newChild as PlatformNode, oldChild as PlatformNode)
+        replaceChild(newChild.unsafeCast<PlatformNode>(), oldChild.unsafeCast<PlatformNode>())
 
     @IgnorableReturnValue
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-    public fun removeChild(node: Node): Node = removeChild(node as PlatformNode)
+    public fun removeChild(node: Node): Node = removeChild(node.unsafeCast<PlatformNode>())
 
 }
 

@@ -80,7 +80,7 @@ public abstract class AbstractDocumentFragment<out N : IAbstractNode<N, P>, out 
         return when {
             this === other -> true
             nodeType != other.nodeType -> false //handle javascript instance check issues
-            other !is PlatformDocumentFragment -> false
+            other !is AbstractDocumentFragment<*,*> -> false
 
             else -> nodeStorage.isEqualNodes(other.childNodes)
         }

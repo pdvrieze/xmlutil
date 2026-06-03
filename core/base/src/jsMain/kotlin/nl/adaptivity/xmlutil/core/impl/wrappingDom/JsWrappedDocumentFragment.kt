@@ -32,8 +32,6 @@ internal class JsWrappedDocumentFragment(delegate: DOMDocumentFragment) :
     @ExperimentalXmlUtilApi
     override fun setNodeValue(value: String?) {}
 
-    override val ownerDocument: JsWrappedDocument get() = checkNotNull(delegate.ownerDocument).wrap()
-
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(delegate.ownerDocument).wrap()
 
     override fun getNamespaceURI(): Nothing? = null

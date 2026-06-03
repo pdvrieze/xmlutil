@@ -22,16 +22,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.JsWrappedDocument
-import nl.adaptivity.xmlutil.dom2.CDATASection
-import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.DocumentFragment
-import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.Element
-import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.Text
-import nl.adaptivity.xmlutil.dom2.attributes
+import nl.adaptivity.xmlutil.dom2.*
 import org.w3c.dom.parsing.XMLSerializer
 
 internal class AppendableXmlWriter(private val target: Appendable, private val delegate: DomWriter) :
@@ -106,26 +97,26 @@ internal class AppendableXmlWriter(private val target: Appendable, private val d
 
 internal fun Node.appendToTarget(target: Appendable) {
     when (this) {
-        is Document -> for (c in childNodes) c.appendToTarget(target)
-        is DocumentFragment -> for (c in childNodes) c.appendToTarget(target)
-        is Comment -> target.append("<!--${textContent}-->")
-        is CDATASection -> target.append("<![CDATA[${textContent}]]>")
-        is Text -> target.append(textContent?.xmlEncode())
-        is ProcessingInstruction -> target.append("<?${target} ${data}?>")
-        is DocumentType -> target.append("<!DOCTYPE ${name} ${publicId} ${systemId}>")
+        is Document -> for (c in getChildNodes()) c.appendToTarget(target)
+        is DocumentFragment -> for (c in getChildNodes()) c.appendToTarget(target)
+        is Comment -> target.append("<!--${getTextContent()}-->")
+        is CDATASection -> target.append("<![CDATA[${getTextContent()}]]>")
+        is Text -> target.append(getTextContent()?.xmlEncode())
+        is ProcessingInstruction -> target.append("<?${target} ${getData()}?>")
+        is DocumentType -> target.append("<!DOCTYPE ${getName()} ${getPublicId()} ${getSystemId()}>")
         is Element -> {
-            target.append("<${nodeName}")
+            target.append("<${getNodeName()}")
             for (attr in attributes) {
-                target.append(" ${attr.nodeName}=\"${attr.nodeValue}\"")
+                target.append(" ${attr.getNodeName()}=\"${attr.getNodeValue()}\"")
             }
             if (!hasChildNodes()) {
                 target.append("/>")
             } else {
                 target.append(">")
-                for (child in childNodes) {
+                for (child in getChildNodes()) {
                     child.appendToTarget(target)
                 }
-                target.append("</${nodeName}>")
+                target.append("</${getNodeName()}>")
             }
         }
     }

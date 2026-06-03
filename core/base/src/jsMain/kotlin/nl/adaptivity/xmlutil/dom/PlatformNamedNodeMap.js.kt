@@ -20,6 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
+import org.w3c.dom.NamedNodeMap as DomNamedNodeMap
+
 @JsName("NamedNodeMap")
 public actual external interface PlatformNamedNodeMap {
 
@@ -33,13 +36,18 @@ public actual external interface PlatformNamedNodeMap {
 
 }
 
-public actual val PlatformNamedNodeMap.length: Int get() = asDynamic().length
+public actual val PlatformNamedNodeMap.length: Int get() = when (this) {
+    is NamedNodeMap<*> -> getLength()
+    else -> unsafeCast<DomNamedNodeMap>().length
+}
 public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
     return getNamedItemNS(namespace, localName)
 }
 
-public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformNode> =
-    IteratorImpl(this)
+public actual operator fun PlatformNamedNodeMap.iterator(): Iterator<PlatformNode> = when (this) {
+    is NamedNodeMap<*> -> iterator()
+    else -> IteratorImpl(this)
+}
 
 private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMap): Iterator<N> {
     var idx = 0
@@ -47,7 +55,6 @@ private class IteratorImpl<N: PlatformNode>(private val map: PlatformNamedNodeMa
     override fun hasNext(): Boolean = idx < map.length
 
     override fun next(): N {
-        @Suppress("UNCHECKED_CAST")
-        return map.item(idx++) as N
+        return map.unsafeCast<DomNamedNodeMap>().item(idx++).asDynamic()
     }
 }

@@ -30,7 +30,6 @@ import org.w3c.dom.Document as DomDocument
 import org.w3c.dom.Node as DomNode
 
 internal class JsWrappedDocument(delegate: DomDocument) : JsWrappedNode<DomDocument>(delegate), Document {
-    override val ownerDocument: Nothing? get() = null
 
     // TODO might need to be added to Document2
     val documentURI: String = delegate.documentURI

@@ -27,7 +27,6 @@ import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
 
 internal class JsWrappedProcessingInstruction(delegate: DomProcessingInstruction) :
     JsWrappedNode<DomProcessingInstruction>(delegate), ProcessingInstruction2 {
-    override val ownerDocument: JsWrappedDocument get() = checkNotNull(super<JsWrappedNode>.ownerDocument)
 
     override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
 

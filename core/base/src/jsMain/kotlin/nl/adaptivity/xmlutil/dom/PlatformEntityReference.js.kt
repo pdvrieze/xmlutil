@@ -20,4 +20,5 @@
 
 package nl.adaptivity.xmlutil.dom
 
-public actual interface PlatformEntityReference : PlatformNode
+@JsName("EntityReference")
+public actual external interface PlatformEntityReference : PlatformNode

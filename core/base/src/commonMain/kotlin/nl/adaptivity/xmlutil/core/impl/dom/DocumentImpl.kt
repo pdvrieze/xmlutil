@@ -79,11 +79,20 @@ internal class DocumentImpl private constructor(doctype: DocumentTypeImpl?) :
     }
 
     override fun createElementNS(namespaceURI: String, qualifiedName: String): ElementImpl {
-        val localName = qualifiedName.substringAfterLast(':', qualifiedName)
+        val cPos = qualifiedName.indexOf(':')
+
+        val localName = if (cPos < 0) qualifiedName else qualifiedName.substring(cPos + 1)
+
         if (localName.isEmpty()) throw DOMException.invalidCharacterErr("Element name cannot be empty")
-        val prefix = qualifiedName.substringBeforeLast(':', "").takeUnless { it.isEmpty() }?.also {
-            if (namespaceURI.isEmpty()) throw DOMException.namespaceErr("Missing namespace in presence of a prefix")
+        val prefix = when {
+            cPos < 0 -> null
+            else -> {
+                qualifiedName.substring(0, cPos).also {
+                    if (namespaceURI.isEmpty()) throw DOMException.namespaceErr("Missing namespace in presence of a prefix")
+                }
+            }
         }
+
         return ElementImpl(this, namespaceURI, localName, prefix)
     }
 

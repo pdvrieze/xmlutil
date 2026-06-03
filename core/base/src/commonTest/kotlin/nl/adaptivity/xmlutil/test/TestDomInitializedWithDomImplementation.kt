@@ -157,7 +157,7 @@ class TestDomInitializedWithDomImplementation {
         val imported = targetDocument.importNode(sourceChild, deep = true) as Element
         targetRoot.appendChild(imported)
 
-        assertNull(imported.parentNode?.takeIf { it !== targetRoot })
+        assertSame(targetRoot, imported.parentNode)
         assertSame(targetDocument, imported.ownerDocument)
         assertSame(targetDocument, imported.firstChild?.ownerDocument)
         assertEquals("imported", imported.getAttribute("role"))

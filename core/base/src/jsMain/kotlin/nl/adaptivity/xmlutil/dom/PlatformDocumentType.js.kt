@@ -20,14 +20,34 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.dom2.DocumentType
+import org.w3c.dom.DocumentType as DomDocumentType
+
 @JsName("DocumentType")
 public actual external interface PlatformDocumentType : PlatformNode {
+/*
     public val name: String
     public val publicId: String
     public val systemId: String
+*/
 }
 
-public actual fun PlatformDocumentType.getOwnerDocument(): PlatformDocument? = ownerDocument
-public actual fun PlatformDocumentType.getName(): String = name
-public actual fun PlatformDocumentType.getPublicId(): String = publicId
-public actual fun PlatformDocumentType.getSystemId(): String = systemId
+public actual fun PlatformDocumentType.getOwnerDocument(): PlatformDocument? = when (this) {
+    is DocumentType -> getOwnerDocument()
+    else -> unsafeCast<DomDocumentType>().ownerDocument.asDynamic()
+}
+
+public actual fun PlatformDocumentType.getName(): String = when (this) {
+    is DocumentType -> getName()
+    else -> unsafeCast<DomDocumentType>().name
+}
+
+public actual fun PlatformDocumentType.getPublicId(): String = when (this) {
+    is DocumentType -> getPublicId()
+    else -> unsafeCast<DomDocumentType>().publicId
+}
+
+public actual fun PlatformDocumentType.getSystemId(): String = when (this) {
+    is DocumentType -> getSystemId()
+    else -> unsafeCast<DomDocumentType>().systemId
+}
