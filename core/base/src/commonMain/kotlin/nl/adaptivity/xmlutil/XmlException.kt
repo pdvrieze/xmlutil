@@ -47,7 +47,7 @@ public open class XmlException : IOException {
 
     @XmlUtilInternal
     public fun addErrorContext(errContext: String) {
-        when (val c = this.errContext) {
+        this.errContext = when (val c = (this.errContext)) {
             null -> errContext
             else -> "$errContext/$c"
         }
