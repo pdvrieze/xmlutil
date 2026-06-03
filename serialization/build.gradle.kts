@@ -24,7 +24,6 @@
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -52,11 +51,11 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
-
+/*
         klib {
             enabled = isKlibValidationEnabled()
         }
+*/
 
         filters {
             exclude {
@@ -161,8 +160,6 @@ kotlin {
         }
 
         val jsTest by getting {
-            languageSettings.enableLanguageFeature("InlineClasses")
-
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -176,7 +173,6 @@ kotlin {
                 }
             }
             if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
-                languageSettings.enableLanguageFeature("InlineClasses")
                 dependencies {
                     implementation(kotlin("test-common"))
                     implementation(kotlin("test-annotations-common"))

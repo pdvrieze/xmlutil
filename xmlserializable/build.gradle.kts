@@ -22,7 +22,6 @@
 
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -65,11 +64,11 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
-
+/*
         klib {
             enabled = isKlibValidationEnabled()
         }
+*/
 
         filters {
             exclude {

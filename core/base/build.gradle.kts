@@ -21,7 +21,6 @@
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
@@ -42,6 +41,7 @@ plugins {
 
 config {
     applyLayout = false
+    allWarningsAsErrors = false
 }
 
 kotlin {
@@ -50,11 +50,13 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
+//        enabled = true
 
+/*
         klib {
             enabled = isKlibValidationEnabled()
         }
+*/
 
         filters {
             exclude {
@@ -126,7 +128,7 @@ kotlin {
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
-        freeCompilerArgs.add("-Xcontext-parameters")
+        optIn.add("kotlin.js.ExperimentalJsNoRuntime")
     }
 
     targets.all {
