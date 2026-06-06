@@ -1,60 +1,59 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDOMImplementation/createDocument/#kotlin.String?#kotlin.String?#nl.adaptivity.xmlutil.dom.PlatformDocumentType?/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-d-o-m-implementation/[-j-s]create-document.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDOMImplementation/createDocumentType/#kotlin.String#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-d-o-m-implementation/[-j-s]create-document-type.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/adoptNode/#nl.adaptivity.xmlutil.dom.PlatformNode/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]adopt-node.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-attribute.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-attribute-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createCDATASection/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-c-d-a-t-a-section.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createComment/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-comment.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createDocumentFragment/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-document-fragment.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createElement/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-element.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createElementNS/#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-element-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createProcessingInstruction/#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-processing-instruction.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createTextNode/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]create-text-node.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/importNode/#nl.adaptivity.xmlutil.dom.PlatformNode#kotlin.Boolean/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[-j-s]import-node.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]get-attribute.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]get-attribute-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttributeNode/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]get-attribute-node.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttributeNodeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]get-attribute-node-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getElementsByTagName/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]get-elements-by-tag-name.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getElementsByTagNameNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]get-elements-by-tag-name-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/hasAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]has-attribute.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/hasAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]has-attribute-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/removeAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]remove-attribute.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/removeAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]remove-attribute-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/removeAttributeNode/#nl.adaptivity.xmlutil.dom.PlatformAttr/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]remove-attribute-node.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttribute/#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]set-attribute.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttributeNS/#kotlin.String?#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]set-attribute-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttributeNode/#nl.adaptivity.xmlutil.dom.PlatformAttr/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]set-attribute-node.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttributeNodeNS/#nl.adaptivity.xmlutil.dom.PlatformAttr/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[-j-s]set-attribute-node-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/getNamedItem/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[-j-s]get-named-item.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/getNamedItemNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[-j-s]get-named-item-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/item/#kotlin.Int/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[-j-s]item.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/removeNamedItem/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[-j-s]remove-named-item.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/removeNamedItemNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[-j-s]remove-named-item-n-s.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNode/lookupNamespaceURI/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-node/[-j-s]lookup-namespace-u-r-i.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNode/lookupPrefix/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-node/[-j-s]lookup-prefix.html
-$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNodeList/item/#kotlin.Int/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-node-list/[-j-s]item.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDOMImplementation/createDocument/#kotlin.String?#kotlin.String?#nl.adaptivity.xmlutil.dom.PlatformDocumentType?/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-d-o-m-implementation/[native-or-wasm]create-document.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDOMImplementation/createDocumentType/#kotlin.String#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-d-o-m-implementation/[native-or-wasm]create-document-type.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/adoptNode/#nl.adaptivity.xmlutil.dom.PlatformNode/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]adopt-node.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-attribute.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-attribute-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createCDATASection/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-c-d-a-t-a-section.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createComment/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-comment.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createDocumentFragment/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-document-fragment.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createElement/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-element.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createElementNS/#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-element-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createProcessingInstruction/#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-processing-instruction.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/createTextNode/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]create-text-node.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformDocument/importNode/#nl.adaptivity.xmlutil.dom.PlatformNode#kotlin.Boolean/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-document/[native-or-wasm]import-node.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]get-attribute.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]get-attribute-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttributeNode/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]get-attribute-node.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getAttributeNodeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]get-attribute-node-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getElementsByTagName/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]get-elements-by-tag-name.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/getElementsByTagNameNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]get-elements-by-tag-name-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/hasAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]has-attribute.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/hasAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]has-attribute-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/removeAttribute/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]remove-attribute.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/removeAttributeNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]remove-attribute-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/removeAttributeNode/#nl.adaptivity.xmlutil.dom.PlatformAttr/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]remove-attribute-node.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttribute/#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]set-attribute.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttributeNS/#kotlin.String?#kotlin.String#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]set-attribute-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttributeNode/#nl.adaptivity.xmlutil.dom.PlatformAttr/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]set-attribute-node.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformElement/setAttributeNodeNS/#nl.adaptivity.xmlutil.dom.PlatformAttr/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-element/[native-or-wasm]set-attribute-node-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/getNamedItem/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]get-named-item.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/getNamedItemNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]get-named-item-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/item/#kotlin.Int/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]item.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/removeNamedItem/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]remove-named-item.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/removeNamedItemNS/#kotlin.String?#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]remove-named-item-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/setNamedItem/#nl.adaptivity.xmlutil.dom.PlatformNode/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]set-named-item.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap/setNamedItemNS/#nl.adaptivity.xmlutil.dom.PlatformNode/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-named-node-map/[native-or-wasm]set-named-item-n-s.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNode/lookupNamespaceURI/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-node/[native-or-wasm]lookup-namespace-u-r-i.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNode/lookupPrefix/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-node/[native-or-wasm]lookup-prefix.html
+$dokka.location:nl.adaptivity.xmlutil.dom/PlatformNodeList/item/#kotlin.Int/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom/-platform-node-list/[native-or-wasm]item.html
+$dokka.location:nl.adaptivity.xmlutil.dom2/DocumentType/getOwnerDocument/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom2/-document-type/[native-or-wasm]get-owner-document.html
+$dokka.location:nl.adaptivity.xmlutil.dom2/Node/nodeType/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.dom2/-node/[-j-v-m]node-type.html
 $dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache///PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-native]-thread-local-format-cache/index.html
 $dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache/ThreadLocalFormatCache/#java.util.function.Supplier[nl.adaptivity.xmlutil.serialization.FormatCache]/PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-j-v-m]-thread-local-format-cache/-thread-local-format-cache.html
 $dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache/ThreadLocalFormatCache/#kotlin.Int#kotlin.Function0[nl.adaptivity.xmlutil.serialization.FormatCache]/PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-native]-thread-local-format-cache/-thread-local-format-cache.html
 $dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache/capacity/#/PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-native]-thread-local-format-cache/capacity.html
-$dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache/lookupDescriptorOrStore/#<ERROR CLASS> ERROR CLASS: Symbol not found for KSerializer<*>??#nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo#nl.adaptivity.xmlutil.serialization.structure.SafeParentInfo#kotlin.Boolean#kotlin.Function0[nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor]/PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-native]-thread-local-format-cache/lookup-descriptor-or-store.html
-$dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache/lookupTypeOrStore/#<ERROR CLASS> ERROR CLASS: Symbol not found for Namespace??#<ERROR CLASS> ERROR CLASS: Symbol not found for SerialDescriptor#kotlin.Function0[nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor]/PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-native]-thread-local-format-cache/lookup-type-or-store.html
-$dokka.location:nl.adaptivity.xmlutil.serialization/ThreadLocalFormatCache/lookupTypeOrStore/#<ERROR CLASS> ERROR CLASS: Symbol not found for QName#<ERROR CLASS> ERROR CLASS: Symbol not found for SerialDescriptor#kotlin.Function0[nl.adaptivity.xmlutil.serialization.structure.XmlTypeDescriptor]/PointingToDeclaration/serialization/nl.adaptivity.xmlutil.serialization/[-native]-thread-local-format-cache/lookup-type-or-store.html
-$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/equals/#kotlin.Any?/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]equals.html
-$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/hashCode/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]hash-code.html
-$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/toString/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[-j-v-m]to-string.html
-$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/delegate/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]delegate.html
-$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/getNamespacePrefix/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]get-namespace-prefix.html
-$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/getNamespaceURI/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]get-namespace-u-r-i.html
-$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/namespaceContext/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]namespace-context.html
-$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/next/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[-j-v-m]next.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/equals/#kotlin.Any?/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[native-or-wasm]equals.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/hashCode/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[native-or-wasm]hash-code.html
+$dokka.location:nl.adaptivity.xmlutil.util/CompactFragment/toString/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-compact-fragment/[native-or-wasm]to-string.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/delegate/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[native-or-wasm]delegate.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/getNamespacePrefix/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[native-or-wasm]get-namespace-prefix.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/getNamespaceURI/#kotlin.String/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[native-or-wasm]get-namespace-u-r-i.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/namespaceContext/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[native-or-wasm]namespace-context.html
+$dokka.location:nl.adaptivity.xmlutil.util/XMLFragmentStreamReader/next/#/PointingToDeclaration/core/nl.adaptivity.xmlutil.util/-x-m-l-fragment-stream-reader/[native-or-wasm]next.html
 $dokka.location:nl.adaptivity.xmlutil//newReader/nl.adaptivity.xmlutil.IXmlStreaming#org.w3c.dom.Node/PointingToDeclaration/core/nl.adaptivity.xmlutil/[-j-v-m]new-reader.html
-$dokka.location:nl.adaptivity.xmlutil/QName/equals/#kotlin.Any?/PointingToDeclaration/core/nl.adaptivity.xmlutil/-q-name/[-j-s]equals.html
-$dokka.location:nl.adaptivity.xmlutil/QName/hashCode/#/PointingToDeclaration/core/nl.adaptivity.xmlutil/-q-name/[-j-s]hash-code.html
-$dokka.location:nl.adaptivity.xmlutil/QName/toString/#/PointingToDeclaration/core/nl.adaptivity.xmlutil/-q-name/[-j-s]to-string.html
+$dokka.location:nl.adaptivity.xmlutil/QName/toString/#/PointingToDeclaration/core/nl.adaptivity.xmlutil/-q-name/[native-or-wasm]to-string.html
 module:core
 nl.adaptivity.js.util
 nl.adaptivity.xmlutil
@@ -62,12 +61,12 @@ nl.adaptivity.xmlutil.core
 nl.adaptivity.xmlutil.dom
 nl.adaptivity.xmlutil.dom2
 nl.adaptivity.xmlutil.util
+module:core-io
+nl.adaptivity.xmlutil.core.kxio
 module:core-android
 nl.adaptivity.xmlutil.core
 module:core-jdk
 nl.adaptivity.xmlutil.jdk
-module:core-io
-nl.adaptivity.xmlutil.core.kxio
 module:serialization
 nl.adaptivity.xmlutil.serialization
 nl.adaptivity.xmlutil.serialization.structure

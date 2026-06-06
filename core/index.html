@@ -18,7 +18,6 @@
         }
       }
     </script>
-<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
 <script type="text/javascript" src="../scripts/sourceset_dependencies.js" async></script>
 <link href="../styles/style.css" rel="Stylesheet">
 <link href="../styles/main.css" rel="Stylesheet">
@@ -41,14 +40,14 @@
             </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">1.0.0-rc2
+        <div class="library-version" id="library-version">1.0.0-rc3
         </div>
         <div class="navigation-controls">
         <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
-                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonDomMain">Native</button>
                 <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/commonMain">Common</button>
                 <button class="platform-tag platform-selector js-like" data-active="" aria-pressed="true" data-filter=":core/jsMain">JS</button>
-                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmCommonMain">JVM</button>
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true" data-filter=":core/jvmMain">JVM</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":core/nativeOrWasmMain">nativeOrWasm</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
                 <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
@@ -57,13 +56,6 @@
                             <i class="ui-kit-icon ui-kit-icon_cross"></i>
                         </button>
                     </div>
-                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
-                            <label class="checkbox">
-                                <input type="checkbox" class="checkbox--input" id=":core/commonDomMain" data-filter=":core/commonDomMain">
-                                <span class="checkbox--icon"></span>
-                                Native
-                            </label>
-                        </li>
                         <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
                             <label class="checkbox">
                                 <input type="checkbox" class="checkbox--input" id=":core/commonMain" data-filter=":core/commonMain">
@@ -80,9 +72,16 @@
                         </li>
                         <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
                             <label class="checkbox">
-                                <input type="checkbox" class="checkbox--input" id=":core/jvmCommonMain" data-filter=":core/jvmCommonMain">
+                                <input type="checkbox" class="checkbox--input" id=":core/jvmMain" data-filter=":core/jvmMain">
                                 <span class="checkbox--icon"></span>
                                 JVM
+                            </label>
+                        </li>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":core/nativeOrWasmMain" data-filter=":core/nativeOrWasmMain">
+                                <span class="checkbox--icon"></span>
+                                nativeOrWasm
                             </label>
                         </li>
                 </ul>
@@ -116,13 +115,13 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" id="content" pageids="core::////PointingToDeclaration//588233207">
+<div class="main-content" id="content" pageids="core::////PointingToDeclaration//1109351532">
   <div class="breadcrumbs"></div>
   <div class="cover ">
     <h1 class="cover"><span><span>core</span></span></h1>
     <div class="platform-hinted UnderCoverText with-platform-tabs" data-platform-hinted="data-platform-hinted">
-      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonDomMain" data-filterable-set=":core/commonDomMain" data-active="" data-toggle=":core/commonDomMain">Native</button><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmCommonMain" data-filterable-set=":core/jvmCommonMain" data-toggle=":core/jvmCommonMain">JVM</button></div>
-<div class="content sourceset-dependent-content" data-togglable=":core/commonDomMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div><div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmCommonMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div>    </div>
+      <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark" data-filterable-current=":core/commonMain" data-filterable-set=":core/commonMain" data-active="" data-toggle=":core/commonMain">Common</button><button class="platform-bookmark" data-filterable-current=":core/jsMain" data-filterable-set=":core/jsMain" data-toggle=":core/jsMain">JS</button><button class="platform-bookmark" data-filterable-current=":core/jvmMain" data-filterable-set=":core/jvmMain" data-toggle=":core/jvmMain">JVM</button><button class="platform-bookmark" data-filterable-current=":core/nativeOrWasmMain" data-filterable-set=":core/nativeOrWasmMain" data-toggle=":core/nativeOrWasmMain">nativeOrWasm</button></div>
+<div class="content sourceset-dependent-content" data-active="" data-togglable=":core/commonMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jsMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/jvmMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div><div class="content sourceset-dependent-content" data-togglable=":core/nativeOrWasmMain"><p class="paragraph">Core Xml wrapper that provides xmlpull parsing functionality. This module is designed to wrap the actually present xml functionality in the platform.</p><p class="paragraph">In this version the core module is sufficient, and separate JVM/Android modules are not needed. In such case the platform independent implementation is always used. However, if the android/jvm module is used then service loaders will cause platform specific implementations to be used by default.</p></div>    </div>
   </div>
   <h2 class="">Packages</h2>
   <div class="table"><a data-name="-390177238%2FPackages%2F1626307724" anchor-label="nl.adaptivity.js.util" id="-390177238%2FPackages%2F1626307724" data-filterable-set=":core/jsMain"></a>
@@ -145,13 +144,13 @@
           </span></div>
       </div>
     </div>
-<a data-name="-1446402372%2FPackages%2F588233207" anchor-label="nl.adaptivity.xmlutil" id="-1446402372%2FPackages%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
-    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
+<a data-name="-1446402372%2FPackages%2F1109351532" anchor-label="nl.adaptivity.xmlutil" id="-1446402372%2FPackages%2F1109351532" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
               <div><a href="nl.adaptivity.xmlutil/index.html">nl.adaptivity.xmlutil</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1446402372%2FPackages%2F588233207"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1446402372%2FPackages%2F1109351532"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right platform-tags--wrapper">
@@ -159,22 +158,22 @@
               <div class="platform-tag common-like">Common</div>
               <div class="platform-tag js-like">JS</div>
               <div class="platform-tag jvm-like">JVM</div>
-              <div class="platform-tag common-like">Native</div>
+              <div class="platform-tag common-like">nativeOrWasm</div>
             </div>
           </div>
         </div>
-        <div><span class="brief-comment"><a data-name="-1446402372%2FPackages%2F588233207" anchor-label="nl.adaptivity.xmlutil" id="-1446402372%2FPackages%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+        <div><span class="brief-comment"><a data-name="-1446402372%2FPackages%2F1109351532" anchor-label="nl.adaptivity.xmlutil" id="-1446402372%2FPackages%2F1109351532" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain"></a>
             <p class="paragraph">Core package for a wrapper that provides XML pull parsing access. Note that the implementations may do some adjustments beyond what is provided by the underlying implementation to improve compatibility across platforms. The access point to the package/module is (XmlStreaming)nl.adaptivity.xml.XmlStreaming.</p>
           </span></div>
       </div>
     </div>
-<a data-name="-2033748523%2FPackages%2F-1033322941" anchor-label="nl.adaptivity.xmlutil.core" id="-2033748523%2FPackages%2F-1033322941" data-filterable-set=":core/commonMain,:core/jvmCommonMain"></a>
-    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmCommonMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain">
+<a data-name="-2033748523%2FPackages%2F-1339482194" anchor-label="nl.adaptivity.xmlutil.core" id="-2033748523%2FPackages%2F-1339482194" data-filterable-set=":core/commonMain,:core/jvmMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmMain" data-filterable-set=":core/commonMain,:core/jvmMain">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
               <div><a href="nl.adaptivity.xmlutil.core/index.html">nl.adaptivity.xmlutil.core</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2033748523%2FPackages%2F-1033322941"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2033748523%2FPackages%2F-1339482194"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right platform-tags--wrapper">
@@ -187,13 +186,13 @@
         <div></div>
       </div>
     </div>
-<a data-name="1558026000%2FPackages%2F588233207" anchor-label="nl.adaptivity.xmlutil.dom" id="1558026000%2FPackages%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
-    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
+<a data-name="1558026000%2FPackages%2F1109351532" anchor-label="nl.adaptivity.xmlutil.dom" id="1558026000%2FPackages%2F1109351532" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
               <div><a href="nl.adaptivity.xmlutil.dom/index.html">nl.adaptivity.xmlutil.dom</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1558026000%2FPackages%2F588233207"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1558026000%2FPackages%2F1109351532"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right platform-tags--wrapper">
@@ -201,20 +200,20 @@
               <div class="platform-tag common-like">Common</div>
               <div class="platform-tag js-like">JS</div>
               <div class="platform-tag jvm-like">JVM</div>
-              <div class="platform-tag common-like">Native</div>
+              <div class="platform-tag common-like">nativeOrWasm</div>
             </div>
           </div>
         </div>
         <div></div>
       </div>
     </div>
-<a data-name="1748543014%2FPackages%2F588233207" anchor-label="nl.adaptivity.xmlutil.dom2" id="1748543014%2FPackages%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
-    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
+<a data-name="1748543014%2FPackages%2F1109351532" anchor-label="nl.adaptivity.xmlutil.dom2" id="1748543014%2FPackages%2F1109351532" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
               <div><a href="nl.adaptivity.xmlutil.dom2/index.html">nl.adaptivity.xmlutil.dom2</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1748543014%2FPackages%2F588233207"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1748543014%2FPackages%2F1109351532"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right platform-tags--wrapper">
@@ -222,20 +221,20 @@
               <div class="platform-tag common-like">Common</div>
               <div class="platform-tag js-like">JS</div>
               <div class="platform-tag jvm-like">JVM</div>
-              <div class="platform-tag common-like">Native</div>
+              <div class="platform-tag common-like">nativeOrWasm</div>
             </div>
           </div>
         </div>
         <div></div>
       </div>
     </div>
-<a data-name="2069442680%2FPackages%2F588233207" anchor-label="nl.adaptivity.xmlutil.util" id="2069442680%2FPackages%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
-    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain">
+<a data-name="2069442680%2FPackages%2F1109351532" anchor-label="nl.adaptivity.xmlutil.util" id="2069442680%2FPackages%2F1109351532" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain">
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
               <div><a href="nl.adaptivity.xmlutil.util/index.html">nl.adaptivity.xmlutil.util</a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2069442680%2FPackages%2F588233207"></span>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2069442680%2FPackages%2F1109351532"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
           <div class="pull-right platform-tags--wrapper">
@@ -243,11 +242,11 @@
               <div class="platform-tag common-like">Common</div>
               <div class="platform-tag js-like">JS</div>
               <div class="platform-tag jvm-like">JVM</div>
-              <div class="platform-tag common-like">Native</div>
+              <div class="platform-tag common-like">nativeOrWasm</div>
             </div>
           </div>
         </div>
-        <div><span class="brief-comment"><a data-name="2069442680%2FPackages%2F588233207" anchor-label="nl.adaptivity.xmlutil.util" id="2069442680%2FPackages%2F588233207" data-filterable-set=":core/commonMain,:core/jvmCommonMain,:core/jsMain,:core/commonDomMain"></a>
+        <div><span class="brief-comment"><a data-name="2069442680%2FPackages%2F1109351532" anchor-label="nl.adaptivity.xmlutil.util" id="2069442680%2FPackages%2F1109351532" data-filterable-set=":core/commonMain,:core/jvmMain,:core/jsMain,:core/nativeOrWasmMain"></a>
             <p class="paragraph">Package with various utility types that are generally allow for a more convenient way of using the library.</p>
           </span></div>
       </div>
