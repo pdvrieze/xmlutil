@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 
@@ -29,7 +29,9 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
-class SimpleStringEncoder(override val serializersModule: SerializersModule = EmptySerializersModule()): Encoder, List<String> {
+class SimpleStringEncoder(override val serializersModule: SerializersModule = EmptySerializersModule()) :
+    Encoder, List<String> {
+
     private val _strings = mutableListOf<String>()
     val strings: List<String> get() = _strings
 
@@ -39,7 +41,7 @@ class SimpleStringEncoder(override val serializersModule: SerializersModule = Em
 
     override fun containsAll(elements: Collection<String>): Boolean = _strings.containsAll(elements)
 
-    override operator fun get(index: Int): String = _strings.get(index)
+    override operator fun get(index: Int): String = _strings[index]
 
     override fun indexOf(element: String): Int = _strings.indexOf(element)
 
@@ -64,7 +66,7 @@ class SimpleStringEncoder(override val serializersModule: SerializersModule = Em
     }
 
     @ExperimentalSerializationApi
-    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
         return this
     }
 
@@ -72,30 +74,48 @@ class SimpleStringEncoder(override val serializersModule: SerializersModule = Em
         _strings.add(value)
     }
 
-    override fun encodeBoolean(value: Boolean) = encodeString(value.toString())
+    override fun encodeBoolean(value: Boolean) {
+        encodeString(value.toString())
+    }
 
-    override fun encodeByte(value: Byte) = encodeString(value.toString())
+    override fun encodeByte(value: Byte) {
+        encodeString(value.toString())
+    }
 
-    override fun encodeChar(value: Char) = encodeString(value.toString())
+    override fun encodeChar(value: Char) {
+        encodeString(value.toString())
+    }
 
-    override fun encodeDouble(value: Double) = encodeString(value.toString())
+    override fun encodeDouble(value: Double) {
+        encodeString(value.toString())
+    }
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeString(enumDescriptor.getElementName(index))
     }
 
-    override fun encodeFloat(value: Float) = encodeString(value.toString())
+    override fun encodeFloat(value: Float) {
+        encodeString(value.toString())
+    }
 
-    override fun encodeInt(value: Int) = encodeString(value.toString())
+    override fun encodeInt(value: Int) {
+        encodeString(value.toString())
+    }
 
-    override fun encodeLong(value: Long) = encodeString(value.toString())
+    override fun encodeLong(value: Long) {
+        encodeString(value.toString())
+    }
 
     @ExperimentalSerializationApi
-    override fun encodeNull() = encodeString("null")
+    override fun encodeNull() {
+        encodeString("null")
+    }
 
-    override fun encodeShort(value: Short) = encodeString(value.toString())
+    override fun encodeShort(value: Short) {
+        encodeString(value.toString())
+    }
 
-    inner class ListEncoder: CompositeEncoder {
+    inner class ListEncoder : CompositeEncoder {
         override val serializersModule: SerializersModule
             get() = this@SimpleStringEncoder.serializersModule
 

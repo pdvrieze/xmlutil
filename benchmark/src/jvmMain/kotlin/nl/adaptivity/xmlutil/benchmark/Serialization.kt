@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit
 open class Serialization {
     lateinit var retainedXml: XML
 
+    @Suppress("DEPRECATION")
     val suites: List<Pair<URL, URL>> = testXmlSchemaUrls(XML.compat { recommended_0_87_0() })
 
     val schemas: List<Pair<URL, XSSchema>> by lazy(LazyThreadSafetyMode.PUBLICATION) {

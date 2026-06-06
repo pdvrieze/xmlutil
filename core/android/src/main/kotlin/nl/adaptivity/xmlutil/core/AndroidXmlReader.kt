@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -32,6 +32,9 @@ import java.io.Reader
  */
 public class AndroidXmlReader(public val parser: XmlPullParser, public val expandEntities: Boolean) : XmlReader {
     override var isStarted: Boolean = false
+        private set
+
+    override var startLocationInfo: XmlReader.LocationInfo? = null
         private set
 
     public constructor(parser: XmlPullParser): this(parser, false)
@@ -68,6 +71,7 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
 
     @Throws(XmlException::class)
     override fun next(): EventType {
+        startLocationInfo = extLocationInfo
         val nextToken = when (val n = parser.nextToken()) {
             XmlPullParser.TEXT -> when {
                 isXmlWhitespace(parser.text) -> { XmlPullParser.IGNORABLE_WHITESPACE }
@@ -85,6 +89,7 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
     private fun delegateToLocal(nextToken: Int): EventType = when { else -> DELEGATE_TO_LOCAL[nextToken] }
 
     @Throws(XmlException::class)
+    @IgnorableReturnValue
     override fun nextTag(): EventType {
         var et = next()
         while (et == EventType.IGNORABLE_WHITESPACE || (et == EventType.TEXT && isXmlWhitespace(text))) {
@@ -206,13 +211,16 @@ public class AndroidXmlReader(public val parser: XmlPullParser, public val expan
     private companion object {
 
         @Suppress("UNCHECKED_CAST")
-        private val DELEGATE_TO_LOCAL = arrayOfNulls<EventType>(11) as Array<EventType>
+        private val DELEGATE_TO_LOCAL: Array<EventType>
         @Suppress("UNCHECKED_CAST")
         private val DELEGATE_TO_LOCAL_EXPANDED: Array<EventType>
 
         private val LOCAL_TO_DELEGATE: IntArray = IntArray(12)
 
         init {
+            @Suppress("UNCHECKED_CAST")
+            DELEGATE_TO_LOCAL = arrayOfNulls<EventType>(11) as Array<EventType>
+
             DELEGATE_TO_LOCAL[XmlPullParser.CDSECT] = EventType.CDSECT
             DELEGATE_TO_LOCAL[XmlPullParser.COMMENT] = EventType.COMMENT
             DELEGATE_TO_LOCAL[XmlPullParser.DOCDECL] = EventType.DOCDECL

@@ -32,7 +32,10 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import nl.adaptivity.xml.serialization.pedantic
-import nl.adaptivity.xmlutil.serialization.*
+import nl.adaptivity.xmlutil.serialization.DefaultFormatCache
+import nl.adaptivity.xmlutil.serialization.OutputKind
+import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.serialization.XmlValue
 import nl.adaptivity.xmlutil.serialization.structure.XmlCompositeDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlListDescriptor
 import nl.adaptivity.xmlutil.serialization.structure.XmlPolymorphicDescriptor
@@ -56,11 +59,12 @@ class TestCachedDescriptorCache {
 
     @Test
     fun testCacheXmlValues() {
-        val format = XML.v1.recommended(listModule) {
-            policy {
-                formatCache = DefaultFormatCache() // skip the layering for debugging
-            }
-        }
+        val format = // skip the layering for debugging
+            XML.v1(listModule, { ->
+                policy {
+                    formatCache = DefaultFormatCache() // skip the layering for debugging
+                }
+            })
 
         val desc1 =
             assertIs<XmlCompositeDescriptor>(format.xmlDescriptor(OuterList1.serializer()).getElementDescriptor(0))

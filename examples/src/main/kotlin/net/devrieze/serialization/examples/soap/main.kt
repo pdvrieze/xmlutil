@@ -43,6 +43,7 @@ fun main() {
             subclass(GeResult::class as KClass<GeResult<GeResultData>>, serializer())
         }
     }
+    @Suppress("DEPRECATION")
     val xml = XML.v1.recommended(module) {
         xmlDeclMode = XmlDeclMode.Minimal
         setIndent(4)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -185,7 +185,8 @@ public open class SimpleNamespaceContext internal constructor(private val buffer
                     }
                     i -= 1
                 }
-                return null
+                // if not overridden the empty prefix is bound to the default namespace
+                if (prefix == DEFAULT_NS_PREFIX) return NULL_NS_URI else return null
             }
         }
     }

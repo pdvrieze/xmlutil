@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress("DEPRECATION") // Char.toInt()
@@ -57,10 +57,10 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
 
     /** Compiles the given pattern */
     init {
-        if (flags != 0 && flags or flagsBitMask != flagsBitMask) {
+        if (flags != 0 && flags or FLAGS_BIT_MASK != FLAGS_BIT_MASK) {
             throw IllegalArgumentException("Invalid match flags value")
         }
-        startNode = processExpression(-1, this.flags, null)
+        startNode = processExpression(this.flags, null)
 
         if (!lexemes.isEmpty()) {
             throw XRPatternSyntaxException("Trailing characters", pattern, lexemes.curTokenIndex)
@@ -80,11 +80,12 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
     // Compilation methods. ============================================================================================
     /** A->(a|)+ */
     private fun processAlternations(last: XRAbstractSet): XRAbstractSet {
-        val auxRange = XRCharClass(hasFlag(XPattern.CASE_INSENSITIVE))
+        val auxRange = XRCharClass(hasFlag(CASE_INSENSITIVE))
         while (!lexemes.isEmpty() && lexemes.isLetter()
-                && (lexemes.lookAhead == 0
+            && (lexemes.lookAhead == 0
                     || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR
-                    || lexemes.lookAhead == XRLexer.CHAR_RIGHT_PARENTHESIS)) {
+                    || lexemes.lookAhead == XRLexer.CHAR_RIGHT_PARENTHESIS)
+        ) {
             auxRange.add(lexemes.next())
             if (lexemes.currentChar == XRLexer.CHAR_VERTICAL_BAR) {
                 lexemes.next()
@@ -97,7 +98,7 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
     }
 
     /** E->AE; E->S|E; E->S; A->(a|)+ E->S(|S)* */
-    private fun processExpression(ch: Int, newFlags: Int, last: XRAbstractSet?): XRAbstractSet {
+    private fun processExpression(newFlags: Int, last: XRAbstractSet?): XRAbstractSet {
         val children = ArrayList<XRAbstractSet>()
         val savedFlags = flags
         var saveChangedFlags = false
@@ -129,12 +130,14 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
             val child: XRAbstractSet
             when {
                 // a|...
-                lexemes.isLetter() && lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR -> child = processAlternations(fSet)
+                lexemes.isLetter() && lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR -> child =
+                    processAlternations(fSet)
                 // ..|.., e.g. in "a||||b"
                 lexemes.currentChar == XRLexer.CHAR_VERTICAL_BAR -> {
                     child = XREmptySet(fSet)
                     lexemes.next()
                 }
+
                 else -> {
                     child = processSubExpression(fSet)
                     if (lexemes.currentChar == XRLexer.CHAR_VERTICAL_BAR) {
@@ -170,13 +173,14 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
     private fun processSequence(): XRAbstractSet {
         val substring = StringBuilder()
         while (!lexemes.isEmpty()
-                && lexemes.isLetter()
-                && !lexemes.isSurrogate()
-                && (!lexemes.isNextSpecial && lexemes.lookAhead == 0 // End of a pattern.
+            && lexemes.isLetter()
+            && !lexemes.isSurrogate()
+            && (!lexemes.isNextSpecial && lexemes.lookAhead == 0 // End of a pattern.
                     || !lexemes.isNextSpecial && XRLexer.isLetter(lexemes.lookAhead)
                     || lexemes.lookAhead == XRLexer.CHAR_RIGHT_PARENTHESIS
                     || lexemes.lookAhead and 0x8000ffff.toInt() == XRLexer.CHAR_LEFT_PARENTHESIS
-                    || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR)) {
+                    || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR)
+        ) {
             val ch = lexemes.next()
 
             if (Char.isSupplementaryCodePoint(ch)) {
@@ -221,7 +225,8 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                 curSymb = lexemes.currentChar
                 curSymbIndex = curSymb - XRLexer.TBase
                 if (curSymbIndex >= 0 && curSymbIndex < XRLexer.TCount) {
-                    codePointsHangul[@Suppress("UNUSED_CHANGED_VALUE")readCodePoints++] = curSymb.toChar()
+                    @Suppress("AssignedValueIsNeverRead")
+                    codePointsHangul[readCodePoints++] = curSymb.toChar()
                     lexemes.next()
 
                     //LVT syllable
@@ -237,27 +242,28 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                 return XRCharSet(codePointsHangul[0], hasFlag(CASE_INSENSITIVE))
             }
 
-        /*
-         * We process single codepoint or decomposed codepoint.
-         * We collect decomposed codepoint and obtain
-         * one DecomposedCharSet.
-         */
+            /*
+             * We process single codepoint or decomposed codepoint.
+             * We collect decomposed codepoint and obtain
+             * one DecomposedCharSet.
+             */
         } else {
             readCodePoints++
 
             while (readCodePoints < XRLexer.MAX_DECOMPOSITION_LENGTH
-                    && !lexemes.isEmpty() && lexemes.isLetter()
-                    && !XRLexer.isDecomposedCharBoundary(lexemes.currentChar)) {
+                && !lexemes.isEmpty() && lexemes.isLetter()
+                && !XRLexer.isDecomposedCharBoundary(lexemes.currentChar)
+            ) {
                 codePoints[readCodePoints++] = lexemes.next()
             }
 
             /*
              * We have read an ordinary symbol.
              */
-            if (readCodePoints == 1 && !XRLexer.hasSingleCodepointDecomposition(codePoints[0])) {
-                return processCharSet(codePoints[0])
+            return if (readCodePoints == 1 && !XRLexer.hasSingleCodepointDecomposition(codePoints[0])) {
+                processCharSet(codePoints[0])
             } else {
-                return XRDecomposedCharSet(codePoints, readCodePoints)
+                XRDecomposedCharSet(codePoints, readCodePoints)
             }
         }
     }
@@ -270,31 +276,36 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
         when {
             lexemes.isLetter() && !lexemes.isNextSpecial && XRLexer.isLetter(lexemes.lookAhead) -> {
                 when {
-                    hasFlag(XPattern.CANON_EQ) -> {
+                    hasFlag(CANON_EQ) -> {
                         cur = processDecomposedChar()
                         if (!lexemes.isEmpty()
                             && (lexemes.currentChar != XRLexer.CHAR_RIGHT_PARENTHESIS || last is XRFinalSet)
                             && lexemes.currentChar != XRLexer.CHAR_VERTICAL_BAR
-                            && !lexemes.isLetter()) {
+                            && !lexemes.isLetter()
+                        ) {
 
                             cur = processQuantifier(last, cur)
                         }
                     }
+
                     lexemes.isHighSurrogate() || lexemes.isLowSurrogate() -> {
                         val term = processTerminal(last)
                         cur = processQuantifier(last, term)
                     }
+
                     else -> {
                         cur = processSequence()
                     }
                 }
             }
+
             lexemes.currentChar == XRLexer.CHAR_RIGHT_PARENTHESIS -> {
                 if (last is XRFinalSet) {
                     throw XRPatternSyntaxException("unmatched )", pattern, lexemes.curTokenIndex)
                 }
                 cur = XREmptySet(last)
             }
+
             else -> {
                 val term = processTerminal(last)
                 cur = processQuantifier(last, term)
@@ -303,19 +314,21 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
 
         if (!lexemes.isEmpty()
             && (lexemes.currentChar != XRLexer.CHAR_RIGHT_PARENTHESIS || last is XRFinalSet)
-            && lexemes.currentChar != XRLexer.CHAR_VERTICAL_BAR) {
+            && lexemes.currentChar != XRLexer.CHAR_VERTICAL_BAR
+        ) {
 
             val next = processSubExpression(last)
             if (cur is XRLeafQuantifierSet
                 // '*' or '{0,}' quantifier
                 && cur.max == XRQuantifier.INF
                 && cur.min == 0
-                && !next.first(cur.innerSet)) {
+                && !next.first(cur.innerSet)
+            ) {
                 // An Optimizer node for the case where there is no intersection with the next node
                 cur = XRUnifiedQuantifierSet(cur)
             }
             cur.next = next
-        } else  {
+        } else {
             cur.next = last
         }
         return cur
@@ -326,6 +339,7 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
             XRLexer.QUANT_COMP, XRLexer.QUANT_COMP_R, XRLexer.QUANT_COMP_P -> {
                 lexemes.nextSpecial() as XRQuantifier
             }
+
             else -> {
                 lexemes.next()
                 XRQuantifier.fromLexerToken(quant)
@@ -341,7 +355,7 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
 
         if (term.type == XRAbstractSet.TYPE_DOTSET && (quant == XRLexer.QUANT_STAR || quant == XRLexer.QUANT_PLUS)) {
             lexemes.next()
-            return XRDotQuantifierSet(term, last, quant, XRAbstractLineTerminator.getInstance(flags), hasFlag(XPattern.DOTALL))
+            return XRDotQuantifierSet(term, last, quant, XRAbstractLineTerminator.getInstance(flags), hasFlag(DOTALL))
         }
 
         return when (quant) {
@@ -351,8 +365,10 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                 when {
                     term is XRLeafSet ->
                         XRLeafQuantifierSet(quantifier, term, last, quant)
+
                     term.consumesFixedLength ->
                         XRFixedLengthQuantifierSet(quantifier, term, last, quant)
+
                     else ->
                         XRGroupQuantifierSet(quantifier, term, last, quant, groupQuantifierCount++)
                 }
@@ -363,8 +379,10 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                 when {
                     term is XRLeafSet ->
                         XRReluctantLeafQuantifierSet(quantifier, term, last, quant)
+
                     term.consumesFixedLength ->
                         XRReluctantFixedLengthQuantifierSet(quantifier, term, last, quant)
+
                     else ->
                         XRReluctantGroupQuantifierSet(quantifier, term, last, quant, groupQuantifierCount++)
                 }
@@ -375,8 +393,10 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                 when {
                     term is XRLeafSet ->
                         XRPossessiveLeafQuantifierSet(quantifier, term, last, quant)
+
                     term.consumesFixedLength ->
                         XRPossessiveFixedLengthQuantifierSet(quantifier, term, last, quant)
+
                     else ->
                         XRPossessiveGroupQuantifierSet(quantifier, term, last, quant, groupQuantifierCount++)
                 }
@@ -387,17 +407,17 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
     }
 
     /**
-     * T-> letter|[range]|{char-class}|(E)
+     * T-> `letter|&#91;range&#93;|{char-class}|(E)`
      */
     private fun processTerminal(last: XRAbstractSet): XRAbstractSet {
         val term: XRAbstractSet
-        var char = lexemes.currentChar
+        val char = lexemes.currentChar
 
         // The terminal is some kind of group: (E). Call processExpression for it.
         if (char and 0x8000ffff.toInt() == XRLexer.CHAR_LEFT_PARENTHESIS) {
-            var newFlags = flags
+            val newFlags = flags
 
-            term = processExpression(char and 0xff00ffff.toInt(), newFlags, last) // Remove flags from the token.
+            term = processExpression(newFlags, last) // Remove flags from the token.
             if (lexemes.currentChar != XRLexer.CHAR_RIGHT_PARENTHESIS) {
                 throw XRPatternSyntaxException("unmatched (", pattern, lexemes.curTokenIndex)
             }
@@ -405,9 +425,9 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
         } else {
             // Other terminals.
             when (char) {
-                XRLexer.CHAR_RIGHT_SQUARE_BRACKET -> {
+                XRLexer.CHAR_RIGHT_SQUARE_BRACKET ->
                     throw XRPatternSyntaxException("Unexpected ]", pattern, lexemes.curTokenIndex)
-                }
+
                 XRLexer.CHAR_LEFT_SQUARE_BRACKET -> { // Range: [...]
                     lexemes.next()
                     var negative = false
@@ -437,10 +457,12 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                             term = processRangeSet(cc)
                             lexemes.next()
                         }
+
                         !lexemes.isEmpty() -> {
                             term = XRCharSet(char.toChar())
                             lexemes.next()
                         }
+
                         else -> term = XREmptySet(last)
                     }
                 }
@@ -452,18 +474,25 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                             term = processCharSet(char)
                             lexemes.next()
                         }
+
                         char == XRLexer.CHAR_VERTICAL_BAR -> {
                             term = XREmptySet(last)
                         }
+
                         char == XRLexer.CHAR_RIGHT_PARENTHESIS -> {
                             if (last is XRFinalSet) {
                                 throw XRPatternSyntaxException("unmatched )", pattern, lexemes.curTokenIndex)
                             }
                             term = XREmptySet(last)
                         }
+
                         else -> {
                             val current = if (lexemes.isSpecial) lexemes.curSpecialToken.toString() else char.toString()
-                            throw XRPatternSyntaxException("Dangling meta construction: $current", pattern, lexemes.curTokenIndex)
+                            throw XRPatternSyntaxException(
+                                "Dangling meta construction: $current",
+                                pattern,
+                                lexemes.curTokenIndex
+                            )
                         }
                     }
                 }
@@ -484,7 +513,7 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
     }
 
     private fun processRangeExpression(alt: Boolean): XRCharClass {
-        var result = XRCharClass(hasFlag(XPattern.CASE_INSENSITIVE), alt)
+        val result = XRCharClass(hasFlag(CASE_INSENSITIVE), alt)
         var buffer = -1
         var subtraction = false
         var firstInClass = true
@@ -540,7 +569,11 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                 XRLexer.CHAR_HYPHEN -> {
                     if (lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET) {
                         if (firstInClass) {
-                            throw XRPatternSyntaxException("Subtraction from empty alt group is not supported", pattern, lexemes.curTokenIndex)
+                            throw XRPatternSyntaxException(
+                                "Subtraction from empty alt group is not supported",
+                                pattern,
+                                lexemes.curTokenIndex
+                            )
                         }
 
                         lexemes.next()
@@ -548,7 +581,8 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                         buffer = -1
                     } else if (firstInClass
                         || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
-                        || (buffer < 0 && lexemes.version != SchemaVersion.V1_0)) {
+                        || (buffer < 0 && lexemes.version != SchemaVersion.V1_0)
+                    ) {
                         // Note that mid-range hyphens are only supported in 1.1
 
                         // Treat the hypen as a normal character.
@@ -563,22 +597,19 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                         var cur = lexemes.currentChar
                         // Special case for a hyphen followed by a subtraction group (MS-Regex/reF56)
                         if (cur == XRLexer.CHAR_HYPHEN && lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET) {
-                            if (buffer >=0) result.add(buffer)
+                            if (buffer >= 0) result.add(buffer)
                             buffer = '-'.code
                         } else if (!lexemes.isSpecial
                             && (cur >= 0
-                                || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
-                                || lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET
-                                || buffer < 0)) {
+                                    || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
+                                    || lexemes.lookAhead == XRLexer.CHAR_LEFT_SQUARE_BRACKET
+                                    || buffer < 0)
+                        ) {
 
-                            try {
-                                if (!XRLexer.isLetter(cur)) {
-                                    cur = cur and 0xFFFF
-                                }
-                                result.add(buffer, cur)
-                            } catch (e: Exception) {
-                                throw XRPatternSyntaxException("Illegal character range", pattern, lexemes.curTokenIndex)
+                            if (!XRLexer.isLetter(cur)) {
+                                cur = cur and 0xFFFF
                             }
+                            result.add(buffer, cur)
 
                             lexemes.next()
                             buffer = -1
@@ -636,10 +667,18 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
             val lowHighSurrRangeSet = XRSurrogateRangeSet(charClass.classWithSurrogates())
 
             if (charClass.mayContainSupplCodepoints) {
-                return XRCompositeRangeSet(XRSupplementaryRangeSet(charClass.classWithoutSurrogates(), hasFlag(CASE_INSENSITIVE)), lowHighSurrRangeSet)
+                return XRCompositeRangeSet(
+                    XRSupplementaryRangeSet(
+                        charClass.classWithoutSurrogates(),
+                        hasFlag(CASE_INSENSITIVE)
+                    ), lowHighSurrRangeSet
+                )
             }
 
-            return XRCompositeRangeSet(XRRangeSet(charClass.classWithoutSurrogates(), hasFlag(CASE_INSENSITIVE)), lowHighSurrRangeSet)
+            return XRCompositeRangeSet(
+                XRRangeSet(charClass.classWithoutSurrogates(), hasFlag(CASE_INSENSITIVE)),
+                lowHighSurrRangeSet
+            )
         }
 
         if (charClass.mayContainSupplCodepoints) {
@@ -654,7 +693,7 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
 
         return when {
             isSupplCodePoint -> XRSequenceSet(Char.toChars(ch).concatToString(0, 2), hasFlag(CASE_INSENSITIVE))
-            ch.toChar().isLowSurrogate() ->  XRLowSurrogateCharSet(ch.toChar())
+            ch.toChar().isLowSurrogate() -> XRLowSurrogateCharSet(ch.toChar())
             ch.toChar().isHighSurrogate() -> XRHighSurrogateCharSet(ch.toChar())
             else -> XRCharSet(ch.toChar(), hasFlag(CASE_INSENSITIVE))
         }
@@ -667,56 +706,56 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
          * This constant specifies that a pattern matches Unix line endings ('\n')
          * only against the '.', '^', and '$' meta characters.
          */
-        val UNIX_LINES = 1 shl 0
+        const val UNIX_LINES = 1 shl 0
 
         /**
          * This constant specifies that a `Pattern` is matched
          * case-insensitively. That is, the patterns "a+" and "A+" would both match
          * the string "aAaAaA".
          */
-        val CASE_INSENSITIVE = 1 shl 1
+        const val CASE_INSENSITIVE = 1 shl 1
 
         /**
          * This constant specifies that a `Pattern` may contain whitespace or
          * comments. Otherwise comments and whitespace are taken as literal
          * characters.
          */
-        val COMMENTS = 1 shl 2
+        const val COMMENTS = 1 shl 2
 
         /**
          * This constant specifies that the meta characters '^' and '$' match only
          * the beginning and end end of an input line, respectively. Normally, they
          * match the beginning and the end of the complete input.
          */
-        val MULTILINE = 1 shl 3
+        const val MULTILINE = 1 shl 3
 
         /**
          * This constant specifies that the whole `Pattern` is to be taken
          * literally, that is, all meta characters lose their meanings.
          */
-        val LITERAL = 1 shl 4
+        const val LITERAL = 1 shl 4
 
         /**
          * This constant specifies that the '.' meta character matches arbitrary
          * characters, including line endings, which is normally not the case.
          */
-        val DOTALL = 1 shl 5
+        const val DOTALL = 1 shl 5
 
         /**
          * This constant specifies that a character in a `Pattern` and a
          * character in the input string only match if they are canonically
          * equivalent.
          */
-        val CANON_EQ = 1 shl 6
+        const val CANON_EQ = 1 shl 6
 
         /** A bit mask that includes all defined match flags */
-        internal val flagsBitMask = XPattern.UNIX_LINES or
-                XPattern.CASE_INSENSITIVE or
-                XPattern.COMMENTS or
-                XPattern.MULTILINE or
-                XPattern.LITERAL or
-                XPattern.DOTALL or
-                XPattern.CANON_EQ
+        internal const val FLAGS_BIT_MASK = UNIX_LINES or
+                CASE_INSENSITIVE or
+                COMMENTS or
+                MULTILINE or
+                LITERAL or
+                DOTALL or
+                CANON_EQ
 
 
         /**
@@ -724,10 +763,21 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
          * If the string is used for a `Pattern` afterwards, it can only be matched literally.
          */
         fun quote(s: String): String {
-            return StringBuilder()
-                    .append("\\Q")
-                    .append(s.replace("\\E", "\\E\\\\E\\Q"))
-                    .append("\\E").toString()
+            return buildString(s.length + 4) {
+                append("\\Q")
+                var i = 0
+                val l = s.length
+                while (i < l) {
+                    val c = s[i++]
+                    if (c == '\\' && i < l && s[i] == 'E') {
+                        append("\\E\\\\E\\Q")
+                        i++
+                    } else {
+                        append(c)
+                    }
+                }
+                append("\\E")
+            }
         }
     }
 }

@@ -32,7 +32,7 @@ jobs:
             -   name: Yarn lock upgrade
                 run: ./gradlew -PexcludeSchema kotlinUpgradeYarnLock
             -   name: Check
-                run: ./gradlew -Pnative.deploy=host -PexcludeSchema nativeTest jvmTest jvmCommonTest jsBrowserTest jsNodeTest wasmJsNodeTest wasmWasiNodeTest wasmJsBrowserTest dokkaGenerateHtml --stacktrace
+                run: ./gradlew -Pnative.deploy=single -PexcludeSchema nativeTest jvmTest jvmCommonTest jsBrowserTest jsNodeTest wasmJsNodeTest wasmWasiNodeTest wasmJsBrowserTest dokkaGenerateHtml --stacktrace
                 shell: bash
             -   name: Store reports
                 if: failure()

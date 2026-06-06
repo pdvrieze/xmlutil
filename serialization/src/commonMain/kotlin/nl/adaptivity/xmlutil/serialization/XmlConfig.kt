@@ -769,8 +769,8 @@ private constructor(
                     emptyList()
                 } else {
                     throw UnknownXmlFieldException(
-                        input.extLocationInfo,
                         "(${descriptor.serialDescriptor.serialName}) ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)",
+                        input.extLocationInfo,
                         candidates
                     )
                 }
@@ -792,8 +792,8 @@ private constructor(
                     emptyList()
                 } else {
                     throw UnknownXmlFieldException(
-                        input.extLocationInfo,
                         "(${descriptor.serialDescriptor.serialName}) ${descriptor.tagName}/${name ?: "<CDATA>"} ($inputKind)",
+                        input.extLocationInfo,
                         candidates
                     )
                 }

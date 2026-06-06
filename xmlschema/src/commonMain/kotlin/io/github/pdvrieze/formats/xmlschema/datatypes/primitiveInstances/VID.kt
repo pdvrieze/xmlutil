@@ -35,7 +35,7 @@ value class VID private constructor(override val xmlString: String) : VNCName {
 
     override fun toString(): String = xmlString
 
-    private class Serializer : SimpleTypeSerializer<VID>("ID") {
+    class Serializer : SimpleTypeSerializer<VID>("ID") {
         override fun deserialize(
             raw: String,
             input: XmlReader?

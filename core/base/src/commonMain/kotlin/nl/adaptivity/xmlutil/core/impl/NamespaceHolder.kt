@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -236,7 +236,7 @@ public open class NamespaceHolder : Iterable<Namespace> {
      * Look up a namespace uri declared at the current depth only
      */
     public fun namespaceAtCurrentDepth(prefix: String): String? {
-        for (i in namespaceIndicesAt(depth) step 2) {
+        for (i in namespaceIndicesAt(depth)) {
             if (nameSpaces[prefixArrayPos(i)] == prefix) {
                 return nameSpaces[nsArrayPos(i)]
             }

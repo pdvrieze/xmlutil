@@ -37,7 +37,7 @@ class AnyListStringTest {
         assertEquals(4, decoded2.orders.size)
 
         for (elem in arrayOf(0,2,3).map { decoded2.orders[it] }) {
-            assertIs<XmlEntity>(elem)
+            val _ = assertIs<XmlEntity>(elem)
         }
 
         val decodedString = assertIs<String>(decoded2.orders[1])

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2021.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances
@@ -30,7 +30,7 @@ import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @Serializable(VParsedURI.Serializer::class)
-class VParsedURI(str: String): VAnyURI() {
+class VParsedURI(str: String) : VAnyURI() {
     constructor(charSequence: CharSequence) : this(charSequence.toString())
 
     private val scheme: String?
@@ -59,7 +59,7 @@ class VParsedURI(str: String): VAnyURI() {
 
             next = pos
             if (str.length >= next + 2 && str[next] == '/' && str[next + 1] == '/') {
-                pos+=2
+                pos += 2
                 next = pos
                 val delims = arrayOf('/', '?', '#')
                 while (next < str.length && str[next].let { it != '/' && it != '?' && it != '#' }) ++next
@@ -87,23 +87,25 @@ class VParsedURI(str: String): VAnyURI() {
 
         if (next < str.length) {
             require(str[next] == '#')
-            fragment = str.substring(pos + 1).also { check(it.isValid(Part.FRAGMENT)) { "Fragment '$it' is not valid" } }
+            fragment =
+                str.substring(pos + 1).also { check(it.isValid(Part.FRAGMENT)) { "Fragment '$it' is not valid" } }
         } else {
             fragment = null
         }
 
-        check(str == xmlString) { "'$str' != '$xmlString'"}
+        check(str == xmlString) { "'$str' != '$xmlString'" }
     }
 
-    override val xmlString: String get() = buildString {
-        if (scheme != null) {
-            append(scheme).append(':')
-            if (authority != null) append("//").append(authority)
+    override val xmlString: String
+        get() = buildString {
+            if (scheme != null) {
+                append(scheme).append(':')
+                if (authority != null) append("//").append(authority)
+            }
+            append(path)
+            if (query != null) append('?').append(query)
+            if (fragment != null) append('#').append(fragment)
         }
-        append(path)
-        if (query != null) append('?').append(query)
-        if (fragment != null) append('#').append(fragment)
-    }
 
     override val length: Int get() = xmlString.length
 
@@ -139,7 +141,7 @@ class VParsedURI(str: String): VAnyURI() {
 
     internal enum class Part { SCHEME, AUTHORITY, PATH, QUERY, FRAGMENT }
 
-    companion object Serializer: KSerializer<VParsedURI> {
+    companion object Serializer : KSerializer<VParsedURI> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("xsd.anyURI", PrimitiveKind.STRING)
 
         override fun deserialize(decoder: Decoder): VParsedURI {
@@ -159,12 +161,12 @@ class VParsedURI(str: String): VAnyURI() {
         private val SUBDELIM = BooleanArray(127)
 
         init {
-            for (i in ('A'.code..'Z'.code)+('a'.code..'z'.code)) {
+            for (i in ('A'.code..'Z'.code) + ('a'.code..'z'.code)) {
                 ALPHA[i] = true
                 SCHEMELETTER[i] = true
                 UNRESERVED[i] = true
             }
-            for (i in ('A'.code..'F'.code)+('a'.code..'f'.code)) {
+            for (i in ('A'.code..'F'.code) + ('a'.code..'f'.code)) {
                 HEXLETTER[i] = true
             }
             for (i in '0'.code..'9'.code) {
@@ -179,7 +181,7 @@ class VParsedURI(str: String): VAnyURI() {
             UNRESERVED['.'.code] = true
             UNRESERVED['_'.code] = true
             UNRESERVED['~'.code] = true
-            for (c in arrayOf('!', '$', '&', '\'', '(',')', '*', '+', ',', ';', '=')) {
+            for (c in arrayOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=')) {
                 SUBDELIM[c.code] = true
             }
         }
@@ -187,15 +189,18 @@ class VParsedURI(str: String): VAnyURI() {
         internal fun CharSequence.isValid(part: Part): Boolean {
 
             when (part) {
-                Part.SCHEME -> return length>0 && all { it.isSchemeLetter() }
+                Part.SCHEME -> return length > 0 && all { it.isSchemeLetter() }
                 Part.AUTHORITY -> { // somewhat partial
                     var hasUser = false
                     var hasPortOrIp6 = false
                     var i = 0
-                    while(i<length) {
-                        when(val c = get(i)) {
-                            '@' -> if (!hasUser && !hasPortOrIp6) { hasUser = true } else return false
-                            '%' -> if (hasPortOrIp6 || (i+2 >= length && get(i+1).isHexLetter() && get(i+2).isHexLetter())) i+=2 else return false
+                    while (i < length) {
+                        when (val c = get(i)) {
+                            '@' -> if (!hasUser && !hasPortOrIp6) {
+                                hasUser = true
+                            } else return false
+
+                            '%' -> if (hasPortOrIp6 || (i + 2 >= length && get(i + 1).isHexLetter() && get(i + 2).isHexLetter())) i += 2 else return false
                             ':' -> hasPortOrIp6 = true//;if (!hasPort) { hasPort = true } else return false
                             in '0'..'9' -> {} //always fine
                             else -> {
@@ -206,28 +211,32 @@ class VParsedURI(str: String): VAnyURI() {
                         ++i
                     }
                 }
+
                 Part.PATH -> {
                     var lastSegmentLength = 1
                     var currentSegmentLength = 0
                     var i = 0
-                    while(i <length) {
+                    while (i < length) {
                         val c = get(i)
-                        when(c) {
+                        when (c) {
                             '/' -> when {
                                 lastSegmentLength == 0 -> return false // disallow consecutive
 
                                 else -> {
-                                    lastSegmentLength=if (i==0) 1 else currentSegmentLength
+                                    lastSegmentLength = if (i == 0) 1 else currentSegmentLength
                                     currentSegmentLength = 0
                                 }
                             }
+
                             '%' -> when {
-                                i+2 <= length && get(i+1).isHexLetter() && get(i+2).isHexLetter() -> {
-                                    i+=2
+                                i + 2 <= length && get(i + 1).isHexLetter() && get(i + 2).isHexLetter() -> {
+                                    i += 2
                                     ++currentSegmentLength
                                 }
+
                                 else -> return false
                             }
+
                             ':', '@', '<', '>', '"' -> ++currentSegmentLength // allow last 3 for test compatibility (technically invalid)
                             else -> {
                                 if (!c.isUnreserved() && !c.isSubDelim()) return false
@@ -238,11 +247,12 @@ class VParsedURI(str: String): VAnyURI() {
                         ++i
                     }
                 }
+
                 Part.QUERY, Part.FRAGMENT -> {
                     var i = 0
-                    while(i <length) {
+                    while (i < length) {
                         val c = get(i)
-                        when(c) {
+                        when (c) {
                             '%' -> if (i + 2 >= length && get(i + 1).isHexLetter() && get(i + 2).isHexLetter()) i += 2 else return false
                             '/', '?', ':', '@' -> {}
                             else -> if (!c.isUnreserved() && !c.isSubDelim()) return false
@@ -283,14 +293,14 @@ class VParsedURI(str: String): VAnyURI() {
     }
 }
 
-internal fun <T: CharSequence> T.checkValidUriChars(): T = also {
+internal fun <T : CharSequence> T.checkValidUriChars(): T = also {
     for (c in it) {
         c.checkValidUriChar()
     }
 }
 
-private const val POS_SCHEME=0
-private const val POS_AUTHORITY=1
+private const val POS_SCHEME = 0
+private const val POS_AUTHORITY = 1
 
 private fun Char.checkValidUriChar(pos: Int = 0): Unit {
     when (code) {

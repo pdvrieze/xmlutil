@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xpath
@@ -52,9 +52,14 @@ class XPathExpression private constructor(
 
         override fun serialize(encoder: Encoder, value: XPathExpression) {
             if (encoder is XML.XmlOutput) {
-                // todo ensure prefixes exist encoder.target
+                // TODO ensure prefixes exist encoder.target
+                val str = buildString {
+                    value.expr.appendToString(this, encoder.target)
+                }
+                encoder.encodeString(str)
+            } else {
+                encoder.encodeString(value.xmlString) // TODO use xml aware writing
             }
-            return encoder.encodeString(value.xmlString) // TODO use xml aware writing
         }
 
         override fun deserialize(decoder: Decoder): XPathExpression {
@@ -80,7 +85,7 @@ class XPathExpression private constructor(
             var current: Expr? = null
 
             skipWhitespace()
-            var start = i
+            val start = i
 
             while (i < str.length) {
                 when (val c = str[i]) {
@@ -242,7 +247,7 @@ class XPathExpression private constructor(
 
                 c == '(' -> current = parseSequenceOrParen()
 
-                c == '\'' || c=='"' -> current = parseLiteral()
+                c == '\'' || c=='"' -> current = parseStringLiteral()
 
                 c == '-' || c.isDigit() -> current = parseNumber()
 
@@ -383,7 +388,9 @@ class XPathExpression private constructor(
                         when {
                             tryCurrentWord("instance") -> {
                                 skipWhitespace()
-                                tryCurrentWord("of")
+                                if (!tryCurrentWord("of")) {
+                                    throw IllegalArgumentException("@$i> Missing 'of' in 'instance' expression: '${str.substring(i)}'")
+                                }
                                 skipWhitespace()
                                 current = InstanceOfExpr(current, parseSequenceType())
                             }
@@ -582,7 +589,7 @@ class XPathExpression private constructor(
             return LocationPath(rooted, steps)
         }
 
-        private fun parseLiteral(): StringLiteral {
+        private fun parseStringLiteral(): StringLiteral {
             val start = i
             val delim = when (str[i]) {
                 '\'' -> '\''
@@ -624,7 +631,7 @@ class XPathExpression private constructor(
 
         private fun parseStep(stepCount: Int): PrimaryOrStep {
             skipWhitespace()
-            if (i>=str.length) { "@$i> Empty expression" }
+            require (i<str.length) { "@$i> Empty expression" }
 
             val c = str[i]
             when {
@@ -667,7 +674,6 @@ class XPathExpression private constructor(
                 }
 
                 isNameStartChar(c) -> {
-                    val startPos = i
                     val word = parseNCName()
 
 //                    val curName: QName
@@ -698,9 +704,12 @@ class XPathExpression private constructor(
                                 if (args.isEmpty()) {
                                     currentTest = NodeTest.ProcessingInstructionTest()
                                 } else if (args.size == 1) {
-                                    var arg = args.first()
-                                    require(arg is LiteralExpr<*>)
-                                    currentTest = NodeTest.ProcessingInstructionTest(arg.value as String)
+                                    currentTest = when (val arg = args.first()) {
+                                        is LiteralExpr<*> ->
+                                            NodeTest.ProcessingInstructionTest(NodeTest.NameOrLiteral.Literal(arg.value as String))
+
+                                        else -> throw IllegalArgumentException("Unexpected arguments to processing instruction test")
+                                    }
                                 } else throw IllegalArgumentException("Unexpected arguments to processing instruction test")
                             }
 

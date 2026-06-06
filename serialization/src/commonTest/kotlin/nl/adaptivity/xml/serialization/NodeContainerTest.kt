@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -93,7 +93,7 @@ class NodeContainerTest {
     fun testGenericDeserializeXml() {
         if (testTarget == Target.Node) return
 
-        impl.testGenericDeserializeXml()
+        impl.testGenericDeserializeXmlFromReader()
     }
 
     @Test

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes
@@ -127,7 +127,8 @@ sealed class AtomicDatatype(name: String, targetNamespace: String) :
 
 typealias AnyPrimitiveDatatype = PrimitiveDatatype<*>
 
-sealed class PrimitiveDatatype<out T: VAnySimpleType>(name: String, targetNamespace: String) : AtomicDatatype(name, targetNamespace) {
+sealed class PrimitiveDatatype<out T : VAnySimpleType>(name: String, targetNamespace: String) :
+    AtomicDatatype(name, targetNamespace) {
     final override val isSpecial: Boolean get() = false
 
     final override fun value(representation: VString): T {
@@ -198,7 +199,11 @@ object AnyURIType : PrimitiveDatatype<VAnyURI>("anyURI", XSD_NS_URI) {
 
     override fun validateValue(value: Any, version: SchemaVersion) {
         when (version) {
-            SchemaVersion.V1_0 -> value is VParsedURI || (value is VAnyURI && VParsedURI(value)!=null)
+            SchemaVersion.V1_0 if (value is VParsedURI) -> {}
+            SchemaVersion.V1_0 if (value is VAnyURI) -> {
+                val _ = VParsedURI(value)
+            }
+
             else -> check(value is VAnyURI)
         }
         mdlFacets.validateValue(value)
@@ -245,7 +250,7 @@ object Base64BinaryType : PrimitiveDatatype<VByteArray>("base64Binary", XSD_NS_U
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -263,10 +268,10 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VBoolean = when (representation.toString()) {
+    override fun valueFromNormalized(normalized: VString): VBoolean = when (normalized.toString()) {
         "true", "1" -> VBoolean.TRUE
         "false", "0" -> VBoolean.FALSE
-        else -> error("$representation is not a boolean")
+        else -> error("$normalized is not a boolean")
     }
 
     override fun value(maybeValue: VAnySimpleType): VBoolean {
@@ -278,7 +283,7 @@ object BooleanType : PrimitiveDatatype<VBoolean>("boolean", XSD_NS_URI) {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -301,8 +306,8 @@ object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VDate {
-        val s = representation.xmlString
+    override fun valueFromNormalized(normalized: VString): VDate {
+        val s = normalized.xmlString
         val monthIdx = s.indexOf('-', 1) // sign can be start
         val year = s.substring(0, monthIdx).toInt()
         val month = s.substring(monthIdx + 1, monthIdx + 3).toInt()
@@ -310,7 +315,7 @@ object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
         val day = s.substring(monthIdx + 4, monthIdx + 6).toInt()
 
         return when {
-            representation.length >= monthIdx + 6 ->
+            normalized.length >= monthIdx + 6 ->
                 VDate(year, month, day, IDateTime.timezoneFragValue(s.substring(monthIdx + 6)))
 
             else ->
@@ -327,7 +332,7 @@ object DateType : PrimitiveDatatype<VDate>("date", XSD_NS_URI), FiniteDateType {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -348,8 +353,8 @@ object DateTimeType : PrimitiveDatatype<VDateTime>("dateTime", XSD_NS_URI) {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VDateTime {
-        val s = representation.xmlString
+    override fun valueFromNormalized(normalized: VString): VDateTime {
+        val s = normalized.xmlString
         val tIndex = s.indexOf('T')
 
         require(tIndex >= 0)
@@ -397,8 +402,8 @@ object DateTimeStampType : PrimitiveDatatype<VDateTime>("dateTimeStamp", XSD_NS_
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VDateTime {
-        return DateTimeType.value(representation).also {
+    override fun valueFromNormalized(normalized: VString): VDateTime {
+        return DateTimeType.value(normalized).also {
             requireNotNull(it.timezoneOffset) { "DateTimestamps must have a timestamp" }
         }
     }
@@ -428,16 +433,16 @@ object DecimalType : PrimitiveDatatype<VDecimal>("decimal", XSD_NS_URI), IDecima
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VDecimal {
+    override fun valueFromNormalized(normalized: VString): VDecimal {
         return try {
-            when (representation.toLong()) {
+            when (normalized.toLong()) {
                 in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
-                    VInteger(representation.toLong().toInt())
+                    VInteger(normalized.toLong().toInt())
 
-                else -> VInteger(representation.toLong())
+                else -> VInteger(normalized.toLong())
             }
         } catch (e: NumberFormatException) {
-            VBigDecimalImpl(xmlCollapseWhitespace(representation.xmlString))
+            VBigDecimalImpl(xmlCollapseWhitespace(normalized.xmlString))
         }
     }
 
@@ -473,8 +478,8 @@ object IntegerType : PrimitiveDatatype<VInteger>("integer", XSD_NS_URI), IIntege
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VInteger {
-        return VInteger(representation.toLong())
+    override fun valueFromNormalized(normalized: VString): VInteger {
+        return VInteger(normalized.toLong())
     }
 
     override fun value(maybeValue: VAnySimpleType): VInteger {
@@ -510,8 +515,8 @@ object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType 
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VInteger {
-        return VInteger(representation.toLong())
+    override fun valueFromNormalized(normalized: VString): VInteger {
+        return VInteger(normalized.toLong())
     }
 
     override fun value(maybeValue: VAnySimpleType): VInteger {
@@ -523,7 +528,7 @@ object LongType : PrimitiveDatatype<VInteger>("long", XSD_NS_URI), IIntegerType 
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -545,8 +550,8 @@ object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VInteger {
-        return VInteger(WhitespaceValue.COLLAPSE.normalize(representation).toLong())
+    override fun valueFromNormalized(normalized: VString): VInteger {
+        return VInteger(WhitespaceValue.COLLAPSE.normalize(normalized).toLong())
     }
 
     override fun value(maybeValue: VAnySimpleType): VInteger {
@@ -558,7 +563,7 @@ object IntType : PrimitiveDatatype<VInteger>("int", XSD_NS_URI), IIntegerType {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -581,8 +586,8 @@ object ShortType : PrimitiveDatatype<VInteger>("short", XSD_NS_URI), IIntegerTyp
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VInteger {
-        return VInteger(representation.toInt())
+    override fun valueFromNormalized(normalized: VString): VInteger {
+        return VInteger(normalized.toInt())
     }
 
     override fun value(maybeValue: VAnySimpleType): VInteger {
@@ -618,8 +623,8 @@ object ByteType : PrimitiveDatatype<VInteger>("byte", XSD_NS_URI), IIntegerType 
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VInteger {
-        return VInteger(representation.toInt())
+    override fun valueFromNormalized(normalized: VString): VInteger {
+        return VInteger(normalized.toInt())
     }
 
     override fun value(maybeValue: VAnySimpleType): VInteger {
@@ -655,8 +660,8 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VNonNegativeInteger {
-        return VNonNegativeInteger(representation)
+    override fun valueFromNormalized(normalized: VString): VNonNegativeInteger {
+        return VNonNegativeInteger(normalized)
     }
 
     override fun value(maybeValue: VAnySimpleType): VNonNegativeInteger {
@@ -668,7 +673,7 @@ object NonNegativeIntegerType : PrimitiveDatatype<VNonNegativeInteger>("nonNegat
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -690,8 +695,8 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VNonNegativeInteger {
-        return VNonNegativeInteger(representation)
+    override fun valueFromNormalized(normalized: VString): VNonNegativeInteger {
+        return VNonNegativeInteger(normalized)
     }
 
     override fun value(maybeValue: VAnySimpleType): VNonNegativeInteger {
@@ -703,7 +708,7 @@ object PositiveIntegerType : PrimitiveDatatype<VNonNegativeInteger>("positiveInt
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -726,8 +731,8 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_N
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VUnsignedLong {
-        return VUnsignedLong(representation.toULong())
+    override fun valueFromNormalized(normalized: VString): VUnsignedLong {
+        return VUnsignedLong(normalized.toULong())
     }
 
     override fun value(maybeValue: VAnySimpleType): VUnsignedLong {
@@ -739,7 +744,7 @@ object UnsignedLongType : PrimitiveDatatype<VUnsignedLong>("unsignedLong", XSD_N
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -762,8 +767,8 @@ object UnsignedIntType : PrimitiveDatatype<VUnsignedInt>("unsignedInt", XSD_NS_U
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VUnsignedInt {
-        return VUnsignedInt(representation.toUInt())
+    override fun valueFromNormalized(normalized: VString): VUnsignedInt {
+        return VUnsignedInt(normalized.toUInt())
     }
 
     override fun value(maybeValue: VAnySimpleType): VUnsignedInt {
@@ -798,8 +803,8 @@ object UnsignedShortType : PrimitiveDatatype<VUnsignedInt>("unsignedShort", XSD_
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VUnsignedInt {
-        return VUnsignedInt(representation.toUInt())
+    override fun valueFromNormalized(normalized: VString): VUnsignedInt {
+        return VUnsignedInt(normalized.toUInt())
     }
 
     override fun value(maybeValue: VAnySimpleType): VUnsignedInt {
@@ -838,8 +843,8 @@ object UnsignedByteType : PrimitiveDatatype<VUnsignedInt>("unsignedByte", XSD_NS
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VUnsignedInt {
-        return VUnsignedInt(representation.toUInt())
+    override fun valueFromNormalized(normalized: VString): VUnsignedInt {
+        return VUnsignedInt(normalized.toUInt())
     }
 
     override fun value(maybeValue: VAnySimpleType): VUnsignedInt {
@@ -873,12 +878,12 @@ object NonPositiveIntegerType : PrimitiveDatatype<VDecimal>("nonPositiveInteger"
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VDecimal {
-        return when (representation.toLong()) {
+    override fun valueFromNormalized(normalized: VString): VDecimal {
+        return when (normalized.toLong()) {
             in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
-                VInteger(representation.toLong().toInt())
+                VInteger(normalized.toLong().toInt())
 
-            else -> VInteger(representation.toLong())
+            else -> VInteger(normalized.toLong())
         }
     }
 
@@ -913,12 +918,12 @@ object NegativeIntegerType : PrimitiveDatatype<VDecimal>("negativeInteger", XSD_
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VDecimal {
-        return when (representation.toLong()) {
+    override fun valueFromNormalized(normalized: VString): VDecimal {
+        return when (normalized.toLong()) {
             in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong() ->
-                VInteger(representation.toLong().toInt())
+                VInteger(normalized.toLong().toInt())
 
-            else -> VInteger(representation.toLong())
+            else -> VInteger(normalized.toLong())
         }
     }
 
@@ -951,8 +956,8 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VDouble {
-        return VDouble(representation.toDouble())
+    override fun valueFromNormalized(normalized: VString): VDouble {
+        return VDouble(normalized.toDouble())
     }
 
     override fun value(maybeValue: VAnySimpleType): VDouble {
@@ -964,7 +969,7 @@ object DoubleType : PrimitiveDatatype<VDouble>("double", XSD_NS_URI) {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -983,8 +988,8 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VDuration {
-        return VDuration(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VDuration {
+        return VDuration(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VDuration {
@@ -992,7 +997,7 @@ object DurationType : PrimitiveDatatype<VDuration>("duration", XSD_NS_URI) {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1011,8 +1016,8 @@ object DayTimeDurationType : PrimitiveDatatype<VDuration>("dayTimeDuration", XSD
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VDuration {
-        return VDuration(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VDuration {
+        return VDuration(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VDuration {
@@ -1046,8 +1051,8 @@ object YearMonthDurationType : PrimitiveDatatype<VDuration>("yearMonthDuration",
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VDuration {
-        return VDuration(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VDuration {
+        return VDuration(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VDuration {
@@ -1079,8 +1084,8 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VFloat {
-        return VFloat(representation.toFloat())
+    override fun valueFromNormalized(normalized: VString): VFloat {
+        return VFloat(normalized.toFloat())
     }
 
     override fun value(maybeValue: VAnySimpleType): VFloat {
@@ -1092,7 +1097,7 @@ object FloatType : PrimitiveDatatype<VFloat>("float", XSD_NS_URI) {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -1114,8 +1119,8 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VGDay {
-        val s = representation.xmlString
+    override fun valueFromNormalized(normalized: VString): VGDay {
+        val s = normalized.xmlString
         require(s.startsWith("---"))
         val tzIndex = s.indexOf('Z', 3)
         return when {
@@ -1133,7 +1138,7 @@ object GDayType : PrimitiveDatatype<VGDay>("gDay", XSD_NS_URI), FiniteDateType {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1154,8 +1159,8 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDate
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VGMonth {
-        val s = representation.xmlString
+    override fun valueFromNormalized(normalized: VString): VGMonth {
+        val s = normalized.xmlString
         require(s.startsWith("--"))
         val month = s.substring(2, 4).toInt()
 
@@ -1178,7 +1183,7 @@ object GMonthType : PrimitiveDatatype<VGMonth>("gMonth", XSD_NS_URI), FiniteDate
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1199,8 +1204,8 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VGMonthDay {
-        val s = representation.xmlString
+    override fun valueFromNormalized(normalized: VString): VGMonthDay {
+        val s = normalized.xmlString
         require(s.startsWith("--"))
         val tzIndex = s.indexOf('Z', 2)
         return when {
@@ -1226,7 +1231,7 @@ object GMonthDayType : PrimitiveDatatype<VGMonthDay>("gMonthDay", XSD_NS_URI), F
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1247,8 +1252,8 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateTyp
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VGYear {
-        val s = representation.xmlString
+    override fun valueFromNormalized(normalized: VString): VGYear {
+        val s = normalized.xmlString
         val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it >= 0) it + 1 else s.length }
         val year = s.substring(0, yearEnd).toInt()
         val tzOffset = IDateTime.timezoneFragValue(s.substring(yearEnd))
@@ -1264,7 +1269,7 @@ object GYearType : PrimitiveDatatype<VGYear>("gYear", XSD_NS_URI), FiniteDateTyp
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1285,8 +1290,8 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VGYearMonth {
-        val (year, month) = representation.split('-').map { it.toInt() }
+    override fun valueFromNormalized(normalized: VString): VGYearMonth {
+        val (year, month) = normalized.split('-').map { it.toInt() }
         return VGYearMonth(year, month.toUInt())
     }
 
@@ -1299,7 +1304,7 @@ object GYearMonthType : PrimitiveDatatype<VGYearMonth>("gYearMonth", XSD_NS_URI)
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 
 }
@@ -1365,8 +1370,8 @@ object NotationType : PrimitiveDatatype<VNotation>("NOTATION", XSD_NS_URI) {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VNotation {
-        return VNotation(representation)
+    override fun valueFromNormalized(normalized: VString): VNotation {
+        return VNotation(normalized)
     }
 
     override fun value(maybeValue: VAnySimpleType): VNotation {
@@ -1396,8 +1401,8 @@ object QNameType : PrimitiveDatatype<VQName>("QName", XSD_NS_URI) {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VQName {
-        return (representation as? VPrefixString)?.toVQName() ?: VQName(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VQName {
+        return (normalized as? VPrefixString)?.toVQName() ?: VQName(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VQName {
@@ -1497,8 +1502,8 @@ object TokenType : PrimitiveDatatype<VToken>("token", XSD_NS_URI), IStringType {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VToken {
-        return representation as? VToken ?: VToken(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VToken {
+        return normalized as? VToken ?: VToken(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VToken {
@@ -1529,8 +1534,8 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStr
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VLanguage {
-        return VLanguage(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VLanguage {
+        return VLanguage(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VLanguage {
@@ -1542,7 +1547,7 @@ object LanguageType : PrimitiveDatatype<VLanguage>("language", XSD_NS_URI), IStr
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation) // triggers validation in constructor
+        val _ = value(representation) // triggers validation in constructor
     }
 }
 
@@ -1561,8 +1566,8 @@ object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VName {
-        return representation as? VName ?: VName(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VName {
+        return normalized as? VName ?: VName(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VName {
@@ -1574,7 +1579,7 @@ object NameType : PrimitiveDatatype<VName>("Name", XSD_NS_URI), IStringType {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1596,8 +1601,8 @@ object NCNameType : PrimitiveDatatype<VNCName>("NCName", XSD_NS_URI), IStringTyp
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VNCName {
-        return representation as? VNCName ?: VNCName(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VNCName {
+        return normalized as? VNCName ?: VNCName(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VNCName {
@@ -1633,8 +1638,8 @@ object EntityType : PrimitiveDatatype<VString>("ENTITY", XSD_NS_URI), IStringTyp
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VString {
-        return representation
+    override fun valueFromNormalized(normalized: VString): VString {
+        return normalized
     }
 
     override fun value(maybeValue: VAnySimpleType): VString {
@@ -1664,8 +1669,8 @@ object IDType : PrimitiveDatatype<VID>("ID", XSD_NS_URI), IStringType {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VID {
-        return representation as? VID ?: VID(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VID {
+        return normalized as? VID ?: VID(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VID {
@@ -1700,8 +1705,8 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VIDRef {
-        return representation as? VIDRef ?: VIDRef(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VIDRef {
+        return normalized as? VIDRef ?: VIDRef(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VIDRef {
@@ -1714,7 +1719,7 @@ object IDRefType : PrimitiveDatatype<VIDRef>("IDREF", XSD_NS_URI), IStringType {
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1733,8 +1738,8 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IString
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VNMToken {
-        return representation as? VNMToken ?: VNMToken(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VNMToken {
+        return normalized as? VNMToken ?: VNMToken(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VNMToken {
@@ -1746,7 +1751,7 @@ object NMTokenType : PrimitiveDatatype<VNMToken>("NMTOKEN", XSD_NS_URI), IString
     }
 
     override fun validate(representation: VString, version: SchemaVersion) {
-        value(representation)
+        val _ = value(representation)
     }
 }
 
@@ -1767,8 +1772,8 @@ object TimeType : PrimitiveDatatype<VTime>("time", XSD_NS_URI) {
         numeric = false,
     )
 
-    override fun valueFromNormalized(representation: VString): VTime {
-        return VTime(representation.xmlString)
+    override fun valueFromNormalized(normalized: VString): VTime {
+        return VTime(normalized.xmlString)
     }
 
     override fun value(maybeValue: VAnySimpleType): VTime {
@@ -1831,7 +1836,7 @@ object PrecisionDecimalType : PrimitiveDatatype<VAnySimpleType>("precisionDecima
         numeric = true,
     )
 
-    override fun valueFromNormalized(representation: VString): VAnySimpleType {
+    override fun valueFromNormalized(normalized: VString): VAnySimpleType {
         TODO("NOT IMPLEMENTED")
     }
 

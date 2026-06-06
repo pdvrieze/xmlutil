@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,34 +20,73 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface Attr : Node {
-    public fun getNamespaceURI(): String?
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
-    public fun getPrefix(): String?
-
-    public fun getLocalName(): String?
+public expect interface Attr : Node, PlatformAttr {
+    //region dom 1
 
     public fun getName(): String
-
     public fun getValue(): String
-
     public fun setValue(value: String)
+    //TODO public fun isSpecified(): Boolean
 
-    public fun getOwnerElement(): Element?
+    //region overrides
+    public override fun getOwnerDocument(): Document
 
-    public override fun appendChild(node: Node): Nothing
-    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing
-    public override fun removeChild(node: Node): Nothing
+    public override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
+    public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+    public override fun removeChild(node: PlatformNode): Nothing
     public override fun getFirstChild(): Nothing?
     public override fun getLastChild(): Nothing?
 
+    @ExperimentalXmlUtilApi
+    public override fun getAttributes(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    override fun getNodeValue(): String
+
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): Attr
+
+    //endregion
+    //endregion
+
+    //region dom 2
+    public fun getOwnerElement(): Element?
+
+    //endregion
+
+    //region dom 3
+    //TODO public fun getSchemaTypeInfo(): TypeInfo?
+    @ExperimentalXmlUtilApi
+    public fun isId(): Boolean
+    //endregion
+
 }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val Attr.namespaceURI: String? get() = getNamespaceURI()
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val Attr.prefix: String? get() = getPrefix()
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val Attr.localName: String? get() = getLocalName()
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val Attr.name: String get() = getName()
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public var Attr.value: String
     get() = getValue()
     set(value) { setValue(value) }
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val Attr.ownerElement: Element? get() = getOwnerElement()

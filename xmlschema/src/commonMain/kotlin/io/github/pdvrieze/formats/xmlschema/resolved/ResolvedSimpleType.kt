@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -104,6 +104,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 pt.validateValue(value, version)
                 mdlFacets.validateValue(value)
             }
+
             Variety.LIST -> {
                 val id = checkNotNull(mdlItemTypeDefinition)
                 check(value is List<*>)
@@ -112,12 +113,14 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                     id.validateValue(i, version)
                 }
             }
+
             Variety.UNION -> {
-                check(mdlMemberTypeDefinitions.isNotEmpty()) { "Union type ${this} has no members" }
-                check(mdlMemberTypeDefinitions.any {t ->
+                check(mdlMemberTypeDefinitions.isNotEmpty()) { "Union type $this has no members" }
+                check(mdlMemberTypeDefinitions.any { t ->
                     runCatching { t.validateValue(value, version); true }.getOrDefault(false)
-                }) { "Value $value does not fit any members of union: ${mdlMemberTypeDefinitions}" }
+                }) { "Value $value does not fit any members of union: $mdlMemberTypeDefinitions" }
             }
+
             Variety.NIL -> error("Nil variety cannot be validated")
         }
     }
@@ -158,9 +161,11 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         return false //none of the 4 options is true
     }
 
+    @IgnorableReturnValue
     fun transitiveUnionMembership(collector: MutableSet<ResolvedSimpleType> = mutableSetOf()): Set<ResolvedSimpleType> {
-        if(mdlVariety != Variety.UNION) return collector
-        when(val d = simpleDerivation) {
+        if (mdlVariety != Variety.UNION) return collector
+
+        when (val d = simpleDerivation) {
             is ResolvedUnionDerivation -> {
                 for (m in d.memberTypes) {
                     when (m.mdlVariety) {
@@ -169,12 +174,12 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                     }
                 }
             }
-            is ResolvedListDerivationBase -> {
+
+            is ResolvedListDerivationBase ->
                 throw IllegalStateException("list derivations should never have union variety")
-            }
-            is ResolvedSimpleRestrictionBase -> {
+
+            is ResolvedSimpleRestrictionBase ->
                 (d.baseType as? ResolvedSimpleType)?.transitiveUnionMembership(collector)
-            }
         }
         return collector
     }
@@ -185,33 +190,35 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
             Variety.ATOMIC -> {
                 val type = checkNotNull(mdlPrimitiveTypeDefinition) { "Missing primitive type for $this" }
                 mdlFacets.validate(type, normalized)
-                return type.value(normalized)
+                type.value(normalized)
             }
+
             Variety.LIST -> {
                 if (normalized.isEmpty()) return emptyList<Any>()
                 val itemType = checkNotNull(mdlItemTypeDefinition)
 
-                return when {
+                when {
                     normalized.isEmpty() -> emptyList()
                     normalized is VPrefixStringList -> normalized.elems.map {
                         itemType.value(it)
                     }
+
                     else -> normalized.split(' ').map {
                         itemType.value(VString(it))
                     }
                 }
             }
-            Variety.UNION -> {
-                for (m in mdlMemberTypeDefinitions) {
-                    // TODO don't rely on exceptions here
-                    runCatching { m.value(normalized) }.onSuccess { return it }
-                }
+
+            Variety.UNION -> for (m in mdlMemberTypeDefinitions) {
+                // TODO don't rely on exceptions here
+                runCatching { m.value(normalized) }.onSuccess { return it }
             }
+
             Variety.NIL -> error("Nil variety is not allowed for actual types")
         }
     }
 
-    sealed class Derivation() : ResolvedAnnotated {
+    sealed class Derivation : ResolvedAnnotated {
         abstract override val model: ResolvedAnnotated.IModel
 
         /** Abstract as it is static for union/list. In those cases always AnySimpleType */
@@ -263,7 +270,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
                 rawPart is XSGlobalSimpleType &&
                         typeName != null && simpleDerivation.base != null && typeName.isEquivalent(simpleDerivation.base) -> {
-                    throw IllegalArgumentException( "Only redefines can have 'self-referencing types' in $typeName" )
+                    throw IllegalArgumentException("Only redefines can have 'self-referencing types' in $typeName")
                 }
 
                 simpleDerivation.base?.isEquivalent(AnySimpleType.mdlQName) == true -> AnySimpleType
@@ -294,7 +301,6 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 }
 
                 is XSSimpleUnion -> Variety.UNION
-                else -> error("Unreachable/unsupported derivation")
             }
 
 
@@ -307,6 +313,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
                         recurseBaseType(mdlBaseTypeDefinition) { it.mdlItemTypeDefinition }
                     }
+
                     else -> {
                         val d = simpleDerivation as XSSimpleList
                         when {
@@ -336,8 +343,8 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 mdlBaseTypeDefinition == AnySimpleType -> simpleDerivation.memberTypes?.map {
                     schema.simpleType(it)
                 } ?: simpleDerivation.simpleTypes.map {
-                        ResolvedLocalSimpleType(it, schema, context)
-                    }
+                    ResolvedLocalSimpleType(it, schema, context)
+                }
 
                 else -> recurseBaseType(mdlBaseTypeDefinition) {
                     it.mdlMemberTypeDefinitions
@@ -371,6 +378,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                         for (f in d.facets) {
                             require(f.isListFacet(schema.version)) { "List variety types may not contain non-list facet: $f" }
                         }
+
                     else -> {}
                 }
                 mdlBaseTypeDefinition.mdlFacets.overlay(FacetList.safe(d.facets, schema, mdlBaseTypeDefinition))
@@ -382,8 +390,6 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
             )
 
             is XSSimpleUnion -> FacetList.EMPTY
-
-            else -> error("Compiler issue")
         }
 
 
@@ -449,9 +455,6 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                     numeric = mdlMemberTypeDefinitions.all { it.mdlFundamentalFacets.numeric }
                 )
             }
-
-            else -> error("Compiler issue")
-
         }
 
         protected companion object {
@@ -466,7 +469,7 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
                 else -> when (val base = startType.mdlBaseTypeDefinition) {
                     AnySimpleType -> valueFun(AnySimpleType)
                     is ResolvedSimpleType -> recurseBaseType(base, valueFun)
-                    else -> error("Recursing non-simple base type ($base) of simple: ${startType}")
+                    else -> error("Recursing non-simple base type ($base) of simple: $startType")
                 }
             }
         }

@@ -36,7 +36,7 @@ value class VEntity(override val xmlString: String) : VNCName {
 
     override fun toString(): String = xmlString
 
-    private class Serializer : SimpleTypeSerializer<VEntity>("VEntity") {
+    class Serializer : SimpleTypeSerializer<VEntity>("VEntity") {
         override fun deserialize(
             raw: String,
             input: XmlReader?

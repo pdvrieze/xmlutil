@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,18 +20,44 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface DocumentType : Node {
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+import nl.adaptivity.xmlutil.dom.PlatformNode
+
+public expect interface DocumentType : Node, PlatformDocumentType {
     public fun getName(): String
     public fun getPublicId(): String
     public fun getSystemId(): String
 
-    public override fun appendChild(node: Node): Nothing
-    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing
-    public override fun removeChild(node: Node): Nothing
+    /* @since DOM Level 2 */
+    public fun getEntities(): NamedNodeMap<Entity>
+
+    /* @since DOM Level 2 */
+    public fun getNotations(): NamedNodeMap<Notation>
+
+    public override fun appendChild(node: PlatformNode): Nothing
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+    public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+    public override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    override fun getNodeValue(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    override fun getAttributes(): Nothing?
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): DocumentType
 }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val DocumentType.name: String get() = getName()
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val DocumentType.publicId: String get() = getPublicId()
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public val DocumentType.systemId: String get() = getSystemId()

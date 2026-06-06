@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -34,7 +34,7 @@ import kotlinx.serialization.encoding.*
 /**
  * Platform independent implementation of QName
  */
-public expect class QName {
+public expect open class QName {
     /**
      * Create a new constructor with the given namespace uri, local part and prefix.
      *
@@ -73,6 +73,10 @@ public expect class QName {
      * Retrieve the namespace URI for this QName.
      */
     public fun getNamespaceURI(): String
+
+    final override fun hashCode(): Int
+
+    final override fun equals(other: Any?): Boolean
 }
 
 /**
@@ -189,21 +193,7 @@ public object QNameSerializer : XmlSerializer<QName> {
 
     /** Serialize a QName as CName by writing a namespace attribute if needed. The prefix is used as hint only. */
     override fun serializeXML(encoder: Encoder, output: XmlWriter, value: QName, isValueChild: Boolean) {
-        var effectivePrefix = when (value.namespaceURI) {
-            output.getNamespaceUri(value.prefix) -> value.prefix
-            else -> output.getPrefix(value.namespaceURI)
-        }
-
-        if (effectivePrefix == null) {
-            effectivePrefix = if (value.prefix.isNotEmpty() && output.getNamespaceUri(value.prefix) == null) {
-                checkNotNull(value.prefix)
-            } else {
-                IntRange(1, Int.MAX_VALUE).asSequence()
-                    .map { "ns$it" }
-                    .first { output.getNamespaceUri(it) == null }
-            }
-            output.namespaceAttr(effectivePrefix, value.namespaceURI)
-        }
+        val effectivePrefix = output.getOrCreatePrefix(value.namespaceURI, value.prefix)
         encoder.encodeString("$effectivePrefix:${value.localPart}")
     }
 

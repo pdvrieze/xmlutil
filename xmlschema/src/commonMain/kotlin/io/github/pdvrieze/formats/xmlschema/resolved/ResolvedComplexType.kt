@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -489,8 +489,7 @@ sealed class ResolvedComplexType(
                         derivation is XSComplexType.Shorthand -> // restriction (or shorthand)
                     typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
-
-                baseTypeDefinition !is ResolvedComplexType -> // simple type 4.2.1
+                baseTypeDefinition is ResolvedSimpleType -> // simple type 4.2.1
                     typeContext.contentType(effectiveMixed, effectiveContent, schema, openContent, emptyList())
 
                 baseTypeDefinition.mdlContentType.mdlVariety.let { // simple content 4.2.1
@@ -765,6 +764,7 @@ sealed class ResolvedComplexType(
             complexType: ResolvedComplexType,
             checkHelper: CheckHelper
         ) {
+            @IgnorableReturnValue
             fun collectElements(
                 term: ResolvedTerm,
                 target: MutableList<ResolvedElement> = mutableListOf(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -36,6 +36,7 @@ import kotlin.time.Instant
 data class MeasureInfo(val round: Int, val rounds: Int, val warmups: Int)
 
 @OptIn(ExperimentalTime::class)
+@IgnorableReturnValue
 inline fun measure(name:String, rounds: Int = 20, warmups: Int = 1, action: MeasureInfo.() -> Unit): Long {
     val initTime = System.currentTimeMillis()
     var startTime = initTime

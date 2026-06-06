@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -25,7 +25,9 @@ package nl.adaptivity.xmlutil
  * Annotation to signify that the annotated code is internal to the XmlUtil module, and no API
  * stability is guaranteed.
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION,
+    AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER)
 @RequiresOptIn("This function is internal to the XmlUtil modules. No api stability is guaranteed", RequiresOptIn.Level.ERROR)
 @MustBeDocumented
 public annotation class XmlUtilInternal
@@ -34,14 +36,18 @@ public annotation class XmlUtilInternal
  * Annotation to signify that the annotated code is internal to the XmlUtil module, and no API
  * stability is guaranteed.
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION,
+    AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER)
 @RequiresOptIn("This function/type should have been internal to the XmlUtil modules. Its use is deprecated", RequiresOptIn.Level.WARNING)
 public annotation class XmlUtilDeprecatedInternal
 
 /**
  * Annotation to signify that the annotated code is experimental, with limited compatibility support.
  */
-@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION,
+    AnnotationTarget.TYPEALIAS, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER)
 @RequiresOptIn("This XML Serialization code is not stable and may be subject to binary and source incompatible changes", RequiresOptIn.Level.WARNING)
 @MustBeDocumented
 public annotation class ExperimentalXmlUtilApi

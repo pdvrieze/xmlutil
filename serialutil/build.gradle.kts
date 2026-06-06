@@ -21,12 +21,11 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
-import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("projectPlugin")
@@ -36,7 +35,6 @@ plugins {
     signing
     alias(libs.plugins.dokka)
     idea
-    alias(libs.plugins.binaryValidator)
 }
 
 base {
@@ -45,10 +43,30 @@ base {
 
 config {
     createAndroidCompatComponent = true
+    dokkaModuleName = "serialutil"
+    optIns = emptyList()
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {
+
+/*
+        klib {
+            enabled = isKlibValidationEnabled()
+        }
+*/
+
+        filters {
+            exclude {
+                annotatedWith.add("nl.adaptivity.xmlutil.XmlUtilInternal")
+                byNames.apply {
+                    add("nl.adaptivity.serialutil.impl.**")
+                }
+            }
+        }
+    }
+
     jvm()
 
     js {
@@ -68,6 +86,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                compileOnly(projects.core) // for optin markers
                 api(libs.serialization.core)
             }
         }
@@ -81,9 +100,9 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(libs.junit5.api)
+                implementation(libs.junit.api)
 
-                runtimeOnly(libs.junit5.engine)
+                runtimeOnly(libs.junit.engine)
             }
         }
 
@@ -97,23 +116,7 @@ kotlin {
 
 addNativeTargets()
 
-apiValidation {
-    @Suppress("OPT_IN_USAGE")
-    klib {
-        enabled = isKlibValidationEnabled()
-        strictValidation = false
-    }
-    ignoredPackages.apply {
-        add("nl.adaptivity.serialutil.impl")
-    }
-
-}
-
 doPublish()
-
-config {
-    dokkaModuleName = "serialutil"
-}
 
 idea {
     module {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -29,7 +29,29 @@ import kotlin.jvm.JvmOverloads
  */
 public open class XmlException : IOException {
 
-    public val locationInfo: XmlReader.LocationInfo?
+    public var locationInfo: XmlReader.LocationInfo?
+        private set
+
+    @XmlUtilInternal
+    public var errContext: String? = null
+        private set
+
+    @ExperimentalXmlUtilApi
+    public val rawMessage: String? get() = super.message
+
+    @XmlUtilInternal
+    public fun setFileLocation(fileName: String) {
+        val locationInfo = locationInfo?.withFileName(fileName) ?: FileNameLocationInfo(fileName)
+        if (locationInfo !== locationInfo) this.locationInfo = locationInfo
+    }
+
+    @XmlUtilInternal
+    public fun addErrorContext(errContext: String) {
+        this.errContext = when (val c = (this.errContext)) {
+            null -> errContext
+            else -> "$errContext/$c"
+        }
+    }
 
     @JvmOverloads
     public constructor(locationInfo: XmlReader.LocationInfo? = null) {
@@ -58,13 +80,29 @@ public open class XmlException : IOException {
     }
 
     public constructor(message: String, reader: XmlReader, cause: Throwable) :
-            super("${reader.extLocationInfo ?: "Unknown position"} - $message", cause) {
+            super(message, cause) {
         this.locationInfo = reader.extLocationInfo
     }
 
     public constructor(message: String, reader: XmlReader) :
-            super("${reader.extLocationInfo ?: "Unknown position"} - $message") {
+            super(message) {
         this.locationInfo = reader.extLocationInfo
+    }
+
+    override val message: String?
+        get() = "${locationInfo ?: "Unknown position"} - ${rawMessage}"
+
+
+    @XmlUtilInternal
+    public class FileNameLocationInfo(public val fileName: String): XmlReader.LocationInfo {
+        override fun toString(): String {
+            return "file $fileName@<unknown>"
+        }
+
+        override fun withFileName(fileName: String): XmlReader.LocationInfo = when {
+            fileName == this.fileName -> this
+            else -> FileNameLocationInfo(fileName)
+        }
     }
 
 }

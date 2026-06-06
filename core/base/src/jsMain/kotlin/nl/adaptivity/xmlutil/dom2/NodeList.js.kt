@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,9 +20,17 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public actual interface NodeList : Iterable<Node> {
+import nl.adaptivity.xmlutil.dom.PlatformNodeList
+
+public actual interface NodeList : Iterable<Node>, PlatformNodeList {
+    public val size: Int get() = getLength()
+
     public actual fun getLength(): Int
-    public actual fun item(index: Int): Node?
+    public actual override fun item(index: Int): Node?
     public actual operator fun get(index: Int): Node?
     public actual override operator fun iterator(): Iterator<Node>
+}
+
+internal fun addNodeListPropertiesToPrototype(prototype: dynamic) {
+    js("Object").defineProperty(prototype, "length", jsProperty<NodeList> { getLength() })
 }

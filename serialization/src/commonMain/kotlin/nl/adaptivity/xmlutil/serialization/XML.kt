@@ -1610,11 +1610,11 @@ internal fun QName.copy(
     namespaceURI: String = this.namespaceURI,
     localPart: String = this.localPart,
     prefix: String = this.prefix
-) =
-    QName(namespaceURI, localPart, prefix)
+) = QName(namespaceURI, localPart, prefix)
 
 /** Shortcircuit copy function that creates a new version (if needed) with the new prefix only */
-internal fun QName.copy(prefix: String = this.prefix) = when (prefix) {
+@XmlUtilInternal
+public fun QName.copy(prefix: String = this.prefix): QName = when (prefix) {
     this.prefix -> this
     else -> QName(namespaceURI, localPart, prefix)
 }

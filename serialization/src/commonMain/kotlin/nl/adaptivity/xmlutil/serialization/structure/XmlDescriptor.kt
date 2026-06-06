@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -30,10 +30,10 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.descriptors.*
 import nl.adaptivity.xmlutil.*
+import nl.adaptivity.xmlutil.core.internal.QNameMap
 import nl.adaptivity.xmlutil.serialization.*
 import nl.adaptivity.xmlutil.serialization.XML.XmlCodecConfig
 import nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy.DeclaredNameInfo
-import nl.adaptivity.xmlutil.serialization.impl.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 
 public sealed class XmlDescriptor @XmlUtilInternal constructor(

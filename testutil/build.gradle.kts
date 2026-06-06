@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress("PropertyName")
@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("projectPlugin")
@@ -36,20 +37,39 @@ plugins {
     signing
     alias(libs.plugins.dokka)
     idea
-    alias(libs.plugins.binaryValidator)
 }
 
 base {
-    archivesName = "xmltestutil"
+    group = "io.github.pdvrieze"
+    archivesName = "testutil"
 }
 
 config {
     kotlinApiVersion = KotlinVersion.DEFAULT
+    applyLayout = true
 }
 
 val moduleName = "io.github.pdvrieze.testutil"
 
 kotlin {
+
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {
+
+/*
+        klib {
+            enabled = false // isKlibValidationEnabled()
+        }
+*/
+
+        filters {
+            exclude {
+                annotatedWith.add("nl.adaptivity.xmlutil.XmlUtilInternal")
+            }
+        }
+    }
+
+
     jvm()
 
     js {
@@ -82,28 +102,14 @@ kotlin {
                 api(kotlin("test-junit5"))
             }
         }
-
-        all {
-            languageSettings.apply {
-                optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
-                optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-            }
-        }
     }
 
 }
 
 addNativeTargets()
 
-doPublish()
+doPublish("testutil")
 
 config {
     dokkaModuleName = "testutil"
-}
-
-
-idea {
-    module {
-        name = "xmlutil-testutil"
-    }
 }

@@ -1,4 +1,24 @@
 /*
+ * Copyright (c) 2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+/*
  * Copyright 2010-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license
  * that can be found in the LICENSE file.
  */
@@ -13,8 +33,9 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
  * @constructor creates an empty bit set with the specified [size]
  * @param size the size of one element in the array used to store bits.
  */
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @XmlUtilInternal
-actual public class XBitSet actual constructor(size: Int) {
+public actual class XBitSet actual constructor(size: Int) {
 
     companion object {
         // Default size of one element in the array used to store bits.
@@ -144,19 +165,17 @@ actual public class XBitSet actual constructor(size: Int) {
     }
 
     /** Sets the bits with indices between [from] (inclusive) and [to] (exclusive) to the specified value. */
-    actual fun set(from : Int, to: Int, value: Boolean): Unit = set(from until to, value)
-
-    /** Sets the bits from the range specified to the specified value. */
-    fun set(range: IntRange, value: Boolean) {
-        if (range.start < 0 || range.endInclusive < 0) {
+    actual fun set(from : Int, to: Int, value: Boolean) {
+        if (from < 0 || to < 0) {
             throw IndexOutOfBoundsException()
         }
-        if (range.start > range.endInclusive) { // Empty range.
+        val endInclusive = to - 1
+        if (from >= to) { // Empty range.
             return
         }
-        ensureCapacity(range.endInclusive)
-        val (fromIndex, fromOffset) = range.start.asBitCoordinates
-        val (toIndex, toOffset) = range.endInclusive.asBitCoordinates
+        ensureCapacity(endInclusive)
+        val (fromIndex, fromOffset) = from.asBitCoordinates
+        val (toIndex, toOffset) = endInclusive.asBitCoordinates
         if (toIndex == fromIndex) {
             val mask = getMaskBetween(fromOffset, toOffset)
             setBitsWithMask(fromIndex, mask, value)
@@ -228,7 +247,7 @@ actual public class XBitSet actual constructor(size: Int) {
      * (if [lookFor] == false) bit after [startIndex] (inclusive).
      * Returns -1 (for [lookFor] == true) or [size] (for lookFor == false)
      * if there is no such bits between [startIndex] and [size] - 1.
-     * @throws IndexOutOfBoundException if [startIndex] < 0.
+     * @throws IndexOutOfBoundsException if [startIndex] < 0.
      */
     private fun nextBit(startIndex: Int, lookFor: Boolean): Int {
         if (startIndex < 0) {
@@ -262,7 +281,7 @@ actual public class XBitSet actual constructor(size: Int) {
     /**
      * Returns an index of a next bit which value is `true` after [startIndex] (inclusive).
      * Returns -1 if there is no such bits after [startIndex].
-     * @throws IndexOutOfBoundException if [startIndex] < 0.
+     * @throws IndexOutOfBoundsException if [startIndex] < 0.
      */
     actual fun nextSetBit(startIndex: Int): Int = nextBit(startIndex, true)
 
@@ -270,7 +289,7 @@ actual public class XBitSet actual constructor(size: Int) {
      * Returns an index of a next bit which value is `false` after [startIndex] (inclusive).
      * Returns [size] if there is no such bits between [startIndex] and [size] - 1 assuming that the set has an infinite
      * sequence of `false` bits after (size - 1)-th.
-     * @throws IndexOutOfBoundException if [startIndex] < 0.
+     * @throws IndexOutOfBoundsException if [startIndex] < 0.
      */
     actual fun nextClearBit(startIndex: Int): Int = nextBit(startIndex, false)
 
@@ -323,7 +342,7 @@ actual public class XBitSet actual constructor(size: Int) {
      * Returns the biggest index of a bit which value is `true` before [startIndex] (inclusive).
      * Returns -1 if there is no such bits before [startIndex] or if [startIndex] == -1.
      * If [startIndex] >= size will search from (size - 1)-th bit.
-     * @throws IndexOutOfBoundException if [startIndex] < -1.
+     * @throws IndexOutOfBoundsException if [startIndex] < -1.
      */
     fun previousSetBit(startIndex: Int): Int = previousBit(startIndex, true)
 
@@ -332,7 +351,7 @@ actual public class XBitSet actual constructor(size: Int) {
      * Returns -1 if there is no such bits before [startIndex] or if [startIndex] == -1.
      * If [startIndex] >= size will return [startIndex] assuming that the set has an infinite
      * sequence of `false` bits after (size - 1)-th.
-     * @throws IndexOutOfBoundException if [startIndex] < -1.
+     * @throws IndexOutOfBoundsException if [startIndex] < -1.
      */
     fun previousClearBit(startIndex: Int): Int = previousBit(startIndex, false)
 

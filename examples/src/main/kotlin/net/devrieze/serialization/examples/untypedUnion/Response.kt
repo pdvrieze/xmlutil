@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -91,6 +91,7 @@ object ResponseSerializer : KSerializer<Response> {
                 is Response.Success<*> -> {
                     encodeStringElement(descriptor, 0, value.delegateSerializer.descriptor.serialName)
                     // Cast is needed here due to type limits
+                    @Suppress("UNCHECKED_CAST")
                     encodeSerializableElement(descriptor, 1, value.delegateSerializer as KSerializer<Any?>, value.data)
                 }
             }

@@ -1,26 +1,26 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package nl.adaptivity.xmlutil
 
-public actual class QName public actual constructor(
+public actual open class QName public actual constructor(
     private val namespaceURI: String,
     private val localPart: String,
     private val prefix: String
@@ -49,7 +49,7 @@ public actual class QName public actual constructor(
         return "{$namespaceURI}$localPart"
     }
 
-    override fun equals(other: Any?): Boolean {
+    actual final override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class.js != other::class.js) return false
 
@@ -61,7 +61,7 @@ public actual class QName public actual constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    actual final override fun hashCode(): Int {
         var result = namespaceURI.hashCode()
         result = 31 * result + localPart.hashCode()
         return result

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 
@@ -39,12 +39,12 @@ class SimpleStringDecoder(
     override val serializersModule: SerializersModule = EmptySerializersModule()
 ) : Decoder {
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = when (descriptor.kind) {
-        is StructureKind.OBJECT -> ObjectDecoder(descriptor)
+        is StructureKind.OBJECT -> ObjectDecoder()
         is PolymorphicKind.SEALED -> SealedDecoder()
         else -> throw SerializationException("Structures are not supported by the simple string decoder: decoding $value")
     }
 
-    private inner class ObjectDecoder(private val descriptor: SerialDescriptor) : AbstractDecoder() {
+    private inner class ObjectDecoder : AbstractDecoder() {
         override val serializersModule: SerializersModule
             get() = this@SimpleStringDecoder.serializersModule
 
@@ -64,7 +64,7 @@ class SimpleStringDecoder(
         }
 
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T {
-            return deserializer.deserialize(ObjectDecoder(deserializer.descriptor))
+            return deserializer.deserialize(ObjectDecoder())
         }
 
         override val serializersModule: SerializersModule
@@ -72,7 +72,7 @@ class SimpleStringDecoder(
     }
 
     @ExperimentalSerializationApi
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder = this
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder = this
 
     override fun decodeString(): String = value
 
@@ -119,7 +119,7 @@ class SimpleStringListDecoder(
     }
 
     @ExperimentalSerializationApi
-    override fun decodeInline(inlineDescriptor: SerialDescriptor): Decoder {
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder {
         return this
     }
 

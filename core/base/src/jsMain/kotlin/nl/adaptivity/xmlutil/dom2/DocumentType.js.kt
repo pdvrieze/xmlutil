@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,20 +22,79 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public actual interface DocumentType : Node {
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+import nl.adaptivity.xmlutil.dom.PlatformNode
+
+public actual interface DocumentType : Node, PlatformDocumentType {
+
     public actual fun getName(): String
     public actual fun getPublicId(): String
     public actual fun getSystemId(): String
 
-    @IgnorableReturnValue
-    public actual override fun appendChild(node: Node): Nothing
+    /* @since DOM Level 2 */
+    public actual fun getEntities(): NamedNodeMap<Entity>
+
+    /* @since DOM Level 2 */
+    public actual fun getNotations(): NamedNodeMap<Notation>
+
+    actual override fun getNodeValue(): Nothing?
 
     @IgnorableReturnValue
-    public actual override fun replaceChild(newChild: Node, oldChild: Node): Nothing
+    public actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
-    public actual override fun removeChild(node: Node): Nothing
+    public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    public actual override fun removeChild(node: PlatformNode): Nothing
 
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
+
+    public actual override fun getAttributes(): Nothing?
+
+    public actual override fun cloneNode(deep: Boolean): DocumentType
+
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun appendChild(node: Node): Nothing = appendChild(node.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
+        insertBefore(newChild.unsafeCast<PlatformNode>(), refChild?.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
+        replaceChild(newChild.unsafeCast<PlatformNode>(), oldChild.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
+
+}
+
+internal fun addDocumentTypePropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.name = jsProperty<DocumentType> { getName() }
+    props.entities = jsProperty<DocumentType> { getEntities() }
+    props.notations = jsProperty<DocumentType> { getNotations() }
+    props.publicId = jsProperty<DocumentType> { getPublicId() }
+    props.systemId = jsProperty<DocumentType> { getSystemId() }
+/*
+    props.internalSubset = jsProperty<DocumentType> { getInternalSubset() }
+*/
+    js("Object").defineProperties(prototype, props)
 }

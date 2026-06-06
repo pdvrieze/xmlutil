@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2025-2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+@file:MustUseReturnValues
+
+package nl.adaptivity.xmlutil.dom2
+
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+
+public actual interface DOMImplementation: PlatformDOMImplementation {
+    public actual val supportsWhitespaceAtToplevel: Boolean
+    public actual override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
+    public actual override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document
+    public actual fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
+
+    public actual override fun hasFeature(feature: String, version: String?): Boolean
+    public actual fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
+    public actual override fun getFeature(feature: String, version: String): Any?
+}

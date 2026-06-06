@@ -59,7 +59,7 @@ class TestRootTagName {
             xml.decodeFromString<NoXmlName>("<foo data=\"bar\" />", QName("not_the_present_tag"))
         }
         val m = assertNotNull(e.message)
-        assertEquals("Local name \"foo\" for root tag does not match expected name \"not_the_present_tag\"", m)
+        assertEquals("Unknown position - Local name \"foo\" for root tag does not match expected name \"not_the_present_tag\"", m)
     }
 
     @Test
@@ -68,7 +68,7 @@ class TestRootTagName {
             val d: XmlName = xml.decodeFromString("<foo data=\"bar\" />")
         }
         val m = assertNotNull(e.message)
-        assertEquals("Local name \"foo\" for root tag does not match expected name \"XmlName\"", m)
+        assertEquals("Unknown position - Local name \"foo\" for root tag does not match expected name \"XmlName\"", m)
     }
 
     @Test

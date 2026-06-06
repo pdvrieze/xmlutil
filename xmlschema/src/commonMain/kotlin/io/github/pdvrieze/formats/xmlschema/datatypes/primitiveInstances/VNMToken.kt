@@ -31,7 +31,7 @@ value class VNMToken private constructor(override val xmlString: String) : VToke
 
     override fun toString(): String = xmlString
 
-    private class Serializer : SimpleTypeSerializer<VNMToken>("NMTOKEN") {
+    class Serializer : SimpleTypeSerializer<VNMToken>("NMTOKEN") {
         override fun deserialize(
             raw: String,
             input: XmlReader?

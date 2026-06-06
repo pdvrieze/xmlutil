@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -247,7 +247,10 @@ public class XmlPolymorphicDescriptor : XmlValueDescriptor {
 
     public fun getPolymorphicDescriptor(typeName: String): XmlDescriptor {
         polyInfo[typeName]?.let { return it }
-        throw XmlSerialException("Missing polymorphic information for $typeName")
+        throw XmlSerialException(
+            "Missing polymorphic information for $typeName",
+            errContext = tagName.toString()
+        )
     }
 
     public fun getPolymorphicDescriptor(descriptor: SerialDescriptor): XmlDescriptor {

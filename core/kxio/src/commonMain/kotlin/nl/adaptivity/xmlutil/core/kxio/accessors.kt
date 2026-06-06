@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,13 +28,13 @@ import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.XmlWriter
 
 /** Create a new (platform specific) reader for the given source. */
-expect public fun IXmlStreaming.newReader(source: Source): XmlReader
+public expect fun IXmlStreaming.newReader(source: Source): XmlReader
 
 /** Create a new generic reader for the given source. */
-expect public fun IXmlStreaming.newGenericReader(source: Source): XmlReader
+public expect fun IXmlStreaming.newGenericReader(source: Source): XmlReader
 
 /** Create a new (platform specific) writer for the given sink. */
-expect public fun IXmlStreaming.newWriter(
+public expect fun IXmlStreaming.newWriter(
     target: Sink,
     repairNamespaces: Boolean = false,
     xmlDeclMode: XmlDeclMode = XmlDeclMode.None

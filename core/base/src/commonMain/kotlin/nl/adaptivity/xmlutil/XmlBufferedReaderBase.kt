@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -126,8 +126,14 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
             throw XmlException("Attempting to read beyond the end of the stream")
         }
 
+    override val startLocationInfo: XmlReader.LocationInfo?
+        get() = current?.extLocationInfo
+
     override val extLocationInfo: XmlReader.LocationInfo?
-        get() = current?.extLocationInfo ?: delegate.extLocationInfo
+        get() {
+            current?.run { return extLocationInfo }
+            return delegate.extLocationInfo
+        }
 
     override val namespaceContext: IterableNamespaceContext
         get() {
@@ -256,6 +262,7 @@ public abstract class XmlBufferedReaderBase(@XmlUtilInternal internal val delega
         delegate.close()
     }
 
+    @IgnorableReturnValue
     override fun nextTag(): EventType {
         return nextTagEvent().eventType
     }

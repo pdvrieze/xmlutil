@@ -40,6 +40,7 @@ import nl.adaptivity.xmlutil.XMLConstants.XMLNS_ATTRIBUTE_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XML_NS_URI
 import nl.adaptivity.xmlutil.XMLConstants.XSI_NS_URI
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
+import nl.adaptivity.xmlutil.core.internal.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.*
 import nl.adaptivity.xmlutil.serialization.structure.*
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
@@ -99,10 +100,11 @@ internal open class XmlDecoderBase internal constructor(
         decoder: Decoder,
         isParseAllSiblings: Boolean,
         previousValue: T? = null,
-        isValueChild: Boolean = false
+        isValueChild: Boolean = false,
+        errorContext: () -> String,
     ): T {
         val initialDepth = if (input.eventType == EventType.START_ELEMENT) input.depth - 1 else input.depth
-        val r = handleParseError {
+        val r = handleParseError(errorContext) {
             when (this) {
                 is XmlDeserializationStrategy -> {
                     val safeInput = SubDocumentReader(input, isParseAllSiblings)
@@ -120,15 +122,26 @@ internal open class XmlDecoderBase internal constructor(
         return r
     }
 
-    private inline fun <R> handleParseError(body: () -> R): R {
+    private fun handleParseException(initLocationInfo: XmlReader.LocationInfo?, e: Exception, errContext: String): Nothing {
+
+        when (e) {
+            is XmlSerialException -> throw e.apply { addErrorContext(errContext) }
+
+            is XmlException -> when (e.locationInfo) {
+                null -> throw XmlParsingException(e.locationInfo ?: initLocationInfo, errContext, e.rawMessage ?: "<unknown>", e)
+                else -> throw e.apply { addErrorContext(errContext) }
+            }
+
+            else -> throw XmlParsingException(initLocationInfo ?: input.extLocationInfo, errContext, e.message ?: "<unknown>", e)
+        }
+    }
+
+    private inline fun <R> handleParseError(errContext: () -> String, body: () -> R): R {
+        val initLocationInfo = input.startLocationInfo ?: input.extLocationInfo
         try {
             return body()
-        } catch (e: XmlSerialException) {
-            throw e
-        } catch (e: XmlException) {
-            throw XmlParsingException(e.locationInfo, e.message ?: "<unknown>", e)
         } catch (e: Exception) {
-            throw XmlParsingException(input.extLocationInfo, e.message ?: "<unknown>", e)
+            handleParseException(initLocationInfo, e, errContext())
         }
     }
 
@@ -168,6 +181,16 @@ internal open class XmlDecoderBase internal constructor(
             // We don't write nulls, so if we know that we have a null we just return it
             return null
         }
+
+        protected open fun errorContext(): String {
+            return xmlDescriptor.tagName.toString()
+        }
+
+
+        private inline fun <R> handleParseError(body: () -> R): R {
+            return handleParseError(::errorContext, body)
+        }
+
 
         override fun decodeBoolean(): Boolean = handleParseError {
             when {
@@ -231,7 +254,17 @@ internal open class XmlDecoderBase internal constructor(
         }
 
         override fun decodeChar(): Char = handleParseError {
-            decodeStringCollapsed().single()
+            val s = decodeString()
+            when (s.length) {
+                1 -> s[0]
+                else -> {
+                    val collapsed = xmlCollapseWhitespace(s)
+                    when (collapsed.length) {
+                        1 -> collapsed[0]
+                        else -> throw SerializationException("Cannot decode char from '$s'")
+                    }
+                }
+            }
         }
 
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
@@ -241,7 +274,8 @@ internal open class XmlDecoderBase internal constructor(
             }
             throw XmlSerialException(
                 "No enum constant found for name $stringName in ${enumDescriptor.serialName}",
-                input.extLocationInfo
+                input.extLocationInfo,
+                errorContext(),
             )
         }
 
@@ -418,7 +452,8 @@ internal open class XmlDecoderBase internal constructor(
             val result: T = effectiveDeserializer.deserializeSafe(
                 serialValueDecoder,
                 isParseAllSiblings = isValueChild,
-                isValueChild = isValueChild
+                isValueChild = isValueChild,
+                errorContext = ::errorContext
             )
 
             if (startsWithTag && !input.hasPeekItems && input.depth < startDepth) {
@@ -439,7 +474,7 @@ internal open class XmlDecoderBase internal constructor(
         // Decoding should not involve any threads. This type is internal and should not escape.
         // Initiating in a custom serializer is not supported
         override val input: XmlPeekingReader by lazy(LazyThreadSafetyMode.NONE) {
-            PseudoBufferedReader(XmlStringReader(locationInfo, stringValue))
+            PseudoBufferedReader(XmlStringReader(locationInfo, errorContext(), stringValue))
         }
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -477,62 +512,70 @@ internal open class XmlDecoderBase internal constructor(
      */
     private inner class XmlStringReader(
         override val extLocationInfo: XmlReader.LocationInfo?,
-        private val stringValue: String
+        private val errContext: String,
+        private val stringValue: String,
     ) : XmlReader {
+        override val startLocationInfo: XmlReader.LocationInfo?
+            get() = extLocationInfo
+
         private var pos = -1
 
         override val depth: Int get() = if (pos == 0) 0 else -1
 
         override fun hasNext(): Boolean = pos < 0
 
+        private fun errorContext(): String {
+            return errContext
+        }
+
         override fun next(): EventType {
-            if (pos >= 0) throw XmlSerialException("Reading beyond string")
+            if (pos >= 0) throw XmlSerialException("Reading beyond string", errorContext())
             ++pos
             return EventType.TEXT
         }
 
-        override val namespaceURI: Nothing get() = throw XmlSerialException("Strings have no namespace uri")
+        override val namespaceURI: Nothing get() = throw XmlSerialException("Strings have no namespace uri", errorContext())
 
-        override val localName: Nothing get() = throw XmlSerialException("Strings have no localname")
+        override val localName: Nothing get() = throw XmlSerialException("Strings have no localname", errorContext())
 
-        override val prefix: Nothing get() = throw XmlSerialException("Strings have no prefix")
+        override val prefix: Nothing get() = throw XmlSerialException("Strings have no prefix", errorContext())
 
         override val isStarted: Boolean get() = pos >= 0
 
-        override val isKnownEntity: Boolean get() = throw XmlSerialException("Entity references are not strings")
+        override val isKnownEntity: Boolean get() = throw XmlSerialException("Entity references are not strings", errorContext())
 
         override val text: String
             get() {
-                if (pos != 0) throw XmlSerialException("Not in text position")
+                if (pos != 0) throw XmlSerialException("Not in text position", errorContext())
                 return stringValue
             }
 
-        override val piTarget: Nothing get() = throw XmlSerialException("Strings have no pi targets")
+        override val piTarget: Nothing get() = throw XmlSerialException("Strings have no pi targets", errorContext())
 
-        override val piData: Nothing get() = throw XmlSerialException("Strings have no pi data")
+        override val piData: Nothing get() = throw XmlSerialException("Strings have no pi data", errorContext())
         override val attributeCount: Nothing
-            get() = throw XmlSerialException("Strings have no attributes")
+            get() = throw XmlSerialException("Strings have no attributes", errorContext())
 
         override fun getAttributeNamespace(index: Int): Nothing =
-            throw XmlSerialException("Strings have no attributes")
+            throw XmlSerialException("Strings have no attributes", errorContext())
 
         override fun getAttributePrefix(index: Int): Nothing =
-            throw XmlSerialException("Strings have no attributes")
+            throw XmlSerialException("Strings have no attributes", errorContext())
 
         override fun getAttributeLocalName(index: Int): Nothing =
-            throw XmlSerialException("Strings have no attributes")
+            throw XmlSerialException("Strings have no attributes", errorContext())
 
         override fun getAttributeValue(index: Int): Nothing =
-            throw XmlSerialException("Strings have no attributes")
+            throw XmlSerialException("Strings have no attributes", errorContext())
 
         override val eventType: EventType
             get() {
-                if (pos != 0) throw XmlSerialException("Not in text position")
+                if (pos != 0) throw XmlSerialException("Not in text position", errorContext())
                 return EventType.TEXT
             }
 
         override fun getAttributeValue(nsUri: String?, localName: String): Nothing {
-            throw XmlSerialException("Strings have no attributes")
+            throw XmlSerialException("Strings have no attributes", errorContext())
         }
 
         override fun getNamespacePrefix(namespaceUri: String): String? =
@@ -610,7 +653,11 @@ internal open class XmlDecoderBase internal constructor(
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             return when {
                 // This is needed to avoid loops with [kotlinx.serialization.internal.NullableSerializer]
-                notNullChecked -> deserializer.deserializeSafe(this, isParseAllSiblings = isValueChild)
+                notNullChecked -> deserializer.deserializeSafe(
+                    this,
+                    isParseAllSiblings = isValueChild,
+                    errorContext = ::errorContext
+                )
                     .recordIds(childTagIdHolder)
 
                 else -> super.decodeSerializableValue(deserializer)
@@ -812,7 +859,8 @@ internal open class XmlDecoderBase internal constructor(
                 if (true && index != CompositeDecoder.DECODE_DONE) throw XmlSerialException(
                     "Unexpected content in end structure: ${
                         xmlDescriptor.friendlyChildName(index)
-                    }"
+                    }",
+                    xmlDescriptor.tagName.toString(),
                 )
             }
             check(input.depth == tagDepth) { "Unexpected tag depth: ${input.depth} (expected: ${tagDepth})" }
@@ -1065,7 +1113,13 @@ internal open class XmlDecoderBase internal constructor(
 
             // TODO make merging more reliable
             val result: T? = when (effectiveDeserializer) {
-                is XmlDeserializationStrategy -> effectiveDeserializer.deserializeSafe(decoder, isValueChild, previousValue, isValueChild)
+                is XmlDeserializationStrategy -> effectiveDeserializer.deserializeSafe(
+                    decoder,
+                    isValueChild,
+                    previousValue,
+                    isValueChild,
+                    { xmlDescriptor.friendlyChildName(index) },
+                )
 
                 is AbstractCollectionSerializer<*, T?, *> ->
                     effectiveDeserializer.merge(decoder, previousValue)
@@ -1215,7 +1269,8 @@ internal open class XmlDecoderBase internal constructor(
                                         throw XmlSerialException(
                                             "In ${xmlDescriptor.tagName}, found element ${
                                                 xmlDescriptor.friendlyChildName(childIdx)
-                                            } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints"
+                                            } before ${xmlDescriptor.friendlyChildName(idx)} in conflict with ordering constraints",
+                                            errorContext(childIdx),
                                         )
                                     }
                                 }
@@ -1477,7 +1532,7 @@ internal open class XmlDecoderBase internal constructor(
                             }
                         }
 
-                        EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location")
+                        EventType.END_DOCUMENT -> throw XmlSerialException("End document in unexpected location", errorContext(-1))
                     }
                 }
             }
@@ -1522,7 +1577,10 @@ internal open class XmlDecoderBase internal constructor(
         override fun endStructure(descriptor: SerialDescriptor) {
             if (stage < STAGE_CLOSE) {
                 val index = decodeElementIndex()
-                if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException("Unexpected content in end structure")
+                if (index != CompositeDecoder.DECODE_DONE) throw XmlSerialException(
+                    message = "Unexpected content in end structure",
+                    errContext = errorContext(-1)
+                )
             }
             if (!config.isUnchecked) {
                 if (typeDiscriminatorName == null) {
@@ -1561,6 +1619,15 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
+        private fun errorContext(childIdx: Int = -1): String = when {
+            childIdx in 0..< xmlDescriptor.elementsCount -> xmlDescriptor.friendlyChildName(childIdx)
+            else -> xmlDescriptor.tagName.toString()
+        }
+
+        private inline fun <R> handleParseError(childIdx: Int, body: () -> R): R {
+            return handleParseError({errorContext(childIdx)}, body)
+        }
+
         fun decodeStringElementCollapsed(descriptor: SerialDescriptor, index: Int): String {
             return xmlCollapseWhitespace(decodeStringElement(descriptor, index))
         }
@@ -1580,12 +1647,18 @@ internal open class XmlDecoderBase internal constructor(
                 return when {
                     default != null -> default
                     index == xmlDescriptor.getValueChild() -> ""
-                    else -> throw XmlSerialException("Missing child ${descriptor.getElementName(index)}:$index")
+                    else -> throw XmlSerialException(
+                        message = "Missing child ${descriptor.getElementName(index)}:$index",
+                        errContext = errorContext(index)
+                    )
                 }
             }
 
             return when (childDesc.outputKind) {
-                OutputKind.Inline -> throw XmlSerialException("Inline elements can not be directly decoded")
+                OutputKind.Inline -> throw XmlSerialException(
+                    message = "Inline elements can not be directly decoded",
+                    errContext = errorContext(index)
+                )
 
                 OutputKind.Element -> input.readSimpleElement()
 
@@ -1596,7 +1669,10 @@ internal open class XmlDecoderBase internal constructor(
                 }.also { // add some checks that we only have text content
                     val peek = input.peekNextEvent()
                     if (peek != EventType.END_ELEMENT) {
-                        throw XmlSerialException("Missing end tag after text only content (found: ${peek})")
+                        throw XmlSerialException(
+                            message = "Missing end tag after text only content (found: ${peek})",
+                            errContext = errorContext(index)
+                        )
                     }
                 }
 
@@ -1604,11 +1680,11 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = handleParseError {
+        override fun decodeIntElement(descriptor: SerialDescriptor, index: Int): Int = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).toInt()
         }
 
-        override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean = handleParseError(index) {
             val startPos = input.extLocationInfo
             val stringValue = decodeStringElementCollapsed(descriptor, index)
             return when {
@@ -1620,27 +1696,27 @@ internal open class XmlDecoderBase internal constructor(
             }
         }
 
-        override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = handleParseError {
+        override fun decodeByteElement(descriptor: SerialDescriptor, index: Int): Byte = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).toByte()
         }
 
-        override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = handleParseError {
+        override fun decodeShortElement(descriptor: SerialDescriptor, index: Int): Short = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).toShort()
         }
 
-        override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = handleParseError {
+        override fun decodeLongElement(descriptor: SerialDescriptor, index: Int): Long = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).toLong()
         }
 
-        override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float = handleParseError {
+        override fun decodeFloatElement(descriptor: SerialDescriptor, index: Int): Float = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).toFloat()
         }
 
-        override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double = handleParseError {
+        override fun decodeDoubleElement(descriptor: SerialDescriptor, index: Int): Double = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).toDouble()
         }
 
-        override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = handleParseError {
+        override fun decodeCharElement(descriptor: SerialDescriptor, index: Int): Char = handleParseError(index) {
             return decodeStringElementCollapsed(descriptor, index).single()
         }
 
@@ -1694,7 +1770,11 @@ internal open class XmlDecoderBase internal constructor(
             val decoder = StringDecoder(xmlDescriptor.valueDescriptor, startPos, value, preserveWhitespace)
             return when (effectiveDeserializer) {
                 is XmlDeserializationStrategy ->
-                    effectiveDeserializer.deserializeXML(decoder, XmlStringReader(startPos, value))
+                    effectiveDeserializer.deserializeXML(decoder, XmlStringReader(
+                        extLocationInfo = startPos,
+                        errContext = xmlDescriptor.friendlyChildName(index),
+                        stringValue = value
+                    ))
 
                 else -> effectiveDeserializer.deserialize(decoder)
             }
@@ -1706,7 +1786,10 @@ internal open class XmlDecoderBase internal constructor(
                 if (name.prefix.isEmpty() || name.namespaceURI.isEmpty()) {
                     name.localPart
                 } else {
-                    throw XmlSerialException("A QName in a namespace cannot be converted to a string")
+                    throw XmlSerialException(
+                        message = "A QName in a namespace cannot be converted to a string",
+                        errContext = xmlDescriptor.friendlyChildName(index)
+                    )
                 }
             }
 
@@ -1869,7 +1952,7 @@ internal open class XmlDecoderBase internal constructor(
             )
 
             /* On a list we never parse all siblings */
-            return deserializer.deserializeSafe(decoder, false, previousValue, false /*&& isValueChild*/)
+            return deserializer.deserializeSafe(decoder, false, previousValue, errorContext = { childXmlDescriptor.tagName.toString() } /*&& isValueChild*/)
                 .recordIds(decoder.childTagIdHolder)
         }
 
@@ -1956,14 +2039,20 @@ internal open class XmlDecoderBase internal constructor(
                     // When the key is an attribute it is always on the outer tag (either an entry tag or collapsed)
                     val key = input.getAttributeValue(keyDescriptor.tagName)
                         ?: throw XmlSerialException(
-                            "Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.extLocationInfo}",
-                            input.extLocationInfo
+                            message = "Missing key attribute (${keyDescriptor.tagName}) on ${input.name}@${input.extLocationInfo}",
+                            extLocationInfo = input.extLocationInfo,
+                            errContext = xmlDescriptor.tagName.toString(),
                         )
 
                     val decoder = StringDecoder(keyDescriptor, input.extLocationInfo, key, preserveWhitespace)
 
                     /** Map elements again would not be parsing everything in a value child */
-                    return deserializer.deserializeSafe(decoder, isParseAllSiblings = false, previousValue)
+                    return deserializer.deserializeSafe(
+                        decoder,
+                        isParseAllSiblings = false,
+                        previousValue,
+                        errorContext = { "Map key of ${xmlDescriptor.tagName}" }
+                    )
 
                 } else { // Only attributes collapse, so not collapsed, tag instead. doIndex should handle that
                     assert(!xmlDescriptor.isValueCollapsed)
@@ -1990,7 +2079,12 @@ internal open class XmlDecoderBase internal constructor(
                 decoder.ignoreAttribute(keyDescriptor.tagName)
             }
 
-            return effectiveDeserializer.deserializeSafe(decoder, isParseAllSiblings = false, previousValue)
+            return effectiveDeserializer.deserializeSafe(
+                decoder,
+                isParseAllSiblings = false,
+                previousValue,
+                errorContext = { "Map value ${xmlDescriptor.tagName}/${valueDescriptor.tagName}" }
+            )
                 .recordIds(decoder.childTagIdHolder)
         }
 
@@ -2013,7 +2107,8 @@ internal open class XmlDecoderBase internal constructor(
                     if (!(xmlDescriptor.entryName isEquivalent input.name))
                         throw XmlSerialException(
                             "Map entry not found. Found ${input.name}@${input.extLocationInfo} instead",
-                            input.extLocationInfo
+                            input.extLocationInfo,
+                            xmlDescriptor.tagName.toString()
                         )
                 } else if (lastIndex % 2 == 0) {
                     assert(xmlDescriptor.entryName isEquivalent input.name) {
@@ -2179,8 +2274,11 @@ internal open class XmlDecoderBase internal constructor(
                                 val typeQName = QNameSerializer.deserializeXML(sdec, input, isValueChild = true).normalize()
 
                                 detectedPolyType = xmlDescriptor.typeQNameToSerialName[typeQName]
-                                    ?: throw XmlSerialException("Could not find child for type with qName: $typeQName. " +
-                                            "Candidates are: ${xmlDescriptor.typeQNameToSerialName.keys.sortedBy { it.localPart }.joinToString()}")
+                                    ?: throw XmlSerialException(
+                                        message = "Could not find child for type with qName: $typeQName. " +
+                                                "Candidates are: ${xmlDescriptor.typeQNameToSerialName.keys.sortedBy { it.localPart }.joinToString()}",
+                                        errContext = xmlDescriptor.tagName.toString()
+                                    )
 
                                 polyTypeAttrname = attrName
                                 nextIndex = 1
@@ -2204,7 +2302,11 @@ internal open class XmlDecoderBase internal constructor(
                         val typeTag = xmlDescriptor.getElementDescriptor(0).tagName
                         input.getAttributeValue(typeTag.namespaceURI, typeTag.localPart)
                             ?.expandTypeNameIfNeeded(xmlDescriptor.parentSerialName)
-                            ?: throw XmlParsingException(input.extLocationInfo, "Missing type for polymorphic value")
+                            ?: throw XmlParsingException(
+                                extLocationInfo = input.extLocationInfo,
+                                errContext = "${xmlDescriptor.tagName}/$typeTag",
+                                message = "Missing type for polymorphic value"
+                            )
                     }
 
                     polyInfo != null -> polyInfo.describedName
@@ -2230,7 +2332,10 @@ internal open class XmlDecoderBase internal constructor(
 
                 else -> when { // In a mixed context, pure text content doesn't need a wrapper
                     !xmlDescriptor.isTransparent ->
-                        throw XmlSerialException("NonTransparent polymorphic values cannot have text content only")
+                        throw XmlSerialException(
+                            message = "NonTransparent polymorphic values cannot have text content only",
+                            errContext = xmlDescriptor.tagName.toString()
+                        )
 
                     isMixed -> {
                         if (xmlDescriptor.defaultPreserveSpace.withDefault(true)) {

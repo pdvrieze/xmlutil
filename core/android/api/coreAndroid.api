@@ -40,6 +40,7 @@ public final class nl/adaptivity/xmlutil/core/AndroidXmlReader : nl/adaptivity/x
 	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getStartLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
 	public fun getText ()Ljava/lang/String;
 	public fun getVersion ()Ljava/lang/String;
 	public fun hasNext ()Z

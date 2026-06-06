@@ -22,6 +22,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.test
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import nl.adaptivity.xmlutil.serialization.XML
@@ -33,6 +34,7 @@ import java.net.URL
 
 private val xml = XML.v1()
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val suiteURL: URL = OTSSuite::class.java.getResource("/xsts/suite.xml")!!
     val override: OTSSuite? = suiteURL.withXmlReader { suiteReader ->
@@ -40,12 +42,14 @@ fun main() {
         findOverrides(suite)
     }
 
+    val json = Json {
+        prettyPrint = true
+        prettyPrintIndent = "  "
+    }
+
     if (override != null) {
         FileOutputStream("override.json").use { out ->
-            Json {
-                prettyPrint = true
-                prettyPrintIndent = "  "
-            }.encodeToStream(override, out)
+            json.encodeToStream(override, out)
         }
     }
 

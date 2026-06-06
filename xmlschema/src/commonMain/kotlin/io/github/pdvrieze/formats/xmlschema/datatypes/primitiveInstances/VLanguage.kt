@@ -36,7 +36,7 @@ value class VLanguage private constructor(override val xmlString: String) : VTok
 
     override fun toString(): String = xmlString
 
-    private class Serializer : SimpleTypeSerializer<VLanguage>("VLanguage") {
+    class Serializer : SimpleTypeSerializer<VLanguage>("VLanguage") {
         override fun deserialize(
             raw: String,
             input: XmlReader?

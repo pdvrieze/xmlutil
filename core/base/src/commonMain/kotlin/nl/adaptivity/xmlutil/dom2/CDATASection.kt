@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface CDATASection : Text
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformCDATASection
+
+public expect interface CDATASection : Text, PlatformCDATASection {
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): CDATASection
+
+}

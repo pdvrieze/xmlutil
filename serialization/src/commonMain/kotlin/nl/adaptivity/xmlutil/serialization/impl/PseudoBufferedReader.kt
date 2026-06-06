@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -53,8 +53,15 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
             else -> delegate.depth
         }
 
+    private var pastStartLocationInfo: XmlReader.LocationInfo? = null
+
+    override val startLocationInfo: XmlReader.LocationInfo?
+        get() = if (hasPeekItems) pastStartLocationInfo else delegate.startLocationInfo
+
+    private var pastLocationInfo: XmlReader.LocationInfo? = null
+
     override val extLocationInfo: XmlReader.LocationInfo?
-        get() = delegate.extLocationInfo
+        get() = if (hasPeekItems) pastLocationInfo else delegate.extLocationInfo
 
     override fun hasNext(): Boolean = hasPeekItems || delegate.hasNext()
 
@@ -63,12 +70,15 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
             hasPeekItems = false;
             return delegate.eventType
         }
+        pastStartLocationInfo = delegate.startLocationInfo
+        pastLocationInfo = delegate.extLocationInfo
         return delegate.next()
     }
 
     override fun peekNextEvent(): EventType? {
         if (hasPeekItems) return delegate.eventType
         hasPeekItems = true
+        pastLocationInfo = delegate.extLocationInfo
         return if (delegate.hasNext()) delegate.next() else null
     }
 

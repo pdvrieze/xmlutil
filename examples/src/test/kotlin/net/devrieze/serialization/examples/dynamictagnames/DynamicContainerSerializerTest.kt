@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -31,6 +31,7 @@ import kotlin.test.assertEquals
 
 class DynamicContainerSerializerTest {
 
+    @Suppress("DEPRECATION")
     val xml = XML.compat { setIndent(2) }
 
     @Test

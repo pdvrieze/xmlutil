@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -23,16 +23,21 @@ package nl.adaptivity.xmlutil.test
 import nl.adaptivity.xmlutil.DomReader
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.test.multiplatform.Target
+import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import nl.adaptivity.xmlutil.xmlStreaming
+import kotlin.test.Test
 
 class TestXmlReader : TestCommonReader() {
 
     override fun createReader(xml: String): XmlReader = xmlStreaming.newReader(xml)
 
+    @Test
     override fun testReadUnknownEntity() {
         val r = createReader("<x/>")
+
         @Suppress("DEPRECATION")
-        if (r is KtXmlReader || r is DomReader) {
+        if (r is KtXmlReader || (testTarget != Target.Browser) && (r is DomReader)) {
             super.testReadUnknownEntity()
         }
     }

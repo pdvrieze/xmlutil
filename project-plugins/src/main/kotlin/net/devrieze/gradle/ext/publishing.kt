@@ -152,7 +152,7 @@ fun Project.doPublish(
 
     }
 
-    val publishNativeTask = tasks.create<Task>("publishNative") {
+    val publishNativeTask = tasks.register<Task>("publishNative") {
         group = "Publishing"
         description = "Task to publish all native artefacts only"
     }
@@ -183,7 +183,8 @@ fun Project.doPublish(
                 "publishAndroid"
             ).none { "${it}Publication" in name }
             if (doPublish) {
-                publishNativeTask.dependsOn(this)
+                val pTask = this
+                publishNativeTask.configure { dependsOn(pTask) }
             }
         }
     }

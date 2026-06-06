@@ -159,7 +159,7 @@ private fun Node.toXmlString(): String = buildString {
     xmlStreaming.newReader(this@toXmlString).use { r ->
         xmlStreaming.newWriter(this).use { w ->
             while (r.hasNext()) {
-                r.next()
+                val _ = r.next()
                 r.writeCurrent(w)
             }
         }

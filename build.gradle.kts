@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -55,6 +55,10 @@ tasks.register<Copy>("pages") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+tasks.named<Wrapper>("wrapper") {
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 idea {
     module {
         isDownloadSources = true
@@ -72,7 +76,7 @@ dependencies {
     dokka(projects.core)
     dokka(projects.coreJdk)
     dokka(projects.coreAndroid)
-    dokka(projects.coreKXIO)
+    dokka(projects.coreIo)
     dokka(projects.serialization)
     dokka(projects.serializationIo)
     dokka(projects.serialutil)

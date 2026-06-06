@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -33,6 +33,11 @@ public actual val KClass<*>.name: String get() = js.name
 )
 @Retention(AnnotationRetention.SOURCE)
 public actual annotation class Throws(actual vararg val exceptionClasses: KClass<out Throwable>)
+
+
+@XmlUtilInternal
+public actual val Any.assertionsEnabled: Boolean
+    get() = true
 
 
 public actual fun assert(value: Boolean, lazyMessage: () -> String) {

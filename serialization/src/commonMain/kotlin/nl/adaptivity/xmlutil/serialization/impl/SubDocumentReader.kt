@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -76,6 +76,7 @@ internal class SubDocumentReader(
         }
     }
 
+    @IgnorableReturnValue
     override fun nextTag(): EventType = when {
         started -> super.nextTag()
         else -> when (delegate.eventType) {

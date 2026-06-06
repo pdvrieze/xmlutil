@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 @file:Suppress("DEPRECATION")
@@ -74,6 +74,7 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
      * We can use this method safely even if nonBitSet != null
      * due to specific of range constructions in regular expressions.
      */
+    @IgnorableReturnValue
     fun add(ch: Int): XRCharClass {
         var character = ch
         if (ignoreCase) {
@@ -93,6 +94,7 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
         return this
     }
 
+    @IgnorableReturnValue
     fun add(ch: Char): XRCharClass = add(ch.toInt())
 
     /*
@@ -102,6 +104,7 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
      * while union is used for constructions like "[^abc[\\d]]"
      * (this pattern matches "1").
      */
+    @IgnorableReturnValue
     fun add(another: XRAbstractCharClass): XRCharClass {
 
         if (!mayContainSupplCodepoints && another.mayContainSupplCodepoints) {
@@ -217,6 +220,7 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
         return this
     }
 
+    @IgnorableReturnValue
     fun add(start: Int, end: Int): XRCharClass {
         if (start > end)
             throw IllegalArgumentException("Incorrect range of symbols (start > end)")
@@ -248,20 +252,24 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
         return this
     }
 
+    @IgnorableReturnValue
     fun add(start: Char, end: Char): XRCharClass = add(start.toInt(), end.toInt())
 
+    @IgnorableReturnValue
     fun addAll(chars: Iterable<Char>): XRCharClass {
         chars.forEach { add(it) }
         return this
     }
 
     @JvmName("addAllCodepoints")
+    @IgnorableReturnValue
     fun addAll(chars: Iterable<Int>): XRCharClass {
         chars.forEach { add(it) }
         return this
     }
 
     // OR operation
+    @IgnorableReturnValue
     fun union(another: XRAbstractCharClass) {
         if (!mayContainSupplCodepoints && another.mayContainSupplCodepoints) {
             mayContainSupplCodepoints = true
@@ -376,6 +384,7 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
     }
 
     // AND operation
+    @IgnorableReturnValue
     fun intersection(another: XRAbstractCharClass) {
         if (!mayContainSupplCodepoints && another.mayContainSupplCodepoints) {
             mayContainSupplCodepoints = true
@@ -491,11 +500,12 @@ internal class XRCharClass(val ignoreCase: Boolean = false, negative: Boolean = 
      * Returns `true` if character class contains symbol specified,
      * `false` otherwise. Note: #setNegative() method changes the
      * meaning of contains method;
-
+     *
      * @param ch
-     * *
+     *
      * @return `true` if character class contains symbol specified;
-     *     */
+     */
+    @IgnorableReturnValue
     override operator fun contains(ch: Int): Boolean {
         if (nonBitSet == null) {
             return alt xor bits_.get(ch)

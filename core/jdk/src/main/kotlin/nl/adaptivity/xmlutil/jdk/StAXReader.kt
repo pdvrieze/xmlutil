@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -166,6 +166,9 @@ public class StAXReader(
         return delegate.namespaceContext.getPrefix(namespaceUri)
     }
 
+    override var startLocationInfo: XmlReader.LocationInfo? = null
+        private set
+
     override val extLocationInfo: XmlReader.LocationInfo?
         get() {
             val l = delegate.location ?: return null
@@ -199,6 +202,7 @@ public class StAXReader(
             return updateDepth(-1, delegateToLocal(delegate.eventType))
         }
         try {
+            startLocationInfo = extLocationInfo
             return updateDepth(delegate.eventType, fixWhitespace(delegateToLocal(delegate.next())))
         } catch (e: XMLStreamException) {
             throw XmlException(e)
@@ -211,6 +215,7 @@ public class StAXReader(
     )
 
     @Throws(XmlException::class)
+    @IgnorableReturnValue
     override fun nextTag(): EventType {
         isStarted = true
         try {

@@ -57,9 +57,9 @@ class TestSoapNewline319 {
 
     @Test
     fun faultExampleWithDefaultIgnoredWhitespaceTypedDetails() {
-        val xml = XML.v1.recommended(SerializersModule {
+        val xml = XML.v1(SerializersModule {
             polymorphic(Any::class, FooString::class, FooString.serializer())
-        }) { defaultToGenericParser = true }
+        }, { -> defaultToGenericParser = true })
 
         val faultMessage = SoapFault(detail = FooString)
 

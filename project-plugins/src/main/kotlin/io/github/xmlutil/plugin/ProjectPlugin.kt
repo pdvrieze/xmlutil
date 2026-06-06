@@ -34,6 +34,7 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -45,7 +46,11 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.kotlin.gradle.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.TEST_COMPILATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataTarget
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import java.time.format.DateTimeFormatter
@@ -57,17 +62,17 @@ import kotlin.time.ExperimentalTime
 @Suppress("unused")
 class ProjectPlugin @Inject constructor(
     private val softwareComponentFactory: SoftwareComponentFactory
-): Plugin<Project> {
+) : Plugin<Project> {
     @OptIn(ExperimentalTime::class)
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-        val xmlutil_version = libs.findVersion("xmlutil").get().requiredVersion
+        val xmlutilVersion = libs.findVersion("xmlutil").get().requiredVersion
 
         project.group = "io.github.pdvrieze.xmlutil"
-        project.version = xmlutil_version
+        project.version = xmlutilVersion
 
         when {
             project.isSnapshot -> project.logger.debug("Project release is a snapshot release {}", project.version)
@@ -82,7 +87,7 @@ class ProjectPlugin @Inject constructor(
                 archiveBaseName = "${project.name}-publishing"
             }
 
-            val publishToSonatype = project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
+            project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Publish the repositories to the sonatype maven central portal"
 
@@ -104,11 +109,11 @@ class ProjectPlugin @Inject constructor(
             mavenLocal()
         }
 
-        val e = project.extensions.create<ProjectConfigurationExtension>("config").apply {
+        val projectConfiguration = project.extensions.create<ProjectConfigurationExtension>("config").apply {
             dokkaModuleName.convention(project.provider { project.name })
             dokkaVersion.convention(project.provider { project.version.toString() })
             dokkaOverrideTarget.convention(project.provider { null })
-            applyLayout.convention(true)
+            applyLayout.convention(false)
             val apiVer = libs.findVersion("apiVersion").getOrNull()
                 ?.run { requiredVersion.let { KotlinVersion.fromVersion(it) } }
                 ?: KotlinVersion.KOTLIN_2_2
@@ -116,22 +121,35 @@ class ProjectPlugin @Inject constructor(
             kotlinTestVersion.convention(KotlinVersion.DEFAULT)
             createAndroidCompatComponent.convention(false)
             generateJavaModules.convention(true)
+            allWarningsAsErrors.convention(true)
+            generalJvmTarget.convention(JvmTarget.JVM_1_8)
+            testJvmTarget.convention(JvmTarget.JVM_17)
+            optIns.convention(
+                listOf(
+                    "nl.adaptivity.xmlutil.ExperimentalXmlUtilApi",
+                    "nl.adaptivity.xmlutil.XmlUtilInternal",
+                    "nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal",
+                )
+            )
         }
 
         project.afterEvaluate {
 
-            if(e.generateJavaModules.get()) {
+            if(projectConfiguration.generateJavaModules.get()) {
                 project.configureJava9ModuleInfo()
             }
 
-            if (e.createAndroidCompatComponent.get()) {
+            if (projectConfiguration.createAndroidCompatComponent.get()) {
                 val configurations = project.configurations
 
                 project.logger.warn("Creating compatible component")
 
+                @Suppress("UnstableApiUsage")
                 val androidRuntime = configurations.dependencyScope("androidRuntime") {
                     dependencies.add(project.dependencyFactory.create("io.github.pdvrieze.xmlutil:${project.name}:${project.version}"))
                 }
+
+                @Suppress("UnstableApiUsage")
                 val androidRuntimeElements = configurations.consumable("androidRuntimeElements") {
                     extendsFrom(androidRuntime.get())
                     attributes {
@@ -168,7 +186,7 @@ class ProjectPlugin @Inject constructor(
         }
 
 
-        project.plugins.all {
+        project.plugins.configureEach {
             when (this) {
                 is JavaPlugin -> {
                     project.extensions.configure<JavaPluginExtension> {
@@ -181,61 +199,67 @@ class ProjectPlugin @Inject constructor(
                 }
 
                 is KotlinPluginWrapper -> {
-                    project.extensions.configure<KotlinJvmProjectExtension> {
-                        compilerOptions {
-                            jvmTarget = JvmTarget.JVM_1_8
-                            apiVersion = e.kotlinApiVersion
-                            configureCompilerOptions(project, "project ${project.name}")
-                        }
+                    project.afterEvaluate {
+                        project.extensions.configure<KotlinJvmProjectExtension> {
+                            compilerOptions {
+                                apiVersion = projectConfiguration.kotlinApiVersion
+                                project.logger.info("Setting kotlin compilation options for JVM project ${project.name}")
+                                configureCompilerOptions(project, "project ${project.name}", projectConfiguration)
+                            }
 
-                        sourceSets.configureEach {
-                            languageSettings {
-                                configureOptins()
-                            }
-                        }
-                        target {
-                            attributes {
-                                attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
-                                attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
-                            }
-                            compilations.named(KotlinCompilation.TEST_COMPILATION_NAME) {
-                                project.logger.debug("Compilation ${project.name}:$name to be set to default Kotlin API: ${e.kotlinTestVersion.get()}")
-                                compileTaskProvider.configure {
-                                    compilerOptions {
-                                        languageVersion = e.kotlinTestVersion
-                                        apiVersion = e.kotlinTestVersion
+                            target {
+                                attributes {
+                                    attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, project.envJvm)
+                                    attribute(KotlinPlatformType.attribute, KotlinPlatformType.jvm)
+                                }
+                                compilations.named(TEST_COMPILATION_NAME) {
+                                    project.logger.debug(
+                                        "Compilation {}:{} to be set to default Kotlin API: {}",
+                                        project.name,
+                                        name,
+                                        projectConfiguration.kotlinTestVersion.get()
+                                    )
+                                    compileTaskProvider.configure {
+                                        compilerOptions {
+                                            (this as? KotlinJvmCompilerOptions)?.run {
+                                                jvmTarget = JvmTarget.DEFAULT
+                                            }
+                                            languageVersion = projectConfiguration.kotlinTestVersion
+                                            apiVersion = projectConfiguration.kotlinTestVersion
+                                        }
                                     }
                                 }
-                            }
-                            mavenPublication {
-                                version = xmlutil_version
-                                project.logger.info("Setting maven publication ($artifactId) version to $xmlutil_version")
+                                mavenPublication {
+                                    version = xmlutilVersion
+                                    project.logger.info("Setting maven publication ($artifactId) version to $xmlutilVersion")
+                                }
                             }
                         }
+
                     }
 
                 }
 
-                is KotlinMultiplatformPluginWrapper -> {
-                    project.the<KotlinMultiplatformExtension>().apply {
-
-                        if(e.applyLayout.get()) applyDefaultXmlUtilHierarchyTemplate()
+                is KotlinMultiplatformPluginWrapper -> project.afterEvaluate {
+                    project.extensions.configure<KotlinMultiplatformExtension> {
+                        if(projectConfiguration.applyLayout.get()) applyDefaultXmlUtilHierarchyTemplate()
                         compilerOptions {
-                            configureCompilerOptions(project, "project ${project.name}")
+                            project.logger.info("Setting kotlin compilation options for multiplatform project ${project.name}")
+                            configureCommonCompilerOptions(project, "project ${project.name}", projectConfiguration)
                         }
                         targets.configureEach {
                             val isJvm = this is KotlinJvmTarget
                             this.compilations.configureEach {
-                                val isTest = name == KotlinCompilation.TEST_COMPILATION_NAME
+                                val isTest = name == TEST_COMPILATION_NAME
                                 compileTaskProvider.configure {
                                     compilerOptions {
                                         when {
                                             isTest -> {
-                                                languageVersion = e.kotlinTestVersion
-                                                apiVersion = e.kotlinTestVersion
+                                                languageVersion = projectConfiguration.kotlinTestVersion
+                                                apiVersion = projectConfiguration.kotlinTestVersion
                                             }
 
-                                            isJvm -> apiVersion = e.kotlinApiVersion
+                                            isJvm -> apiVersion = projectConfiguration.kotlinApiVersion
 
                                             else -> apiVersion = KotlinVersion.DEFAULT
                                         }
@@ -243,24 +267,29 @@ class ProjectPlugin @Inject constructor(
                                 }
                             }
                             mavenPublication {
-                                version = xmlutil_version
-                                project.logger.info("Setting maven publication ($artifactId) version to $xmlutil_version")
+                                version = xmlutilVersion
+                                project.logger.info("Setting multiplatform maven publication ($artifactId) version to $xmlutilVersion")
+                            }
+                            if (this is KotlinMetadataTarget && projectConfiguration.allWarningsAsErrors.get()) {
+                                project.logger.info("allWarningsAsErrors is disabled for target $name")
+                                compilerOptions {
+                                    allWarningsAsErrors = false
+                                }
                             }
                         }
 
-/*
-                        metadata {
-                            mavenPublication {
-                                version = xmlutil_version
-                            }
-                        }
-*/
 
                         targets.withType<KotlinJvmTarget> {
                             compilations.configureEach {
+                                val target = when {
+                                    name == TEST_COMPILATION_NAME -> projectConfiguration.testJvmTarget
+                                    else -> projectConfiguration.generalJvmTarget
+                                }
                                 compileTaskProvider.configure {
                                     compilerOptions {
-                                        configureCompilerOptions(project, "${project.name}:$name")
+                                        project.logger.info("Setting kotlin compilation options JVM compile task provider ${project.name}")
+
+                                        configureJvmCompilerOptions(project, "${project.name}:$name", target)
                                     }
                                 }
                             }
@@ -289,7 +318,7 @@ class ProjectPlugin @Inject constructor(
 
                 is DokkaPlugin -> {
                     project.logger.info("Automatically configuring dokka from the project plugin for ${project.name}")
-                    project.configureDokka(e.dokkaModuleName, e.dokkaVersion, e.dokkaOverrideTarget)
+                    project.configureDokka(projectConfiguration.dokkaModuleName, projectConfiguration.dokkaVersion, projectConfiguration.dokkaOverrideTarget)
                 }
             }
         }
@@ -300,32 +329,50 @@ class ProjectPlugin @Inject constructor(
         }
     }
 
-    private fun KotlinCommonCompilerOptions.configureCompilerOptions(project: Project, name: String) {
-        progressiveMode = true
-        languageVersion = KotlinVersion.DEFAULT
-        freeCompilerArgs.add("-Xreturn-value-checker=full")
-        configureOptins()
+    private fun KotlinCommonCompilerOptions.configureCompilerOptions(
+        project: Project,
+        name: String,
+        projectConfiguration: ProjectConfigurationExtension,
+    ) {
+        configureCommonCompilerOptions(project, name, projectConfiguration)
         if (this is KotlinJvmCompilerOptions) {
-            project.logger.info("Setting common compilation options for $name")
-            jvmTarget = JvmTarget.JVM_1_8
-            jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
+            configureJvmCompilerOptions(project, name, projectConfiguration.generalJvmTarget)
         }
     }
 
-    private fun LanguageSettingsBuilder.configureOptins() {
-        optIn("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
-        optIn("nl.adaptivity.xmlutil.XmlUtilInternal")
-        optIn("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
+    private fun KotlinCommonCompilerOptions.configureCommonCompilerOptions(project: Project, name: String, projectConfiguration: ProjectConfigurationExtension) {
+        progressiveMode = true
+        languageVersion = KotlinVersion.DEFAULT
+        allWarningsAsErrors = projectConfiguration.allWarningsAsErrors
+        val optIns = projectConfiguration.optIns.get()
+        when (optIns.size) {
+            0 -> {
+                optIn.set(emptyList()) // just reset it now
+                project.logger.info("No opt-ins specified for project ${project.name}/$name. Current opt-ins: ${optIn.get().joinToString()}")
+            }
+            else -> for (it in optIns) {
+                project.logger.info("Enabling opt-in: $it for project ${project.name}/$name")
+                optIn.add(it)
+            }
+        }
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 
-    private fun KotlinCommonCompilerOptions.configureOptins() {
-        optIn.add("nl.adaptivity.xmlutil.ExperimentalXmlUtilApi")
-        optIn.add("nl.adaptivity.xmlutil.XmlUtilInternal")
-        optIn.add("nl.adaptivity.xmlutil.XmlUtilDeprecatedInternal")
+    private fun KotlinJvmCompilerOptions.configureJvmCompilerOptions(
+        project: Project,
+        name: String,
+        target: Property<JvmTarget>
+    ) {
+        project.logger.info("Setting jvm compilation options for $name")
+        this.jvmTarget = target
+        this.jvmDefault = JvmDefaultMode.NO_COMPATIBILITY
     }
+
 }
 
 abstract class ProjectConfigurationExtension {
+    abstract val generalJvmTarget: Property<JvmTarget>
+    abstract val testJvmTarget: Property<JvmTarget>
     abstract val dokkaModuleName: Property<String>
     abstract val dokkaVersion: Property<String>
     abstract val dokkaOverrideTarget: Property<String>
@@ -334,6 +381,8 @@ abstract class ProjectConfigurationExtension {
     abstract val kotlinTestVersion: Property<KotlinVersion>
     abstract val createAndroidCompatComponent: Property<Boolean>
     abstract val generateJavaModules: Property<Boolean>
+    abstract val allWarningsAsErrors: Property<Boolean>
+    abstract val optIns: ListProperty<String>
 }
 
 private var _isSnapshot: Int = -1

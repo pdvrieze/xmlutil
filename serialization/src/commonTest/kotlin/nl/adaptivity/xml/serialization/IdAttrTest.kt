@@ -32,10 +32,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.serialization.FormatCache
-import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlId
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import nl.adaptivity.xmlutil.serialization.*
 import kotlin.jvm.JvmInline
 import kotlin.test.*
 
@@ -85,11 +82,11 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
 
     @Test
     fun testDuplicateIds2() {
-        val e = assertFailsWith<IllegalArgumentException> {
+        val e = assertFailsWith<XmlParsingException> {
             @Suppress("DEPRECATION")
             XML.compat.decodeFromString(serializer, duplicateIds3)
         }
-        assertEquals("Invalid XML value at position: null: Duplicate use of id 'a'", e.message)
+        assertEquals("Duplicate use of id 'a'", e.rawMessage)
     }
 
     @JvmInline
@@ -100,7 +97,7 @@ class IdAttrTest : PlatformTestBase<IdAttrTest.Container>(
     @Serializable(ID2.Serializer::class)
     value class ID2(val value: String) {
 
-        private class Serializer : KSerializer<ID2> {
+        class Serializer : KSerializer<ID2> {
             override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("ID2", PrimitiveKind.STRING)
 
             override fun serialize(

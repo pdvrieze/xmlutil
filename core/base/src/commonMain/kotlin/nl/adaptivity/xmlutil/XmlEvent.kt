@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -34,6 +34,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
 
     }
 
+
     public open class TextEvent(
         extLocationInfo: XmlReader.LocationInfo?,
         override val eventType: EventType,
@@ -51,6 +52,29 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
 
         override fun toString(): String {
             return "$eventType - \"$text\" (${extLocationInfo ?: ""})"
+        }
+    }
+
+    /**
+     * Class holding document declaration information. Note that the internal subset is not recorded
+     * at all with this.
+     */
+    @ExperimentalXmlUtilApi
+    public class DocumentDeclEvent(
+        extLocationInfo: XmlReader.LocationInfo?,
+        public val docTypeName: String,
+        public val docTypePublicId: String?,
+        public val docTypeSystemId: String?
+    ): XmlEvent(extLocationInfo) {
+        override val eventType: EventType get() = EventType.DOCDECL
+
+        override fun writeTo(writer: XmlWriter) {
+            val content = buildString {
+                append(docTypeName)
+                if (docTypePublicId != null) append(" PUBLIC \"$docTypePublicId\" \"$docTypeSystemId\"")
+                else if (docTypeSystemId != null) append(" SYSTEM \"$docTypeSystemId\"")
+            }
+            writer.docdecl(content)
         }
     }
 

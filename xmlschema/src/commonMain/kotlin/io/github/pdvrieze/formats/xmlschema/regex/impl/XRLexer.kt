@@ -1,27 +1,24 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
-// TODO: Licenses.
-
 @file:Suppress("DEPRECATION")
-@file:OptIn(XmlUtilInternal::class) // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
@@ -110,7 +107,7 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
         if (flags and XPattern.LITERAL > 0) {
             processedPattern = XPattern.quote(patternString)
         } else if (flags and XPattern.CANON_EQ > 0) {
-            processedPattern = XRLexer.normalize(patternString)
+            processedPattern = normalize(patternString)
         }
 
         this.pattern = processedPattern.toCharArray().copyOf(processedPattern.length + 2)
@@ -149,8 +146,8 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
         !isEmpty() && !isSpecial && isLetter(currentChar)
 
     /** Check if the current char is high/low surrogate. */
-    fun isHighSurrogate(): Boolean = currentChar in 0xDBFF..0xD800
-    fun isLowSurrogate(): Boolean = currentChar in 0xDFFF..0xDC00
+    fun isHighSurrogate(): Boolean = currentChar in 0xDB00..0xDBFF
+    fun isLowSurrogate(): Boolean = currentChar in 0xDC00..0xDFFF
     fun isSurrogate(): Boolean = isHighSurrogate() || isLowSurrogate()
 
     /**
@@ -173,7 +170,11 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
     }
 
     // Processing index moving =========================================================================================
-    /** Returns current character and moves string index to the next one. */
+    /**
+     * Moves string index to the next one.
+     * @return current character
+     */
+    @IgnorableReturnValue
     operator fun next(): Int {
         movePointer()
         return lookBack
@@ -204,7 +205,9 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
      *
      * The following actions are equivalent if comments flag is off:
      * currentChar = pattern[index++] == currentChar = pattern[nextIndex]
+     * @return The current/previous index
      */
+    @IgnorableReturnValue
     private fun nextIndex(): Int {
         prevNonWhitespaceIndex = index
         index++
@@ -215,6 +218,7 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
     }
 
     /** Skips comments and whitespaces */
+    @IgnorableReturnValue
     private fun skipComments(): Int {
         val length = pattern.size - 2
         do {
@@ -262,30 +266,27 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
         curSpecialToken = lookAheadSpecialToken
         curTokenIndex = lookAheadTokenIndex
         lookAheadTokenIndex = index
-        var reread: Boolean
-        do {
-            // Read the next character, analyze it and construct a token.
-            lookAhead = if (index < pattern.size) nextCodePoint() else 0
-            lookAheadSpecialToken = null
 
-            if (mode == Mode.ESCAPE) {
-                processInEscapeMode()
-            }
+        // Read the next character, analyze it and construct a token.
+        lookAhead = if (index < pattern.size) nextCodePoint() else 0
+        lookAheadSpecialToken = null
 
-            reread = when (mode) {
-                Mode.PATTERN -> processInPatternMode()
-                Mode.RANGE -> processInRangeMode()
-                else -> false
-            }
-        } while (reread)
+        if (mode == Mode.ESCAPE) {
+            processInEscapeMode()
+        } // note this may change the mode
+
+        when (mode) {
+            Mode.PATTERN -> processInPatternMode()
+            Mode.RANGE -> processInRangeMode()
+            else -> {}
+        }
     }
 
     // Special functions called from [movePointer] function to process chars in different modes ========================
     /**
      * Processing an escaped sequence like "\Q foo \E". Just skip a character if it is not \E.
-     * Returns whether we need to reread the character or not
      */
-    private fun processInEscapeMode(): Boolean {
+    private fun processInEscapeMode() {
         if (lookAhead == '\\'.toInt()) {
             // Need not care about supplementary code points here.
             val lookAheadChar: Char = if (index < pattern.size) pattern[nextIndex()] else '\u0000'
@@ -303,18 +304,16 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
                 index = prevNonWhitespaceIndex
             }
         }
-        return false
     }
 
     /** Processes a next character in [Mode.PATTERN] mode. Returns whether we need to reread the character or not */
-    private fun processInPatternMode(): Boolean {
-        if (lookAhead.isSurrogatePair()) {
-            return false
-        }
+    private fun processInPatternMode() {
+        if (lookAhead.isSurrogatePair()) return
         val lookAheadChar = lookAhead.toChar()
 
         if (lookAheadChar == '\\') {
-            return processEscapedChar()
+            processEscapedChar()
+            return
         }
 
         // TODO: Look like we can create a quantifier here.
@@ -328,9 +327,11 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
                 val mode = if (index < pattern.size) pattern[index] else '*'
                 // look at the next character to determine if the mode is greedy, reluctant or possessive.
                 when (mode) {
-                    '+' -> { lookAhead = lookAhead or XRLexer.QMOD_POSSESSIVE; nextIndex() }
-                    '?' -> { lookAhead = lookAhead or XRLexer.QMOD_RELUCTANT;  nextIndex() }
-                    else ->  lookAhead = lookAhead or XRLexer.QMOD_GREEDY
+                    '+' -> { lookAhead = lookAhead or QMOD_POSSESSIVE; nextIndex() }
+
+                    '?' -> { lookAhead = lookAhead or QMOD_RELUCTANT; nextIndex() }
+
+                    else -> lookAhead = lookAhead or QMOD_GREEDY
                 }
             }
 
@@ -354,28 +355,25 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
             '|' -> lookAhead = CHAR_VERTICAL_BAR
             '.' -> lookAhead = CHAR_DOT
         }
-        return false
+        return
     }
 
     /** Processes a character inside a range. Returns whether we need to reread the character or not */
-    private fun processInRangeMode(): Boolean {
-        if (lookAhead.isSurrogatePair()) {
-            return false
-        }
+    private fun processInRangeMode() {
+        if (lookAhead.isSurrogatePair()) return
         val lookAheadChar = lookAhead.toChar()
 
         when (lookAheadChar) {
-            '\\' -> return processEscapedChar()
+            '\\' -> processEscapedChar()
             '['  -> lookAhead = CHAR_LEFT_SQUARE_BRACKET
             ']'  -> lookAhead = CHAR_RIGHT_SQUARE_BRACKET
             '^'  -> lookAhead = CHAR_CARET
             '-'  -> lookAhead = CHAR_HYPHEN
         }
-        return false
     }
 
     /** Processes an escaped (\x) character in any mode. Returns whether we need to reread the character or not */
-    private fun processEscapedChar() : Boolean {
+    private fun processEscapedChar() {
         val escapedCharIndex = prevNonWhitespaceIndex + 1
         if (escapedCharIndex >= pattern.size - 2) {
             throw XRPatternSyntaxException("Trailing \\", patternString, curTokenIndex)
@@ -411,12 +409,12 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
 
             // Special characters like EOL, EOI etc
 
-            '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return false
+            '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return
 
             else ->
                 throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)
         }
-        return false
+        return
     }
 
     /** Process [lookAhead] in assumption that it's quantifier. */
@@ -473,7 +471,7 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
         val mod = if (index < pattern.size) pattern[index] else ' '
         when (mod) {
             '+', '?', '*' -> throw XRPatternSyntaxException("Quantifiers cannot be followed by mode", patternString, index)
-            else ->  lookAhead = XRLexer.QUANT_COMP
+            else ->  lookAhead = QUANT_COMP
         }
         return XRQuantifier(min, max)
     }
@@ -646,7 +644,7 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
 
             // Canonical ordering.
             // See http://www.unicode.org/reports/tr15/#Decomposition for details
-            resCodePoints = XRLexer.getCanonicalOrder(resCodePoints, resCodePointsIndex)
+            resCodePoints = getCanonicalOrder(resCodePoints, resCodePointsIndex)
 
             // Decomposition for Hangul syllables.
             // See http://www.unicode.org/reports/tr15/#Hangul for details

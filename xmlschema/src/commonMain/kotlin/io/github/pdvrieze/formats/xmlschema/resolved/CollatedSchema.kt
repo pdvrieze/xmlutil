@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -272,7 +272,7 @@ internal class SchemaData(
             else -> throw AssertionError("Unreachable")
         }
         val finalRefs = refs.asSequence()
-            .filter { it.namespaceURI != XSD_NS_URI && it.namespaceURI != XMLConstants.XSI_NS_URI }
+            .filter { it.namespaceURI != XSD_NS_URI && it.namespaceURI != XSI_NS_URI }
             .let {
                 when {
                     rawSchema.targetNamespace.isNullOrEmpty() && schema.namespace.isNotEmpty() ->
@@ -320,8 +320,9 @@ internal class SchemaData(
      * @param collector The mutable map to collect and merge the nested SchemaData objects into.
      * @return The modified mutable map containing the merged nested SchemaData objects.
      */
+    @IgnorableReturnValue
     internal fun <M : MutableMap<String, Pair<String, SchemaData>>> collectAndMergeNested(collector: M): M {
-        collector.computeIfAbsent(this.schemaLocation ?: "") { Pair(namespace, this) }
+        val _ = collector.computeIfAbsent(this.schemaLocation ?: "") { Pair(namespace, this) }
 
         for (ns in importedNamespaces) {
             val uris = includedNamespaceToUris[ns] ?: emptyList()
@@ -424,7 +425,7 @@ internal class SchemaData(
             sourceData.schemaLocation?.let { schemaLocations.add(it) }
 
             val chameleon = when {
-                sourceData.namespace.isNullOrEmpty() -> null
+                sourceData.namespace.isEmpty() -> null
                 targetNamespace.isNullOrEmpty() -> error("Invalid name override to default namespace")
                 targetNamespace != sourceData.namespace -> targetNamespace
                 else -> null
@@ -438,19 +439,19 @@ internal class SchemaData(
                 sourceData.attributeGroups.addUnique(attributeGroups)
                 sourceData.notations.addUnique(notations)
             } else {
-                sourceData.elements.addUnique(elements.mapValuesTo(mutableMapOf()) { (k, v) ->
+                sourceData.elements.addUnique(elements.mapValuesTo(mutableMapOf()) { (_, v) ->
                     v.toChameleon(chameleon, sourceData)
                 })
-                sourceData.groups.addUnique(groups.mapValuesTo(mutableMapOf()) { (k, v) ->
+                sourceData.groups.addUnique(groups.mapValuesTo(mutableMapOf()) { (_, v) ->
                     v.toChameleon(chameleon, sourceData)
                 })
-                sourceData.attributes.addUnique(attributes.mapValuesTo(mutableMapOf()) { (k, v) ->
+                sourceData.attributes.addUnique(attributes.mapValuesTo(mutableMapOf()) { (_, v) ->
                     v.toChameleon(chameleon, sourceData)
                 })
-                sourceData.types.addUnique(types.mapValuesTo(mutableMapOf()) { (k, v) ->
+                sourceData.types.addUnique(types.mapValuesTo(mutableMapOf()) { (_, v) ->
                     v.toChameleon(chameleon, sourceData)
                 })
-                sourceData.attributeGroups.addUnique(attributeGroups.mapValuesTo(mutableMapOf()) { (k, v) ->
+                sourceData.attributeGroups.addUnique(attributeGroups.mapValuesTo(mutableMapOf()) { (_, v) ->
                     v.toChameleon(chameleon, sourceData)
                 })
                 sourceData.notations.addUnique(notations)
@@ -913,7 +914,10 @@ internal class RedefineSchema(
 
     override val version: SchemaVersion get() = referenceSchema.version
 
-    override val targetNamespace: VAnyURI? get() = originSchemaData.namespace.toAnyUri() ?: referenceSchema.targetNamespace
+    override val targetNamespace: VAnyURI? get() = originSchemaData.namespace.takeIf { it.isNotEmpty() }
+        ?.toAnyUri()
+        ?: referenceSchema.targetNamespace
+
     private val originalNS get() = targetNamespace?.value ?: ""
 
     override fun hasLocalTargetNamespace(): Boolean {
@@ -945,7 +949,8 @@ internal class RedefineSchema(
         require(originalNS == typeName.namespaceURI)
         val t = originSchemaData.findType(typeName)
         if (t != null && t.elem is XSGlobalSimpleType) {
-            return ResolvedGlobalSimpleType(t as SchemaElement<XSGlobalSimpleType>, t.effectiveSchema(referenceSchema))
+            @Suppress("UNCHECKED_CAST")
+            return ResolvedGlobalSimpleType(t.cast(), t.effectiveSchema(referenceSchema))
         }
         error("Nested simple type with name $typeName could not be found")
     }
@@ -1052,6 +1057,7 @@ internal class RedefineSchema(
 
 internal enum class Redefinable { TYPE, ELEMENT, ATTRIBUTE, GROUP, ATTRIBUTEGROUP }
 
+@IgnorableReturnValue
 private inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateToUnique(
     destination: M,
     keySelector: (T) -> Pair<K, V>
@@ -1064,7 +1070,8 @@ private inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateTo
     return destination
 }
 
-private inline fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
+@IgnorableReturnValue
+private fun <K, V, M : MutableMap<in K, in V>> Map<K, V>.addUnique(
     destination: M
 ): M {
     for ((key, value) in this) {
@@ -1097,7 +1104,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
 
     /** The bound to T is merely to make it easier for correctness, but allow variance. */
     inline fun <reified U : @UnsafeVariance T> cast(): SchemaElement<U> {
-        (elem as U) // throws if not valid
+        val _ = elem as U // throws if not valid
         @Suppress("UNCHECKED_CAST")
         return this as SchemaElement<U>
     }
@@ -1107,7 +1114,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
         schemaLocation: String,
         rawSchema: XSSchema,
         val importedNamespaces: Set<String>,
-        internal override val builtin: Boolean
+        override val builtin: Boolean
     ) : SchemaElement<T>(elem, schemaLocation, rawSchema) {
         override val targetNamespace: String
             get() = rawSchema.targetNamespace?.xmlString ?: ""
@@ -1196,7 +1203,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
     }
 
     companion object {
-        inline operator fun <T> invoke(
+        operator fun <T> invoke(
             elem: T,
             schemaLocation: String,
             rawSchema: XSSchema,
@@ -1204,7 +1211,7 @@ internal sealed class SchemaElement<out T>(val elem: T, val schemaLocation: Stri
             builtin: Boolean = false
         ): Direct<T> = Direct(elem, schemaLocation, rawSchema, importedNamespaces, builtin)
 
-        inline fun <T> auto(
+        fun <T> auto(
             elem: T,
             schemaLocation: String,
             baseSchema: XSSchema,

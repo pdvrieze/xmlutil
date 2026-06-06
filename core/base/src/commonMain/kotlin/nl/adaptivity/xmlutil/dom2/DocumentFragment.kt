@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,23 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface DocumentFragment : Node
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformDocumentFragment
+
+public expect interface DocumentFragment : Node, PlatformDocumentFragment {
+    /** @since DOM Level 2 */
+    @ExperimentalXmlUtilApi
+    public override fun getOwnerDocument(): Document
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    override fun getNodeValue(): Nothing?
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    override fun getAttributes(): Nothing?
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): DocumentFragment
+}

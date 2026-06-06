@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,18 +20,19 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface NodeList : Iterable<Node> {
+import nl.adaptivity.xmlutil.dom.PlatformNodeList
+
+public expect interface NodeList : PlatformNodeList, Iterable<Node> {
     public fun getLength(): Int
 
     public fun item(index: Int): Node?
 
-    public operator fun get(index: Int): Node?// = item(index)
+    public operator fun get(index: Int): Node?
 
-    public override operator fun iterator(): Iterator<Node> /*{
-        return NodeListIterator(this)
-    }*/
+    public override operator fun iterator(): Iterator<Node>
 }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val NodeList.length: Int get() = getLength()
 
 internal class NodeListIterator<L : NodeList, N : Node>(private val nodeList: L) : Iterator<N> {

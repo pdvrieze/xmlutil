@@ -38,7 +38,7 @@ value class VIDRef(override val xmlString: String) : VNCName {
 
     override fun toString(): String = xmlString
 
-    private class Serializer : SimpleTypeSerializer<VIDRef>("IDREF") {
+    class Serializer : SimpleTypeSerializer<VIDRef>("IDREF") {
         override fun deserialize(decoder: Decoder): VIDRef {
             val r = super.deserialize(decoder)
             if (decoder is XML.XmlInput) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -24,9 +24,7 @@ package nl.adaptivity.xmlutil
 
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
-import nl.adaptivity.xmlutil.util.filterTyped
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
@@ -39,7 +37,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
 
     @Suppress("DEPRECATION")
     constructor(delegate: PlatformNode) :
-            this((delegate as? Node) ?: createDocument(QName("XX")).adoptNode(delegate), false)
+            this((delegate as? Node) ?: createDocument().importNode(delegate, true), true)
 
     private var current: Node? = null
 
@@ -52,7 +50,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
         get() {
             val current = current
             return when (current?.nodeType) {
-                NodeConsts.ELEMENT_NODE -> (current as Element).getLocalName()
+                NodeConsts.ELEMENT_NODE -> (current as Element).run { getLocalName() ?: getTagName() }
                 NodeConsts.ENTITY_REFERENCE_NODE if (!expandEntities) -> current.nodeName
                 else -> throw XmlException("Only elements have a local name")
             }
@@ -114,7 +112,7 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
     private val namespaceAttrs: List<Attr>
         get() {
             return _namespaceAttrs ?: (
-                    requireCurrentElem.getAttributes().filterTyped {
+                    requireCurrentElem.getAttributes().filter {
                         (it.getNamespaceURI() == null || it.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) &&
                                 (it.getPrefix() == "xmlns" || (it.getPrefix()
                                     .isNullOrEmpty() && it.getLocalName() == "xmlns")) &&
@@ -124,6 +122,8 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
                     })
 
         }
+
+    override val startLocationInfo: XmlReader.LocationInfo get() = extLocationInfo
 
     override val extLocationInfo: XmlReader.LocationInfo
         get() {
@@ -319,7 +319,8 @@ internal class DomReader(val delegate: Node, val expandEntities: Boolean) : XmlR
 private fun Node.toEventType(endOfElement: Boolean, expandEntities: Boolean): EventType {
     @Suppress("DEPRECATION")
     return when (nodeType) {
-        NodeConsts.ATTRIBUTE_NODE -> EventType.ATTRIBUTE
+        NodeConsts.ATTRIBUTE_NODE ->
+            EventType.ATTRIBUTE
         NodeConsts.CDATA_SECTION_NODE -> EventType.CDSECT
         NodeConsts.COMMENT_NODE -> EventType.COMMENT
         NodeConsts.DOCUMENT_TYPE_NODE -> EventType.DOCDECL

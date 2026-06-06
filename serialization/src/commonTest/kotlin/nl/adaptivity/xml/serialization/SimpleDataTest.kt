@@ -49,8 +49,9 @@ class SimpleDataTest : PlatformTestBase<SimpleDataTest.Address>(
         val e = assertFailsWith<UnknownXmlFieldException> {
             XML.compat.decodeFromString(serializer, unknownValues)
         }
+        val location = e.message?.substringAfter("[")?.substringBefore("]")
 
-        val expectedMsgStart = "Could not find a field for name " +
+        val expectedMsgStart = "Serialization exception at [$location]: Could not find a field for name " +
                 "(nl.adaptivity.xml.serialization.SimpleDataTest.Address) address/" +
                 "unknown (Attribute)\n" +
                 "  candidates: "

@@ -27,10 +27,13 @@ import nl.adaptivity.xmlutil.*
  * This streamreader allows for reading document fragments. It does so by wrapping the reader into a pair of wrapper elements, and then ignoring those on reading.
 
  */
-public actual class XMLFragmentStreamReader(
-    text: String,
+public actual class XMLFragmentStreamReader private constructor(
+    delegate: XmlReader,
     wrapperNamespaceContext: Iterable<Namespace>
-) : XmlDelegatingReader(getDelegate(text, wrapperNamespaceContext)) {
+) : XmlDelegatingReader(delegate) {
+
+    public constructor(text: String, namespaces: Iterable<Namespace>) :
+            this(getDelegate(text, namespaces), namespaces)
 
     private class FragmentNamespaceContext : SimpleNamespaceContext {
 
@@ -172,7 +175,7 @@ public actual class XMLFragmentStreamReader(
             text: String,
             wrapperNamespaceContext: Iterable<Namespace>
         ): XmlReader {
-            val wrapper = buildString {
+            val wrapped = buildString {
                 append("<$WRAPPERPPREFIX:wrapper xmlns:$WRAPPERPPREFIX=\"$WRAPPERNAMESPACE\"")
                 for (ns in wrapperNamespaceContext) {
                     val prefix = ns.prefix
@@ -185,16 +188,16 @@ public actual class XMLFragmentStreamReader(
                     append("=\"").append(uri.xmlEncode()).append('"')
                 }
                 append(" >")
+                append(text)
+                append("</$WRAPPERPPREFIX:wrapper>")
             }
 
-            val actualInput = "$wrapper$text</$WRAPPERPPREFIX:wrapper>"
-
-            return xmlStreaming.newReader(actualInput)
+            return xmlStreaming.newReader(wrapped)
         }
 
 
         public actual fun from(fragment: ICompactFragment): XMLFragmentStreamReader {
-            return XMLFragmentStreamReader(fragment.contentString, fragment.namespaces)
+            return XMLFragmentStreamReader(getDelegate(fragment.contentString, fragment.namespaces) ,fragment.namespaces)
         }
     }
 

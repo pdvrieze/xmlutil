@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -77,8 +77,12 @@ public class XmlBufferReader private constructor(
     override val namespaceDecls: List<Namespace>
         get() = current<StartElementEvent>().namespaceDecls.let { it as? List<Namespace> ?: it.toList() }
 
-    override val extLocationInfo: XmlReader.LocationInfo?
+    @ExperimentalXmlUtilApi
+    override val startLocationInfo: XmlReader.LocationInfo?
         get() = buffer[currentPos].extLocationInfo
+
+    override val extLocationInfo: XmlReader.LocationInfo?
+        get() = buffer.getOrNull(currentPos + 1)?.extLocationInfo
 
     override val namespaceContext: IterableNamespaceContext
         get() = namespaceHolder.namespaceContext

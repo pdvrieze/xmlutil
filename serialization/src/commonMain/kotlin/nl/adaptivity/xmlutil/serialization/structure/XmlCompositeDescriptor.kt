@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -51,7 +51,10 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
                 // Permit this
             }
 
-            else -> codecConfig.config.policy.invalidOutputKind("Composite element: $tagName - Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind")
+            else -> codecConfig.config.policy.invalidOutputKind(
+                "Composite element: $tagName - Class SerialKinds/composites can only have Element output kinds, not $requestedOutputKind",
+                { tagName.toString() },
+            )
         }
 
         this.defaultPreserveSpace = defaultPreserveSpace
@@ -291,11 +294,12 @@ public class XmlCompositeDescriptor: XmlValueDescriptor {
                         .firstOrNull { idx -> idx != valueChildIdx && children[idx].outputKind == OutputKind.Element }
                     if (invalidIdx != null) {
                         throw XmlSerialException(
-                            "Types (${parent.tagName}) with an @XmlValue member may not contain other child elements (${
+                            message = "Types (${parent.tagName}) with an @XmlValue member may not contain other child elements (${
                                 parent.serialDescriptor.getElementDescriptor(
                                     invalidIdx
                                 )
-                            }"
+                            }",
+                            errContext = parent.tagName.toString()
                         )
                     }
                 }

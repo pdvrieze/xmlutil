@@ -1,5 +1,4 @@
 public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/XmlReader {
-	public static final field EXPAND_ENTITIES_PROP Ljava/lang/String;
 	public fun <init> (Ljava/io/InputStream;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;Z)V
@@ -38,6 +37,7 @@ public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/
 	public fun getPiTarget ()Ljava/lang/String;
 	public fun getPrefix ()Ljava/lang/String;
 	public fun getStandalone ()Ljava/lang/Boolean;
+	public fun getStartLocationInfo ()Lnl/adaptivity/xmlutil/XmlReader$LocationInfo;
 	public fun getText ()Ljava/lang/String;
 	public final fun getTextCharacters ()[C
 	public fun getVersion ()Ljava/lang/String;

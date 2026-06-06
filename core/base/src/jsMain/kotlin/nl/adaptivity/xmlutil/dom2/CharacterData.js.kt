@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,7 +22,12 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public actual interface CharacterData : Node {
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformCharacterData
+import nl.adaptivity.xmlutil.dom.PlatformNode
+
+public actual interface CharacterData : Node, PlatformCharacterData {
+
     public actual fun getData(): String
     public actual fun setData(data: String)
     public actual fun substringData(offset: Int, count: Int): String
@@ -31,15 +36,58 @@ public actual interface CharacterData : Node {
     public actual fun deleteData(offset: Int, count: Int)
     public actual fun replaceData(offset: Int, count: Int, data: String)
 
-    @IgnorableReturnValue
-    public actual override fun appendChild(node: Node): Nothing
+    actual override fun getNodeValue(): String
+    actual override fun getOwnerDocument(): Document
 
     @IgnorableReturnValue
-    public actual override fun replaceChild(newChild: Node, oldChild: Node): Nothing
+    public actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
-    public actual override fun removeChild(node: Node): Nothing
+    public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    public actual override fun removeChild(node: PlatformNode): Nothing
 
     public actual override fun getFirstChild(): Nothing?
     public actual override fun getLastChild(): Nothing?
+
+    public actual override fun getAttributes(): Nothing?
+    public actual override fun cloneNode(deep: Boolean): CharacterData
+
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun appendChild(node: Node): Nothing = appendChild(node.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
+        insertBefore(newChild.unsafeCast<PlatformNode>(), refChild?.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
+        replaceChild(newChild.unsafeCast<PlatformNode>(), oldChild.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
+
+}
+
+internal fun addCharacterDataPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.data = jsProperty<CharacterData>(getter = { getData() }, setter = { setData(it) })
+    props.length = jsProperty<CharacterData> { getData().length }
+    js("Object").defineProperties(prototype, props)
+
 }

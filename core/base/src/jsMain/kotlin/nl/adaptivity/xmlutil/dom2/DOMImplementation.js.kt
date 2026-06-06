@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,10 +20,17 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public actual interface DOMImplementation {
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
+import nl.adaptivity.xmlutil.dom.PlatformDocumentType
+
+public actual interface DOMImplementation: PlatformDOMImplementation {
     public actual val supportsWhitespaceAtToplevel: Boolean
-    public actual fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
+    public actual override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
+
+    public actual override fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document
+
     public actual fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
+
     public actual fun hasFeature(feature: String, version: String?): Boolean
     public actual fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
     public actual fun getFeature(feature: String, version: String): Any?

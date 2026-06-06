@@ -29,11 +29,12 @@ import nl.adaptivity.xmlutil.core.impl.toIndentSequence
 import nl.adaptivity.xmlutil.core.impl.toIndentString
 import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.adoptNode
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.util.impl.createDocument
 import nl.adaptivity.xmlutil.util.myLookupNamespaceURI
 import nl.adaptivity.xmlutil.util.myLookupPrefix
+import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Node as Node2
 
 /**
  * Writer that uses the DOM for the underlying storage (rather than writing to some string).
@@ -41,8 +42,8 @@ import nl.adaptivity.xmlutil.util.myLookupPrefix
  *         children (`false`)
  * @property xmlDeclMode Determine whether an XML declaration is written
  */
-public class DomWriter internal constructor(
-    current: Node?,
+public class DomWriter private constructor(
+    current: Node2?,
     public val isAppend: Boolean = false,
     public val xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
     xmlVersion: XmlVersion? = null,
@@ -57,11 +58,26 @@ public class DomWriter internal constructor(
      * @param xmlDeclMode Determine whether an XML declaration is written
      */
     internal constructor(
+        current: Node2,
+        isAppend: Boolean = false,
+        xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
+        xmlVersion: XmlVersion = XmlVersion.XML10,
+        dummy: Unit = Unit,
+    ) : this(current, isAppend, xmlDeclMode, xmlVersion, false)
+
+    /**
+     * Create a new writer.
+     * @param current The node that will receive the new nodes as children
+     * @param isAppend Should the writing append new children (`true`) or replace the existing
+     *   children (`false`)
+     * @param xmlDeclMode Determine whether an XML declaration is written
+     */
+    internal constructor(
         current: PlatformNode,
         isAppend: Boolean = false,
         xmlDeclMode: XmlDeclMode = XmlDeclMode.IfRequired,
         xmlVersion: XmlVersion = XmlVersion.XML10,
-    ) : this(current as? Node ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode, xmlVersion, false)
+    ) : this(current as? Node2 ?: createDocument(QName("x")).adoptNode(current), isAppend, xmlDeclMode, xmlVersion, false)
 
     /**
      * The sequence of events to use for indentation
@@ -78,7 +94,7 @@ public class DomWriter internal constructor(
             indentSequence = value.toIndentSequence()
         }
 
-    private var docDelegate: Document?
+    private var docDelegate: Document2?
 
     /**
      * Create a new writer.
@@ -88,11 +104,11 @@ public class DomWriter internal constructor(
 
     /** The document that is used to create nodes */
     @XmlUtilInternal
-    public val target: Document get() = docDelegate ?: throw XmlException("Document not created yet")
+    public val target: Document2 get() = docDelegate ?: throw XmlException("Document not created yet")
 
     /** The current node that events would need to be written to */
     @XmlUtilInternal
-    public var currentNode: Node?
+    public var currentNode: Node2?
         private set
 
     init {
@@ -102,7 +118,7 @@ public class DomWriter internal constructor(
                 currentNode = null
             }
 
-            is Document -> {
+            is Document2 -> {
                 docDelegate = current
                 currentNode = current
             }
@@ -115,7 +131,7 @@ public class DomWriter internal constructor(
 
     }
 
-    private val pendingOperations: List<(Document) -> Unit> = mutableListOf()
+    private val pendingOperations: List<(Document2) -> Unit> = mutableListOf()
 
     private var lastTagDepth = TAG_DEPTH_NOT_TAG
 
@@ -133,7 +149,7 @@ public class DomWriter internal constructor(
         lastTagDepth = newDepth
     }
 
-    private fun addToPending(operation: (Document) -> Unit) {
+    private fun addToPending(operation: (Document2) -> Unit) {
         if (docDelegate == null) {
             (pendingOperations as MutableList).add(operation)
         } else throw IllegalStateException("Use of pending list when there is a document already")

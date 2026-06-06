@@ -35,10 +35,10 @@ import kotlin.jvm.JvmOverloads
  * Interface that is the entry point to the xml parsing. All implementations implement this
  * interface, generally by delegating to a platform specific parser.
  */
-@MpJvmDefaultWithCompatibility
 public interface XmlReader : Closeable, Iterator<EventType> {
 
     /** Get the next tag. This must call next, not use the underlying stream.  */
+    @IgnorableReturnValue
     public fun nextTag(): EventType {
         var event = next()
         while (event !== EventType.START_ELEMENT && event !== EventType.END_ELEMENT) {
@@ -203,6 +203,13 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /** Retrieve the namespaces declared at the current level. */
     public val namespaceDecls: List<Namespace>
 
+    /**
+     * Location info for the start of the currently "active" event, rather than the end of it. If
+     * not explicitly supported will return null.
+     */
+    @ExperimentalXmlUtilApi
+    public val startLocationInfo: LocationInfo? get() = null
+
     /** Enhanced location info that allows a reader to provide more detail than just a string */
     public val extLocationInfo: LocationInfo?
 
@@ -234,10 +241,19 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     public val version: String?
 
     /** Base interface for location information */
-    public interface LocationInfo
+    public interface LocationInfo {
+        public fun withFileName(fileName: String): LocationInfo
+    }
 
     /** Simple location information that just wraps a String */
     public class StringLocationInfo(private val str: String) : LocationInfo {
+
+        @XmlUtilInternal
+        override fun withFileName(fileName: String): StringLocationInfo = when {
+            fileName in str -> this
+            else -> StringLocationInfo("file $fileName: $str")
+        }
+
         override fun toString(): String = str
 
         override fun equals(other: Any?): Boolean {
@@ -259,8 +275,23 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /**
      * Extended location info that actually provides column, line, and or file/string offset information.
      */
-    public class ExtLocationInfo(private val col: Int, private val line: Int, private val offset: Int) : LocationInfo {
+    public class ExtLocationInfo(
+        @ExperimentalXmlUtilApi
+        public val col: Int,
+        @ExperimentalXmlUtilApi
+        public val line: Int,
+        private val offset: Int,
+        @ExperimentalXmlUtilApi
+        public val fileName: String? = null
+    ) : LocationInfo {
+        @XmlUtilInternal
+        public override fun withFileName(fileName: String): ExtLocationInfo = when {
+            this.fileName == fileName -> this
+            else -> ExtLocationInfo(col, line, offset, fileName)
+        }
+
         override fun toString(): String = buildString {
+            if (fileName != null) append("file ").append(fileName).append(": ")
             when {
                 line >= 0 -> {
                     append(line)
@@ -457,7 +488,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $event")
+                else -> throw XmlException("Found unexpected child tag event: $event")
             }//ignore
 
         }
@@ -528,7 +559,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $eventType")
+                else -> throw XmlException("Found unexpected child tag with event type: $eventType")
             }//ignore
 
         }
@@ -678,4 +709,13 @@ public fun XmlReader.isElement(
 /**
  * Write the current event to the writer. This will **not** move the reader.
  */
-public fun XmlReader.writeCurrent(writer: XmlWriter): Unit = eventType.writeEvent(writer, this)
+public fun XmlReader.writeCurrent(writer: XmlWriter): Unit {
+    try {
+        eventType.writeEvent(writer, this)
+    } catch (e: XmlException) {
+        if (e.locationInfo == null) throw XmlException(this.extLocationInfo, e)
+        else throw e
+    } catch (e: Exception) {
+        throw XmlException(this.extLocationInfo, e)
+    }
+}

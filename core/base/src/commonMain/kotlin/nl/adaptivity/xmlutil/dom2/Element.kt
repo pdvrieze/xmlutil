@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,20 +21,17 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(ElementSerializer::class)
-public expect interface Element : Node {
-
-    public fun getNamespaceURI(): String?
-
-    public fun getPrefix(): String?
-
-    public fun getLocalName(): String
+public expect interface Element : Node, PlatformElement {
+    public override fun getOwnerDocument(): Document
 
     public fun getTagName(): String
 
-    public fun getAttributes(): NamedNodeMap
-
+    public override fun getAttributes(): NamedNodeMap<Attr>
 
     public fun getAttribute(qualifiedName: String): String?
     public fun getAttributeNS(namespace: String?, localName: String): String?
@@ -51,16 +48,22 @@ public expect interface Element : Node {
     public fun getAttributeNode(qualifiedName: String): Attr?
     public fun getAttributeNodeNS(namespace: String?, localName: String): Attr?
 
-    public fun setAttributeNode(attr: Attr): Attr?
-    public fun setAttributeNodeNS(attr: Attr): Attr?
-    public fun removeAttributeNode(attr: Attr): Attr
+    public fun setAttributeNode(attr: PlatformAttr): Attr?
+    public fun setAttributeNodeNS(attr: PlatformAttr): Attr?
+    public fun removeAttributeNode(attr: PlatformAttr): Attr
 
     public fun getElementsByTagName(qualifiedName: String): NodeList
     public fun getElementsByTagNameNS(namespace: String?, localName: String): NodeList
+
+    @ExperimentalXmlUtilApi
+    override fun getNodeValue(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): Element
 }
 
 public val Element.namespaceURI: String? get() = getNamespaceURI()
 public val Element.prefix: String? get() = getPrefix()
-public val Element.localName: String get() = getLocalName()
+public val Element.localName: String get() = getLocalName() ?: getTagName()
 public val Element.tagName: String get() = getTagName()
-public val Element.attributes: NamedNodeMap get() = getAttributes()
+public val Element.attributes: NamedNodeMap<Attr> get() = getAttributes()

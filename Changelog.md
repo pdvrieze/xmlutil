@@ -1,3 +1,72 @@
+# 1.0.0-SNAPSHOT
+Features:
+- Add a getOrCreatePrefix function that can be used to get an appropriate
+  prefix for a given namespace. If there is no existing prefix, one will be
+  created and added to the tag. If a prefixHint is given, this will be
+  prioritised (to select from multiple prefixes)/to create a prefix if none
+  is registered.
+- Exceptions will now have the ability to provide more extensive location
+  information. This includes adding file name information to the exception.
+- The parser now partially parses internal DTD's and supports entities as
+  per the standard. At this point external DTDs and entities are not
+  supported (this is not a validating parser.). The work includes support
+  of injecting entity parsing results into the parser (i.e. defining
+  entities containing tags).
+
+Incompatible API:
+- There are a few incompatible changes in the DOM API. In particular: some return
+  values have been made nullable (as they are defined as such explicitly by the
+  DOM specification); NamedNodeList is made generic with Node as the base type
+  (rather than Attr) -  Note that for the attributes of an element, the generic type
+  is still Attr; Some methods on platform only is 
+
+Changes:
+- Move the native DOM implementation to the common module and make it available
+  to all platforms (making it also available on nodejs). The implementation has
+  also been extended to implement most DOM 3 features. Note that much of this
+  is still experimental, and has partial tests.
+- As a result of DOM work some signatures have been made nullable as that is
+  required per the DOM specification (and semantics).
+- Add new context element to xml exception that should allow for more detailed
+  context to be provided in exceptions. This generally covers element names. This
+  helps in cases of attributes where the location information is insufficient 
+  (it is positioned at the start or end of the containing tag).
+- Parsing of single characters now allows for xml Whitespace and will collapse the
+  whitespace if there are more than 2 characters. It should be noted that to parse
+  a single space character this must not be surrounded by whitespace (collapsing
+  only applies if there are 2 or more characters and this would collapse to an
+  empty string). The old behaviour only allowed a single character without
+  surrounding whitespace.
+- Standards compliant line ending handling. \n\r is not collapsed as a single
+  line end anymore. Characters #x85 and #2028 are now handled as line end (unless
+  preceded by \r)  
+- Update kotlinx.io support to 0.9.0, atomicfu to 0.31.0, kotlinx.serialization
+  to 1.10.0, kotlinx.benchmark to 0.4.16, kotlin to 2.3.10, junit to 5.14.3.
+- Always expand entities in attribute values (causing an exception if the entity
+  is not known). Note that there is not yet a mechanism to handle entitites in
+  the platform independent parser.
+- Dom2 on Android, JVM and JS now inherits the regular dom interfaces (native
+  has no DOM so no inheritance). Overall make the dom implementation work
+  better with native node types.
+- The JavaScript implementation no longer contains the IDom interfaces/package.
+  This was an implementation package.
+- Parsing of strings by the generic parser now no longer uses a StringReader,
+  but rather handles the strings directly (in a StringInOutBuffer) leading
+  to speed and memory usage improvements (no additional buffering is needed
+  for strings already in memory.
+- Per the XML standard processing instructions are actually allowed in the XML
+  body. Allow them here.
+- Add a newWriter implementation that targets platform nodes. Make newReader
+  consume platform nodes
+
+Fixes:
+- Various small fixes in core (mainly DOM) as a result of asking copilot to
+  find bugs.
+- Make ElementSerializer work better in an existing document context by
+  extracting the document from the decoder if possible.
+- Fix serialization of contextual properties as attributes where preceded by
+  elements (#364). 
+
 # 1.0.0-rc2
 *(Jan 18, 2026)<br />*
 Features:

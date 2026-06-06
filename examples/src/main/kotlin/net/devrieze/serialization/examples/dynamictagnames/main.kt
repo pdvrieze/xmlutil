@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025.
+ * Copyright (c) 2020-2026.
  *
  * This file is part of xmlutil.
  *
@@ -54,6 +54,7 @@ private fun newExample(testElements: List<TestElement>) {
     val serializer = serializer<Container>() // use the default serializer
 
     // Create the configuration for (de)serialization
+    @Suppress("DEPRECATION")
     val xml = XML.compat {
         setIndent(2)
     }

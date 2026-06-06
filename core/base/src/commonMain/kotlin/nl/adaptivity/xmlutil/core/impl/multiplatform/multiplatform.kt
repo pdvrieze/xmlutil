@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -21,6 +21,9 @@
 package nl.adaptivity.xmlutil.core.impl.multiplatform
 
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 @Target(
@@ -33,6 +36,18 @@ public expect annotation class Throws(vararg val exceptionClasses: KClass<out Th
 
 @XmlUtilInternal
 public expect val KClass<*>.name: String
+
+@XmlUtilInternal
+public expect val Any.assertionsEnabled: Boolean
+
+@OptIn(ExperimentalContracts::class)
+@XmlUtilInternal
+public inline fun Any.ifAssertions(block: () -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    }
+    if (assertionsEnabled) block()
+}
 
 @XmlUtilInternal
 public expect fun assert(value: Boolean, lazyMessage: () -> String)

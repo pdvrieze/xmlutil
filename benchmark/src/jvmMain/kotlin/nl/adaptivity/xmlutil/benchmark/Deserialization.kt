@@ -50,7 +50,7 @@ open class Deserialization {
                 xmlStreaming.newReader(input).use { reader ->
                     val events = buildList<XmlEvent> {
                         while (reader.hasNext()) {
-                            add(reader.run { next(); toEvent() })
+                            add(reader.run { val _ = next(); toEvent() })
                         }
                     }
                     u to XmlBufferReader(events)

@@ -38,7 +38,6 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 /**
  * Interface representing the (wrapper) type that allows generating xml documents.
  */
-@MpJvmDefaultWithCompatibility
 public interface XmlWriter : Closeable {
 
     /**
@@ -72,6 +71,62 @@ public interface XmlWriter : Closeable {
      */
     public fun namespaceAttr(namespace: Namespace) {
         namespaceAttr(namespace.prefix, namespace.namespaceURI)
+    }
+
+    /**
+     * Helper function to ensure a namespace is bound to a prefix. Returns either an existing prefix
+     * or a newly allocated (unique) one.
+     *
+     * The algorithm works as follows:
+     * 1. If the [prefixHint] is given and it is bound to the given [namespaceUri] use that.
+     * 2. If the [namespaceUri] is already bound to a prefix use that.
+     * 3. If the [namespaceUri] is empty, write a new namespace attribute for the empty prefix
+     *    to be bound to the empty namespace.
+     * 4. If the [prefixHint] is given and it is not bound to a namespace, write a new namespace
+     *    attribute for the [prefixHint] and the [namespaceUri].
+     * 5. Otherwise generate prefixes starting with "ns1". Find the first one not bound to a
+     *    namespace, write a new namespace attribute for that prefix and the [namespaceUri].
+     *
+     * @param namespaceUri The namespace uri to ensure a prefix for
+     * @param prefixHint A hint for the prefix to use. If `null` no hint is given.
+     * @param isAttr If true, the name is for use as attribute, and thus the blank namespace is
+     *   reserved for blank prefixes.
+     * @return The prefix to use
+     */
+    @ExperimentalXmlUtilApi
+    public fun getOrCreatePrefix(namespaceUri: String, prefixHint: String? = null, isAttr: Boolean = false): String {
+        var prefixHint: String? = prefixHint
+        if (isAttr) {
+            if (namespaceUri.isEmpty()) return "" // per definition
+            if (prefixHint != null && prefixHint.isEmpty()) prefixHint = null
+        }
+
+        if (prefixHint != null && getNamespaceUri(prefixHint) == namespaceUri) return prefixHint
+
+
+        getPrefix(namespaceUri)
+            ?.takeIf { (! isAttr) || it.isNotEmpty() } // don't allow for
+            ?.let { return it }
+
+        if (namespaceUri.isEmpty()) { // never for attribute
+            namespaceAttr("", "")
+            return ""
+        }
+
+        if (prefixHint != null && getNamespaceUri(prefixHint) == null) {
+            // note that for attributes we never have an empty prefix hint
+            namespaceAttr(prefixHint, namespaceUri)
+            return prefixHint
+        }
+
+        var i = 0
+        var prefix: String?
+        do {
+            prefix = "ns${++i}"
+        } while (getNamespaceUri(prefix) != null)
+
+        namespaceAttr(prefix, namespaceUri)
+        return prefix
     }
 
     /**
@@ -388,7 +443,8 @@ public fun XmlWriter.smartStartTag(nsUri: String?, localName: String, prefix: St
             val currentNs = prefix?.let { getNamespaceUri(it) } ?: NULL_NS_URI
             if (nsUri != currentNs) {
                 writeNs = true
-            }; prefix ?: DEFAULT_NS_PREFIX
+            }
+            prefix ?: DEFAULT_NS_PREFIX
         }
 
         startTag(nsUri, localName, usedPrefix)

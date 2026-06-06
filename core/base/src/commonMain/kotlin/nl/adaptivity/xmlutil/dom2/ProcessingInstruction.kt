@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,16 +22,44 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface ProcessingInstruction : Node {
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
+
+public expect interface ProcessingInstruction : Node, PlatformProcessingInstruction {
+    public override fun getOwnerDocument(): Document
+
     public fun getTarget(): String
 
     public fun getData(): String
 
     public fun setData(data: String)
+
+    @ExperimentalXmlUtilApi
+    override fun getNodeValue(): String
+
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): ProcessingInstruction
+
+    @IgnorableReturnValue
+    override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
+    @IgnorableReturnValue
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    override fun removeChild(node: PlatformNode): Nothing
+
 }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val ProcessingInstruction.target: String get() = getTarget()
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline var ProcessingInstruction.data: String
     get() = getData()
     set(value) { setData(value) }

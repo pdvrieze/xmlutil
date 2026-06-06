@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -71,7 +71,7 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
         visitTerm(ElementNameCollector(collector))
     }
 
-    fun isSiblingName(name: QName) : Boolean {
+    fun isSiblingName(name: QName): Boolean {
         return visitTerm(IsSiblingNameVisitor(name))
     }
 
@@ -123,7 +123,6 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
             is XSGroupRef -> ResolvedGroupRef(rawPart, schema)
             is XSAny -> ResolvedAny(rawPart, schema)
             is XSLocalElement -> IResolvedElementUse(parent, elemPart.cast(), schema)
-            else -> error("Compiler limitation")
         }
 
         internal operator fun invoke(
@@ -143,7 +142,7 @@ class ElementNameCollector(private val collector: MutableList<QName>) : Resolved
         collector.add(element.mdlQName)
     }
 
-    override fun visitAny(any: ResolvedAny) = Unit
+    override fun visitAny(any: ResolvedAny): Unit = Unit
 }
 
 class IsSiblingNameVisitor(private val name: QName) : ResolvedTerm.Visitor<Boolean>() {

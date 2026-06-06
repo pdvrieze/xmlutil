@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -56,8 +56,9 @@ internal object ElementSerializer : XmlSerializer<Element> {
 
     override fun deserializeXML(decoder: Decoder, input: XmlReader, previousValue: Element?, isValueChild: Boolean): Element {
         require(input.eventType == EventType.START_ELEMENT) { "${input.eventType} can not be deserialized as XML element" }
-        val document = previousValue?.ownerDocument ?: createDocument(input.name)
-        val fragment = document.createDocumentFragment()
+        val document = previousValue?.ownerDocument ?: (decoder as? Document2Decoder)?.document ?: createDocument(input.name)
+        val fragment: DocumentFragment = document.createDocumentFragment()
+
         @Suppress("DEPRECATION")
         val out = DomWriter(fragment)
         out.writeElement(null, input)
@@ -100,7 +101,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
                     setAttribute(name, value)
                 }
                 for (node in content) {
-                    appendChild(doc.adoptNode(node))
+                    appendChild(doc.adoptNode(node) ?: doc.importNode(node, true))
                 }
             }
         }
@@ -116,7 +117,7 @@ internal object ElementSerializer : XmlSerializer<Element> {
             if (!namespaceURI.isNullOrEmpty()) {
                 encodeStringElement(descriptor, 0, namespaceURI)
             }
-            encodeStringElement(descriptor, 1, value.getLocalName())
+            encodeStringElement(descriptor, 1, value.getLocalName() ?: value.getTagName())
 
             if (value.getAttributes().size > 0) {
                 val attrIterator: Iterator<Attr> = value.getAttributes().iterator()
@@ -185,7 +186,11 @@ private fun <T> DeserializationStrategy<T>.wrap(document: Document): WrappedDese
 }
 
 private fun writeElem(output: XmlWriter, value: Element) {
-    output.smartStartTag(value.getNamespaceURI(), value.getLocalName(), value.getPrefix()) {
+    val localName = when (value.getNamespaceURI()) {
+        null -> value.getTagName()
+        else -> checkNotNull(value.getLocalName()) { "Missing local name for element" }
+    }
+    output.smartStartTag(value.getNamespaceURI(), localName, value.getPrefix()) {
         for (n: Attr in value.getAttributes()) {
             writeAttr(output, n)
         }

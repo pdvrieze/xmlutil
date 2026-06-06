@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,8 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface Comment : CharacterData
+import nl.adaptivity.xmlutil.dom.PlatformComment
+
+public expect interface Comment : CharacterData, PlatformComment {
+    override fun cloneNode(deep: Boolean): Comment
+}

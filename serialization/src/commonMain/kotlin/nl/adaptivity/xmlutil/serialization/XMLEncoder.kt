@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,6 +20,7 @@
 
 package nl.adaptivity.xmlutil.serialization
 
+import kotlinx.serialization.ContextualSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.builtins.serializer
@@ -386,11 +387,11 @@ internal open class XmlEncoderBase internal constructor(
             OutputKind.Attribute -> {
                 val valueType = xmlDescriptor.getElementDescriptor(1)
                 if (!valueType.effectiveOutputKind.isTextual) {
-                    throw XmlSerialException("Values of an attribute map must be textual or a qname")
+                    throw XmlSerialException("Values of an attribute map must be textual or a qname", xmlDescriptor.friendlyChildName(elementIndex))
                 }
                 val keyType = xmlDescriptor.getElementDescriptor(0)
                 if (!keyType.effectiveOutputKind.isTextual) {
-                    throw XmlSerialException("The keys of an attribute map must be string or qname")
+                    throw XmlSerialException("The keys of an attribute map must be string or qname", xmlDescriptor.friendlyChildName(elementIndex))
                 }
                 AttributeMapEncoder(xmlDescriptor)
             }
@@ -551,8 +552,9 @@ internal open class XmlEncoderBase internal constructor(
 
         @OptIn(ExperimentalXmlUtilApi::class)
         internal fun writeNamespaceDecls() {
+            // Note that these declarations should be written
             for (namespace: Namespace in xmlDescriptor.namespaceDecls) {
-                ensureNamespace(namespace)
+                val _ = target.getOrCreatePrefix(namespace.namespaceURI, namespace.prefix)
             }
         }
 
@@ -616,7 +618,19 @@ internal open class XmlEncoderBase internal constructor(
 
             val effectiveSerializer = elementDescriptor.effectiveSerializationStrategy(serializer)
 
-            defer(index, effectiveSerializer.safeDeferredWrite(encoder, value, isValueChild(index)))
+            if (elementDescriptor !is XmlContextualDescriptor) {
+                defer(index, effectiveSerializer.safeDeferredWrite(encoder, value, isValueChild(index)))
+            } else if (effectiveSerializer is ContextualSerializer<*>) {
+                // Let the contextual serializer do the resolution and defer with the concrete serializer.
+                effectiveSerializer.serializeSafe(encoder, value, isValueChild(index))
+            } else { // should be handled by the encoder, but if not, this will also work
+                val actualDescriptor = elementDescriptor.resolve(this, effectiveSerializer.descriptor)
+                defer(
+                    index,
+                    actualDescriptor,
+                    effectiveSerializer.safeDeferredWrite(encoder, value, isValueChild(index))
+                )
+            }
         }
 
         @ExperimentalSerializationApi
@@ -853,124 +867,22 @@ internal open class XmlEncoderBase internal constructor(
         }
     }
 
-    private fun NamespaceContext.nextAutoPrefix(): String {
-        var prefix: String
-        do {
-            prefix = "n${nextAutoPrefixNo++}"
-        } while (getNamespaceURI(prefix) != null)
-        return prefix
-    }
-
-    private fun ensureNamespace(namespace: Namespace) {
-        if (namespaceContext.getPrefix(namespace.namespaceURI) != null)
-            return
-
-        val effectivePrefix = when {
-            namespaceContext.getNamespaceURI(namespace.prefix) == null -> namespace.prefix
-            else -> namespaceContext.nextAutoPrefix()
-        }
-        target.namespaceAttr(effectivePrefix, namespace.namespaceURI)
-    }
-
     /**
      * Determine/reserve a namespace for this element.
      * Will reuse a prefix if available.
      */
     private fun ensureNamespace(qName: QName, isAttr: Boolean): QName {
-        when {
-            !isAttr -> Unit // This stage is only for attribute handling
-            // for empty namespace uri, force empty prefix
-            qName.namespaceURI == "" -> return qName.copy(prefix = "")
-
-            qName.prefix == "" -> { // the namespace is set
-                val effectivePrefix = target.namespaceContext.getPrefixes(qName.namespaceURI).asSequence()
-                    .firstOrNull { it.isNotEmpty() }
-                    ?: namespaceContext.nextAutoPrefix().also {
-                        target.namespaceAttr(it, qName.namespaceURI)
-                    }
-                return qName.copy(prefix = effectivePrefix)
-            }
-        }
-
-        val registeredNamespace = target.getNamespaceUri(qName.getPrefix())
-
-        // If things match, or no namespace, no need to do anything
-        if (registeredNamespace == qName.namespaceURI) return qName
-
-        val registeredPrefix =
-            target.namespaceContext.getPrefixes(qName.namespaceURI).asSequence().filterNot { isAttr && it.isEmpty() }
-                .firstOrNull()
-
-        return when { // Attributes with empty prefix are always in the default namespace, so if they are to be otherwise
-
-            // There is a prefix to reuse, just reuse that (TODO make configurable)
-            registeredPrefix != null -> qName.copy(prefix = registeredPrefix)
-
-            // If there is a namespace for this prefix, and it doesn't match, create a new prefix
-            registeredNamespace != null -> { // prefix no longer valid
-                val prefix = qName.prefix
-                var lastDigitIdx = prefix.length
-                while (lastDigitIdx > 0 && prefix[lastDigitIdx - 1].isDigit()) {
-                    lastDigitIdx -= 1
-                }
-                val prefixBase: String
-                val prefixStart: Int
-                when {
-                    lastDigitIdx == 0 -> {
-                        prefixBase = "ns"
-                        prefixStart = 0
-                    }
-
-                    lastDigitIdx < prefix.length -> {
-                        prefixBase = prefix.substring(0, lastDigitIdx)
-                        prefixStart = prefix.substring(lastDigitIdx).toInt()
-                    }
-
-                    else -> {
-                        prefixBase = prefix
-                        prefixStart = 0
-                    }
-                }
-                val newPrefix = (prefixStart..Int.MAX_VALUE)
-                    .asSequence()
-                    .map { "${prefixBase}$it" }
-                    .first { target.getNamespaceUri(it) == null }
-
-                target.namespaceAttr(newPrefix, qName.namespaceURI)
-                qName.copy(prefix = newPrefix)
-            }
-
-            else -> { // No existing namespace or prefix
-                target.namespaceAttr(qName.prefix, qName.namespaceURI)
-                qName
-            }
-        }
+        return qName.copy(
+            prefix = target.getOrCreatePrefix(qName.namespaceURI, qName.prefix, isAttr)
+        )
     }
 
     /**
      * Helper function that ensures writing the namespace attribute if needed.
      */
     private fun smartWriteAttribute(name: QName, value: String) {
-        val argPrefix = name.getPrefix()
-        val resolvedNamespace = target.getNamespaceUri(argPrefix)
-        val existingPrefix = target.getPrefix(name.namespaceURI)?.takeIf { it.isNotEmpty() }
-
-        val effectiveQName: QName = when {
-            // Default namespace uses default prefix
-            name.namespaceURI.isEmpty() -> QName(name.localPart)
-
-            // handle case with qname with default prefix but not default namespace (illegal for args)
-            // when the existing prefix is set (which cannot be empty) use that, otherwise ensureNamespace
-            // is more robust.
-            argPrefix.isEmpty() -> existingPrefix?.let { name.copy(it) } ?: ensureNamespace(name, true)
-
-            // If the prefix doesn't resolve to a namespace use the existing name (for non-empty prefix)
-            // this means argPrefix maps to a different namespace (resolvedNamespace == null), but
-            // existingPrefix maps to the correct namespace.
-            resolvedNamespace == null && existingPrefix != null -> name.copy(prefix = existingPrefix)
-
-            else -> ensureNamespace(name, true)
-        }
+        val realPrefix = target.getOrCreatePrefix(name.namespaceURI, name.prefix, true)
+        val effectiveQName = name.copy(prefix = realPrefix)
 
         target.writeAttribute(effectiveQName, value)
     }
@@ -1010,7 +922,10 @@ internal open class XmlEncoderBase internal constructor(
                             }
 
                             OutputKind.Text ->
-                                throw XmlSerialException("the type for a polymorphic child cannot be a text")
+                                throw XmlSerialException(
+                                    "the type for a polymorphic child cannot be a text",
+                                    xmlDescriptor.friendlyChildName(index)
+                                )
                         }
                     } // else if (index == 0) { } // do nothing
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -43,8 +43,10 @@ import java.util.concurrent.TimeUnit
 @State(Scope.Benchmark)
 open class Parsing {
 
+    @Suppress("DEPRECATION")
     val xml = XML.compat {
         recommended_0_87_0()
+        defaultToGenericParser = true
     }
 
     val suites: List<Pair<URL, URL>> by lazy(LazyThreadSafetyMode.NONE) {
@@ -62,6 +64,7 @@ open class Parsing {
 
     @Benchmark
     @Warmup(iterations = 1)
+    @Measurement(time = 2500, timeUnit = TimeUnit.MICROSECONDS)
     fun benchParseSchemas(bh: Blackhole) {
         benchParseSchemas(BlackholeWrapperImpl(bh))
     }

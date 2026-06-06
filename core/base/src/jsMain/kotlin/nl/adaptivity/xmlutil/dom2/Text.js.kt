@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,4 +20,23 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public actual interface Text : CharacterData
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformText
+
+public actual interface Text : CharacterData, PlatformText {
+    public actual override fun cloneNode(deep: Boolean): Text
+
+    @ExperimentalXmlUtilApi
+    public actual fun getWholeText(): String
+
+}
+
+internal fun addTextPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if(inherit) addCharacterDataPropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.wholeText = jsProperty<Text> { getWholeText() }
+/*
+    props.isElementContentWhitespace = jsProperty<Text> { this.isElementContentWhitespace() }
+*/
+    js("Object").defineProperties(prototype, props)
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -38,5 +38,6 @@ inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
 }
 
 fun URL.resolve(path: String): URL {
+    @Suppress("DEPRECATION")
     return URL(this, path)
 }

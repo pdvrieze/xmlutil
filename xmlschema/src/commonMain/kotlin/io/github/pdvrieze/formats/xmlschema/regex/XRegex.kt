@@ -1,26 +1,29 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.regex
 
-import io.github.pdvrieze.formats.xmlschema.regex.impl.*
+import io.github.pdvrieze.formats.xmlschema.regex.impl.XMatchNamedGroupCollection
+import io.github.pdvrieze.formats.xmlschema.regex.impl.XMatchResult
+import io.github.pdvrieze.formats.xmlschema.regex.impl.XPattern
+import io.github.pdvrieze.formats.xmlschema.regex.impl.XRMatchResultImpl
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
 
@@ -128,9 +131,7 @@ public class XRegex internal constructor(internal val nativePattern: XPattern) {
      * @param startIndex An index to start search with, by default 0. Must be not less than zero and not greater than `input.length()`
      * @return An instance of [MatchResult] if match was found or `null` otherwise.
      * @throws IndexOutOfBoundsException if [startIndex] is less than zero or greater than the length of the [input] char sequence.
-     * @sample samples.text.Regexps.find
      */
-    @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
     fun find(input: CharSequence, startIndex: Int = 0): XMatchResult? {
         if (startIndex < 0 || startIndex > input.length) {
             throw IndexOutOfBoundsException("Start index is out of bounds: $startIndex, input length: ${input.length}")
@@ -152,9 +153,7 @@ public class XRegex internal constructor(internal val nativePattern: XPattern) {
      *
      * @throws IndexOutOfBoundsException if [startIndex] is less than zero or greater than the length of the [input] char sequence.
      *
-     * @sample samples.text.Regexps.findAll
      */
-    @Suppress("ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS")
     fun findAll(input: CharSequence, startIndex: Int = 0): Sequence<XMatchResult> {
         if (startIndex < 0 || startIndex > input.length) {
             throw IndexOutOfBoundsException("Start index is out of bounds: $startIndex, input length: ${input.length}")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,6 +27,7 @@ import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringWriter
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
+import nl.adaptivity.xmlutil.core.internal.StringInOutBuffer
 import nl.adaptivity.xmlutil.test.multiplatform.Target
 import nl.adaptivity.xmlutil.test.multiplatform.testTarget
 import kotlin.test.Test
@@ -81,17 +82,89 @@ class TestKtXmlReader : TestCommonReader() {
     }
 
     @Test
-    fun testXmlDecl() {
+    fun testXmlDeclReader() {
         val reader = KtXmlReader(StringReader("<?xml version=\"1.1\" standalone=\"yes\"?>\r<foo>bar</foo>"))
         assertEquals(EventType.START_DOCUMENT, reader.next())
         assertEquals("1.1", reader.version)
         assertEquals(true, reader.standalone)
+        assertEquals(39, reader.getColumnNumber())
+        assertEquals(1, reader.getLineNumber())
 
         assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
         assertEquals("\n", reader.text)
+        assertEquals(1, reader.getColumnNumber())
+        assertEquals(2, reader.getLineNumber())
 
         assertEquals(EventType.START_ELEMENT, reader.next())
         assertEquals("foo", reader.localName)
+        assertEquals(6, reader.getColumnNumber())
+        assertEquals(2, reader.getLineNumber())
+    }
+
+    @Test
+    fun testXmlDeclString() {
+        val reader = KtXmlReader(StringInOutBuffer("<?xml version=\"1.1\" standalone=\"yes\"?>\r<foo>bar</foo>"))
+        assertEquals(EventType.START_DOCUMENT, reader.next())
+        assertEquals("1.1", reader.version)
+        assertEquals(true, reader.standalone)
+        assertEquals(39, reader.getColumnNumber())
+        assertEquals(1, reader.getLineNumber())
+
+        assertEquals(EventType.IGNORABLE_WHITESPACE, reader.next())
+        assertEquals("\n", reader.text)
+        assertEquals(1, reader.getColumnNumber())
+        assertEquals(2, reader.getLineNumber())
+
+        assertEquals(EventType.START_ELEMENT, reader.next())
+        assertEquals("foo", reader.localName)
+        assertEquals(6, reader.getColumnNumber())
+        assertEquals(2, reader.getLineNumber())
+    }
+
+    fun testParseNewline(newLine: String, count: Int = 1) {
+        val xml = "<tag>$newLine</tag>"
+        val reader1 = KtXmlReader(StringReader(xml))
+        assertEquals(EventType.START_ELEMENT, reader1.nextTag())
+        assertEquals(EventType.IGNORABLE_WHITESPACE, reader1.next())
+        assertEquals("\n".repeat(count), reader1.text)
+        assertEquals(EventType.END_ELEMENT, reader1.next())
+        assertEquals(1+count, reader1.getLineNumber())
+        assertEquals(7, reader1.getColumnNumber())
+
+        val reader2 = KtXmlReader(StringInOutBuffer(xml))
+        assertEquals(EventType.START_ELEMENT, reader2.nextTag())
+        assertEquals(EventType.IGNORABLE_WHITESPACE, reader2.next())
+        assertEquals("\n".repeat(count), reader2.text)
+        assertEquals(EventType.END_ELEMENT, reader2.next())
+        assertEquals(1+count, reader2.getLineNumber())
+        assertEquals(7, reader2.getColumnNumber())
+    }
+
+    @Test fun testParseNewlineLF() = testParseNewline("\n")
+    @Test fun testParseNewlineCR() = testParseNewline("\r")
+    @Test fun testParseNewlineCRLF() = testParseNewline("\r\n")
+    @Test fun testParseNewlineCR85() = testParseNewline("\r\u0085")
+    @Test fun testParseNewlineCR2028() = testParseNewline("\r\u2028")
+    @Test fun testParseNewline85() = testParseNewline("\u0085")
+    @Test fun testParseNewline2028() = testParseNewline("\u2028")
+    @Test fun testParseNewlineLFCR() = testParseNewline("\n\r", 2)
+
+    @Test
+    fun testUnquotedAttributeValues() {
+        val xml = "<tag attr='foo' attr2=b&lt;ar attr3=baz/>"
+        val reader = KtXmlReader(StringReader(xml), relaxed = true)
+        assertEquals(EventType.START_ELEMENT, reader.nextTag())
+        assertEquals("tag", reader.localName)
+        assertEquals(3, reader.attributeCount)
+        assertEquals("attr", reader.getAttributeLocalName(0))
+        assertEquals("foo", reader.getAttributeValue(0))
+
+        assertEquals("attr2", reader.getAttributeLocalName(1))
+        assertEquals("b<ar", reader.getAttributeValue(1))
+
+        assertEquals("attr3", reader.getAttributeLocalName(2))
+        assertEquals("baz", reader.getAttributeValue(2))
+
     }
 
     @Test

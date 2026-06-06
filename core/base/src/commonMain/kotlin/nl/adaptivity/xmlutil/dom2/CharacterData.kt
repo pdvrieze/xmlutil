@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -22,33 +22,51 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-public expect interface CharacterData : Node {
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformCharacterData
+import nl.adaptivity.xmlutil.dom.PlatformNode
+
+public expect interface CharacterData : Node, PlatformCharacterData {
+    //region dom 1
     public fun getData(): String
-
     public fun setData(data: String)
-
     public fun substringData(offset: Int, count: Int): String
-
     public fun appendData(data: String)
-
     public fun insertData(offset: Int, data: String)
-
     public fun deleteData(offset: Int, count: Int)
-
     public fun replaceData(offset: Int, count: Int, data: String)
 
-    @IgnorableReturnValue
-    override fun appendChild(node: Node): Nothing
+    //region overrides
+    override fun getNodeValue(): String
+
+    public override fun getOwnerDocument(): Document
 
     @IgnorableReturnValue
-    override fun replaceChild(newChild: Node, oldChild: Node): Nothing
+    override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
-    override fun removeChild(node: Node): Nothing
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    override fun removeChild(node: PlatformNode): Nothing
     override fun getFirstChild(): Nothing?
     override fun getLastChild(): Nothing?
+    @ExperimentalXmlUtilApi
+    override fun getAttributes(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): CharacterData
+
+    //endregion
+
+    //endregion
 }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline var CharacterData.data: String
     get() = getData()
     set(value) { setData(value) }

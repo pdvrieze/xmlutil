@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -49,24 +49,96 @@ public fun isXmlWhitespace(data: CharArray): Boolean = data.all { isXmlWhitespac
  */
 public fun isXmlWhitespace(data: CharSequence): Boolean = data.all { isXmlWhitespace(it) }
 
+@ExperimentalXmlUtilApi
+public fun normalizeWhitespace(representation: CharSequence): String {
+    // optimize for the normalized case
+    var i = 0
+    while (i < representation.length) {
+        when (representation[i]) {
+            '\t', '\n', '\r', '\u0085' -> { break }
+        }
+        i += 1
+    }
+    if (i == representation.length) return representation.toString()
+
+    return buildString(representation.length) {
+        append(representation, 0, i)
+
+        for (j in i until representation.length) {
+            when (val c = representation[j]) {
+                '\t', '\n', '\r', '\u0085' -> append(' ')
+                else -> append(c)
+            }
+        }
+    }
+}
+
+@Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+public fun xmlCollapseWhitespace(original: String): String =
+    xmlCollapseWhitespace(original as CharSequence)
+
 /**
  * Implementation of the XMLSchema whitespace collapsing algorithm. This involves:
  * - Trimming start/end
  * - Replacing all whitespace to space
  * - Shortening all resulting sequences of whitespace to a single space
  */
-public fun xmlCollapseWhitespace(original: String): String = buildString(original.length) {
-    var last = ' ' // Start with space, to trim start of symbol
-    for (c in original) {
-        if (c == '\t' || c == '\n' || c == '\r' || c == ' ') {
-            if (last != ' ') append(' ')
-            last = ' '
-        } else {
-            last = c
-            append(c)
+public fun xmlCollapseWhitespace(original: CharSequence): String {
+    if (original.isEmpty()) return original.toString()
+
+    var initialStart = 0
+    while (initialStart < original.length) {
+        when (original[initialStart]) {
+            '\t', '\n', '\r', ' ' -> initialStart += 1
+            else -> break
         }
     }
-    if (last == ' ' && isNotEmpty()) this.deleteAt(this.length - 1) // make sure to trim
+    if (initialStart == original.length) return ""
+
+    var endOfInitial = initialStart + 1 // the first is not whitespace
+    while (endOfInitial < original.length) {
+        when (original[endOfInitial]) {
+            '\t', '\n', '\r' -> break
+            ' ' if (original[endOfInitial - 1] == ' ') -> break
+        }
+        endOfInitial += 1
+    }
+    if (endOfInitial == original.length) {
+        return when (original.last()) {
+            ' ', '\t', '\n', '\r' -> original.substring(initialStart, original.length - 1)
+            else if (initialStart ==0) -> original.toString()
+            else -> original.substring(initialStart)
+        }
+    }
+    var nextNonWS = endOfInitial
+    if (isXmlWhitespace(original[endOfInitial-1])) endOfInitial -=1
+
+    while (nextNonWS < original.length) {
+        when (original[nextNonWS]) {
+            '\t', '\n', '\r', ' ' -> nextNonWS +=1
+            else -> break
+        }
+    }
+
+    if (nextNonWS == original.length) return original.substring(initialStart, endOfInitial)
+
+    return buildString(original.length) {
+        append(original, initialStart, endOfInitial)
+
+        append(' ') // we are not at the end of string, so add a space here (we can't use the original as it doesn't have to be a space
+        var last = ' ' // Start with space, to trim start of symbol
+        for (idx in nextNonWS until original.length) {
+            val c = original[idx]
+            if (c == '\t' || c == '\n' || c == '\r' || c == ' ') {
+                if (last != ' ') append(' ')
+                last = ' '
+            } else {
+                last = c
+                append(c)
+            }
+        }
+        if (last == ' ' && isNotEmpty()) this.deleteAt(this.length - 1) // make sure to trim
+    }
 }
 
 /**
@@ -74,7 +146,16 @@ public fun xmlCollapseWhitespace(original: String): String = buildString(origina
  * function does not collapse multi-whitespace sequences, but still normalizes to space, and trims
  * start and end.
  */
-public fun xmlTrimWhitespace(original: String): String = buildString(original.length) {
+@Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
+public fun xmlTrimWhitespace(original: String): String =
+    xmlTrimWhitespace(original as CharSequence)
+
+/**
+ * Implementation of the XML whitespace trimming algorithm. Unlike [xmlCollapseWhitespace] this
+ * function does not collapse multi-whitespace sequences, but still normalizes to space, and trims
+ * start and end.
+ */
+public fun xmlTrimWhitespace(original: CharSequence): String = buildString(original.length) {
     var start = -1
     for (i in original.indices) {
         when (original[i]) {

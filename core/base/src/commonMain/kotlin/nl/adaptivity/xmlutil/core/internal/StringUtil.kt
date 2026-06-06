@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -217,8 +217,9 @@ private val NAMECHAR: BooleanArray = BooleanArray(256).also { b ->
     for (c in 0xd8..0xff) b[c] = true
 }
 
+@XmlUtilInternal
 @IgnorableReturnValue
-internal fun Appendable.appendCodepoint(codepoint: Int): Appendable = when {
+public fun Appendable.appendCodepoint(codepoint: Int): Appendable = when {
     codepoint > 0xffff -> {
         val down = codepoint - 0x10000
         val highSurogate = (down shr 10) + 0xd800
@@ -230,3 +231,54 @@ internal fun Appendable.appendCodepoint(codepoint: Int): Appendable = when {
     else -> append(Char(codepoint.toUShort()))
 }
 
+@XmlUtilInternal
+public fun CharSequence.codepointAt(index: Int): Int = when (val c = this[index].code) {
+    in 0xd800..0xdbff -> { //assume high surrugate
+        val lowSurrogate = this[index + 1]
+        return ((c - 0xd800 shl 10)
+                + (lowSurrogate.code - 0xdc00)
+                + 0x10000)
+    }
+    in 0xdc00..0xdfff -> throw IllegalStateException("Unexpected low surrogate at index $index:")
+    else -> c // not a surrogate
+}
+
+/**
+ * Helper function that determines the position of the next code point in the sequence.
+ */
+@XmlUtilInternal
+public fun CharSequence.nextCodePointPos(pos: Int): Int = when {
+    get(pos).isHighSurrogate() -> pos + 2
+    else -> pos + 1
+}
+
+
+@XmlUtilInternal
+@IgnorableReturnValue
+public fun codepointToCharArray(codepoint: Int): CharArray = when {
+    codepoint > 0xffff -> {
+        val down = codepoint - 0x10000
+        val highSurogate = ((down shr 10) + 0xd800)
+        val lowSurogate = (down and 0x3ff) + 0xdc00
+        return charArrayOf(highSurogate.toChar(), lowSurogate.toChar())
+    }
+
+    else -> charArrayOf(codepoint.toChar())
+}
+
+internal fun addDigitToCodePoint(char: Char, isHex: Boolean, current: Int): Int {
+    when (char) {
+        in '0'..'9' -> return (char.code - '0'.code) + when {
+            isHex -> current shl 4
+            else -> current * 10
+        }
+
+        in 'a'..'f' if isHex -> return (current shl 4) + (char.code - 'a'.code + 10)
+
+        in 'A'..'F' if isHex -> return (current shl 4) + (char.code - 'A'.code + 10)
+
+        else -> throw IllegalArgumentException("Unexpected character in character entity: '$char'")
+    }
+}
+
+internal const val DEBUG: Boolean = false

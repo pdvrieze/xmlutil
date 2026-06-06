@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,6 +18,7 @@
  * permissions and limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -34,6 +35,7 @@ plugins {
 config {
     generateJavaModules = false
     kotlinApiVersion = KotlinVersion.DEFAULT
+    generalJvmTarget = JvmTarget.JVM_17
 }
 
 kotlin {
