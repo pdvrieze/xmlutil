@@ -40,3 +40,7 @@ public actual interface NamedNodeMap<out T: Node> : Iterable<T>, PlatformNamedNo
     public actual override fun removeNamedItemNS(namespace: String?, localName: String): T?
     public actual override operator fun iterator(): Iterator<T>
 }
+
+internal fun addNamedNodeMapPropertiesToPrototype(prototype: dynamic) {
+    js("Object").defineProperty(prototype, "length", jsProperty<NamedNodeMap<*>> { getLength() })
+}

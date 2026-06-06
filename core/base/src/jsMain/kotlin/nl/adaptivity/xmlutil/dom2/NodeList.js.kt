@@ -30,3 +30,7 @@ public actual interface NodeList : Iterable<Node>, PlatformNodeList {
     public actual operator fun get(index: Int): Node?
     public actual override operator fun iterator(): Iterator<Node>
 }
+
+internal fun addNodeListPropertiesToPrototype(prototype: dynamic) {
+    js("Object").defineProperty(prototype, "length", jsProperty<NodeList> { getLength() })
+}

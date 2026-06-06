@@ -84,3 +84,17 @@ public actual interface DocumentType : Node, PlatformDocumentType {
     public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
 
 }
+
+internal fun addDocumentTypePropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.name = jsProperty<DocumentType> { getName() }
+    props.entities = jsProperty<DocumentType> { getEntities() }
+    props.notations = jsProperty<DocumentType> { getNotations() }
+    props.publicId = jsProperty<DocumentType> { getPublicId() }
+    props.systemId = jsProperty<DocumentType> { getSystemId() }
+/*
+    props.internalSubset = jsProperty<DocumentType> { getInternalSubset() }
+*/
+    js("Object").defineProperties(prototype, props)
+}

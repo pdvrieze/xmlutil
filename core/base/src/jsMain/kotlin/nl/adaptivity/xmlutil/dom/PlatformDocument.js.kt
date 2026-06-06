@@ -27,38 +27,42 @@ import org.w3c.dom.Document as DomDocument
 
 @JsName("Document")
 public actual external interface PlatformDocument : PlatformNode {
-/*
-    public val implementation: PlatformDOMImplementation
-    public val doctype: PlatformDocumentType?
-    public val documentElement: PlatformElement?
-    public val inputEncoding: String?
-*/
 
+    @JsName("createElement")
     public fun createElement(localName: String): PlatformElement
 
+    @JsName("createElementNS")
     public fun createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
 
+    @JsName("createDocumentFragment")
     public fun createDocumentFragment(): PlatformDocumentFragment
 
+    @JsName("createTextNode")
     public fun createTextNode(data: String): PlatformText
 
+    @JsName("createCDATASection")
     public fun createCDATASection(data: String): PlatformCDATASection
 
+    @JsName("createComment")
     public fun createComment(data: String): PlatformComment
 
+    @JsName("createProcessingInstruction")
     public fun createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction
+
+    @JsName("importNode")
     public fun importNode(node: PlatformNode, deep: Boolean): PlatformNode
 
+    @JsName("adoptNode")
     public fun adoptNode(node: PlatformNode): PlatformNode?
 
+    @JsName("createAttribute")
     public fun createAttribute(localName: String): PlatformAttr
 
+    @JsName("createAttributeNS")
     public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 }
 
 public actual val PlatformDocument.childNodes: PlatformNodeList
-    get() = when (this) {
-        is Document -> getChildNodes()
-        else -> unsafeCast<DomDocument>().childNodes.asDynamic()
-    }
+    get() = unsafeCast<DomDocument>().childNodes.asDynamic()
+
 public actual fun Document.adoptNode(node: PlatformNode): Node2? = adoptNode(node.wrap())

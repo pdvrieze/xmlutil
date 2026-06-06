@@ -82,3 +82,12 @@ public actual interface CharacterData : Node, PlatformCharacterData {
     public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
 
 }
+
+internal fun addCharacterDataPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.data = jsProperty<CharacterData>(getter = { getData() }, setter = { setData(it) })
+    props.length = jsProperty<CharacterData> { getData().length }
+    js("Object").defineProperties(prototype, props)
+
+}

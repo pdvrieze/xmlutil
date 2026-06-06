@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,15 +18,7 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.dom
+package nl.adaptivity.xmlutil.dom2.impl
 
-import org.w3c.dom.ProcessingInstruction as DomProcessingInstruction
-
-@JsName("ProcessingInstruction")
-public actual external interface PlatformProcessingInstruction : PlatformNode
-
-public actual fun PlatformProcessingInstruction.getNodeName(): String =
-    unsafeCast<DomProcessingInstruction>().nodeName
-
-public actual fun PlatformProcessingInstruction.getData(): String =
-    unsafeCast<DomProcessingInstruction>().data
+internal actual fun platformAbstractDomInit() {
+}

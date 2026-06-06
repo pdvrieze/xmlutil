@@ -24,9 +24,33 @@ import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.NodeList
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.addAttrPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addCharacterDataPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addDocumentPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addDocumentTypePropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addElementPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addNamedNodeMapPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addNodeListPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addNodePropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addProcessingInstructionPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.addTextPropertiesToPrototype
+import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
+import nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage
+import nl.adaptivity.xmlutil.dom2.impl.AbstractCharacterData
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
+import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
+import nl.adaptivity.xmlutil.dom2.impl.AbstractElement
+import nl.adaptivity.xmlutil.dom2.impl.AbstractNode
+import nl.adaptivity.xmlutil.dom2.impl.AbstractProcessingInstruction
+import nl.adaptivity.xmlutil.dom2.impl.AbstractText
+import nl.adaptivity.xmlutil.dom2.impl.EmptyNodeList
+import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
+import nl.adaptivity.xmlutil.dom2.impl.LinkedNodeList
+import nl.adaptivity.xmlutil.dom2.impl.NodeListImpl
 import org.w3c.dom.DocumentFragment
 import org.w3c.dom.Attr as DomAttr
 import org.w3c.dom.CDATASection as DomCDATASection
@@ -164,6 +188,23 @@ internal abstract class JsWrappedNode<out N : DomNode>(delegate: N) : Node {
         return delegate.isEqualNode(other.unWrap())
     }
 
+
+    companion object {
+        init {
+            addNodePropertiesToPrototype(JsWrappedNode::class.js.asDynamic().prototype)
+            addAttrPropertiesToPrototype(JsWrappedAttr::class.js.asDynamic().prototype, false)
+            addCharacterDataPropertiesToPrototype(JsWrappedCharacterData::class.js.asDynamic().prototype, false)
+            addDocumentPropertiesToPrototype(JsWrappedDocument::class.js.asDynamic().prototype, false)
+            addDocumentTypePropertiesToPrototype(JsWrappedDocumentType::class.js.asDynamic().prototype, false)
+            addElementPropertiesToPrototype(JsWrappedElement::class.js.asDynamic().prototype, false)
+            addNamedNodeMapPropertiesToPrototype(JsWrappedNamedNodeMap::class.js.asDynamic().prototype)
+
+            addNodeListPropertiesToPrototype(JsWrappedNodeList::class.js.asDynamic().prototype)
+
+            addProcessingInstructionPropertiesToPrototype(JsWrappedProcessingInstruction::class.js.asDynamic().prototype, false)
+            addTextPropertiesToPrototype(JsWrappedText::class.js.asDynamic().prototype, false)
+        }
+    }
 }
 
 

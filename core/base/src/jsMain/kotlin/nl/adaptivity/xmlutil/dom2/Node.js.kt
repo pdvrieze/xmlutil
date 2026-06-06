@@ -55,39 +55,49 @@ public actual interface Node : PlatformNode {
 
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
+    @JsName("appendChild")
     public actual fun appendChild(node: PlatformNode): Node
 
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
+    @JsName("replaceChild")
     public actual fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node
 
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
+    @JsName("removeChild")
     public actual fun removeChild(node: PlatformNode): Node
 
     @ExperimentalXmlUtilApi
+    @JsName("hasChildNodes")
     public actual fun hasChildNodes(): Boolean
 
     @ExperimentalXmlUtilApi
     public actual fun getAttributes(): NamedNodeMap<Attr>?
 
     @ExperimentalXmlUtilApi
+    @JsName("hasAttributes")
     public actual fun hasAttributes(): Boolean
 
+    @JsName("cloneNode")
     @ExperimentalXmlUtilApi
     public actual fun cloneNode(deep: Boolean): Node
 
+    @JsName("normalize")
     @ExperimentalXmlUtilApi
     public actual fun normalize()
 
     @ExperimentalXmlUtilApi
     @IgnorableReturnValue
+    @JsName("insertBefore")
     public actual fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
     @ExperimentalXmlUtilApi
+    @JsName("isSameNode")
     public actual fun isSameNode(other: PlatformNode): Boolean
 
     @ExperimentalXmlUtilApi
+    @JsName("isEqualNode")
     public actual fun isEqualNode(other: PlatformNode): Boolean
 
     @ExperimentalXmlUtilApi
@@ -98,7 +108,9 @@ public actual interface Node : PlatformNode {
     public actual fun getNamespaceURI(): String?
     public actual fun getPrefix(): String?
     public actual fun getLocalName(): String?
+
     @ExperimentalXmlUtilApi
+    @JsName("isDefaultNamespace")
     public actual fun isDefaultNamespace(namespaceURI: String): Boolean
 
 
@@ -123,7 +135,68 @@ public actual interface Node : PlatformNode {
     @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     public fun removeChild(node: Node): Node = removeChild(node.unsafeCast<PlatformNode>())
+}
 
+internal fun addNodePropertiesToPrototype(prototype: dynamic) {
+    val props = js("{}")
+    props.nodeName = jsProperty<Node> { getNodeName() }
+    props.nodeValue = jsProperty<Node>(getter = { getNodeValue() }, setter = { setNodeValue(it) })
+    props.nodeType = jsProperty<Node> { getNodetype().value }
+    props.parentNode = jsProperty<Node> { getParentNode() }
+    props.childNodes = jsProperty<Node> { getChildNodes() }
+    props.firstChild = jsProperty<Node> { getFirstChild() }
+    props.lastChild = jsProperty<Node> { getLastChild() }
+    props.previousSibling = jsProperty<Node> { getPreviousSibling() }
+    props.nextSibling = jsProperty<Node> { getNextSibling() }
+    props.attributes = jsProperty<Node> { getAttributes() }
+    props.ownerDocument = jsProperty<Node> { getOwnerDocument() }
+    props.namespaceURI = jsProperty<Attr> { getNamespaceURI() }
+    props.prefix = jsProperty<Attr> { getPrefix() }
+    props.localName = jsProperty<Attr> { getLocalName() }
+    props.baseURI = jsProperty<Node> { getBaseURI() }
+    props.textContent = jsProperty<Node> { getTextContent() }
+
+    js("Object").defineProperties(prototype, props)
+}
+
+internal fun <T: Any> jsProperty(
+    configurable: Boolean = true,
+    enumerable: Boolean = true,
+    getter: T.() -> Any?
+): dynamic {
+    val obj = js("{}")
+    obj.configurable = configurable
+    obj.enumerable = enumerable
+    obj.get = { js("this").getter() }
+    return obj
+}
+
+internal fun jsProperty(
+    configurable: Boolean = true,
+    enumerable: Boolean = true,
+    writable: Boolean = false,
+    value: Any?,
+): dynamic {
+    val obj = js("{}")
+    obj.configurable = configurable
+    obj.enumerable = enumerable
+    obj.writable = writable
+    obj.value = value
+    return obj
+}
+
+internal fun <T: Any> jsProperty(
+    configurable: Boolean = true,
+    enumerable: Boolean = true,
+    getter: T.() -> Any?,
+    setter: T.(dynamic) -> Unit
+): dynamic {
+    val obj = js("{}")
+    obj.configurable = configurable
+    obj.enumerable = enumerable
+    obj.get = { js("this").getter() }
+    obj.set = { v: dynamic -> js("this").setter(v) }
+    return obj
 }
 
 @IgnorableReturnValue

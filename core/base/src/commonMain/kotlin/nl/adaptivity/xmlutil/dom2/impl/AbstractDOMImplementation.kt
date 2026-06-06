@@ -51,5 +51,4 @@ public abstract class AbstractDOMImplementation : DOMImplementation {
         qualifiedName: String?,
         documentType: DocumentType?
     ): AbstractDocument<*, *>
-
 }

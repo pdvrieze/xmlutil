@@ -25,20 +25,18 @@ import org.w3c.dom.NodeList as DomNodeList
 
 @JsName("NodeList")
 public actual external interface PlatformNodeList {
-/*
-    public val length: Int
-*/
+    @JsName("item")
     public fun item(index: Int): PlatformNode?
 }
 
-public actual val PlatformNodeList.length: Int get() = when (this) {
-    is NodeList -> getLength()
-    else -> unsafeCast<DomNodeList>().length
-}
+public actual val PlatformNodeList.length: Int
+    get() = unsafeCast<DomNodeList>().length
 
 private class NodeListIterator(private val list: PlatformNodeList) : Iterator<PlatformNode> {
     private var index = 0
+
     override fun hasNext(): Boolean = index < list.length
+
     override fun next(): PlatformNode = list.item(index++)!!
 }
 

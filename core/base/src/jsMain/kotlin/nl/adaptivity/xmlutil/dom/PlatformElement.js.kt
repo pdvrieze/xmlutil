@@ -20,61 +20,72 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.dom2.Element
 import org.w3c.dom.Element as DomElement
 
 @JsName("Element")
 public actual external interface PlatformElement : PlatformNode {
-/*
-    override val ownerDocument: PlatformDocument
-*/
 
+    @JsName("getAttribute")
     public fun getAttribute(qualifiedName: String): String?
+
+    @JsName("getAttributeNS")
     public fun getAttributeNS(namespace: String?, localName: String): String?
+
+    @JsName("setAttribute")
     public fun setAttribute(qualifiedName: String, value: String)
+
+    @JsName("setAttributeNS")
     public fun setAttributeNS(namespace: String?, cName: String, value: String)
+
+    @JsName("removeAttribute")
     public fun removeAttribute(qualifiedName: String)
+
+    @JsName("removeAttributeNS")
     public fun removeAttributeNS(namespace: String?, localName: String)
+
+    @JsName("hasAttribute")
     public fun hasAttribute(qualifiedName: String): Boolean
+
+    @JsName("hasAttributeNS")
     public fun hasAttributeNS(namespace: String?, localName: String): Boolean
+
+    @JsName("getAttributeNode")
     public fun getAttributeNode(qualifiedName: String): PlatformAttr?
+
+    @JsName("getAttributeNodeNS")
     public fun getAttributeNodeNS(namespace: String?, localName: String): PlatformAttr?
+
+    @JsName("setAttributeNode")
     public fun setAttributeNode(attr: PlatformAttr): PlatformAttr?
+
+    @JsName("setAttributeNodeNS")
     public fun setAttributeNodeNS(attr: PlatformAttr): PlatformAttr?
+
+    @JsName("removeAttributeNode")
     public fun removeAttributeNode(attr: PlatformAttr): PlatformAttr
+
+    @JsName("getElementsByTagName")
     public fun getElementsByTagName(qualifiedName: String): PlatformNodeList
+
+    @JsName("getElementsByTagNameNS")
     public fun getElementsByTagNameNS(namespace: String?, localName: String): PlatformNodeList
 }
 
 
 public actual val PlatformElement.namespaceURI: String?
-    get() = when (this) {
-        is Element -> getNamespaceURI()
-        else -> unsafeCast<DomElement>().namespaceURI
-    }
+    get() = unsafeCast<DomElement>().namespaceURI
 
 public actual val PlatformElement.prefix: String?
-    get() = when (this) {
-        is Element -> getPrefix()
-        else -> unsafeCast<DomElement>().prefix
-    }
+    get() = unsafeCast<DomElement>().prefix
+
 public actual val PlatformElement.name: String
-    get() = when (this) {
-        is Element -> getTagName()
-        else -> unsafeCast<DomElement>().tagName
-    }
+    get() = unsafeCast<DomElement>().tagName
+
 public actual val PlatformElement.localName: String
-    get() = when (this) {
-        is Element -> getLocalName() ?: getTagName()
-        else -> unsafeCast<DomElement>().localName
-    }
+    get() = unsafeCast<DomElement>().localName
+
 public actual val PlatformElement.attributes: PlatformNamedNodeMap
-    get() = when (this) {
-        is Element -> getAttributes()
-        else -> unsafeCast<DomElement>().attributes.asDynamic()
-    }
+    get() = unsafeCast<DomElement>().attributes.asDynamic()
+
 public actual val PlatformElement.childNodes: PlatformNodeList
-    get() = when (this) {
-        is Element -> getChildNodes()
-        else -> unsafeCast<DomElement>().childNodes.asDynamic()
-    }
+    get() = unsafeCast<DomElement>().childNodes.asDynamic()

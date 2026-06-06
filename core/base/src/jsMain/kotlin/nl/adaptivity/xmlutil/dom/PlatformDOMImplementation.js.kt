@@ -22,8 +22,10 @@ package nl.adaptivity.xmlutil.dom
 
 @JsName("DOMImplementation")
 public actual external interface PlatformDOMImplementation {
+    @JsName("createDocumentType")
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): PlatformDocumentType
 
+    @JsName("createDocument")
     public fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): PlatformDocument
 }
 

@@ -30,3 +30,13 @@ public actual interface Text : CharacterData, PlatformText {
     public actual fun getWholeText(): String
 
 }
+
+internal fun addTextPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if(inherit) addCharacterDataPropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.wholeText = jsProperty<Text> { getWholeText() }
+/*
+    props.isElementContentWhitespace = jsProperty<Text> { this.isElementContentWhitespace() }
+*/
+    js("Object").defineProperties(prototype, props)
+}

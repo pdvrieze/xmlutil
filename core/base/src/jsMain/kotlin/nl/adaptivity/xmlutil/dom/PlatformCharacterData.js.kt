@@ -20,19 +20,9 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.dom2.CharacterData
 import org.w3c.dom.CharacterData as DomCharacterData
 
 @JsName("CharacterData")
-public actual external interface PlatformCharacterData : PlatformNode {
-/*
-    override val ownerDocument: PlatformDocument
+public actual external interface PlatformCharacterData : PlatformNode
 
-    public var data: String
-*/
-}
-
-public actual fun PlatformCharacterData.getData(): String = when (this) {
-    is CharacterData -> getData()
-    else -> unsafeCast<DomCharacterData>().data
-}
+public actual fun PlatformCharacterData.getData(): String = unsafeCast<DomCharacterData>().data

@@ -29,3 +29,12 @@ public actual interface Notation : Node, PlatformNotation {
     public actual fun getSystemId(): String?
 }
 
+internal fun addNotationPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.publicId = jsProperty<Entity> { getPublicId() }
+    props.systemId = jsProperty<Entity> { getSystemId() }
+    js("Object").defineProperties(prototype, props)
+}
+
+

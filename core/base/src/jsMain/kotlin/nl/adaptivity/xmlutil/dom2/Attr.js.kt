@@ -79,3 +79,23 @@ public actual interface Attr : Node, PlatformAttr {
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
 }
+
+internal fun addAttrPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if(inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+
+    props.name = jsProperty<Attr> { getName() }
+    /*
+        prototype.specified = jsProperty<Attr> { isSpecified() }
+    */
+    props.value = jsProperty<Attr>(getter = { getValue() }, setter = { setValue(it.asDynamic()) })
+    props.ownerElement = jsProperty<Attr> { getOwnerElement() }
+    /*
+    prototype.schemaTypeInfo = jsProperty<Attr> { getSchemaTypeInfo() }
+    */
+    props.isId = jsProperty<Attr> { isId() }
+
+    js("Object").defineProperties(prototype, props)
+
+}
+

@@ -52,3 +52,11 @@ public actual interface ProcessingInstruction : Node, PlatformProcessingInstruct
     actual override fun removeChild(node: PlatformNode): Nothing
 
 }
+
+internal fun addProcessingInstructionPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.target = jsProperty<ProcessingInstruction> { getTarget() }
+    props.data = jsProperty<ProcessingInstruction>(getter = { getData() }, setter = { setData(it) })
+    js("Object").defineProperties(prototype, props)
+}

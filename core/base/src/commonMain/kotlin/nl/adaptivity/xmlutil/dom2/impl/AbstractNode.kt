@@ -112,4 +112,12 @@ internal constructor(
     override fun normalize() {
         // Do nothing
     }
+
+    public companion object {
+        init {
+            platformAbstractDomInit()
+        }
+    }
 }
+
+internal expect fun platformAbstractDomInit()

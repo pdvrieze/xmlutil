@@ -26,20 +26,32 @@ import org.w3c.dom.NamedNodeMap as DomNamedNodeMap
 @JsName("NamedNodeMap")
 public actual external interface PlatformNamedNodeMap {
 
+    @JsName("item")
     public fun item(index: Int): PlatformNode?
+
+    @JsName("getNamedItem")
     public fun getNamedItem(qualifiedName: String): PlatformNode?
+
+    @JsName("getNamedItemNS")
     public fun getNamedItemNS(namespace: String?, localName: String): PlatformNode?
+
+    @JsName("setNamedItem")
     public fun setNamedItem(attr: PlatformNode): PlatformNode?
+
+    @JsName("setNamedItemNS")
     public fun setNamedItemNS(attr: PlatformNode): PlatformNode?
+
+    @JsName("removeNamedItem")
     public fun removeNamedItem(qualifiedName: String): PlatformNode?
+
+    @JsName("removeNamedItemNS")
     public fun removeNamedItemNS(namespace: String?, localName: String): PlatformNode?
 
 }
 
-public actual val PlatformNamedNodeMap.length: Int get() = when (this) {
-    is NamedNodeMap<*> -> getLength()
-    else -> unsafeCast<DomNamedNodeMap>().length
-}
+public actual val PlatformNamedNodeMap.length: Int
+    get() = unsafeCast<DomNamedNodeMap>().length
+
 public actual fun PlatformNamedNodeMap.getNamedItemNS(namespace: String?, localName: String): PlatformNode? {
     return getNamedItemNS(namespace, localName)
 }

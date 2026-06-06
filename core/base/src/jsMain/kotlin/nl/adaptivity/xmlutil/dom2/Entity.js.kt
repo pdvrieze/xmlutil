@@ -26,3 +26,17 @@ public actual interface Entity : Node, PlatformEntity {
     public actual fun getPublicId(): String?
     public actual fun getSystemId(): String?
 }
+
+internal fun addEntityPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.publicId = jsProperty<Entity> { getPublicId() }
+    props.systemId = jsProperty<Entity> { getSystemId()}
+/*
+    props.notationName = jsProperty<Entity> { getNotationName() }
+    props.inputEncoding = jsProperty<Entity> { getInputEncoding() }
+    props.xmlEncoding = jsProperty<Entity> { getXmlEncoding() }
+    props.xmlVersion = jsProperty<Entity> { getXmlVersion() }
+*/
+    js("Object").defineProperties(prototype, props)
+}

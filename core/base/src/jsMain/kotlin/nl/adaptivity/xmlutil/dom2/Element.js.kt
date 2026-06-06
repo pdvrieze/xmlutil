@@ -56,3 +56,9 @@ public actual interface Element : Node, PlatformElement {
 
     public override val nodeType: Short get() = NodeConsts.ELEMENT_NODE
 }
+
+
+internal fun addElementPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    js("Object").defineProperty(prototype, "tagName", jsProperty<Element> { getTagName() })
+}

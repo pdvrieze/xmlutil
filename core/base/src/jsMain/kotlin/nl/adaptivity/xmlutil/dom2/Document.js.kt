@@ -58,6 +58,24 @@ public actual interface Document : Node, PlatformDocument {
 
 }
 
+internal fun addDocumentPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if(inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.doctype = jsProperty<Document> { getDoctype() }
+    props.implementation = jsProperty<Document> { getImplementation() }
+    props.documentElement = jsProperty<Document> { getDocumentElement() }
+    props.inputEncoding = jsProperty<Document> { getInputEncoding() }
+
+    /*
+    props.xmlEncoding = jsProperty<Document> { getXmlEncoding() }
+    props.xmlStandalone = jsProperty<Document> { getXmlStandalone() }
+    props.xmlVersion = jsProperty<Document> { getXmlVersion() }
+    props.domConfig = jsProperty<Document> { getDomConfig() }
+     */
+    js("Object").defineProperties(prototype, props)
+
+}
+
 public actual fun Document.importNode(
     node: PlatformNode,
     deep: Boolean

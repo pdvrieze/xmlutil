@@ -22,21 +22,11 @@ package nl.adaptivity.xmlutil.dom
 
 @JsName("Node")
 public actual external interface PlatformNode {
-/*
-    public val nodeName: String
-    public val ownerDocument: PlatformDocument?
-    public val parentNode: PlatformNode?
-    public val parentElement: PlatformElement?
-    public val childNodes: PlatformNodeList
-    public val firstChild: PlatformNode?
-    public val lastChild: PlatformNode?
-    public val previousSibling: PlatformNode?
-    public val nextSibling: PlatformNode?
-    public var nodeValue: String?
-    public var textContent: String?
-*/
 
+    @JsName("lookupPrefix")
     public fun lookupPrefix(namespace: String): String?
+
+    @JsName("lookupNamespaceURI")
     public fun lookupNamespaceURI(prefix: String): String?
 
 }

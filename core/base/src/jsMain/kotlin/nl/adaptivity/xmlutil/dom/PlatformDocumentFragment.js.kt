@@ -20,18 +20,10 @@
 
 package nl.adaptivity.xmlutil.dom
 
-import nl.adaptivity.xmlutil.dom2.DocumentFragment
 import org.w3c.dom.DocumentFragment as DomDocumentFragment
 
 @JsName("DocumentFragment")
-public actual external interface PlatformDocumentFragment : PlatformNode {
-/*
-    override val ownerDocument: PlatformDocument?
-*/
-}
+public actual external interface PlatformDocumentFragment : PlatformNode
 
 public actual val PlatformDocumentFragment.childNodes: PlatformNodeList
-    get() = when (this) {
-        is DocumentFragment -> getChildNodes()
-        else -> unsafeCast<DomDocumentFragment>().childNodes.asDynamic()
-    }
+    get() = unsafeCast<DomDocumentFragment>().childNodes.asDynamic()
