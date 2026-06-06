@@ -113,7 +113,7 @@ class ProjectPlugin @Inject constructor(
             dokkaModuleName.convention(project.provider { project.name })
             dokkaVersion.convention(project.provider { project.version.toString() })
             dokkaOverrideTarget.convention(project.provider { null })
-            applyLayout.convention(true)
+            applyLayout.convention(false)
             val apiVer = libs.findVersion("apiVersion").getOrNull()
                 ?.run { requiredVersion.let { KotlinVersion.fromVersion(it) } }
                 ?: KotlinVersion.KOTLIN_2_2

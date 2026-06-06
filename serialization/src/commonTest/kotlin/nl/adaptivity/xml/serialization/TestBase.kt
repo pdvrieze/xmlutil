@@ -346,3 +346,10 @@ inline fun XML.XmlCompanion<XmlConfig.DefaultBuilder>.pedantic(serializersModule
     invoke(serializersModule, { -> policy { pedantic = true }; configure() })
 
 expect fun PlatformDOMImplementation.parse(input: String): Document
+
+internal fun parseWithDomWriter(input: String): Document {
+    val dw = DomWriter()
+    val r = xmlStreaming.newReader(input)
+    while (r.hasNext()) { val _ = r.next(); r.writeCurrent(dw) }
+    return dw.target
+}

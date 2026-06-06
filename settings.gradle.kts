@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -52,11 +52,11 @@ val includeSchema = providers.gradleProperty("excludeSchema").map {
 rootProject.name = "xmlutil"
 
 include(":serialutil")
-include("coreCompat")
+include("core-compat")
 include("core")
 include("coreJdk")
 include("coreAndroid")
-include("coreKXIO")
+include("core-io")
 
 include(":serialization")
 include(":serialization-io")
@@ -72,8 +72,8 @@ if (includeSchema) {
 project(":core").projectDir = file("core/base")
 project(":coreJdk").projectDir = file("core/jdk")
 project(":coreAndroid").projectDir = file("core/android")
-project(":coreCompat").projectDir = file("core/compat")
-project(":coreKXIO").projectDir = file("core/kxio")
+project(":core-compat").projectDir = file("core/compat")
+project(":core-io").projectDir = file("core/kxio")
 
 include(":xmlutil-bom")
 project(":xmlutil-bom").projectDir = file("bom")

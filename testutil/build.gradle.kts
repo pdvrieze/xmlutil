@@ -40,11 +40,13 @@ plugins {
 }
 
 base {
-    archivesName = "xmltestutil"
+    group = "io.github.pdvrieze"
+    archivesName = "testutil"
 }
 
 config {
     kotlinApiVersion = KotlinVersion.DEFAULT
+    applyLayout = true
 }
 
 val moduleName = "io.github.pdvrieze.testutil"
@@ -106,15 +108,8 @@ kotlin {
 
 addNativeTargets()
 
-doPublish()
+doPublish("testutil")
 
 config {
     dokkaModuleName = "testutil"
-}
-
-
-idea {
-    module {
-        name = "xmlutil-testutil"
-    }
 }

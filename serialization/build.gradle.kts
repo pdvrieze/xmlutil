@@ -22,7 +22,6 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
@@ -46,7 +45,6 @@ base {
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
 
     @OptIn(ExperimentalAbiValidation::class)
@@ -151,7 +149,6 @@ kotlin {
                 runtimeOnly(projects.core)
             }
         }
-        val commonJvmMain by getting {}
 
         val jsMain by getting {
             dependencies {
@@ -185,6 +182,7 @@ kotlin {
 
 config {
     createAndroidCompatComponent = true
+    applyLayout = true
 }
 
 addNativeTargets()

@@ -19,7 +19,6 @@
  */
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -40,12 +39,11 @@ plugins {
 }
 
 config {
-    applyLayout = false
+    applyLayout = true
     allWarningsAsErrors = false
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
 
     @OptIn(ExperimentalAbiValidation::class)
@@ -75,15 +73,10 @@ kotlin {
     }
 
 
-    jvm("jvmCommon") {
+    jvm {
         compilations.all {
             val targetTestTask = tasks.named<Test>("${target.name}Test")
             testTask.configure { dependsOn(targetTestTask) }
-	    /*
-            cleanTestTask.configure {
-                dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-            }
-	    */
         }
         tasks.withType<Jar>().named(artifactsTaskName) {
             from(project.file("src/r8-workaround.pro")) {
@@ -156,7 +149,7 @@ kotlin {
             }
         }
 
-        val jvmCommonTest by getting {
+        val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)

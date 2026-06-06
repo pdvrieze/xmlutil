@@ -20,7 +20,6 @@
 
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
@@ -54,13 +53,13 @@ val autoModuleName = "net.devrieze.xmlutil.xmlserializable"
 val testTask = tasks.create("test") {
     group = "verification"
 }
+
 val cleanTestTask = tasks.create("cleanTest") {
     group = "verification"
 }
 
 kotlin {
     explicitApi()
-    applyDefaultXmlUtilHierarchyTemplate()
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {

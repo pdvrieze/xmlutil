@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -76,7 +76,7 @@ dependencies {
     dokka(projects.core)
     dokka(projects.coreJdk)
     dokka(projects.coreAndroid)
-    dokka(projects.coreKXIO)
+    dokka(projects.coreIo)
     dokka(projects.serialization)
     dokka(projects.serializationIo)
     dokka(projects.serialutil)

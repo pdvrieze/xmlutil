@@ -21,7 +21,6 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
@@ -38,13 +37,18 @@ plugins {
     idea
 }
 
+config {
+    dokkaModuleName = "xmlschema"
+    applyLayout = true
+//    allWarningsAsErrors = false
+}
+
 base {
     archivesName = "xmlschema"
     description = "A simple library for serializing/deserializing xmlschema"
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
     jvm {
         attributes {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
@@ -114,11 +118,6 @@ tasks.named<Test>("jvmTest") {
 addNativeTargets(includeWasm = false, includeWasi = false)
 
 //doPublish()
-
-config {
-    dokkaModuleName = "xmlschema"
-//    allWarningsAsErrors = false
-}
 
 idea {
     module {

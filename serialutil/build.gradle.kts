@@ -21,7 +21,6 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -49,8 +48,6 @@ config {
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
-
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
 

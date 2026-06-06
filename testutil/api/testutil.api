@@ -78,7 +78,7 @@ public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
 	public fun testWhiteSpaceWithEntity ()V
 }
 
-public final class nl/adaptivity/xmlutil/test/multiplatform/Platform_commonJvmKt {
+public final class nl/adaptivity/xmlutil/test/multiplatform/Platform_jvmKt {
 	public static final fun getTestTarget ()Lnl/adaptivity/xmlutil/test/multiplatform/Target;
 }
 

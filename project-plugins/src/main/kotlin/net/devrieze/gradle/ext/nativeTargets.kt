@@ -30,6 +30,8 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -68,21 +70,10 @@ private val defaultXmlUtilHierarchyTemplate = KotlinHierarchyTemplate {
     withSourceSetTree(KotlinSourceSetTree.main, KotlinSourceSetTree.test)
 
     common {
-        withCompilations { c -> c.target.platformType !in arrayOf(KotlinPlatformType.jvm, KotlinPlatformType.wasm) }
+        withCompilations { true }
 
-        group("javaShared") {
-            withCompilations { c ->
-                c.target.platformType == KotlinPlatformType.jvm && "jvm" !in c.target.name
-            }
-
-            group("commonJvm") {
-                withCompilations { c ->
-                    c.target.platformType == KotlinPlatformType.jvm && "jvm" in c.target.name
-                }
-            }
-        }
-
-        group("commonDom") {
+        group("nativeOrWasm") {
+            withCompilations { it.platformType in arrayOf(KotlinPlatformType.native,KotlinPlatformType.wasm) }
 
             group("wasmCommon") {
                 withWasmJs()
@@ -90,6 +81,8 @@ private val defaultXmlUtilHierarchyTemplate = KotlinHierarchyTemplate {
             }
 
             group("native") {
+                withNative()
+
                 group("apple") {
                     withApple()
 

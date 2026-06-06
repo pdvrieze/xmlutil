@@ -1,5 +1,4 @@
 public final class nl/adaptivity/xmlutil/jdk/StAXReader : nl/adaptivity/xmlutil/XmlReader {
-	public static final field EXPAND_ENTITIES_PROP Ljava/lang/String;
 	public fun <init> (Ljava/io/InputStream;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;)V
 	public fun <init> (Ljava/io/InputStream;Ljava/lang/String;Z)V
