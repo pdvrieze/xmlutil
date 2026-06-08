@@ -45,8 +45,9 @@ sealed class ResolvedGroupParticleTermBase<T : ResolvedModelGroup>(
 
     val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return super<ResolvedGroupParticle>.flatten(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun flatten(): FlattenedParticle {
+        return super<ResolvedGroupParticle>.flatten()
     }
 
     override fun isSiblingName(name: QName): Boolean {

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -32,7 +32,8 @@ interface IResolvedAll : ResolvedModelGroup {
     override val mdlParticles: List<ResolvedParticle<ResolvedTerm>>
     override val mdlCompositor: Compositor get() = Compositor.ALL
 
-    override fun checkTerm(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    override fun checkTerm() {
         val seenWildcards = mutableListOf<ResolvedAny>()
         // super just calls check on the particles
         for (particle in mdlParticles) {
@@ -44,7 +45,7 @@ interface IResolvedAll : ResolvedModelGroup {
                 }
                 seenWildcards.add(particle)
             }
-            particle.checkParticle(checkHelper)
+            particle.checkParticle()
             if (checkHelper.version == SchemaVersion.V1_0) {
                 val maxOccurs = particle.mdlMaxOccurs
                 check(maxOccurs <= VAllNNI(1uL)) {
@@ -66,12 +67,13 @@ interface IResolvedAll : ResolvedModelGroup {
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAll(this)
 
-    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
+    context(checkHelper: CheckHelper)
+    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean): FlattenedParticle {
         val particles = mutableListOf<FlattenedParticle>()
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName, checkHelper)
+            val f = p.flatten(::isSiblingName)
             if (f.maxOccurs == VAllNNI.ZERO) continue // skip it
             particles.add(f)
             for(startElem in f.startingTerms()) {

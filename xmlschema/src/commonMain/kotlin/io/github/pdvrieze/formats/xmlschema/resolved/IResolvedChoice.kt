@@ -36,17 +36,17 @@ interface IResolvedChoice : ResolvedModelGroup {
         return visitor.visitChoice(this)
     }
 
+    context(checkHelper: CheckHelper)
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean,
-        checkHelper: CheckHelper
+        isSiblingName: (QName) -> Boolean
     ): FlattenedParticle {
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
 
         val particles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName, checkHelper)
+            val f = p.flatten(::isSiblingName)
 
             when {
                 f is FlattenedGroup.Choice && f.range.isSimple -> particles.addAll(f.particles)
@@ -93,9 +93,10 @@ interface IResolvedChoice : ResolvedModelGroup {
         } ?: FlattenedGroup.Choice(range, particles, checkHelper.version)
     }
 
-    override fun checkTerm(checkHelper: CheckHelper) {
-        super.checkTerm(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun checkTerm() {
+        super.checkTerm()
         // Trigger flatten check
-        val _ = flatten(checkHelper)
+        val _ = flatten()
     }
 }

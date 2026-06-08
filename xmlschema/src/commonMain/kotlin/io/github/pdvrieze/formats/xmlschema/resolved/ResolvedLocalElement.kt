@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -98,8 +98,9 @@ class ResolvedLocalElement private constructor(
         return super<ResolvedElement>.isSiblingName(name)
     }
 
-    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return super<ResolvedElement>.flatten(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun flatten(): FlattenedParticle {
+        return super<ResolvedElement>.flatten()
     }
 
     override fun toString(): String {

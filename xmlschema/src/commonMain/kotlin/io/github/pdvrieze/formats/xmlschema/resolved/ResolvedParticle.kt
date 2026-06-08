@@ -76,12 +76,13 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     }
 
 
-    fun checkParticle(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    fun checkParticle() {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         if (mdlTerm is IResolvedAll) {
             check(mdlMaxOccurs == VAllNNI.ONE) { "all: maxOccurs must be 1" }
         }
-        mdlTerm.checkTerm(checkHelper)
+        mdlTerm.checkTerm()
     }
 
     fun mdlIsEmptiable(): Boolean {
@@ -98,14 +99,16 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     fun <R> visitTerm(visitor: ResolvedTerm.Visitor<R>): R = mdlTerm.visit(visitor)
 
-    fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return flatten(::isSiblingName, checkHelper)
+    context(checkHelper: CheckHelper)
+    fun flatten(): FlattenedParticle {
+        return flatten(::isSiblingName)
     }
 
-    fun flatten(isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
+    context(checkHelper: CheckHelper)
+    fun flatten(isSiblingName: (QName) -> Boolean): FlattenedParticle {
         return when (mdlMaxOccurs) {
             VAllNNI.ZERO -> FlattenedGroup.EMPTY
-            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName, checkHelper)
+            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName)
         }
     }
 

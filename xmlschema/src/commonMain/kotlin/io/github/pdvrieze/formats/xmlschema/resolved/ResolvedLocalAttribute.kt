@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -76,9 +76,10 @@ class ResolvedLocalAttribute private constructor(
 
     override val mdlAttributeDeclaration: ResolvedLocalAttribute get() = this
 
-    override fun checkUse(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    override fun checkUse() {
         // inline, doesn't need checkHelper
-        checkAttribute(checkHelper)
+        checkAttribute()
     }
 
     override fun toString(): String {

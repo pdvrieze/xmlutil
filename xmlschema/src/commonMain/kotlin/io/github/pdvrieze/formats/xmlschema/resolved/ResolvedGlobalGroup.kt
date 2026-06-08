@@ -56,10 +56,11 @@ class ResolvedGlobalGroup internal constructor(
         return mdlModelGroup.hasLocalNsInContext()
     }
 
-    fun checkGroup(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    fun checkGroup() {
         checkRecursion(mutableSetOf())
 
-        mdlModelGroup.checkTerm(checkHelper)
+        mdlModelGroup.checkTerm()
     }
 
     internal fun checkRecursion(seen: MutableSet<ResolvedGlobalGroup>) {
@@ -106,7 +107,8 @@ class ResolvedGlobalGroup internal constructor(
         override val model: Model by lazy { Model(parent, elemPart, schema) }
         override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-        override fun checkTerm(checkHelper: CheckHelper) {
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
             val redefined = model.redefineBase
             if (redefined != null) {
                 val names = mutableSetOf<QName>()
@@ -129,12 +131,12 @@ class ResolvedGlobalGroup internal constructor(
                     override fun visitAny(any: ResolvedAny): List<ResolvedGroupRef> = emptyList()
                 })
                 if (selfRefs.isEmpty()) {
-                    val thisFlat=flatten(AllNNIRange.SINGLERANGE, ::isSiblingName, checkHelper)
-                    val baseFlat = redefined.mdlModelGroup.flatten(checkHelper)
-                    check(thisFlat.restricts(baseFlat, ::isSiblingName, checkHelper)) {
+                    val thisFlat = flatten(AllNNIRange.SINGLERANGE, ::isSiblingName)
+                    val baseFlat = redefined.mdlModelGroup.flatten()
+                    check(thisFlat.restricts(baseFlat, ::isSiblingName)) {
                         "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
                     }
-                    redefined.checkGroup(checkHelper)
+                    redefined.checkGroup()
                 } else {
                     val selfRef = selfRefs.single()
                     check(selfRef.mdlMinOccurs.toULong() == 1uL && selfRef.mdlMaxOccurs == VAllNNI.ONE) {
@@ -176,9 +178,10 @@ class ResolvedGlobalGroup internal constructor(
             }
         }
 
-        override fun checkTerm(checkHelper: CheckHelper) {
-            super<ModelGroupBase>.checkTerm(checkHelper)
-            super<IResolvedAll>.checkTerm(checkHelper)
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
+            super<ModelGroupBase>.checkTerm()
+            super<IResolvedAll>.checkTerm()
         }
 
         override fun toString(): String = buildString {
@@ -192,9 +195,10 @@ class ResolvedGlobalGroup internal constructor(
         ModelGroupBase(parent, elemPart, schema),
         IResolvedChoice {
 
-        override fun checkTerm(checkHelper: CheckHelper) {
-            super<ModelGroupBase>.checkTerm(checkHelper)
-            super<IResolvedChoice>.checkTerm(checkHelper)
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
+            super<ModelGroupBase>.checkTerm()
+            super<IResolvedChoice>.checkTerm()
         }
 
         override fun toString(): String = buildString {
@@ -210,9 +214,10 @@ class ResolvedGlobalGroup internal constructor(
         elemPart: SchemaElement<XSGroup.Sequence>, schema: ResolvedSchemaLike
     ) : ModelGroupBase(parent, elemPart, schema), IResolvedSequence {
 
-        override fun checkTerm(checkHelper: CheckHelper) {
-            super<ModelGroupBase>.checkTerm(checkHelper)
-            super<IResolvedSequence>.checkTerm(checkHelper)
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
+            super<ModelGroupBase>.checkTerm()
+            super<IResolvedSequence>.checkTerm()
         }
 
         override fun toString(): String = buildString {

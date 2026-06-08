@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -67,18 +67,21 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
 
     override val mdlTerm: ResolvedAny get() = this
 
-    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle.Wildcard {
+    context(checkHelper: CheckHelper)
+    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean): FlattenedParticle.Wildcard {
         return FlattenedParticle.Wildcard(range, this)
     }
 
-    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return super<ResolvedParticle>.flatten(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun flatten(): FlattenedParticle {
+        return super<ResolvedParticle>.flatten()
     }
 
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAny(this)
 
-    override fun checkTerm(checkHelper: CheckHelper) {
-        super.checkTerm(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun checkTerm() {
+        super.checkTerm()
     }
 
     fun intersects(other: ResolvedAny, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
