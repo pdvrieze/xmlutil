@@ -21,6 +21,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -63,11 +64,11 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
         }
-*/
 
         filters {
             exclude {

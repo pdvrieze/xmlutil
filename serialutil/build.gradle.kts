@@ -22,6 +22,7 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
@@ -51,12 +52,6 @@ kotlin {
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
 
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
-        }
-*/
-
         filters {
             exclude {
                 annotatedWith.add("nl.adaptivity.xmlutil.XmlUtilInternal")
@@ -65,6 +60,13 @@ kotlin {
                 }
             }
         }
+
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
+        }
+
     }
 
     jvm()

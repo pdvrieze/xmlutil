@@ -20,8 +20,8 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -48,13 +48,7 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-//        enabled = true
-
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
-        }
-*/
+        keepLocallyUnsupportedTargets = false
 
         filters {
             exclude {
@@ -64,6 +58,11 @@ kotlin {
                     add("nl.adaptivity.xmlutil.core.impl.**")
                     add("nl.adaptivity.xmlutil.util.impl.**")
                 }
+            }
+        }
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
             }
         }
     }

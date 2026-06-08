@@ -23,6 +23,7 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -49,11 +50,12 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                this.
+                enabled = false
+            }
         }
-*/
 
         filters {
             exclude {

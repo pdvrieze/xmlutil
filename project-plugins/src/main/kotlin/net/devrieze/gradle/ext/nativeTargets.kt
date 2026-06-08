@@ -30,8 +30,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -138,8 +136,12 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         "hostWasm" -> NativeState.HOST
         "disabled" -> NativeState.DISABLED
         "single" -> NativeState.SINGLE
-        else if gradle.startParameter.taskRequests.any { it.args.any { "updateKotlinAbi" in it} } -> {
-            logger.lifecycle("No native.deploy property set, and abi update task found.\n" +
+        else if gradle.startParameter.taskRequests.any { req ->
+            req.args.any { arg ->
+                listOf( "checkKotlinAbi", "updateKotlinAbi").any { it in arg } || arg.endsWith("check")
+            }
+        } -> {
+            logger.lifecycle("No native.deploy property set, and abi update/check task found.\n" +
                     "  -- Defaulting to all mode")
             NativeState.ALL
         }
@@ -170,11 +172,13 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
             "aarch64" -> fun KotlinMultiplatformExtension.() { /* No-op as not supported as native target yet */ }
             else -> return // unknown/unsupported target
         }
+
         Host.Macos -> when (HostManager.hostArchOrNull()) {
             "x86_64" -> fun KotlinMultiplatformExtension.() { macosX64() }
             "aarch64" -> fun KotlinMultiplatformExtension.() { macosArm64() }
             else -> fun KotlinMultiplatformExtension.() { /** No op, not supported */ }
         }
+
         Host.Linux -> when (HostManager.hostArchOrNull()) {
             "x86_64" -> fun KotlinMultiplatformExtension.() { linuxX64() }
             "aarch64" -> fun KotlinMultiplatformExtension.() { linuxArm64() }
