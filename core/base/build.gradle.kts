@@ -90,6 +90,7 @@ kotlin {
         }
 
     }
+
     js {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -102,21 +103,6 @@ kotlin {
         }
         browser()
         nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmWasi {
-        nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        nodejs()
-        browser {
-            testTask {
-                isEnabled = !System.getenv().containsKey("GITHUB_ACTION")
-            }
-        }
     }
 
     compilerOptions {
