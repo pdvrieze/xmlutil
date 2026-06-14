@@ -49,6 +49,9 @@ base {
 }
 
 kotlin {
+
+    jvmToolchain(17)
+
     jvm {
         attributes {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)

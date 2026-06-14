@@ -46,6 +46,8 @@ config {
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
         keepLocallyUnsupportedTargets = false

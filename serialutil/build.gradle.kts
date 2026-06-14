@@ -49,6 +49,9 @@ config {
 }
 
 kotlin {
+
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
 

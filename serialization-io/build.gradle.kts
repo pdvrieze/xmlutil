@@ -39,6 +39,8 @@ val autoModuleName = "net.devrieze.xmlutil.serialization.kxio"
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     jvm()
     js {
         browser()

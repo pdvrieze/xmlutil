@@ -1,4 +1,8 @@
 # 1.0.0-SNAPSHOT
+Fixes:
+- Remove usages of removeLast() to avoid issues on Android below 
+  API-level 35. Fixes #367.
+
 
 # 1.0.0-rc3 The full DOM
 *(Jun 6, 2026)<br />*

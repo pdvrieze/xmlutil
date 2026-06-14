@@ -69,7 +69,7 @@ class ResolvedGlobalGroup internal constructor(
         val toCheck= ArrayList(mdlModelGroup.mdlParticles)
 
         while (toCheck.isNotEmpty()) {
-            val p = toCheck.removeLast()
+            val p = toCheck.removeAt(toCheck.lastIndex)
             when (p) {
                 is ResolvedGroupRef -> p.model.referenced.checkRecursion(seen)
                 is ResolvedModelGroup -> toCheck.addAll(p.mdlParticles)

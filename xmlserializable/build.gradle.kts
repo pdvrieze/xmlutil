@@ -62,6 +62,8 @@ val cleanTestTask = tasks.create("cleanTest") {
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
         if (! isKlibValidationEnabled()) {

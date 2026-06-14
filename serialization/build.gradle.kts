@@ -48,6 +48,8 @@ base {
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
         if (! isKlibValidationEnabled()) {
@@ -105,6 +107,7 @@ kotlin {
             testRuns.all {
                 executionTask.configure {
                     useJUnitPlatform()
+
                 }
             }
         }
