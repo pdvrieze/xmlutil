@@ -24,8 +24,10 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.AnySimpleType
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveTypes.IDType
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSElement
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
-import io.github.pdvrieze.formats.xmlschema.resolved.FlattenedParticle.Element
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import nl.adaptivity.xmlutil.QName
@@ -81,9 +83,9 @@ sealed class ResolvedElement(rawPart: XSElement, schema: ResolvedSchemaLike) :
     context(checkHelper: CheckHelper)
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean
+        siblingContext: SiblingContextProvider
     ): FlattenedParticle {
-        return Element(range, this, true)
+        return FlattenedElement(range, this, true)
     }
 
     fun subsumes(specific: ResolvedElement, isLax: Boolean): Boolean { // subsume 4 (elements)

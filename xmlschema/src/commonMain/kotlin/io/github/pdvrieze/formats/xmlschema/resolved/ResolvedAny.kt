@@ -23,6 +23,9 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSAny
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -68,8 +71,8 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
     override val mdlTerm: ResolvedAny get() = this
 
     context(checkHelper: CheckHelper)
-    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean): FlattenedParticle.Wildcard {
-        return FlattenedParticle.Wildcard(range, this)
+    override fun flatten(range: AllNNIRange, siblingContext: SiblingContextProvider): FlattenedWildcard {
+        return FlattenedWildcard(range, this)
     }
 
     context(checkHelper: CheckHelper)
@@ -84,7 +87,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         super.checkTerm()
     }
 
-    fun intersects(other: ResolvedAny, isSiblingName: ContextT, schema: ResolvedSchemaLike): Boolean {
+    fun intersects(other: ResolvedAny, isSiblingName: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean {
         if (mdlMaxOccurs == VAllNNI.ZERO) return false
         if (true || (mdlProcessContents != VProcessContents.STRICT && other.mdlProcessContents != VProcessContents.STRICT)) {
             return mdlNamespaceConstraint.intersects(other.mdlNamespaceConstraint)
@@ -109,7 +112,7 @@ class ResolvedAny : ResolvedWildcardBase<VQNameListBase.Elem>, ResolvedParticle<
         return leftConstraint.intersects(rightConstraint)
     }
 
-    fun matches(name: QName, context: ContextT, schema: ResolvedSchemaLike): Boolean {
+    fun matches(name: QName, context: SiblingContextProvider, schema: ResolvedSchemaLike): Boolean {
         return mdlNamespaceConstraint.matches(name, context, schema)
     }
 

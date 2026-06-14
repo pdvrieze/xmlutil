@@ -242,7 +242,7 @@ class TestXSTestSuite {
             val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
             val subNodes = suite.testSetRefs
 //                .filter { it.href.contains("sunMeta/suntest") }
-//                .filter { it.href.contains("msMeta/Additional") }
+                .filter { it.href.contains("msMeta/Additional") }
 //                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
                 .filter {
                     arrayOf(
@@ -266,7 +266,7 @@ class TestXSTestSuite {
 
                     buildDynamicContainer("Test set '$tsName'") {
                         for (group in testSet.testGroups) {
-                            if (false || group.name.equals("addB043")) {
+                            if (false || group.name.equals("addA005")) {
                                 dynamicContainer("Group '${group.name}'") {
                                     addSchemaTests(testSetResource, group, testSet.schemaVersion?.let(::listOf))
                                 }

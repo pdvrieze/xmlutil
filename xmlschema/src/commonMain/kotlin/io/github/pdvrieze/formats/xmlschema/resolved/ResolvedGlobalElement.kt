@@ -27,6 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElem
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl.SUBSTITUTION
@@ -152,7 +154,7 @@ class ResolvedGlobalElement private constructor(
     context(checkHelper: CheckHelper)
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean
+        siblingContext: SiblingContextProvider
     ): FlattenedParticle {
         // this factory handles substitution groups
         return FlattenedParticle.elementOrSubstitution(range, this, checkHelper.version)

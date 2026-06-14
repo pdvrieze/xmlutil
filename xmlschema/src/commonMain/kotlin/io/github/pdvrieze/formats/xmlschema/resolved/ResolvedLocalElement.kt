@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice

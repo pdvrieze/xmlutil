@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroupRef
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
 
@@ -50,8 +52,8 @@ class ResolvedGroupRef(
     }
 
     context(checkHelper: CheckHelper)
-    override fun flatten(isSiblingName: (QName) -> Boolean): FlattenedParticle {
-        return super.flatten(::isSiblingName)
+    override fun flatten(siblingContext: SiblingContextProvider): FlattenedParticle {
+        return super.flatten(siblingContext)
     }
 
     context(checkHelper: CheckHelper)

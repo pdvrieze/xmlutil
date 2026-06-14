@@ -24,6 +24,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -105,10 +108,10 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     }
 
     context(checkHelper: CheckHelper)
-    fun flatten(isSiblingName: (QName) -> Boolean): FlattenedParticle {
+    fun flatten(siblingContext: SiblingContextProvider): FlattenedParticle {
         return when (mdlMaxOccurs) {
-            VAllNNI.ZERO -> FlattenedGroup.EMPTY
-            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName)
+            VAllNNI.ZERO -> FlattenedEmptyGroup
+            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), siblingContext)
         }
     }
 

@@ -24,6 +24,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
 import nl.adaptivity.xmlutil.QName
@@ -56,8 +59,8 @@ class ResolvedProhibitedElement(
     }
 
     context(checkHelper: CheckHelper)
-    override fun flatten(isSiblingName: (QName) -> Boolean): FlattenedParticle {
-        return FlattenedGroup.EMPTY
+    override fun flatten(siblingContext: SiblingContextProvider): FlattenedParticle {
+        return FlattenedEmptyGroup
     }
 
     override fun collectConstraints(collector: MutableCollection<ResolvedIdentityConstraint>) {

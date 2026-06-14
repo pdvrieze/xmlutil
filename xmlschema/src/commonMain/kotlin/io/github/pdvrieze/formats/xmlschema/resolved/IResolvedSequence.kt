@@ -22,9 +22,13 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedSequence
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
-import nl.adaptivity.xmlutil.QName
 
 interface IResolvedSequence : ResolvedModelGroup {
 
@@ -37,23 +41,25 @@ interface IResolvedSequence : ResolvedModelGroup {
     context(checkHelper: CheckHelper)
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean
+        siblingContext: SiblingContextProvider
     ): FlattenedParticle {
 
         val particles = mdlParticles.flatMap {
             val f = it.flatten(::isSiblingName)
             when {
-                f is FlattenedGroup.Sequence && f.range.isSimple -> f.particles
+                f is FlattenedSequence && f.range.isSimple -> f.particles
                 f.maxOccurs == VAllNNI.ZERO -> emptyList()
                 else -> listOf(f)
             }
         }
 
         // TODO move to this class
-        FlattenedGroup.checkSequence(particles, isSiblingName)
+        context(siblingContext) {
+            FlattenedGroup.checkSequence(particles)
+        }
 
         return when {
-            particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.isEmpty() -> FlattenedEmptyGroup
             particles.size == 1 -> when {
                 checkHelper.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
@@ -65,6 +71,6 @@ interface IResolvedSequence : ResolvedModelGroup {
 
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
-        } ?: FlattenedGroup.Sequence(range, particles)
+        } ?: FlattenedSequence(range, particles)
     }
 }

@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -132,9 +133,12 @@ class ResolvedGlobalGroup internal constructor(
                 })
                 if (selfRefs.isEmpty()) {
                     val thisFlat = flatten(AllNNIRange.SINGLERANGE, ::isSiblingName)
+
                     val baseFlat = redefined.mdlModelGroup.flatten()
-                    check(thisFlat.restricts(baseFlat, ::isSiblingName)) {
-                        "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
+                    context(SiblingContextProvider { isSiblingName(it) }) {
+                        check(thisFlat.restricts(baseFlat)) {
+                            "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
+                        }
                     }
                     redefined.checkGroup()
                 } else {

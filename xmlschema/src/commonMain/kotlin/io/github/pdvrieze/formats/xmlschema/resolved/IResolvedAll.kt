@@ -23,6 +23,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNegativeInteger
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedAll
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedElement
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -68,7 +74,7 @@ interface IResolvedAll : ResolvedModelGroup {
     override fun <R> visit(visitor: ResolvedTerm.Visitor<R>): R = visitor.visitAll(this)
 
     context(checkHelper: CheckHelper)
-    override fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean): FlattenedParticle {
+    override fun flatten(range: AllNNIRange, siblingContext: SiblingContextProvider): FlattenedParticle {
         val particles = mutableListOf<FlattenedParticle>()
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
@@ -78,12 +84,12 @@ interface IResolvedAll : ResolvedModelGroup {
             particles.add(f)
             for(startElem in f.startingTerms()) {
                 when (startElem) { // allow repetition
-                    is FlattenedParticle.Element -> require(seenNames.add(startElem.term.mdlQName)) {
+                    is FlattenedElement -> require(seenNames.add(startElem.term.mdlQName)) {
                         "Non-deterministic all group (${checkHelper.version}): all{${mdlParticles.joinToString()}}"
                     }
 
-                    is FlattenedParticle.Wildcard -> {
-                        require(seenWildcards.none { it.intersects(startElem.term, isSiblingName, checkHelper.schema) }) {
+                    is FlattenedWildcard -> {
+                        require(seenWildcards.none { it.intersects(startElem.term, siblingContext, checkHelper.schema) }) {
                             "Non-deterministic all group: all${mdlParticles.joinToString()}"
                         }
                         seenWildcards.add(startElem.term)
@@ -94,7 +100,7 @@ interface IResolvedAll : ResolvedModelGroup {
         }
 
         return when {
-            particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.isEmpty() -> FlattenedEmptyGroup
             particles.size == 1 -> when {
                 checkHelper.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
@@ -106,7 +112,7 @@ interface IResolvedAll : ResolvedModelGroup {
 
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
-        } ?: FlattenedGroup.All(range, particles, checkHelper.version)
+        } ?: FlattenedAll(range, particles, checkHelper.version)
     }
 
 }

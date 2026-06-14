@@ -40,7 +40,7 @@ plugins {
 config {
     dokkaModuleName = "xmlschema"
     applyLayout = true
-//    allWarningsAsErrors = false
+    allWarningsAsErrors = false
 }
 
 base {
