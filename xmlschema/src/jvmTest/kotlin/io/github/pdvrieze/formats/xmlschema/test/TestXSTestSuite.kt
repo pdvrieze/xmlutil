@@ -228,6 +228,10 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
             val (testSetResource, _, testSet) = tsInfo
 
             buildDynamicContainer("Test set '${tsInfo.displayName}'") {
+                tsInfo.groupTest {
+
+                }
+
                 for (group in testSet.testGroups) {
                     if (false || group.name.equals("addA005")) {
                         dynamicContainer("Group '${group.name}'") {

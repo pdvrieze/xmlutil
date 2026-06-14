@@ -23,9 +23,8 @@ package io.github.pdvrieze.formats.xmlschema.test
 import io.github.pdvrieze.formats.xmlschemaTests.Resource
 import io.github.pdvrieze.formats.xmlschemaTests.getResource
 import nl.adaptivity.xmlutil.serialization.XML
-import org.w3.xml.xmschematestsuite.TSTestSet
-import org.w3.xml.xmschematestsuite.TSTestSetRef
-import org.w3.xml.xmschematestsuite.TSTestSuite
+import org.junit.jupiter.api.DynamicNode
+import org.w3.xml.xmschematestsuite.*
 import org.w3.xml.xmschematestsuite.override.CompactOverride
 import org.w3.xml.xmschematestsuite.override.OTSSuite
 
@@ -62,6 +61,60 @@ abstract class AbstractTestSuiteSupport {
     }
 
     data class TestSetInfo(val resource: Resource, val ref: TSTestSetRef, val testSet: TSTestSet) {
+        internal suspend inline fun SequenceScope<DynamicNode>.groupTest(
+            groupFilter: (TSTestGroup) -> Boolean = { true },
+
+        ) {
+            for (group in testSet.testGroups) {
+                if (groupFilter(group)) {
+                    dynamicContainer("Group '${group.name}'") {
+
+                        val testSetVersion = testSet.schemaVersion?.let(::listOf)
+                        var targetSchemaDoc: TSSchemaDocument? = null
+
+                        val schemaTest = group.schemaTest
+                        if (schemaTest != null) {
+                            val documentation = group.documentationString()
+                            if (schemaTest.schemaDocuments.size == 1) {
+                                val schemaDoc = schemaTest.schemaDocuments.single()
+                                addSchemaDocTest(
+                                    resource,
+                                    schemaTest,
+                                    schemaDoc,
+                                    documentation,
+                                    group.version?.let(::listOf) ?: testSetVersion
+                                )
+                                targetSchemaDoc = schemaDoc
+                            } else {
+                                dynamicContainer("Schema documents") {
+                                    for (schemaDoc in schemaTest.schemaDocuments) {
+                                        if (true || schemaDoc.href.contains("ipo.xsd")) {
+                                            addSchemaDocTest(
+                                                resource,
+                                                schemaTest,
+                                                schemaDoc,
+                                                documentation,
+                                                group.version?.let(::listOf) ?: testSetVersion
+                                            )
+                                            targetSchemaDoc = schemaDoc
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (false && targetSchemaDoc != null && group.instanceTests.isNotEmpty()) {
+
+                            for (instanceTest in group.instanceTests) {
+                                addInstanceTest(resource, instanceTest, targetSchemaDoc!!, group.documentationString())
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        }
+
         val displayName: String
             get() {
                 return "${testSet.name} (${ref.href})"
