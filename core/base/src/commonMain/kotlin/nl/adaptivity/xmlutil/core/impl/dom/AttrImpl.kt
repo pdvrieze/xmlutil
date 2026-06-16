@@ -68,7 +68,7 @@ internal class AttrImpl internal constructor(
         this._value = value
     }
 
-    override fun getOwnerElement(): ElementImpl? = getParentElement() as ElementImpl?
+    override fun getOwnerElement(): ElementImpl? = super.getOwnerElement() as ElementImpl?
 
     override fun toString(): String {
         val attrName = when (getPrefix().isNullOrBlank()) {

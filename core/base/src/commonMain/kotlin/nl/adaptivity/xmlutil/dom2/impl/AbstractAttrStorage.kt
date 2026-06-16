@@ -33,6 +33,8 @@ public abstract class AbstractAttrStorage<out A: AbstractAttr<*,*>>(
 ): NamedNodeMap<A> {
     abstract override val size: Int
 
+    protected abstract val ownerElement: AbstractElement<*, *>
+
     @Deprecated("Use size instead", replaceWith = ReplaceWith("size"), level = DeprecationLevel.WARNING)
     final override fun getLength(): Int = size
 
@@ -66,9 +68,11 @@ public abstract class AbstractAttrStorage<out A: AbstractAttr<*,*>>(
         return indexOfFirst { it.localName == localName && (it.getNamespaceURI() ?: "") == namespace }
     }
 
-    public abstract operator fun set(elementIdx: Int, newAttr: @UnsafeVariance A): A?
+    @XmlUtilInternal
+    protected abstract operator fun set(elementIdx: Int, newAttr: @UnsafeVariance A): A?
 
-    public abstract fun removeAttrAt(elementIdx: Int): A?
+    @XmlUtilInternal
+    protected abstract fun removeAttrAt(elementIdx: Int): A?
 
     public fun removeAttr(attr: PlatformAttr): A {
         val a = adapter.checkAttr(attr)
@@ -84,6 +88,10 @@ public abstract class AbstractAttrStorage<out A: AbstractAttr<*,*>>(
     override fun setNamedItem(attr: PlatformNode): A? {
         val a = adapter.checkAttr(attr)
 
+        a.getOwnerElement()?.removeAttributeNode(a)
+
+        a.setParentNode(ownerElement)
+
         return set(getAttrIndex(a.getName()), a)
     }
 
@@ -91,17 +99,25 @@ public abstract class AbstractAttrStorage<out A: AbstractAttr<*,*>>(
     override fun setNamedItemNS(attr: PlatformNode): A? {
         val a = adapter.checkAttr(attr)
 
+        a.getOwnerElement()?.removeAttributeNode(a)
+
+        a.setParentNode(ownerElement)
+
         return set(getAttrIndex(a.getNamespaceURI() ?: "", a.getLocalName()), a)
     }
 
     @IgnorableReturnValue
     override fun removeNamedItem(qualifiedName: String): A? {
-        return removeAttrAt(getAttrIndex(qualifiedName))
+        return removeAttrAt(getAttrIndex(qualifiedName))?.also {
+            it.setParentNode(null)
+        }
     }
 
     @IgnorableReturnValue
     override fun removeNamedItemNS(namespace: String?, localName: String): A? {
-        return removeAttrAt(getAttrIndex((namespace ?: ""), localName))
+        return removeAttrAt(getAttrIndex((namespace ?: ""), localName))?.also {
+            it.setParentNode(null)
+        }
     }
 
     public fun isEqualNodes(attributes: PlatformNamedNodeMap): Boolean {
@@ -129,21 +145,24 @@ public abstract class AbstractAttrStorage<out A: AbstractAttr<*,*>>(
 }
 
 @ExperimentalXmlUtilApi
-public class LinearAttrStorage<out A: AbstractAttr<*,*>>(adapter : Adapter<A>): AbstractAttrStorage<A>(adapter) {
-    private val elements = mutableListOf<A>()
+public class LinearAttrStorage<out A : AbstractAttr<*, *>>(
+    adapter: Adapter<A>,
+    override val ownerElement: AbstractElement<*, *>
+) : AbstractAttrStorage<A>(adapter) {
+    private val attributes = mutableListOf<A>()
 
-    override val size: Int get() = elements.size
+    override val size: Int get() = attributes.size
 
     override fun item(index: Int): A? = when {
-        index in elements.indices -> elements[index]
+        index in attributes.indices -> attributes[index]
         else -> null
     }
 
     override fun set(elementIdx: Int, newAttr: @UnsafeVariance A): A? {
         return when {
-            elementIdx in elements.indices -> elements[elementIdx].also { elements[elementIdx] = newAttr }
+            elementIdx in attributes.indices -> attributes[elementIdx].also { attributes[elementIdx] = newAttr }
             else -> {
-                elements.add(newAttr)
+                attributes.add(newAttr)
                 null
             }
         }
@@ -151,7 +170,7 @@ public class LinearAttrStorage<out A: AbstractAttr<*,*>>(adapter : Adapter<A>): 
 
     override fun removeAttrAt(elementIdx: Int): A? {
         return when {
-            elementIdx in elements.indices -> elements.removeAt(elementIdx)
+            elementIdx in attributes.indices -> attributes.removeAt(elementIdx)
             else -> null
         }
     }

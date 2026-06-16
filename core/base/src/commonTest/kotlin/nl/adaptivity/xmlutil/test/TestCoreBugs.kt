@@ -26,9 +26,12 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlEntity
 import nl.adaptivity.xmlutil.core.impl.EntityMap
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.attributes
+import nl.adaptivity.xmlutil.dom2.createDocument
+import nl.adaptivity.xmlutil.xmlStreaming
+import kotlin.test.*
 
 /**
  * Regression tests for bugs found in the nl.adaptivity.xmlutil.core package
@@ -204,4 +207,56 @@ class TestCoreBugs {
         assertEquals("ABC", result, "Numeric character references should decode correctly")
     }
 
+    @Test
+    fun testAttributeNodeHasOwner() {
+        val document: Document = xmlStreaming.genericDomImplementation.createDocument()
+        val root = document.appendChild(document.createElement("root")) as Element
+        val child = root.appendChild(document.createElement("child")) as Element
+
+        val attr = document.createAttribute("attr")
+        assertEquals(null, attr.getOwnerElement(), "Attribute should not have an owner element")
+
+        root.setAttributeNode(attr)
+        assertEquals(root, attr.getOwnerElement(), "Attribute should have the correct owner element")
+        assertTrue(root.hasAttribute("attr"))
+
+        child.setAttributeNode(attr)
+        assertEquals(child, attr.getOwnerElement(), "Attribute should have the correct owner element")
+        assertTrue(child.hasAttribute("attr"))
+        assertFalse(root.hasAttribute("attr"))
+    }
+
+    @Test
+    fun testAttributeSetOwner() {
+        val document: Document = xmlStreaming.genericDomImplementation.createDocument()
+        val root = document.createElement("root")
+        document.appendChild(root)
+
+        root.setAttribute("attr", "value")
+        val attr = assertNotNull(root.attributes.getNamedItem("attr"), "Missing attribute")
+
+        assertEquals(root, attr.getOwnerElement(), "Attribute should have the correct owner element")
+        assertEquals(1, root.attributes.size)
+        assertTrue(root.hasAttribute("attr"))
+
+        val child = root.appendChild(document.createElement("child")) as Element
+        child.setAttributeNode(attr)
+
+        assertEquals(0, root.attributes.size)
+        assertFalse(root.hasAttribute("attr"))
+
+        assertEquals(child, attr.getOwnerElement())
+    }
+
+    @Test
+    fun testAttributeSetOwnerNS() {
+        val document: Document = xmlStreaming.genericDomImplementation.createDocument()
+        val root = document.createElement("root")
+        document.appendChild(root)
+
+        root.setAttributeNS("myns", "attr", "value")
+        val attr = assertNotNull(root.attributes.getNamedItem("attr"), "Missing attribute")
+
+        assertEquals(root, attr.getOwnerElement(), "Attribute should have the correct owner element")
+    }
 }
