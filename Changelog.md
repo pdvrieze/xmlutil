@@ -2,7 +2,8 @@
 Fixes:
 - Remove usages of removeLast() to avoid issues on Android below 
   API-level 35. Fixes #367.
-
+- Fix Attr in the common DOM implementation not having its owner set/tracked
+  appropriately.
 
 # 1.0.0-rc3 The full DOM
 *(Jun 6, 2026)<br />*
