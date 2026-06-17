@@ -41,7 +41,7 @@ plugins {
 }
 
 base {
-    group = "io.github.pdvrieze"
+    group = "io.github.pdvrieze.xmlutil"
     archivesName = "testutil"
 }
 
