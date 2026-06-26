@@ -42,7 +42,7 @@ kotlin {
     jvm()
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(projects.core)
                 implementation(projects.xmlschema)
@@ -53,14 +53,14 @@ kotlin {
                 implementation(libs.datetime)
             }
         }
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 implementation(projects.coreJdk)
 //                implementation(libs.jmhCore)
                 implementation(kotlin("test-junit5"))
             }
         }
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 runtimeOnly(libs.junit5.engine)
             }

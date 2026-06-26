@@ -56,7 +56,7 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        if (! isKlibValidationEnabled()) {
+        if (!isKlibValidationEnabled()) {
             checkTaskProvider.configure {
                 enabled = false
             }
@@ -87,7 +87,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(libs.serialization.core)
                 api(kotlin("test"))
@@ -97,7 +97,7 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 api(kotlin("test-junit5"))
             }

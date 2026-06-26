@@ -63,7 +63,7 @@ kotlin {
             }
         }
 
-        if (! isKlibValidationEnabled()) {
+        if (!isKlibValidationEnabled()) {
             checkTaskProvider.configure {
                 enabled = false
             }
@@ -82,14 +82,14 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(projects.core)
                 api(libs.kotlinx.io.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))

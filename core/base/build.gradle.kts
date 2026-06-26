@@ -121,13 +121,13 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(libs.serialization.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
@@ -136,7 +136,7 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
@@ -147,7 +147,7 @@ kotlin {
             }
         }
 
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -157,6 +157,7 @@ kotlin {
 }
 
 val cleanTestTask = tasks.register("cleanTest") {
+    description = "Cleans all test data (for all platforms)"
     group = "verification"
 
     dependsOn(tasks.withType<Delete>().matching {
