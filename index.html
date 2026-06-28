@@ -99,13 +99,13 @@
       <h3 class="">Hello world</h3>
       <p class="paragraph">To serialize a very simple type you have the following:</p>
       <div class="sample-container">
-        <pre><code class="block lang-kotlin" theme="idea">@Serializable<br>data class HelloWorld(val user: String)<br><br>println(XML1_0.encodeToString(HelloWorld(&quot;You!&quot;)))</code></pre>
+        <pre><code class="block lang-kotlin" theme="idea">@Serializable<br>data class HelloWorld(val user: String)<br><br>println(XML.v1.encodeToString(HelloWorld(&quot;You!&quot;)))</code></pre>
 <span class="copy-tooltip">
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
 <span class="copy-icon"></span></span></div>
       <p class="paragraph">To deserialize you would do:</p>
       <div class="sample-container">
-        <pre><code class="block lang-kotlin" theme="idea">@Serializable<br>data class HelloWorld(val user: String)<br><br>XML1_0.decodeFromString(HelloWorld.serializer(), &quot;&lt;HelloWorld user='You!' /&gt;&quot;)</code></pre>
+        <pre><code class="block lang-kotlin" theme="idea">@Serializable<br>data class HelloWorld(val user: String)<br><br>XML.v1.decodeFromString(HelloWorld.serializer(), &quot;&lt;HelloWorld user='You!' /&gt;&quot;)</code></pre>
 <span class="copy-tooltip">
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
 <span class="copy-icon"></span></span></div>
@@ -113,7 +113,7 @@
       <h3 class="">Custom configuration</h3>
       <p class="paragraph">The format can be configured using the <code class="lang-kotlin">XML1_0</code> accessor:</p>
       <div class="sample-container">
-        <pre><code class="block lang-kotlin" theme="idea">val format = XML1_0.recommended(mySerialModule) {  <br>    // configuration options<br>    xmlDeclMode = XmlDeclMode.None<br>    policy {<br>        typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, &quot;type&quot;, XMLConstants.XSI_PREFIX)<br>    }<br>}</code></pre>
+        <pre><code class="block lang-kotlin" theme="idea">val format = XML.v1.recommended(mySerialModule) {  <br>    // configuration options<br>    xmlDeclMode = XmlDeclMode.None<br>    policy {<br>        typeDiscriminatorName = QName(XMLConstants.XSI_NS_URI, &quot;type&quot;, XMLConstants.XSI_PREFIX)<br>    }<br>}</code></pre>
 <span class="copy-tooltip">
           <div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div>
 <span class="copy-icon"></span></span></div>
