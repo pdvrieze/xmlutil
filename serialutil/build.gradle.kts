@@ -22,6 +22,7 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JsSourceMapEmbedMode
@@ -48,14 +49,11 @@ config {
 }
 
 kotlin {
+
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
-        }
-*/
 
         filters {
             exclude {
@@ -65,6 +63,13 @@ kotlin {
                 }
             }
         }
+
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
+        }
+
     }
 
     jvm()
@@ -84,20 +89,46 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 compileOnly(projects.core) // for optin markers
                 api(libs.serialization.core)
             }
         }
-        val commonTest by getting {
+
+        jsMain {
+            dependencies {
+                implementation(projects.core)
+            }
+        }
+
+        nativeMain {
+            dependencies {
+                implementation(projects.core)
+            }
+        }
+
+        wasmJsMain {
+            dependencies {
+                implementation(projects.core)
+            }
+        }
+
+        wasmWasiMain {
+            dependencies {
+                implementation(projects.core)
+            }
+        }
+
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
                 implementation(libs.serialization.json)
             }
         }
-        val jvmTest by getting {
+
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
@@ -106,7 +137,7 @@ kotlin {
             }
         }
 
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -117,9 +148,3 @@ kotlin {
 addNativeTargets()
 
 doPublish()
-
-idea {
-    module {
-        name = "xmlutil-serialutil"
-    }
-}

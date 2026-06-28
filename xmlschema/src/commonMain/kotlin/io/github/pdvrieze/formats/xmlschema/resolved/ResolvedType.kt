@@ -29,7 +29,8 @@ sealed interface ResolvedType : ResolvedAnnotated {
     val mdlFinal: Set<VDerivationControl.Type>
     val mdlScope: VTypeScope
 
-    fun checkType(checkHelper: CheckHelper)
+    context(checkHelper: CheckHelper)
+    fun checkType()
 
     fun validate(representation: VString, version: SchemaVersion)
 

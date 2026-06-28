@@ -22,6 +22,12 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedModelGroup.Compositor
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedChoice
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedElement
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedWildcard
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -36,35 +42,35 @@ interface IResolvedChoice : ResolvedModelGroup {
         return visitor.visitChoice(this)
     }
 
+    context(checkHelper: CheckHelper)
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean,
-        checkHelper: CheckHelper
+        siblingContext: SiblingContextProvider
     ): FlattenedParticle {
         val seenNames = mutableSetOf<QName>()
         val seenWildcards = mutableListOf<ResolvedAny>()
 
         val particles = mutableListOf<FlattenedParticle>()
         for (p in mdlParticles) {
-            val f = p.flatten(::isSiblingName, checkHelper)
+            val f = p.flatten(::isSiblingName)
 
             when {
-                f is FlattenedGroup.Choice && f.range.isSimple -> particles.addAll(f.particles)
+                f is FlattenedChoice && f.range.isSimple -> particles.addAll(f.particles)
                 f.maxOccurs != VAllNNI.ZERO -> particles.add(f)
             }
 
             for (startElem in f.startingTerms()) {
                 when (startElem) {
-                    is FlattenedParticle.Element -> {
+                    is FlattenedElement -> {
                         require(seenNames.add(startElem.term.mdlQName)) {
                             "Non-deterministic choice group: choice({${mdlParticles.joinToString()}})"
                         }
                     }
 
-                    is FlattenedParticle.Wildcard -> {
+                    is FlattenedWildcard -> {
                         if (startElem.term.mdlNamespaceConstraint.namespaces.singleOrNull()?.value?.isNotEmpty() != false) {
                             for (wc in seenWildcards) {
-                                require(!wc.intersects(startElem.term, isSiblingName, checkHelper.schema)) {
+                                require(!wc.intersects(startElem.term, siblingContext, checkHelper.schema)) {
                                     "Non-deterministic choice group (conflicting wildcards): $wc and $startElem in choice(${mdlParticles.joinToString()})"
                                 }
                             }
@@ -78,7 +84,7 @@ interface IResolvedChoice : ResolvedModelGroup {
         }
 
         return when {
-            particles.isEmpty() -> FlattenedGroup.EMPTY
+            particles.isEmpty() -> FlattenedEmptyGroup
             particles.size == 1 -> when {
                 checkHelper.version != SchemaVersion.V1_0 ->
                     particles.single() * range // multiply will be null if not valid
@@ -90,12 +96,13 @@ interface IResolvedChoice : ResolvedModelGroup {
 
             particles.size == 1 && range.isSimple -> particles.single()
             else -> null
-        } ?: FlattenedGroup.Choice(range, particles, checkHelper.version)
+        } ?: FlattenedChoice(range, particles, checkHelper.version)
     }
 
-    override fun checkTerm(checkHelper: CheckHelper) {
-        super.checkTerm(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun checkTerm() {
+        super.checkTerm()
         // Trigger flatten check
-        val _ = flatten(checkHelper)
+        val _ = flatten()
     }
 }

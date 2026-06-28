@@ -24,6 +24,9 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VNonNeg
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VUnsignedLong
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedEmptyGroup
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -76,12 +79,13 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
     }
 
 
-    fun checkParticle(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    fun checkParticle() {
         check(mdlMinOccurs <= mdlMaxOccurs) { "MinOccurs should be <= than maxOccurs" }
         if (mdlTerm is IResolvedAll) {
             check(mdlMaxOccurs == VAllNNI.ONE) { "all: maxOccurs must be 1" }
         }
-        mdlTerm.checkTerm(checkHelper)
+        mdlTerm.checkTerm()
     }
 
     fun mdlIsEmptiable(): Boolean {
@@ -98,14 +102,16 @@ interface ResolvedParticle<out T : ResolvedTerm> : ResolvedAnnotated {
 
     fun <R> visitTerm(visitor: ResolvedTerm.Visitor<R>): R = mdlTerm.visit(visitor)
 
-    fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return flatten(::isSiblingName, checkHelper)
+    context(checkHelper: CheckHelper)
+    fun flatten(): FlattenedParticle {
+        return flatten(::isSiblingName)
     }
 
-    fun flatten(isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle {
+    context(checkHelper: CheckHelper)
+    fun flatten(siblingContext: SiblingContextProvider): FlattenedParticle {
         return when (mdlMaxOccurs) {
-            VAllNNI.ZERO -> FlattenedGroup.EMPTY
-            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), isSiblingName, checkHelper)
+            VAllNNI.ZERO -> FlattenedEmptyGroup
+            else -> mdlTerm.flatten(mdlMinOccurs.rangeTo(mdlMaxOccurs), siblingContext)
         }
     }
 

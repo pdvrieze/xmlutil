@@ -86,7 +86,8 @@ sealed class ListDatatype(
 
     val whiteSpace: WhitespaceValue get() = WhitespaceValue.COLLAPSE
 
-    override fun checkType(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    override fun checkType() {
     }
 
     override val model: ListDatatype
@@ -145,7 +146,8 @@ abstract class ConstructedListDatatype : ListDatatype {
         check(value is List<*>)
     }
 
-    override fun checkType(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    override fun checkType() {
         mdlFacets.checkList(this, checkHelper.version)
         checkHelper.checkType(baseType)
     }
@@ -240,7 +242,8 @@ object AnyType : ResolvedGlobalComplexType(
 //        error("anyType cannot be directly implemented")
     }
 
-    override fun checkType(checkHelper: CheckHelper) {}
+    context(checkHelper: CheckHelper)
+    override fun checkType() {}
 
     override fun toString(): String = "xsd:anyType"
 

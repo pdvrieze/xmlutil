@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.invariant
 import io.github.pdvrieze.formats.xmlschema.impl.invariantNotNull
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VFormChoice
@@ -98,8 +99,9 @@ class ResolvedLocalElement private constructor(
         return super<ResolvedElement>.isSiblingName(name)
     }
 
-    override fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return super<ResolvedElement>.flatten(checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun flatten(): FlattenedParticle {
+        return super<ResolvedElement>.flatten()
     }
 
     override fun toString(): String {

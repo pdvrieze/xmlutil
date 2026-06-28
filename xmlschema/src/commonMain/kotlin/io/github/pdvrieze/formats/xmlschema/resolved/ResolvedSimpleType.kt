@@ -65,11 +65,10 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
 
     override val mdlFinal: Set<VDerivationControl.Type>
 
-    override fun checkType(
-        checkHelper: CheckHelper
-    ) { // TODO maybe move to toplevel
+    context(checkHelper: CheckHelper)
+    override fun checkType() { // TODO maybe move to toplevel
         checkAnnotated(checkHelper.version)
-        simpleDerivation.checkDerivation(checkHelper)
+        simpleDerivation.checkDerivation()
 
         if (mdlPrimitiveTypeDefinition == NotationType) {
             for (enum in mdlFacets.enumeration) {
@@ -224,7 +223,8 @@ sealed interface ResolvedSimpleType : ResolvedType, VSimpleTypeScope.Member {
         /** Abstract as it is static for union/list. In those cases always AnySimpleType */
         abstract val baseType: ResolvedType
 
-        open fun checkDerivation(checkHelper: CheckHelper) {}
+        context(checkHelper: CheckHelper)
+        open fun checkDerivation() {}
 
     }
 

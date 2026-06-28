@@ -48,8 +48,13 @@ public expect interface Element : Node, PlatformElement {
     public fun getAttributeNode(qualifiedName: String): Attr?
     public fun getAttributeNodeNS(namespace: String?, localName: String): Attr?
 
+    @IgnorableReturnValue
     public fun setAttributeNode(attr: PlatformAttr): Attr?
+
+    @IgnorableReturnValue
     public fun setAttributeNodeNS(attr: PlatformAttr): Attr?
+
+    @IgnorableReturnValue
     public fun removeAttributeNode(attr: PlatformAttr): Attr
 
     public fun getElementsByTagName(qualifiedName: String): NodeList

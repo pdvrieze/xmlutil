@@ -32,6 +32,8 @@ import io.github.pdvrieze.formats.xmlschema.resolved.ResolvedSchema.Companion.ST
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.DummyCheckHelper
 import io.github.pdvrieze.formats.xmlschema.resolved.facets.FacetList
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.*
 import nl.adaptivity.xmlutil.QName
 
@@ -109,28 +111,28 @@ sealed class ResolvedComplexType(
         }
     }
 
-    override fun checkType(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    override fun checkType() {
         checkAnnotated(checkHelper.version)
         checkNotNull(model)
         for (attrUse in mdlAttributeUses.values) {
-            attrUse.checkUse(checkHelper)
+            attrUse.checkUse()
         }
 
-        mdlContentType.check(this, checkHelper)
+        mdlContentType.check(this)
 
-        if (model.mdlDerivationMethod == VDerivationControl.EXTENSION) {
+        when {
+            model.mdlDerivationMethod != VDerivationControl.EXTENSION ->  // restriction
+                checkRestriction()
 
-            when (mdlBaseTypeDefinition) {
-                is ResolvedComplexType -> checkExtensionOfComplex(checkHelper)
+            mdlBaseTypeDefinition is ResolvedComplexType -> checkExtensionOfComplex()
 
-                else -> {} // extension of simple type
-            }
-        } else { // restriction
-            checkRestriction(checkHelper)
+            //  else extension of simple type
         }
     }
 
-    private fun checkRestriction(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    private fun checkRestriction() {
         val b = mdlBaseTypeDefinition
 
         require(VDerivationControl.RESTRICTION !in b.mdlFinal) { "Type ${(b as ResolvedGlobalComplexType).mdlQName} is final for restriction" }
@@ -174,7 +176,7 @@ sealed class ResolvedComplexType(
             contentType is ElementOnlyContentType -> {
                 check(baseContentType is ElementContentType) { "ElementOnly content type can only derive elementOnly or mixed" }
 
-                check(contentType.restricts(baseContentType, contentType.mdlParticle::isSiblingName, checkHelper)) {
+                check(contentType.restricts(baseContentType, contentType.mdlParticle::isSiblingName)) {
                     "Overriding element ${contentType.flattened} does not restrict base ${baseContentType.flattened}"
                 }
             }
@@ -182,7 +184,7 @@ sealed class ResolvedComplexType(
             contentType is MixedContentType -> {
                 check(baseContentType is MixedContentType) { "Mixed content type can only derive from mixed content" }
 
-                check(contentType.restricts(baseContentType, contentType.mdlParticle::isSiblingName, checkHelper) || true) // TODO do check
+                check(contentType.restricts(baseContentType, contentType.mdlParticle::isSiblingName)) // TODO do check
             }
         }
 
@@ -222,7 +224,8 @@ sealed class ResolvedComplexType(
         // check attributes : 3.4.6.3, item 5 assertions is an extension of b.extensions
     }
 
-    private fun checkExtensionOfComplex(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    private fun checkExtensionOfComplex() {
         val baseType = mdlBaseTypeDefinition as ResolvedComplexType
         require(VDerivationControl.EXTENSION !in baseType.mdlFinal) { "3.4.6.2(1.1) - Type ${(baseType as ResolvedGlobalComplexType).mdlQName} is final for extension" }
         for ((baseName, baseUse) in baseType.mdlAttributeUses) {
@@ -311,7 +314,7 @@ sealed class ResolvedComplexType(
                 check(derivedCType is ElementContentType) // implied 1.4.3.1, already checked
 
                 // 3.4.6.2 (1.4.3.2.2)
-                check(derivedCType.extends(baseCType, derivedCType.mdlParticle::isSiblingName, checkHelper)) {
+                check(derivedCType.extends(baseCType, derivedCType.mdlParticle::isSiblingName)) {
                     "${derivedCType.flattened} does not extend ${baseCType.flattened}"
                 }
 
@@ -567,14 +570,14 @@ sealed class ResolvedComplexType(
                 mdlContentType = when {
                     effectiveMixed -> MixedContentType(
                         mdlParticle = particle,
-                        isSiblingName = particle::isSiblingName,
+                        siblingContext = particle::isSiblingName,
                         schema = schema,
                         mdlOpenContent = openContent,
                     )
 
                     else -> ElementOnlyContentType(
                         mdlParticle = particle,
-                        isSiblingName = particle::isSiblingName,
+                        siblingContext = particle::isSiblingName,
                         schema = schema,
                         mdlOpenContent = openContent,
                     )
@@ -698,27 +701,20 @@ sealed class ResolvedComplexType(
 
         }
 
-        override fun check(
-            complexType: ResolvedComplexType,
-            checkHelper: CheckHelper
-        ) {
+        context(checkHelper: CheckHelper)
+        override fun check(complexType: ResolvedComplexType) {
             checkHelper.checkType(mdlBaseTypeDefinition)
         }
     }
 
     interface ResolvedContentType : VContentType {
-        fun check(
-            complexType: ResolvedComplexType,
-            checkHelper: CheckHelper
-        )
+        context(checkHelper: CheckHelper)
+        fun check(complexType: ResolvedComplexType)
     }
 
     object EmptyContentType : VContentType.Empty, ResolvedContentType {
-        override fun check(
-            complexType: ResolvedComplexType,
-            checkHelper: CheckHelper
-        ) {
-        }
+        context(checkHelper: CheckHelper)
+        override fun check(complexType: ResolvedComplexType) {}
     }
 
     interface ElementContentType : ResolvedContentType, VContentType.ElementBase {
@@ -728,41 +724,48 @@ sealed class ResolvedComplexType(
         val flattened: FlattenedParticle
 
         /** Implementation of 3.4.6.4 */
+        context(checkHelper: CheckHelper)
         fun restricts(
             baseCT: ResolvedContentType,
-            isSiblingName: (QName) -> Boolean,
-            checkHelper: CheckHelper
+            siblingContext: SiblingContextProvider
         ): Boolean {
             if (baseCT !is ElementContentType) return false
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
 
             // we use indirect access to term as that will give us groups.
-            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, checkHelper)
-            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, isSiblingName, checkHelper)
+            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, siblingContext)
+            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, siblingContext)
 
-            return flattened.restricts(flattenedBase, isSiblingName, checkHelper)
+            context(siblingContext) {
+                return with(siblingContext) {
+                    flattened.restricts(flattenedBase)
+                }
+            }
         }
 
         /** Implementation of 3.9.6.2 */
+        context(checkHelper: CheckHelper)
         fun extends(
             baseCT: ElementContentType,
-            isSiblingName: (QName) -> Boolean,
-            checkHelper: CheckHelper
+            siblingContext: SiblingContextProvider
         ): Boolean {
             // 1. every sequence of elements valid in this is also (locally -3.4.4.2) valid in B
             // 2. for sequences es that are valid, for elements e in es b's default binding subsumes r
 
             // we use indirect access to term as that will give us groups.
-            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, checkHelper)
-            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, isSiblingName, checkHelper)
+            val flattened = mdlParticle.mdlTerm.flatten(mdlParticle.range, siblingContext)
 
-            return flattened.extends(flattenedBase, isSiblingName, checkHelper.schema)
+            val flattenedBase = baseCT.mdlParticle.mdlTerm.flatten(baseCT.mdlParticle.range, siblingContext)
+
+            return context(siblingContext) {
+                flattened.extends(flattenedBase, checkHelper.schema)
+            }
         }
 
+        context(checkHelper: CheckHelper)
         override fun check(
-            complexType: ResolvedComplexType,
-            checkHelper: CheckHelper
+            complexType: ResolvedComplexType
         ) {
             @IgnorableReturnValue
             fun collectElements(
@@ -794,7 +797,7 @@ sealed class ResolvedComplexType(
             }
 
             val elements = mutableMapOf<QName, ResolvedElement>()
-            mdlParticle.checkParticle(checkHelper)
+            mdlParticle.checkParticle()
 
             // Checks v1.1 3.8.6.3 ElementDeclarations Consistent
             val memberElements = collectElements(mdlParticle.mdlTerm)
@@ -818,26 +821,30 @@ sealed class ResolvedComplexType(
 
     class MixedContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        isSiblingName: (QName) -> Boolean,
+        siblingContext: SiblingContextProvider,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.Mixed, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
         override val flattened: FlattenedParticle =
-            mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, DummyCheckHelper(schema))
+            context(DummyCheckHelper(schema)) {
+                mdlParticle.mdlTerm.flatten(mdlParticle.range,siblingContext)
+            }
     }
 
     class ElementOnlyContentType(
         override val mdlParticle: ResolvedParticle<ResolvedModelGroup>,
-        isSiblingName: (QName) -> Boolean,
+        siblingContext: SiblingContextProvider,
         schema: ResolvedSchemaLike,
         override val mdlOpenContent: ResolvedOpenContent? = null,
     ) : VContentType.ElementOnly, ElementContentType {
         override val openContent: ResolvedOpenContent? get() = null
 
         override val flattened: FlattenedParticle =
-            mdlParticle.mdlTerm.flatten(mdlParticle.range, isSiblingName, DummyCheckHelper(schema))
+            context(DummyCheckHelper(schema)) {
+                mdlParticle.mdlTerm.flatten(mdlParticle.range, siblingContext)
+            }
     }
 
     interface ResolvedSimpleContentType : ResolvedContentType,

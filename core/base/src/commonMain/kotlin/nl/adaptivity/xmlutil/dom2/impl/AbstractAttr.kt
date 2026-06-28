@@ -21,19 +21,10 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.getLocalName
-import nl.adaptivity.xmlutil.dom.getNamespaceURI
-import nl.adaptivity.xmlutil.dom.getPrefix
-import nl.adaptivity.xmlutil.dom.getValue
 import nl.adaptivity.xmlutil.dom.nodeType
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.localName
-import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.dom2.nodeType
-import nl.adaptivity.xmlutil.dom2.prefix
 
 @Suppress("UNCHECKED_CAST")
 @ExperimentalXmlUtilApi
@@ -77,6 +68,10 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
     final override fun getParentNode(): Nothing? = null
 
     final override fun getParentElement(): Nothing? = null
+
+    override fun getOwnerElement(): Element? {
+        return super.getParentNode() as? Element?
+    }
 
     override fun getAttributes(): Nothing? = null
 

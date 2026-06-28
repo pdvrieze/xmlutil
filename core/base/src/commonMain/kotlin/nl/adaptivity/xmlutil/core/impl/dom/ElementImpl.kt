@@ -35,7 +35,7 @@ internal class ElementImpl internal constructor(
 ) : AbstractElement<NodeImpl, ParentNodeImpl>(
     ownerDocument = ownerDocument,
     nodeStorage = { LinearNodeStorage(ownerDocument.storageAdapter) },
-    attrStorage = { LinearAttrStorage(ownerDocument.storageAdapter) },
+    attrStorage = { LinearAttrStorage(ownerDocument.storageAdapter, it as AbstractElement<*, *>) },
     parentNode = parentNode
 ), ParentNodeImpl {
 

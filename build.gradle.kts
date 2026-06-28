@@ -38,7 +38,7 @@ plugins {
 
 description = "The overall project for cross-platform xml access"
 
-val xmlutil_version: String by project
+val xmlutil_version: String get() = project.property("xmlutil_version") as String
 val kotlin_version: String get() = libs.versions.kotlin.get()
 
 tasks.withType<KotlinNpmInstallTask>().configureEach {

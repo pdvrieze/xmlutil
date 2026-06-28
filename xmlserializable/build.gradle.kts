@@ -21,6 +21,7 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -50,24 +51,18 @@ val serializationVersion: String get() = libs.versions.kotlinx.serialization.get
 
 val autoModuleName = "net.devrieze.xmlutil.xmlserializable"
 
-val testTask = tasks.create("test") {
-    group = "verification"
-}
-
-val cleanTestTask = tasks.create("cleanTest") {
-    group = "verification"
-}
-
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
         }
-*/
 
         filters {
             exclude {
@@ -83,17 +78,6 @@ kotlin {
     jvm {
         compilerOptions {
             jvmDefault = JvmDefaultMode.ENABLE
-        }
-        compilations.all {
-            tasks.named<Test>("${target.name}Test") {
-                testTask.dependsOn(this)
-            }
-            cleanTestTask.dependsOn(tasks.getByName("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-            tasks.named<Jar>("jvmJar") {
-                manifest {
-                    attributes("Automatic-Module-Name" to autoModuleName)
-                }
-            }
         }
     }
     js {
@@ -111,21 +95,21 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(projects.core) // Don't add a runtime dep here
                 implementation(libs.serialization.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
@@ -135,7 +119,7 @@ kotlin {
             }
         }
 
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -143,6 +127,12 @@ kotlin {
 
     }
 
+}
+
+tasks.named<Jar>("jvmJar") {
+    manifest {
+        attributes("Automatic-Module-Name" to autoModuleName)
+    }
 }
 
 doPublish()

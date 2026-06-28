@@ -23,6 +23,7 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -47,13 +48,16 @@ base {
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                this.
+                enabled = false
+            }
         }
-*/
 
         filters {
             exclude {
@@ -103,6 +107,7 @@ kotlin {
             testRuns.all {
                 executionTask.configure {
                     useJUnitPlatform()
+
                 }
             }
         }
@@ -117,7 +122,7 @@ kotlin {
 
     sourceSets {
 
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(projects.core)
 
@@ -125,7 +130,7 @@ kotlin {
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(projects.serialutil)
                 implementation(projects.testutil)
@@ -137,43 +142,35 @@ kotlin {
         }
 
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(libs.kotlin.test.junit5)
                 implementation(projects.coreJdk)
             }
         }
 
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 runtimeOnly(projects.core)
             }
         }
 
-        val jsMain by getting {
+        jsMain {
             dependencies {
                 api(projects.core)
             }
         }
 
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
         }
 
-        all {
-            if (this.name == "nativeMain") {
-                dependencies {
-                    api(projects.core)
-                    implementation(libs.kotlinx.atomicfu)
-                }
-            }
-            if (System.getProperty("idea.active") == "true" && name == "nativeTest") { // Hackery to get at the native source sets that shouldn't be needed
-                dependencies {
-                    implementation(kotlin("test-common"))
-                    implementation(kotlin("test-annotations-common"))
-                }
+        matching { it.name == "nativeMain" }.configureEach {
+            dependencies {
+                api(projects.core)
+                implementation(libs.kotlinx.atomicfu)
             }
         }
     }

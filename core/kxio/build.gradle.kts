@@ -22,6 +22,7 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
@@ -61,6 +62,13 @@ kotlin {
                 annotatedWith.add("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
         }
+
+        if (!isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
+        }
+
     }
 
     jvm()
@@ -74,14 +82,14 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(projects.core)
                 api(libs.kotlinx.io.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))

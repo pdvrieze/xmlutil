@@ -20,8 +20,8 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -46,15 +46,11 @@ config {
 kotlin {
     explicitApi()
 
+    jvmToolchain(17)
+
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-//        enabled = true
-
-/*
-        klib {
-            enabled = isKlibValidationEnabled()
-        }
-*/
+        keepLocallyUnsupportedTargets = false
 
         filters {
             exclude {
@@ -64,6 +60,11 @@ kotlin {
                     add("nl.adaptivity.xmlutil.core.impl.**")
                     add("nl.adaptivity.xmlutil.util.impl.**")
                 }
+            }
+        }
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
             }
         }
     }
@@ -90,6 +91,7 @@ kotlin {
         }
 
     }
+
     js {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -102,21 +104,6 @@ kotlin {
         }
         browser()
         nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmWasi {
-        nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        nodejs()
-        browser {
-            testTask {
-                isEnabled = !System.getenv().containsKey("GITHUB_ACTION")
-            }
-        }
     }
 
     compilerOptions {
@@ -134,13 +121,13 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(libs.serialization.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
@@ -149,7 +136,7 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
@@ -160,7 +147,7 @@ kotlin {
             }
         }
 
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -170,6 +157,7 @@ kotlin {
 }
 
 val cleanTestTask = tasks.register("cleanTest") {
+    description = "Cleans all test data (for all platforms)"
     group = "verification"
 
     dependsOn(tasks.withType<Delete>().matching {

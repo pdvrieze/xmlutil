@@ -1,3 +1,16 @@
+# 1.0.0-SNAPSHOT
+Fixes:
+- Remove usages of removeLast() to avoid issues on Android below 
+  API-level 35. Fixes #367.
+- Fix Attr in the common DOM implementation not having its owner set/tracked
+  appropriately.
+- Ensure that the module structure matches the old structure from
+  1.0.0-rc2 and before. 
+
+Changes:
+- The core-compat module is no longer published. Use core/core-jvm, and if integration with
+  the native parser is needed, add the core-jdk or core-android modules. 
+
 # 1.0.0-rc3 The full DOM
 *(Jun 6, 2026)<br />*
 Features:

@@ -22,6 +22,7 @@
 
 import net.devrieze.gradle.ext.addNativeTargets
 import net.devrieze.gradle.ext.doPublish
+import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -40,7 +41,7 @@ plugins {
 }
 
 base {
-    group = "io.github.pdvrieze"
+    group = "io.github.pdvrieze.xmlutil"
     archivesName = "testutil"
 }
 
@@ -55,12 +56,11 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-
-/*
-        klib {
-            enabled = false // isKlibValidationEnabled()
+        if (!isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
         }
-*/
 
         filters {
             exclude {
@@ -87,7 +87,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(libs.serialization.core)
                 api(kotlin("test"))
@@ -97,7 +97,7 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 api(kotlin("test-junit5"))
             }

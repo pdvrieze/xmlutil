@@ -21,11 +21,14 @@
 package io.github.pdvrieze.formats.xmlschema.resolved
 
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import nl.adaptivity.xmlutil.QName
 
 interface ResolvedTerm : ResolvedAnnotated {
-    fun checkTerm(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    fun checkTerm() {
         checkAnnotated(checkHelper.version)
     }
 
@@ -63,14 +66,16 @@ interface ResolvedTerm : ResolvedAnnotated {
         return collector
     }
 
-    fun flatten(range: AllNNIRange, isSiblingName: (QName) -> Boolean, checkHelper: CheckHelper): FlattenedParticle
+    context(checkHelper: CheckHelper)
+    fun flatten(range: AllNNIRange, siblingContext: SiblingContextProvider): FlattenedParticle
 
     fun isSiblingName(name: QName): Boolean {
         return visit(IsSiblingNameVisitor(name))
     }
 
-    fun flatten(checkHelper: CheckHelper): FlattenedParticle {
-        return flatten(AllNNIRange.SINGLERANGE, ::isSiblingName, checkHelper)
+    context(checkHelper: CheckHelper)
+    fun flatten(): FlattenedParticle {
+        return flatten(AllNNIRange.SINGLERANGE, ::isSiblingName)
     }
 
     abstract class Visitor<R> {

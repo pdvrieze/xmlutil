@@ -150,7 +150,7 @@ internal class InjectingInOutBuffer(val base: InOutBuffer): InOutBuffer {
             i += 1
         }
         if (i >= l) { // if we read the end of the stack, just recurse.
-            stack.removeLast()
+            stack.removeAt(stack.lastIndex) //use this for Android compatibility
             skipWS() // recurse more whitespace
         }
     }
@@ -166,7 +166,7 @@ internal class InjectingInOutBuffer(val base: InOutBuffer): InOutBuffer {
         val newPos = pos + 1
         when {
             newPos < lastStack.source.length -> lastStack.pos = newPos
-            else -> stack.removeLast()
+            else -> stack.removeAt(stack.lastIndex)
         }
 
         return r

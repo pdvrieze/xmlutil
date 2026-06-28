@@ -1,22 +1,21 @@
 [versions]
+# Used directly by ProjectPlugin
 apiVersion = "2.3"
 dateTime = "0.8.0"
 dokka = "2.2.0"
-javaVersion = "8"
 jmh = "0.7.3"
 jmh-core = "1.37"
-benchmark = "0.4.16"
+benchmark = "0.4.17"
 junit5-jupiter = "5.14.4"
 junit-jupiter = "6.0.3"
 kotlin = "2.4.0"
 kotlinx-serialization = "1.11.0"
 kotlinx-io = "0.9.0"
 kxml2 = "2.3.0"
-woodstox = "7.1.1"
-xmlutil = "1.0.0-rc3"
-httpComponents = "4.5.14"
+woodstox = "7.2.1"
+xmlutil = "1.0.0-SNAPSHOT"
 httpComponents5 = "5.6.1"
-atomicfu = "0.32.0"
+atomicfu = "0.33.0"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
@@ -32,7 +31,6 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
 
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "dateTime" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin"}
 benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "benchmark"}
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }

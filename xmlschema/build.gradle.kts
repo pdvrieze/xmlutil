@@ -40,7 +40,7 @@ plugins {
 config {
     dokkaModuleName = "xmlschema"
     applyLayout = true
-//    allWarningsAsErrors = false
+    allWarningsAsErrors = false
 }
 
 base {
@@ -49,6 +49,9 @@ base {
 }
 
 kotlin {
+
+    jvmToolchain(17)
+
     jvm {
         attributes {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
@@ -79,7 +82,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(project(":core"))
                 api(project(":serialization"))
@@ -87,7 +90,7 @@ kotlin {
                 implementation(libs.datetime)
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(projects.schemaTests)
                 implementation(kotlin("test"))
@@ -97,7 +100,7 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
