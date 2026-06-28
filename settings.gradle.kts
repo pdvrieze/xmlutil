@@ -52,7 +52,7 @@ val includeSchema = providers.gradleProperty("excludeSchema").map {
 rootProject.name = "xmlutil"
 
 include(":serialutil")
-//include("core-compat")
+include("core-compat")
 include("core")
 include("coreJdk")
 include("coreAndroid")
@@ -72,7 +72,7 @@ if (includeSchema) {
 project(":core").projectDir = file("core/base")
 project(":coreJdk").projectDir = file("core/jdk")
 project(":coreAndroid").projectDir = file("core/android")
-//project(":core-compat").projectDir = file("core/compat")
+project(":core-compat").projectDir = file("core/compat")
 project(":core-io").projectDir = file("core/kxio")
 
 include(":xmlutil-bom")

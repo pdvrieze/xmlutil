@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,11 +18,13 @@
  * permissions and limitations under the License.
  */
 
-import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
+import net.devrieze.gradle.ext.doPublish
 
 plugins {
+    id("projectPlugin")
     `java-platform`
     `maven-publish`
+    signing
 }
 
 dependencies {
@@ -53,25 +55,19 @@ dependencies {
 
 publishing {
     publications {
-        val mavenBom by creating(MavenPublication::class) {
+        register<MavenPublication>("mavenBom") {
             from(components["javaPlatform"])
-        }
 
-        for(pub in this) {
-            pub as DefaultMavenPublication
-
-            pub.unsetModuleDescriptorGenerator()
-
-            tasks.configureEach {
-                if (name == "generateMetadataFileFor${pub.name.replaceFirstChar { it.titlecase() }}") {
-                    onlyIf { false }
-                }
+            pom {
+                name = "xmlutil-Bill of Materials"
+                description = "Centralised dependencies for xmlutil"
             }
         }
     }
 }
 
-fun DefaultMavenPublication.unsetModuleDescriptorGenerator() {
-    @Suppress("NULL_FOR_NONNULL_TYPE")
-    this.setModuleDescriptorGenerator(null)
+doPublish(pubDescription = "Centralised dependencies for xmlutil", generateJavadoc = false)
+
+tasks.withType<GenerateModuleMetadata>().configureEach {
+    enabled = false
 }

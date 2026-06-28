@@ -20,16 +20,17 @@
 
 package net.devrieze.gradle.ext
 
-import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyTemplate
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -142,12 +143,13 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
             }
         } -> {
             logger.lifecycle("No native.deploy property set, and abi update/check task found.\n" +
-                    "  -- Defaulting to all mode")
+                        "  -- Defaulting to all mode")
             NativeState.ALL
         }
+
         else -> {
             logger.lifecycle("set the native.deploy=[all|host|hostWasm|disabled|single] property to specify the native mode.\n" +
-                    "  -- Defaulting to single mode")
+                        "  -- Defaulting to single mode")
             NativeState.SINGLE
         }
     }
@@ -166,6 +168,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         else -> Host.Linux
     }
 
+    @Suppress("DEPRECATION")
     ext["ideaPreset"] = when (host) {
         Host.Windows -> when (HostManager.hostArchOrNull()) {
             "x86_64" -> fun KotlinMultiplatformExtension.() { mingwX64() }
@@ -220,6 +223,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
                 linuxArm32Hfp()
             }
 
+            @Suppress("DEPRECATION")
             if (nativeState != NativeState.HOST || host == Host.Macos) {
                 logger.lifecycle("Adding Mac(ish) targets")
                 macosX64()
@@ -268,10 +272,3 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
     }
 }
 
-private fun KotlinMultiplatformExtension.targets(configure: Action<Any>): Unit =
-    (this as ExtensionAware).extensions.configure("targets", configure)
-
-private fun KotlinMultiplatformExtension.sourceSets(configure: Action<org.gradle.api.NamedDomainObjectContainer<KotlinSourceSet>>): Unit =
-    (this as ExtensionAware).extensions.configure("sourceSets", configure)
-
-val Project.isWasmSupported: Boolean get() = true
