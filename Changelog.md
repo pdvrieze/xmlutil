@@ -1,4 +1,5 @@
-# 1.0.0-SNAPSHOT
+# 1.0.0 To infinity and beyond
+*(Jun 28, 2026)<br />*
 Fixes:
 - Remove usages of removeLast() to avoid issues on Android below 
   API-level 35. Fixes #367.
