@@ -6,7 +6,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <io.github.pdvrieze:testutil>
+// Library unique name: <io.github.pdvrieze.xmlutil:testutil>
 final enum class io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode : kotlin/Enum<io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode> { // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode|null[0]
     enum entry AUTO // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.AUTO|null[0]
     enum entry CHECK // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.CHECK|null[0]

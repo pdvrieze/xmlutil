@@ -1,6 +1,9 @@
 # 1.0.1-SNAPSHOT
 Changes:
-- Add support to specify the cache size of the underlying cache for LayeredCache.
+- Add support to specify the cache size of the underlying cache for LayeredCache 
+  and `defaultSharedFormatCache()`
+- Add support for a `PerSerializationFormatCache` that allows for caching within
+  individual invocations to a format. 
 
 # 1.0.0 To infinity and beyond
 *(Jun 28, 2026)<br />*
