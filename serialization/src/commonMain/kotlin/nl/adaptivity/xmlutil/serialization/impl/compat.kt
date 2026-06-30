@@ -27,5 +27,3 @@ internal expect val KClass<*>.maybeSerialName: String?
 internal expect class CompatLock()
 
 internal expect inline fun <R> CompatLock.invoke(action: () -> R): R
-
-internal expect fun currentThreadId(): Any

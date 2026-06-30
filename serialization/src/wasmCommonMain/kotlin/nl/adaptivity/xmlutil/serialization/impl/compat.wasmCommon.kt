@@ -34,4 +34,3 @@ internal actual val KClass<*>.maybeSerialName: String?
 internal actual class CompatLock
 
 internal actual inline fun <R> CompatLock.invoke(action: () -> R): R = action()
-internal actual fun currentThreadId(): Any = 1
