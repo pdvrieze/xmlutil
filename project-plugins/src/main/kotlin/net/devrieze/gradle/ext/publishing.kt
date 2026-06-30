@@ -1,25 +1,26 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package net.devrieze.gradle.ext
 
+import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.PublishingExtension
@@ -29,7 +30,6 @@ import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
-import java.util.*
 
 @Suppress("LocalVariableName")
 fun Project.doPublish(
@@ -48,34 +48,33 @@ fun Project.doPublish(
 
     configure<PublishingExtension> {
         repositories {
+            if (isSnapshot) {
+                maven {
+                    name = "mavenSnapshot"
+                    url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+                    credentials {
+                        username = project.findProperty("ossrh.username") as String?
+                        password = project.findProperty("ossrh.password") as String?
+                    }
+                }
+            }
             maven {
-                name = "OSS_registry"
-                val repositoryId = project.properties["xmlutil.repositoryId"] as String?
-                url = when {
-                    "SNAPSHOT" in version.toString().uppercase(Locale.getDefault()) ->
-                        uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-                    repositoryId != null ->
-                        uri("https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId/")
-                    else ->
-                        uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                }
-                credentials {
-                    username = project.findProperty("ossrh.username") as String?
-                    password = project.findProperty("ossrh.password") as String?
-                }
+                name = "projectLocal"
 
+                setUrl(rootProject.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
             }
         }
-
 
         configure<SigningExtension> {
             val priv_key:String? = System.getenv("GPG_PRIV_KEY")
             val passphrase:String? = System.getenv("GPG_PASSPHRASE")
-            if (priv_key==null ||passphrase==null) {
+            if (priv_key != null && passphrase != null) {
+                useInMemoryPgpKeys(priv_key, passphrase)
+            } else if (System.getenv("JITPACK").equals("true", true)) {
+                setRequired(false)
+            } else {
                 logger.warn("No private key information found in environment. Falling back to gnupg.")
                 useGpgCmd()
-            } else {
-                useInMemoryPgpKeys(priv_key, passphrase)
             }
         }
 

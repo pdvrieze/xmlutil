@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2024.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.xmlutil.plugin
@@ -32,15 +32,22 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.api.publish.plugins.PublishingPlugin
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class ProjectPlugin: Plugin<Project> {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -52,6 +59,57 @@ class ProjectPlugin: Plugin<Project> {
 
         project.group = "io.github.pdvrieze.xmlutil"
         project.version = xmlutil_version
+
+
+        when {
+            project.isSnapshot -> project.logger.debug("Project release is a snapshot release {}", project.version)
+            else -> project.logger.debug("Project release is not a snapshot release {}", project.version)
+        }
+
+        if (project == project.rootProject) {
+            val repositoryDir = project.layout.buildDirectory.dir("project-local-repository")
+
+
+
+            val cleanLocalRepoTask = project.tasks.register("cleanLocalRepo") {
+                doFirst {
+                    if (repositoryDir.isPresent) {
+                        repositoryDir.get().asFile.deleteRecursively()
+                    }
+                }
+            }
+
+            val collateTask = project.tasks.register<Zip>("collateModuleRepositories") {
+                group = PublishingPlugin.PUBLISH_TASK_GROUP
+                description = "Zip task that collates all local repositories into a single zip file"
+                destinationDirectory = project.layout.buildDirectory.dir("repositoryArchive")
+                archiveBaseName = "${project.name}-publishing"
+
+                from(repositoryDir) {
+                    exclude { ".asc." in it.name }
+                    exclude { it.name.startsWith("maven-metadata.xml") }
+//                    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+                }
+
+                project.subprojects {
+                    val publishTasks = tasks.matching { it is PublishToMavenRepository && it.repository?.name == "projectLocal" }
+                    logger.debug("Adding local publication tasks for subproject ${path} as dependency to collateModuleRepositories")
+                    dependsOn(publishTasks)
+                }
+
+            }
+
+            project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
+                group = PublishingPlugin.PUBLISH_TASK_GROUP
+                description = "Publish the repositories to the sonatype maven central portal"
+
+                from(collateTask.flatMap { t -> t.archiveFile.map { it.asFile } })
+            }
+
+        }
+
+
+
         project.tasks.withType<KotlinNpmInstallTask> {
             args += "--ignore-scripts"
         }
@@ -228,3 +286,22 @@ abstract class ProjectConfigurationExtension {
     abstract val kotlinApiVersion: Property<KotlinVersion>
     abstract val kotlinTestVersion: Property<KotlinVersion>
 }
+
+
+private var _isSnapshot: Int = -1
+
+val Project.isSnapshot: Boolean
+    get() = when (_isSnapshot) {
+        0 -> false
+        1 -> true
+
+        else -> {
+            val r: Boolean = providers.gradleProperty("forceSnapshot")
+                .map { it.lowercase() == "true" }
+                .getOrElse(false) || "SNAPSHOT" in version.toString().uppercase(Locale.getDefault())
+
+            r.also { _isSnapshot = if (it) 1 else 0 }
+        }
+    }
+
+val TIMESTAMP_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm'Z'")
