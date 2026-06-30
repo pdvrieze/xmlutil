@@ -1,4 +1,6 @@
 # 1.0.1-SNAPSHOT
+Changes:
+- Add support to specify the cache size of the underlying cache for LayeredCache.
 
 # 1.0.0 To infinity and beyond
 *(Jun 28, 2026)<br />*

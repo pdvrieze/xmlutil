@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -34,6 +34,8 @@ public class LayeredCache private constructor(
 ): FormatCache() {
 
     public constructor() : this(DefaultFormatCache())
+
+    public constructor(cacheSize: Int) : this(DefaultFormatCache(cacheSize))
 
     private val lock = CompatLock()
 
