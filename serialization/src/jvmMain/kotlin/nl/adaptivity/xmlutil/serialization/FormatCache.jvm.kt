@@ -20,6 +20,6 @@
 
 package nl.adaptivity.xmlutil.serialization
 
-public actual fun defaultSharedFormatCache(): FormatCache {
-    return LayeredCache()
+public actual fun defaultSharedFormatCache(cacheSize: Int): FormatCache {
+    return LayeredCache(cacheSize)
 }
