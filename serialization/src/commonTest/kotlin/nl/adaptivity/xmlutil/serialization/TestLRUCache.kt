@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -117,9 +117,54 @@ class TestLRUCache {
         }
     }
 
+    /**
+     * Test first cache size issue from #372
+     */
+    @Test
+    fun testCacheSizeLimits() {
+        val cache = LRUCache<CollidingKey, String>(4)
+
+        val keys = (0..<5).map { CollidingKey(it, 3) }
+        repeat(9) {
+            cache.put(keys[it % 5], "value$it")
+            val _ = cache[keys[(it/2)%5]]
+        }
+
+        val cacheCopy = LRUCache<CollidingKey, String>(40)
+        cacheCopy.putAll(cache)
+        assertEquals(4, cacheCopy.size)
+    }
+
+    /**
+     * Test first cache size issue from #372
+     */
+    @Test
+    fun testRemoveKey() {
+        val cache = LRUCache<CollidingKey, String>(7)
+
+        val keys = (0..<8).map { CollidingKey(it, 8 / 3) }
+        repeat(9) {
+            cache.put(keys[it % keys.size], "value $it")
+        }
+
+        val value4 = cache.remove(keys[4])
+        assertEquals("value 4", value4)
+
+        assertNull(cache[keys[4]])
+    }
+
     companion object {
 
         val DEFAULT_VALUES = Array(100) { "$it" }
     }
 
+    data class CollidingKey(val id: Int, private val _hashCode: Int = 0) {
+        override fun equals(other: Any?): Boolean {
+            return other is CollidingKey && id == other.id
+        }
+
+        override fun hashCode(): Int = _hashCode
+
+        override fun toString(): String = "($id)"
+    }
 }
