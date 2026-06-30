@@ -1,8 +1,18 @@
+# 0.90.4
+*(Jun 30, 2026)<br />*
+Changes:
+- Backport the cache updates from the main 1.0.0/dev branch
+- Add support to specify the cache size of the underlying cache for LayeredCache 
+  and `defaultSharedFormatCache()`
+- Add support for a `PerSerializationFormatCache` that allows for caching within
+  individual invocations to a format. 
+
 # 0.90.3
+*(November 7, 2024)<br />*
 Changes:
 - In pedantic mode check that xml/xmlns are not used as names (they
   are always invalid). Note that namespaces can be specified using
-  `@XmlSerialName` (for tags) and `@XmlNamespaceDeclSpec` (for 
+  `@XmlSerialName` (for tags) and `@XmlNamespaceDeclSpec` (for
   additional names).
 - The cache to use can now be configured. By default it uses the
   threadLocal version, but the thread unsafe default is also available,
@@ -14,11 +24,13 @@ Fixes:
   multithreading issues when reusing the format (recommended for speed)
 
 # 0.90.2 Mooor Rocketpower!
+*(October 15, 2024)<br />*
 Changes:
 - Update to Kotlin 2.0.21 / Kotlinx.serialization 1.7.3
 - Add support for Android native targets (@whyoleg in #242)
 
 # 0.90.2-beta1 Rocketpower!
+*(July 22, 2024)<br />*
 Changes:
 - Update to Kotlin 2.0.20 / kotlinx.serialization 1.7.2
 - Extensive optimization of decoding (serialization), parsing
@@ -57,16 +69,18 @@ Fixes:
 - Don't make the companion of `XmlDeclMode` internal (#219). This is a
   workaround for a regresion in 2.0 that doesn't allow resolving enum
   constants in this case.
-- Fix deserialization with contextual serializer #220 
+- Fix deserialization with contextual serializer #220
 - Fix `NamespaceHolder.namespacesAtCurrentDepth` for nested
   declarations.
 - Fix infinite recursion issue with xmlStreaming.newWriter / newReader
 
 # 0.90.1 Fix Android
+*(June 16, 2024)<br />*
+Fixes:
 - Fix android plugin dependency.
 
 # 0.90.0 2.0 will go
-*(June 13, 2024)
+*(June 13, 2024)<br />*
 Changes:
 - The core module no longer automatically includes Android/Jvm "native"
   parsers by default, but uses the platform independent implementation.
@@ -78,15 +92,19 @@ Changes:
   be removed at 1.0 release.
 
 # 0.90.0-RC3
+*(June 11, 2024)<br />*
+Fixes:
 - Fix issues with dependencies in new layout (#209) - XMPCore now
   builds/resolves.
 
 # 0.90.0-RC2
+*(June 7, 2024)<br />*
 Fixes:
 - Fix multithreading initialization on JVM targets, serviceLoaders are
-  not thread-safe (#211). 
+  not thread-safe (#211).
 
 # 0.90.0-RC1 – Supporting 2.0
+*(May 24, 2024)<br />*
 Changes:
 - Build with Kotlin 2.0.0
 - The core module has been changed to use default implementations for
@@ -99,7 +117,7 @@ Changes:
   dependency only module that pulls in the specific modules (for
   compatibility).
 - Make automatic encoding detection the default/recommended, and add
-  some changes to make this work better. Thanks to @sschuberth in 
+  some changes to make this work better. Thanks to @sschuberth in
   (#206).
 - Separate the tag and attribute namespace (allowing the same name
   as attribute and element).
@@ -132,7 +150,7 @@ Fixes:
   attributes.
 
 # 0.86.3
-*(December 14, 2023)
+*(December 14, 2023)<br />*
 Changes:
 - The `XmlStreaming` object in core is replaced by an interface `IXmlStreaming`
   with an accessor function `xmlStreaming` that provides an appropriate
@@ -141,7 +159,7 @@ Changes:
 
 Features:
 - Update to kotlinx.serialization 1.6.1, add wasmJs/wasmWasi support.
-- Support strict boolean parsing in policy 
+- Support strict boolean parsing in policy
   (using xml schema rules allowing: 1, true, 0, false)
 - Add an alias XmlBoolean that parses according to xml rules independent of
   the policy.
@@ -173,9 +191,9 @@ Security:
 - On JVM target only: explicitly disable creating input stream factory that
   allows for external entities (which could be local files such as passwd).
   An upgrade is recommended. However workarounds exist: Rather than use the
-  convenience accessor from string, use the following code: 
+  convenience accessor from string, use the following code:
   `XML.decodeFromReader(XmlStreaming.newGenericReader(inputString))` (or the
-  relevant overloads - It is the usage of the generic reader that is key). 
+  relevant overloads - It is the usage of the generic reader that is key).
 
 Features:
 - Support wildcard (`*`) for `XmlBefore` and `XmlAfter`. These create a
@@ -240,7 +258,7 @@ Features:
 - Deprecate the ktor module (in favour of ktor's own xml integration module).
   Note that that module still uses xmlutil, it just provides its own xml access
   code.
-  
+
 Fixes:
 - Various high range unicode characters (and modifiers) were incorrectly seen
   as invalid values (relevant for emoji's)
@@ -260,7 +278,7 @@ Fixes:
   If the default namespace is used anywhere, this ensures that prefixes are
   used otherwise. This will avoid all occurences of `xmlns=""` (and
   `xmlns:prefix=""`)
-- Fix DomReader's handling of non-namespace aware elements/nodes that return 
+- Fix DomReader's handling of non-namespace aware elements/nodes that return
   `null` as localName.
 - In DomReader handle the fact that JVM's xpath creates xmlns declarations for
   xmlns.
@@ -295,7 +313,7 @@ Features:
 
 Changes:
 - The tagname for value children is used for the use, not for the type of the
-  value child (often compactFragment). 
+  value child (often compactFragment).
 
 Fixes:
 - Make actual serialization of maps (that are not attributes) work
@@ -311,7 +329,7 @@ Features:
 - Add the ability to have polymorphic root tags (#98). Note that for
   a non-transparent approach it is strongly advised to explicitly
   provide the tagname polymorphic types do not support annotations on
-  the type. 
+  the type.
 
 Fixes:
 - Fix reading of entity references. #88
@@ -323,7 +341,7 @@ Fixes:
   namespace).
 - Fix empty namespace handling for dom namespace attributes
 - In DOMReader make sure that namespace declaration attributes are not exposed
-  as double (as attribute and nsDecl) events. 
+  as double (as attribute and nsDecl) events.
 
 # 0.84.2
 *(May 4, 2022)<br />*
@@ -367,15 +385,15 @@ Fixes:
 - Improve handling of attribute prefixes and namepaces to be standard compliant
 - Fix execution of native tests (not user visible)
 - Fix module names (due to variable name clash in build script). Thanks to
-  @rsinukov in pull request #79 
+  @rsinukov in pull request #79
 
 # 0.84.0-RC1
 *(Nov 3, 2021)<br />*
 Features:
 - Add `@XmlCData` annotation to force serialization as CData for a type (#71)
-- Allow compact fragments to be used transparently in conjunction with the 
+- Allow compact fragments to be used transparently in conjunction with the
   `@XmlValue` annotation (it requires use of the `CompactFragmentSerializer`).
-- Add `XmlBufferReader` as a reader of lists of events (the counterpoint to 
+- Add `XmlBufferReader` as a reader of lists of events (the counterpoint to
   `@XmlBufferedWriter`)
 - Support serializing lists of primitives (or inlines of primitives, or qnames).
   This is derived from the xml schema standard (and needed for xml schema).
@@ -390,7 +408,7 @@ Features:
   specified by the policy. This uses the QName for the type (using existing
   mechanisms), but amended to map kotlin primitive names to XMLSchema types.
   Note that this mechanism is only for polymorphic serialization, no
-  substitution happens outside the polymorphic case (the same way that 
+  substitution happens outside the polymorphic case (the same way that
   substitution) needs to be declared in XMLschema.
 - Support using XMLSchema instance nil attributes (or a user configured
   alternative). The nil attribute is recognized unconditionally, but only
@@ -403,7 +421,7 @@ Features:
   with the writer.
 - Support generating xml in either version 1.0 or 1.1 (with the platform
   independent writer)
-  
+
 Fixes:
 - Update to kotlinx.serialization-1.3.0-RC
 - Fix/change XmlReader.namespaceDecls (make it a member, not an extension)
