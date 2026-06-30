@@ -44,6 +44,7 @@ import nl.adaptivity.xmlutil.serialization.impl.QNameMap
 import nl.adaptivity.xmlutil.serialization.impl.maybeSerialName
 import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.util.CompactFragmentSerializer
+import kotlin.math.E
 import kotlin.reflect.KClass
 import nl.adaptivity.xmlutil.serialization.CompactFragmentSerializer as DeprecatedCompactFragmentSerializer
 
@@ -67,6 +68,8 @@ public interface SafeXmlDescriptor {
     public val preserveSpace: Boolean
 
     public val typeDescriptor: XmlTypeDescriptor
+
+    public val serializerParent: SafeParentInfo
     public val tagParent: SafeParentInfo
     public val tagName: QName
     public val serialDescriptor: SerialDescriptor
@@ -87,7 +90,7 @@ public interface SafeXmlDescriptor {
 
 public sealed class XmlDescriptor(
     codecConfig: XmlCodecConfig,
-    serializerParent: SafeParentInfo,
+    override val serializerParent: SafeParentInfo,
     final override val tagParent: SafeParentInfo = serializerParent,
 ) : SafeXmlDescriptor, Iterable<XmlDescriptor> {
 
@@ -1164,13 +1167,12 @@ public class XmlPolymorphicDescriptor internal constructor(
                     val childInfo =
                         polyTagName(codecConfig, currentPkg, baseName, polyChild, baseClass)
 
-                    val childSerializerParent =
-                        DetachedParent(
-                            tagParent.namespace,
-                            childInfo.elementTypeDescriptor,
-                            childInfo.useNameInfo,
-                            elementUseOutputKind = OutputKind.Element,
-                        )
+                    val childSerializerParent = PolymorphicParentInfo(
+                        parentDescriptor = this,
+                        elementTypeDescriptor = childInfo.elementTypeDescriptor,
+                        elementUseNameInfo = childInfo.useNameInfo,
+                        elementUseOutputKind = OutputKind.Element,
+                    )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
                     localPolyInfo[childInfo.describedName] = xmlDescriptor
@@ -1186,10 +1188,11 @@ public class XmlPolymorphicDescriptor internal constructor(
                     val childTypeDescriptor =
                         codecConfig.config.lookupTypeDesc(tagParent.namespace, d.getElementDescriptor(i))
                     val childDesc = d.getElementDescriptor(i)
-                    val childSerializerParent = DetachedParent(
-                        namespace = tagParent.namespace,
+                    val childSerializerParent = PolymorphicParentInfo(
+                        parentDescriptor = this,
                         elementTypeDescriptor = childTypeDescriptor,
                         elementUseNameInfo = wrapperUseName ?: DeclaredNameInfo("value"),
+                        elementUseOutputKind = outputKind,
                     )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
@@ -1213,13 +1216,12 @@ public class XmlPolymorphicDescriptor internal constructor(
                         //        return serialDescriptor.getNameInfo(config, parentNamespace, typeAnnXmlSerialName)
                     }
 
-                    val childSerializerParent =
-                        DetachedParent(
-                            tagParent.namespace,
-                            childTypeDescriptor,
-                            childNameInfo,
-                            elementUseOutputKind = outputKind,
-                        )
+                    val childSerializerParent: SafeParentInfo = PolymorphicParentInfo(
+                        parentDescriptor = this,
+                        elementTypeDescriptor = childTypeDescriptor,
+                        elementUseNameInfo = childNameInfo,
+                        elementUseOutputKind = outputKind,
+                    )
 
                     val xmlDescriptor = from(codecConfig, childSerializerParent, tagParent, canBeAttribute = false)
                     localPolyInfo[childDesc.serialName] = xmlDescriptor
@@ -1777,6 +1779,54 @@ private class DetachedParent(
 }
 
 internal val DEFAULT_NAMESPACE = XmlEvent.NamespaceImpl("", "")
+
+private class PolymorphicParentInfo private constructor(
+    override val descriptor: XmlPolymorphicDescriptor,
+    override val namespace: Namespace,
+    override val elementTypeDescriptor: XmlTypeDescriptor,
+    override val elementUseNameInfo: DeclaredNameInfo,
+    override val elementUseOutputKind: OutputKind? = null,
+    override val elementUseAnnotations: Collection<Annotation>,
+    override val overriddenSerializer: KSerializer<*>?,
+) : SafeParentInfo {
+
+    constructor(
+        parentDescriptor: XmlPolymorphicDescriptor,
+        elementTypeDescriptor: XmlTypeDescriptor,
+        elementUseNameInfo: DeclaredNameInfo,
+        elementUseOutputKind: OutputKind? = null,
+        overriddenSerializer: KSerializer<*>? = null
+    ): this (
+        parentDescriptor,
+        (elementUseNameInfo.annotatedName ?: parentDescriptor.tagName).toNamespace(),
+        elementTypeDescriptor,
+        elementUseNameInfo,
+        elementUseOutputKind,
+        parentDescriptor.serializerParent.elementUseAnnotations,
+        overriddenSerializer
+    )
+
+    override val index: Int get() = -1 // no valid index
+    override val parentIsInline: Boolean get() = false
+    override fun copy(
+        config: XmlConfig,
+        overriddenSerializer: KSerializer<*>?
+    ): SafeParentInfo {
+        val newElementTypeDescriptor = overriddenSerializer?.let { config.lookupTypeDesc(namespace, it.descriptor) }
+            ?: elementTypeDescriptor
+
+        return PolymorphicParentInfo(
+            descriptor,
+            namespace,
+            newElementTypeDescriptor,
+            elementUseNameInfo,
+            elementUseOutputKind,
+            elementUseAnnotations,
+            overriddenSerializer?: this.overriddenSerializer
+        )
+    }
+
+}
 
 @WillBePrivate // 2021-07-05 Should not have been public.
 public class ParentInfo(

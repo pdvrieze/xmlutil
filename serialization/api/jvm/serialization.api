@@ -802,6 +802,7 @@ public abstract interface class nl/adaptivity/xmlutil/serialization/structure/Sa
 	public abstract fun getPreserveSpace ()Z
 	public abstract fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public abstract fun getSerialKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public abstract fun getSerializerParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public abstract fun getTagName ()Ljavax/xml/namespace/QName;
 	public abstract fun getTagParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public abstract fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
@@ -863,6 +864,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/structure/XmlDescripto
 	public final fun getOverriddenSerializer ()Lkotlinx/serialization/KSerializer;
 	public fun getSerialDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public fun getSerialKind ()Lkotlinx/serialization/descriptors/SerialKind;
+	public fun getSerializerParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public fun getTagName ()Ljavax/xml/namespace/QName;
 	public final fun getTagParent ()Lnl/adaptivity/xmlutil/serialization/structure/SafeParentInfo;
 	public fun getTypeDescriptor ()Lnl/adaptivity/xmlutil/serialization/structure/XmlTypeDescriptor;
