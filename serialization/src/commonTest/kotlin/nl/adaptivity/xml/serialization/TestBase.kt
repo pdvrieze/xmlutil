@@ -36,7 +36,6 @@ import nl.adaptivity.xmlutil.core.internal.StringInOutBuffer
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.*
-import nl.adaptivity.xmlutil.util.impl.createDocument
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -99,7 +98,7 @@ internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerial
         policy {
             autoPolymorphic = false
             typeDiscriminatorName = null
-            formatCache = TestFormatCache(LayeredCache())
+            formatCache = TestFormatCache(LayeredCache(17))
         }
         xmlDeclMode = XmlDeclMode.None
     }
