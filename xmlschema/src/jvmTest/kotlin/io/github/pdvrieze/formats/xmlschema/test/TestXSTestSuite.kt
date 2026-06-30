@@ -36,6 +36,7 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
+import nl.adaptivity.xmlutil.serialization.LayeredCache
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.defaultPolicy
 import nl.adaptivity.xmlutil.serialization.structure.*
@@ -58,6 +59,9 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
 
     override var xml: XML = XML.v1 {
         defaultToGenericParser = true
+        policy {
+            formatCache = LayeredCache(7)
+        }
     }
 
     @Test
@@ -228,9 +232,11 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
             val (testSetResource, _, testSet) = tsInfo
 
             buildDynamicContainer("Test set '${tsInfo.displayName}'") {
+/*
                 tsInfo.groupTest {
 
                 }
+*/
 
                 for (group in testSet.testGroups) {
                     if (false || group.name.equals("addA005")) {
