@@ -1,6 +1,7 @@
 # 1.0.1-SNAPSHOT
 Fixes:
 - Fix LRU cache so that it properly evicts and maintains its size (#372).
+- Fix reading larger from kotlinx.io sources (#373)
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`
