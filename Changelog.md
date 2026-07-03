@@ -7,6 +7,8 @@ Changes:
   and `defaultSharedFormatCache()`
 - Add support for a `PerSerializationFormatCache` that allows for caching within
   individual invocations to a format. 
+- Snapshot releases no longer include javadoc/source artifacts, nor deprecated
+  native targets. This should reduce the overall publication size/burden.
 
 # 1.0.0 To infinity and beyond
 *(Jun 28, 2026)<br />*

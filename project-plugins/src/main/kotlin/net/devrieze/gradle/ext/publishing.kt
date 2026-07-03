@@ -49,6 +49,10 @@ fun Project.doPublish(
                         password = project.findProperty("ossrh.password") as String?
                     }
                 }
+                maven {
+                    name = "testMavenSnapshot"
+                    setUrl(rootProject.layout.buildDirectory.dir("testMavenSnapshot").map { it.asFile.toURI() })
+                }
             }
             maven {
                 name = "projectLocal"
@@ -59,9 +63,10 @@ fun Project.doPublish(
         }
 
         publications.withType<MavenPublication>().configureEach {
+
             val publication = this
 
-            if (generateJavadoc && name != "kotlinMultiplatform") {
+            if (generateJavadoc && name != "kotlinMultiplatform" && !isSnapshot) {
 
                 val javadocJarTaskName = "${name}JavadocJar"
                 val javadocJarTask = project.tasks.register<Jar>(javadocJarTaskName) {
@@ -101,6 +106,15 @@ fun Project.doPublish(
 
     }
 
+    tasks.withType<PublishToMavenRepository>().configureEach {
+        doFirst {
+            val pubArtifacts = publication.artifacts
+
+            pubArtifacts.removeIf { artifact ->
+                artifact.classifier == "sources"
+            }
+        }
+    }
 
     val publishNativeTask = tasks.register<Task>("publishNative") {
         group = "Publishing"
