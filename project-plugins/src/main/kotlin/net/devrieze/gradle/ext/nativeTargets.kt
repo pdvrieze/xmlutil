@@ -20,6 +20,7 @@
 
 package net.devrieze.gradle.ext
 
+import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.getByName
@@ -215,18 +216,19 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
             @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
             targetFun()
         } else {
+            val isSnapshot = isSnapshot
             if (nativeState != NativeState.HOST || host == Host.Linux) {
                 logger.lifecycle("Adding Linux targets")
                 linuxX64()
                 linuxArm64()
                 @Suppress("DEPRECATION")
-                linuxArm32Hfp()
+                if (!isSnapshot) linuxArm32Hfp()
             }
 
             @Suppress("DEPRECATION")
             if (nativeState != NativeState.HOST || host == Host.Macos) {
                 logger.lifecycle("Adding Mac(ish) targets")
-                macosX64()
+                if (!isSnapshot) macosX64()
                 macosArm64()
                 iosArm64()
                 iosSimulatorArm64()
@@ -234,13 +236,13 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
 
                 watchosDeviceArm64()
                 watchosSimulatorArm64()
-                watchosX64()
+                if (!isSnapshot) watchosX64()
                 watchosArm32()
                 watchosArm64()
 
                 tvosSimulatorArm64()
                 tvosArm64()
-                tvosX64()
+                if (!isSnapshot) tvosX64()
             }
 
             if (nativeState != NativeState.HOST || host == Host.Windows) {
