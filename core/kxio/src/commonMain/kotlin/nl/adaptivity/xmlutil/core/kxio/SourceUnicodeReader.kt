@@ -53,21 +53,30 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
 
     private fun reloadBuffer() {
         if (!source.exhausted()) {
-            if (inputBufferOffset < inputBufferEnd) {
-                inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
-                inputBufferEnd -= inputBufferOffset
-                inputBufferOffset = 0
+            val readOffset: Int
+            // if there is data in the buffer that was not read yet, move this data to the start of the buffer
+            when {
+                inputBufferOffset == 0 -> readOffset = inputBufferEnd
+
+                inputBufferOffset < inputBufferEnd -> {
+                    inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
+                    inputBufferEnd -= inputBufferOffset
+                    readOffset = inputBufferEnd
+                }
+
+                else -> readOffset = 0
             }
 
-            val readCount: Int = source.readAtMostTo(inputBuffer, inputBufferOffset, (inputBuffer.size - inputBufferOffset))
+            inputBufferOffset = 0
+            val readCount: Int = source.readAtMostTo(inputBuffer, readOffset, inputBuffer.size)
             if (readCount < 0) return
             if (readCount == 0) { // hack to ensure at least a single byte is always read
-                inputBuffer[inputBufferOffset] = source.readByte()
-                inputBufferEnd = inputBufferOffset + 1
+                inputBuffer[readOffset] = source.readByte()
+                inputBufferEnd = readOffset + 1
                 return
             }
 
-            inputBufferEnd = inputBufferOffset + readCount
+            inputBufferEnd = readOffset + readCount
         }
     }
 
