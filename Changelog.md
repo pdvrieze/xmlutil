@@ -6,6 +6,7 @@ Fixes:
   but still incorrect.
 - Fix serialization of negative values for XmlFloat/XmlDouble and related
   serializers (#375).
+- Fix escaping of 0x1f in KtXmlWriter (#376).
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`
