@@ -34,7 +34,7 @@ class TestXmlFloatSerializer {
     fun testSerializeNormalValue() {
         val enc = ValueCapturingEncoder()
         XmlFloatSerializer.serialize(enc, 1.5f)
-        assertEquals("1.5", enc.capturedString)
+        assertEquals(1.5f, enc.capturedFloat)
     }
 
     @Test
