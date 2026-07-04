@@ -11,6 +11,9 @@ Fixes:
   per the XML standards. Also tidy the error messages (#377).
 - Fix DomWriter.getPrefixes that was incorrectly handling checks for already
   declared prefixes (#379).
+- Fix writing namespace attributes through XmlEvent.Attribute (#380). Note
+  that the parsing code does not generate Attribute events, so most use cases
+  are not hit by this bug.
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`
