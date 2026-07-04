@@ -7,6 +7,8 @@ Fixes:
 - Fix serialization of negative values for XmlFloat/XmlDouble and related
   serializers (#375).
 - Fix escaping of 0x1f in KtXmlWriter (#376).
+- Allow writing of BOM in CData content, but disallow the sentinal character (0xffff)
+  per the XML standards. Also tidy the error messages (#377)
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`

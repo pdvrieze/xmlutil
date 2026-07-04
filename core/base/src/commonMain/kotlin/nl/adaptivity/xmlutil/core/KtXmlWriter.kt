@@ -511,7 +511,8 @@ public class KtXmlWriter(
 
                         in 0xD800..0xDFFF -> error("Surrogate block codepoints are not valid characters")
 
-                        0xFFFE, 0xFFEF -> error("Byte order markers are not allowed in xml content")
+                        0xFFFE -> error("Unicode codepoint 0xFFFE is reserved for reverse of the byte order marker, and is not allowed in xml content")
+                        0xFFFF -> error("The sentinal value is allowed in xml content")
 
                         else if xmlVersion == XmlVersion.XML11 -> {} // no issue
 
