@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -20,5 +20,12 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+
 public expect interface PlatformNodeList
+@ExperimentalXmlUtilApi
+public expect val PlatformNodeList.length: Int
+
+@ExperimentalXmlUtilApi
+public expect operator fun PlatformNodeList.iterator(): Iterator<PlatformNode>
 

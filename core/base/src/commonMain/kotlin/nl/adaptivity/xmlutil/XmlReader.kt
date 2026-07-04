@@ -35,7 +35,6 @@ import kotlin.jvm.JvmOverloads
  * Interface that is the entry point to the xml parsing. All implementations implement this
  * interface, generally by delegating to a platform specific parser.
  */
-@MpJvmDefaultWithCompatibility
 public interface XmlReader : Closeable, Iterator<EventType> {
 
     /** Get the next tag. This must call next, not use the underlying stream.  */
@@ -208,6 +207,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
      * Location info for the start of the currently "active" event, rather than the end of it. If
      * not explicitly supported will return null.
      */
+    @ExperimentalXmlUtilApi
     public val startLocationInfo: LocationInfo? get() = null
 
     /** Enhanced location info that allows a reader to provide more detail than just a string */
@@ -248,6 +248,7 @@ public interface XmlReader : Closeable, Iterator<EventType> {
     /** Simple location information that just wraps a String */
     public class StringLocationInfo(private val str: String) : LocationInfo {
 
+        @XmlUtilInternal
         override fun withFileName(fileName: String): StringLocationInfo = when {
             fileName in str -> this
             else -> StringLocationInfo("file $fileName: $str")
@@ -275,10 +276,13 @@ public interface XmlReader : Closeable, Iterator<EventType> {
      * Extended location info that actually provides column, line, and or file/string offset information.
      */
     public class ExtLocationInfo(
-        @ExperimentalXmlUtilApi public val col: Int,
-        @ExperimentalXmlUtilApi public val line: Int,
+        @ExperimentalXmlUtilApi
+        public val col: Int,
+        @ExperimentalXmlUtilApi
+        public val line: Int,
         private val offset: Int,
-        @ExperimentalXmlUtilApi public val fileName: String? = null
+        @ExperimentalXmlUtilApi
+        public val fileName: String? = null
     ) : LocationInfo {
         @XmlUtilInternal
         public override fun withFileName(fileName: String): ExtLocationInfo = when {
@@ -484,7 +488,7 @@ public fun XmlBufferedReader.consecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $event")
+                else -> throw XmlException("Found unexpected child tag event: $event")
             }//ignore
 
         }
@@ -555,7 +559,7 @@ public fun XmlPeekingReader.allConsecutiveTextContent(): String {
                     break@loop
                 }
 
-                else -> throw XmlException("Found unexpected child tag: $eventType")
+                else -> throw XmlException("Found unexpected child tag with event type: $eventType")
             }//ignore
 
         }

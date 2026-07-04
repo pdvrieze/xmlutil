@@ -1,0 +1,109 @@
+/*
+ * Copyright (c) 2024-2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package nl.adaptivity.xmlutil.core.impl.wrappingDom
+
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom.isId
+import nl.adaptivity.xmlutil.dom2.Attr
+import nl.adaptivity.xmlutil.dom2.Element
+import org.w3c.dom.Attr as DomAttr
+import org.w3c.dom.Node as DomNode
+
+internal class JsWrappedAttr(delegate: DomAttr) : JsWrappedNode<DomAttr>(delegate), Attr {
+    var value: String
+        get() = delegate.value
+        set(value) {
+            delegate.value = value
+        }
+
+    override fun getOwnerDocument(): JsWrappedDocument = checkNotNull(super.getOwnerDocument())
+
+    override fun getOwnerElement(): Element? = ownerElement
+
+    override fun getValue(): String = value
+
+    override fun setValue(value: String) {
+        this.value = value
+    }
+
+    override fun getNodeValue(): String {
+        return getValue()
+    }
+
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {
+        this.value = value ?: ""
+    }
+
+    override fun getPrefix(): String? = prefix
+
+    override fun getNamespaceURI(): String? = namespaceURI
+
+    override fun getLocalName(): String = localName
+
+    override fun getName(): String = name
+
+    override fun getAttributes(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
+
+    override fun isId(): Boolean {
+        return delegate.isId()
+    }
+
+    val namespaceURI: String? get() = delegate.namespaceURI
+
+    val prefix: String? get() = delegate.prefix
+
+    val localName: String
+        get() = delegate.localName
+
+    val name: String get() = delegate.name
+
+    val ownerElement: JsWrappedElement?
+        get() = delegate.ownerElement?.wrap()
+
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in attributes")
+
+    override fun getFirstChild(): Nothing? = null
+    override fun getLastChild(): Nothing? = null
+
+    override fun cloneNode(deep: Boolean): JsWrappedAttr {
+        return JsWrappedAttr(delegate.cloneNode(deep) as DomAttr)
+    }
+}
+
+internal fun DomNode.wrapAttr(): JsWrappedAttr {
+    return (this as DomAttr).wrap()
+}

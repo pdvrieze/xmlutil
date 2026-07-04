@@ -26,11 +26,11 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.*
 
 @ExperimentalXmlUtilApi
-public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolean) {
+internal class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolean) {
     private val inputBuffer = inOutBuffer as? InjectingInOutBuffer ?: InjectingInOutBuffer(inOutBuffer)
 
     private val parameterEntities = mutableMapOf<String, XmlEntity>()
-    public val generalEntities: MutableMap<String, XmlEntity> = mutableMapOf()
+    val generalEntities: MutableMap<String, XmlEntity> = mutableMapOf()
 
     private var unresolvedExternal: Boolean = false
 
@@ -55,7 +55,7 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
         }
     }
 
-    public fun parseParameterEntityReference() {
+    private fun parseParameterEntityReference() {
         assertOrSkip('%')
 
         val name = parseName().toString()
@@ -99,8 +99,8 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
                         (!isParameterEntity && inputBuffer.peek("NDATA")))
             ) {
                 error("Invalid delimiter for entity name: '$delim'. Expected: ' or \"")
-
             }
+
             while (!inputBuffer.peek('>')) {
                 inputBuffer.markPeekedAsRead()
             }
@@ -113,14 +113,11 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
     private fun parseCharEntity() {
         assertOrSkip("&#")
 
-        var isHex: Boolean = false
-        var current: Int = 0
+        var isHex = false
+        var current = 0
 
-        val first = inputBuffer.readChar()
-        when (first) {
-            'x' -> {
-                isHex = true
-            }
+        when (val first = inputBuffer.readChar()) {
+            'x' -> isHex = true
 
             else -> current = addDigitToCodePoint(first, false, 0)
         }
@@ -181,7 +178,6 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
                     else -> inputBuffer.markPeekedAsRead()
                 }
 
-
                 c = inputBuffer.peekChar()
             }
 
@@ -213,13 +209,12 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
         assertOrSkip('>')
     }
 
-    public fun parse() {
+    fun parse() {
         inputBuffer.skipWS()
         var d = inputBuffer.peek()
         while (d >= 0 && d != ']'.code) {
             when (val c = d.toChar()) {
                 '%' -> parseParameterEntityReference()
-
 
                 '<' -> {
                     inputBuffer.markPeekedAsRead()
@@ -253,7 +248,6 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
 
                 }
 
-
                 // NotationDecl
 
 
@@ -277,9 +271,9 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
     private fun assertOrSkip(expected: String) {
         if (DEBUG) {
             assert(inputBuffer.peek(expected))
-            if (! inputBuffer.peek(expected)) {
+            if (!inputBuffer.peek(expected)) {
                 val found = buildString {
-                    (0 until expected.length).asSequence()
+                    expected.indices.asSequence()
                         .map { inputBuffer.peek(it) }
                         .takeWhile { it >= 0 }
                         .forEach { append(it.toChar()) }
@@ -294,7 +288,9 @@ public class DoctypeParser(inOutBuffer: InOutBuffer, private val isXML11: Boolea
 
     private fun assertOrSkip(expected: Char) {
         if (DEBUG) {
-            if (! inputBuffer.peek(expected)) { throw XmlException("Expected '$expected' but found '${inputBuffer.peekChar()}'", inputBuffer.locationInfo) }
+            if (!inputBuffer.peek(expected)) {
+                throw XmlException("Expected '$expected' but found '${inputBuffer.peekChar()}'", inputBuffer.locationInfo)
+            }
         }
         inputBuffer.markPeekedAsRead()
     }

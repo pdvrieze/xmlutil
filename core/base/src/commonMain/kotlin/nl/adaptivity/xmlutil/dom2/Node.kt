@@ -23,35 +23,126 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 @Serializable(NodeSerializer::class)
 public expect interface Node : PlatformNode {
-    public fun getNodetype(): NodeType
-    public fun getNodeName(): String
-    public fun getOwnerDocument(): Document
-    public fun getParentNode(): Node?
-    public fun getTextContent(): String?
-    public fun setTextContent(value: String)
-    public fun getChildNodes(): NodeList
-    public fun getFirstChild(): Node?
-    public fun getLastChild(): Node?
-    public fun getPreviousSibling(): Node?
-    public fun getNextSibling(): Node?
     public fun getParentElement(): Element?// = parentNode as? Element
+    public fun getNodetype(): NodeType
 
-    public fun lookupPrefix(namespace: String): String?
+    //region dom 1
+    /** @since DOM Level 1 */
+    public fun getNodeName(): String
 
-    public fun lookupNamespaceURI(prefix: String): String?
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    public fun getNodeValue(): String?
 
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    public fun setNodeValue(value: String?)
+
+    /** @since DOM Level 1 */
+    public fun getParentNode(): Node?
+
+    /** @since DOM Level 1 */
+    public fun getChildNodes(): NodeList
+
+    /** @since DOM Level 1 */
+    public fun getFirstChild(): Node?
+
+    /** @since DOM Level 1 */
+    public fun getLastChild(): Node?
+
+    /** @since DOM Level 1 */
+    public fun getPreviousSibling(): Node?
+
+    /** @since DOM Level 1 */
+    public fun getNextSibling(): Node?
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    public fun getAttributes(): NamedNodeMap<Attr>?
+
+    /** @since DOM Level 1 */
+    public fun getOwnerDocument(): Document?
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
     @IgnorableReturnValue
-    public fun appendChild(node: PlatformNode): Node
+    public fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node?
 
+    /** @since DOM Level 1 */
     @IgnorableReturnValue
     public fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Node
 
+    /** @since DOM Level 1 */
     @IgnorableReturnValue
     public fun removeChild(node: PlatformNode): Node
+
+    /** @since DOM Level 1 */
+    @IgnorableReturnValue
+    public fun appendChild(node: PlatformNode): Node
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    public fun hasChildNodes(): Boolean
+
+    /** @since DOM Level 1 */
+    @ExperimentalXmlUtilApi
+    public fun cloneNode(deep: Boolean): Node
+
+    //endregion
+
+    //region dom 2
+
+    /** @since DOM Level 2 */
+    public fun hasAttributes(): Boolean
+    // public fun isSupported(feature: String, version: String): Boolean
+
+    /** @since DOM Level 2 */
+    public fun getNamespaceURI(): String?
+    /** @since DOM Level 2 */
+    public fun getPrefix(): String?
+
+    /** @since DOM Level 2 */
+    public fun getLocalName(): String?
+
+    //endregion
+
+    //region dom 3
+
+    @ExperimentalXmlUtilApi
+    public fun normalize()
+
+    @ExperimentalXmlUtilApi
+    public fun isSameNode(other: PlatformNode): Boolean
+
+    @ExperimentalXmlUtilApi
+    public fun isEqualNode(other: PlatformNode): Boolean
+
+    /** @since DOM Level 3 */
+    @ExperimentalXmlUtilApi
+    public fun getBaseURI(): String?
+
+    /** @since DOM Level 3 */
+    public fun getTextContent(): String?
+    /** @since DOM Level 3 */
+    public fun setTextContent(value: String?)
+
+    @ExperimentalXmlUtilApi
+    public fun lookupPrefix(namespace: String): String?
+
+    @ExperimentalXmlUtilApi
+    public fun lookupNamespaceURI(prefix: String): String?
+
+    @ExperimentalXmlUtilApi
+    public fun isDefaultNamespace(namespaceURI: String): Boolean
+    //TODO public fun compareDocumentPosition(other: Node): Int
+    //TODO public fun getFeature(feature: String, version: String): Any?
+
+    //endregion
 }
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
@@ -74,7 +165,7 @@ public inline val Node.nodeType: Short get() = getNodetype().value
 public inline val Node.nodeName: String get() = getNodeName()
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-public inline val Node.ownerDocument: Document get() = getOwnerDocument()
+public inline val Node.ownerDocument: Document? get() = getOwnerDocument()
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val Node.parentNode: Node? get() = getParentNode()

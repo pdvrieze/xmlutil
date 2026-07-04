@@ -106,11 +106,7 @@ public class QNameMap<T : Any> private constructor(
 
         @IgnorableReturnValue
         override fun add(element: MutableMap.MutableEntry<QName, T>): Boolean {
-            if(this@QNameMap.put(element.key, element.value) == null) {
-                this@QNameMap.size += 1
-                return true
-            }
-            return false
+            return this@QNameMap.put(element.key, element.value) == null
         }
 
         @IgnorableReturnValue
@@ -238,7 +234,7 @@ public class QNameMap<T : Any> private constructor(
     }
 
     public fun containsKey(ns: String, localPart: String): Boolean {
-        for (i in 0 until size) {
+        for (i in 0 until namespaceCount) {
             if (namespaces[i] == ns) {
                 return maps[i]!!.containsKey(localPart)
             }
@@ -248,14 +244,14 @@ public class QNameMap<T : Any> private constructor(
 
     public fun containsNS(namespace: String): Boolean {
         val ns = namespace
-        for (i in 0 until size) {
+        for (i in 0 until namespaceCount) {
             if (namespaces[i] == ns) return true
         }
         return false
     }
 
     override fun containsValue(value: T): Boolean {
-        for (i in 0 until size) {
+        for (i in 0 until namespaceCount) {
             if (maps[i]!!.containsValue(value)) return true
         }
         return false

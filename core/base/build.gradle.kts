@@ -19,11 +19,9 @@
  */
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
@@ -41,20 +39,18 @@ plugins {
 }
 
 config {
-    applyLayout = false
+    applyLayout = true
+    allWarningsAsErrors = false
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
     explicitApi()
+
+    jvmToolchain(17)
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
-
-        klib {
-            enabled = isKlibValidationEnabled()
-        }
+        keepLocallyUnsupportedTargets = false
 
         filters {
             exclude {
@@ -66,6 +62,11 @@ kotlin {
                 }
             }
         }
+        if (! isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
+        }
     }
 
     val testTask = tasks.register("test") {
@@ -73,15 +74,10 @@ kotlin {
     }
 
 
-    jvm("jvmCommon") {
+    jvm {
         compilations.all {
             val targetTestTask = tasks.named<Test>("${target.name}Test")
             testTask.configure { dependsOn(targetTestTask) }
-	    /*
-            cleanTestTask.configure {
-                dependsOn(tasks.named("clean${target.name[0].uppercaseChar()}${target.name.substring(1)}Test"))
-            }
-	    */
         }
         tasks.withType<Jar>().named(artifactsTaskName) {
             from(project.file("src/r8-workaround.pro")) {
@@ -95,6 +91,7 @@ kotlin {
         }
 
     }
+
     js {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -109,24 +106,9 @@ kotlin {
         nodejs()
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmWasi {
-        nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        nodejs()
-        browser {
-            testTask {
-                isEnabled = !System.getenv().containsKey("GITHUB_ACTION")
-            }
-        }
-    }
-
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
-        freeCompilerArgs.add("-Xcontext-parameters")
+        optIn.add("kotlin.js.ExperimentalJsNoRuntime")
     }
 
     targets.all {
@@ -139,13 +121,13 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(libs.serialization.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))
@@ -154,7 +136,7 @@ kotlin {
             }
         }
 
-        val jvmCommonTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
@@ -165,7 +147,7 @@ kotlin {
             }
         }
 
-        val jsTest by getting {
+        jsTest {
             dependencies {
                 implementation(kotlin("test-js"))
             }
@@ -175,6 +157,7 @@ kotlin {
 }
 
 val cleanTestTask = tasks.register("cleanTest") {
+    description = "Cleans all test data (for all platforms)"
     group = "verification"
 
     dependsOn(tasks.withType<Delete>().matching {

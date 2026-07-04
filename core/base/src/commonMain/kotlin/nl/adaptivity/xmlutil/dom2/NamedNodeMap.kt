@@ -22,46 +22,34 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
+import nl.adaptivity.xmlutil.dom.PlatformNode
 
-public expect interface NamedNodeMap : PlatformNamedNodeMap, Iterable<Attr> {
+public expect interface NamedNodeMap<out T: Node> : PlatformNamedNodeMap, Iterable<T> {
 
     /**
      * The size function works with collection interfaces rather than the traditional getLength interface.
      */
     public val size: Int
 
-    @Deprecated("Use size instead", ReplaceWith("size"), level = DeprecationLevel.WARNING)
     public fun getLength(): Int /*= size*/
 
-    public fun item(index: Int): Attr?
+    public fun item(index: Int): T?
 
-    public operator fun get(index: Int): Attr? //= item((index))
+    public operator fun get(index: Int): T? //= item((index))
 
-    public fun getNamedItem(qualifiedName: String): Attr?
+    public fun getNamedItem(qualifiedName: String): T?
 
-    public fun getNamedItemNS(namespace: String?, localName: String): Attr?
+    public fun getNamedItemNS(namespace: String?, localName: String): T?
 
-    public fun setNamedItem(attr: PlatformAttr): Attr?
+    public fun setNamedItem(attr: PlatformNode): T?
 
-    public fun setNamedItemNS(attr: PlatformAttr): Attr?
+    public fun setNamedItemNS(attr: PlatformNode): T?
 
-    public fun removeNamedItem(qualifiedName: String): Attr?
+    public fun removeNamedItem(qualifiedName: String): T?
 
-    public fun removeNamedItemNS(namespace: String?, localName: String): Attr?
+    public fun removeNamedItemNS(namespace: String?, localName: String): T?
 
-    public override operator fun iterator(): Iterator<Attr> /*{
-        return NamedNodeMapIterator(this)
-    }*/
-
+    public override operator fun iterator(): Iterator<T>
 }
 
-private class NamedNodeMapIterator(private val map: NamedNodeMap) : Iterator<Attr> {
-
-    private var pos = 0
-
-    override fun hasNext(): Boolean = pos < map.size
-
-    override fun next(): Attr = map.get(pos++) ?: throw NoSuchElementException("Iterating beyond node map")
-}

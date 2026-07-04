@@ -20,17 +20,57 @@
 
 package nl.adaptivity.xmlutil
 
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.unWrap
+import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.impl.wrappingDom.JsWrappedDocument
+import nl.adaptivity.xmlutil.dom2.*
 import org.w3c.dom.parsing.XMLSerializer
 
 internal class AppendableXmlWriter(private val target: Appendable, private val delegate: DomWriter) :
     XmlWriter by delegate {
 
+    private fun writeXmlDecl() {
+        val xmlDeclMode = delegate.xmlDeclMode.resolve(delegate.requestedVersion?.let { XmlVersion.fromStringOrNull(it) })
+        if (xmlDeclMode != XmlDeclMode.None) {
+            val encoding = when (xmlDeclMode) {
+                XmlDeclMode.Charset -> delegate.requestedEncoding ?: "UTF-8"
+                else -> when (delegate.requestedEncoding?.lowercase()?.startsWith("utf-")) {
+                    false -> delegate.requestedEncoding
+                    else -> null
+                }
+            }
+
+            val xmlVersion = delegate.requestedVersion ?: "1.0"
+
+            target.append("<?xml version=\"")
+            target.append(xmlVersion)
+            target.append("\"")
+            if (encoding != null) {
+                target.append(" encoding=\"")
+                target.append(encoding)
+                target.append("\"")
+            }
+            target.append("?>")
+            if (delegate.indentSequence.isNotEmpty()) {
+                target.append("\n")
+            }
+        }
+
+    }
+
     override fun close() {
         try {
-            val xmls = XMLSerializer()
-            val domText = xmls.serializeToString(delegate.target.unWrap())
-            target.append(domText)
+            when (val doc = delegate.target) {
+                is JsWrappedDocument -> {
+                    val xmls = XMLSerializer()
+                    val domText = xmls.serializeToString(doc.delegate)
+                    target.append(domText)
+                }
+
+                else -> {
+                    writeXmlDecl()
+                    doc.appendToTarget(target)
+                }
+            }
         } finally {
             delegate.close()
         }
@@ -54,3 +94,31 @@ internal class AppendableXmlWriter(private val target: Appendable, private val d
         delegate.processingInstruction(target, data)
     }
 }
+
+internal fun Node.appendToTarget(target: Appendable) {
+    when (this) {
+        is Document -> for (c in getChildNodes()) c.appendToTarget(target)
+        is DocumentFragment -> for (c in getChildNodes()) c.appendToTarget(target)
+        is Comment -> target.append("<!--${getTextContent()}-->")
+        is CDATASection -> target.append("<![CDATA[${getTextContent()}]]>")
+        is Text -> target.append(getTextContent()?.xmlEncode())
+        is ProcessingInstruction -> target.append("<?${target} ${getData()}?>")
+        is DocumentType -> target.append("<!DOCTYPE ${getName()} ${getPublicId()} ${getSystemId()}>")
+        is Element -> {
+            target.append("<${getNodeName()}")
+            for (attr in attributes) {
+                target.append(" ${attr.getNodeName()}=\"${attr.getNodeValue()}\"")
+            }
+            if (!hasChildNodes()) {
+                target.append("/>")
+            } else {
+                target.append(">")
+                for (child in getChildNodes()) {
+                    child.appendToTarget(target)
+                }
+                target.append("</${getNodeName()}>")
+            }
+        }
+    }
+}
+

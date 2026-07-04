@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2026.
  *
  * This file is part of xmlutil.
  *
@@ -18,99 +18,71 @@
  * permissions and limitations under the License.
  */
 
-import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
+
+/*
+ * Copyright (c) 2024-2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
 plugins {
-    alias(libs.plugins.dokka)
     id("projectPlugin")
-    kotlin("multiplatform")
     `maven-publish`
+    `java-platform`
     signing
-    idea
 }
-
-val autoModuleName = "net.devrieze.xmlutil.core.compat"
 
 config {
     generateJavaModules = false // compatibility BOM that doesn't need a module
+    createAndroidCompatComponent = false
 }
 
-
-kotlin {
-    explicitApi()
-    applyDefaultXmlUtilHierarchyTemplate()
-
-    jvm("jdk")
-    js {
-        browser()
-        compilerOptions {
-            sourceMap = true
-            verbose = true
-        }
-    }
-
-    targets.all {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        if (this is HasConfigurableKotlinCompilerOptions<*>) {
-            compilerOptions {
-                freeCompilerArgs.add("-Xexpect-actual-classes")
-            }
-        }
-    }
-
-    sourceSets {
-        val commonMain by getting {
-            dependencies {
-                api(projects.core)
-            }
-        }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-annotations-common"))
-                implementation(projects.testutil)
-                implementation(projects.serialization)
-            }
-        }
-
-        val jdkMain by getting {
-            dependencies {
-                api(projects.coreJdk)
-            }
-        }
-
-//        val androidMain by getting {
-//            dependencies {
-//                api(projects.coreAndroid)
-//            }
-//        }
-    }
+val emptyJar = tasks.register<Jar>("emptyJar") {
+    description = "Empty jar for relocation"
 }
-
-config {
-    createAndroidCompatComponent = true
-}
-
-afterEvaluate {
-    dependencies {
-        "androidRuntime"(projects.coreAndroid)
-    }
-}
-
-addNativeTargets()
-
-doPublish("compat")
 
 publishing {
-    publications.withType<MavenPublication> {
-        if ("coreCompat" in artifactId) {
-            artifactId = artifactId.replace("coreCompat", "core-compat")
+    publications.create<MavenPublication>("relocateCommon") {
+        groupId = "io.github.pdvrieze.xmlutil"
+        artifactId = "core-jvmcommon"
+        from(components["javaPlatform"])
+
+        pom {
+            name = "core-jvmcommon"
+            description = "Compatibility relocatoin for the core-jvm module"
+            withXml {
+                asNode().appendNode("distributionManagement").apply {
+                    appendNode("relocation").apply {
+                        appendNode("groupId", groupId)
+                        appendNode("artifactId", "core-jvm")
+                        appendNode("version", version)
+                        appendNode("message", "Relocated to io.github.pdvrieze.xmlutil.core-jvm")
+                    }
+                }
+            }
         }
     }
 
 }
+
+doPublish("core-jvmcommon", "Relocation to standard convention module", generateJavadoc =false)
+
+tasks.withType<GenerateModuleMetadata>().configureEach {
+    enabled = false
+}
+

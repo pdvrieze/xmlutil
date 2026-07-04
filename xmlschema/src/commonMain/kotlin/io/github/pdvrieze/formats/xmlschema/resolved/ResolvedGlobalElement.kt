@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
@@ -27,6 +27,8 @@ import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGlobalElem
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalType
 import io.github.pdvrieze.formats.xmlschema.impl.flatMap
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.FlattenedParticle
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl
 import io.github.pdvrieze.formats.xmlschema.types.VDerivationControl.SUBSTITUTION
@@ -83,9 +85,10 @@ class ResolvedGlobalElement private constructor(
         }
     }
 
-    override fun checkTerm(checkHelper: CheckHelper) {
-        super.checkTerm(checkHelper)
-        checkSubstitutionGroupChain(SingleLinkedList(mdlQName), checkHelper)
+    context(checkHelper: CheckHelper)
+    override fun checkTerm() {
+        super.checkTerm()
+        checkSubstitutionGroupChain(SingleLinkedList(mdlQName))
         model.mdlTypeDefinition
             .onFailure(checkHelper::checkLax)
             .onSuccess { checkHelper.checkType(it) }
@@ -96,7 +99,7 @@ class ResolvedGlobalElement private constructor(
 
         val otherExcluded = mdlSubstitutionGroupExclusions.toDerivationSet()
         for (member in mdlSubstitutionGroupMembers) {
-            require(member.isSubstitutableFor(this, checkHelper)) {
+            require(member.isSubstitutableFor(this)) {
                 "Element ${member.mdlQName} is not not substitutable for ${this.mdlQName} but in its substitution group"
             }
         }
@@ -126,7 +129,8 @@ class ResolvedGlobalElement private constructor(
     }
 
     /** Implements substitutable as define in 3.3.6.3 */
-    private fun isSubstitutableFor(head: ResolvedGlobalElement, checkHelper: CheckHelper): Boolean {
+    context(checkHelper: CheckHelper)
+    private fun isSubstitutableFor(head: ResolvedGlobalElement): Boolean {
         return model.mdlTypeDefinition.flatMap { td ->
             head.model.mdlTypeDefinition.map { htd ->
                 td.isValidSubtitutionFor(htd, false)
@@ -135,21 +139,22 @@ class ResolvedGlobalElement private constructor(
             .getOrDefault(false)
     }
 
-    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>, checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    private fun checkSubstitutionGroupChain(seenElements: SingleLinkedList<QName>) {
         for (substitutionGroupHead in model.mdlSubstitutionGroupAffiliations) {
             substitutionGroupHead.map { h ->
                 require(h.mdlQName !in seenElements) {
                     "Recursive subsitution group: $mdlQName"
                 }
-                h.checkSubstitutionGroupChain(seenElements + mdlQName, checkHelper)
+                h.checkSubstitutionGroupChain(seenElements + mdlQName)
             }.onFailure(checkHelper::checkLax)
         }
     }
 
+    context(checkHelper: CheckHelper)
     override fun flatten(
         range: AllNNIRange,
-        isSiblingName: (QName) -> Boolean,
-        checkHelper: CheckHelper
+        siblingContext: SiblingContextProvider
     ): FlattenedParticle {
         // this factory handles substitution groups
         return FlattenedParticle.elementOrSubstitution(range, this, checkHelper.version)

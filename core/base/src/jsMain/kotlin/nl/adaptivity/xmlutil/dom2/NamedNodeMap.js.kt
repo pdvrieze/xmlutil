@@ -20,33 +20,27 @@
 
 package nl.adaptivity.xmlutil.dom2
 
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.unWrap
-import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
-public actual interface NamedNodeMap : Iterable<Attr>, PlatformNamedNodeMap {
+public actual interface NamedNodeMap<out T: Node> : Iterable<T>, PlatformNamedNodeMap {
     public actual val size: Int
 
-    @Deprecated(
-        message = "Use size instead",
-        replaceWith = ReplaceWith(expression = "size"),
-        level = DeprecationLevel.WARNING
-    )
     public actual fun getLength(): Int
-    public actual override fun item(index: Int): Attr?
-    public actual operator fun get(index: Int): Attr?
-    public actual override fun getNamedItem(qualifiedName: String): Attr?
-    public actual override fun getNamedItemNS(namespace: String?, localName: String): Attr?
+    public actual override fun item(index: Int): T?
+    public actual operator fun get(index: Int): T?
+    public actual override fun getNamedItem(qualifiedName: String): T?
+    public actual override fun getNamedItemNS(namespace: String?, localName: String): T?
 
-    override fun setNamedItem(attr: PlatformNode): Attr? = setNamedItem(attr.unWrap() as Attr)
-    public actual fun setNamedItem(attr: PlatformAttr): Attr?
+    actual override fun setNamedItem(attr: PlatformNode): T?// = setNamedItem(attr.unWrap() as Attr)
 
-    override fun setNamedItemNS(attr: PlatformNode): Attr? =
-        setNamedItemNS(attr.unWrap() as Attr)
+    actual override fun setNamedItemNS(attr: PlatformNode): T?
 
-    public actual fun setNamedItemNS(attr: PlatformAttr): Attr?
-    public actual override fun removeNamedItem(qualifiedName: String): Attr?
-    public actual override fun removeNamedItemNS(namespace: String?, localName: String): Attr?
-    public actual override operator fun iterator(): Iterator<Attr>
+    public actual override fun removeNamedItem(qualifiedName: String): T?
+    public actual override fun removeNamedItemNS(namespace: String?, localName: String): T?
+    public actual override operator fun iterator(): Iterator<T>
+}
+
+internal fun addNamedNodeMapPropertiesToPrototype(prototype: dynamic) {
+    js("Object").defineProperty(prototype, "length", jsProperty<NamedNodeMap<*>> { getLength() })
 }

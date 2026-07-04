@@ -44,7 +44,6 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
 
         filters {
             exclude {

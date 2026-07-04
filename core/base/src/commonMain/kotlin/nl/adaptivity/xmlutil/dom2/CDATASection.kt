@@ -20,6 +20,11 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformCDATASection
 
-public expect interface CDATASection : Text, PlatformCDATASection
+public expect interface CDATASection : Text, PlatformCDATASection {
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): CDATASection
+
+}

@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2023.
+ * Copyright (c) 2023-2026.
  *
  * This file is part of xmlutil.
  *
- * This file is licenced to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You should have received a copy of the license with the source distribution.
- * Alternatively, you may obtain a copy of the License at
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
  */
 
 package io.github.pdvrieze.formats.xmlschema.resolved
@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xmlschema.resolved
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSGroup
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.XSLocalElement
 import io.github.pdvrieze.formats.xmlschema.resolved.checking.CheckHelper
+import io.github.pdvrieze.formats.xmlschema.resolved.flattened.SiblingContextProvider
 import io.github.pdvrieze.formats.xmlschema.types.AllNNIRange
 import io.github.pdvrieze.formats.xmlschema.types.VAllNNI
 import nl.adaptivity.xmlutil.QName
@@ -56,10 +57,11 @@ class ResolvedGlobalGroup internal constructor(
         return mdlModelGroup.hasLocalNsInContext()
     }
 
-    fun checkGroup(checkHelper: CheckHelper) {
+    context(checkHelper: CheckHelper)
+    fun checkGroup() {
         checkRecursion(mutableSetOf())
 
-        mdlModelGroup.checkTerm(checkHelper)
+        mdlModelGroup.checkTerm()
     }
 
     internal fun checkRecursion(seen: MutableSet<ResolvedGlobalGroup>) {
@@ -67,7 +69,7 @@ class ResolvedGlobalGroup internal constructor(
         val toCheck= ArrayList(mdlModelGroup.mdlParticles)
 
         while (toCheck.isNotEmpty()) {
-            val p = toCheck.removeLast()
+            val p = toCheck.removeAt(toCheck.lastIndex)
             when (p) {
                 is ResolvedGroupRef -> p.model.referenced.checkRecursion(seen)
                 is ResolvedModelGroup -> toCheck.addAll(p.mdlParticles)
@@ -106,7 +108,8 @@ class ResolvedGlobalGroup internal constructor(
         override val model: Model by lazy { Model(parent, elemPart, schema) }
         override val mdlParticles: List<ResolvedParticle<ResolvedTerm>> get() = model.particles
 
-        override fun checkTerm(checkHelper: CheckHelper) {
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
             val redefined = model.redefineBase
             if (redefined != null) {
                 val names = mutableSetOf<QName>()
@@ -129,12 +132,15 @@ class ResolvedGlobalGroup internal constructor(
                     override fun visitAny(any: ResolvedAny): List<ResolvedGroupRef> = emptyList()
                 })
                 if (selfRefs.isEmpty()) {
-                    val thisFlat=flatten(AllNNIRange.SINGLERANGE, ::isSiblingName, checkHelper)
-                    val baseFlat = redefined.mdlModelGroup.flatten(checkHelper)
-                    check(thisFlat.restricts(baseFlat, ::isSiblingName, checkHelper)) {
-                        "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
+                    val thisFlat = flatten(AllNNIRange.SINGLERANGE, ::isSiblingName)
+
+                    val baseFlat = redefined.mdlModelGroup.flatten()
+                    context(SiblingContextProvider { isSiblingName(it) }) {
+                        check(thisFlat.restricts(baseFlat)) {
+                            "Redefined model group ($parent) is not a valid restriction of its redefined base ($redefined)"
+                        }
                     }
-                    redefined.checkGroup(checkHelper)
+                    redefined.checkGroup()
                 } else {
                     val selfRef = selfRefs.single()
                     check(selfRef.mdlMinOccurs.toULong() == 1uL && selfRef.mdlMaxOccurs == VAllNNI.ONE) {
@@ -152,16 +158,13 @@ class ResolvedGlobalGroup internal constructor(
             val particles = elemPart.wrapEach { particles }.map { ResolvedParticle(parent, it, schema, localInContext) }
 
             internal val lazyCheck: Exception? by lazy {
-                when (schema) {
+                when (val s = (schema as Any)) {
                     is RedefineSchema -> {
-                        val redefineBase = schema.nestedGroup(parent.mdlQName)
-
+                        val redefineBase = s.nestedGroup(parent.mdlQName)
+                        null
                     }
                     else -> null
                 }
-
-
-                null
             }
 
             internal val redefineBase = (schema as? RedefineSchema)?.nestedGroup(parent.mdlQName)
@@ -179,9 +182,10 @@ class ResolvedGlobalGroup internal constructor(
             }
         }
 
-        override fun checkTerm(checkHelper: CheckHelper) {
-            super<ModelGroupBase>.checkTerm(checkHelper)
-            super<IResolvedAll>.checkTerm(checkHelper)
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
+            super<ModelGroupBase>.checkTerm()
+            super<IResolvedAll>.checkTerm()
         }
 
         override fun toString(): String = buildString {
@@ -195,9 +199,10 @@ class ResolvedGlobalGroup internal constructor(
         ModelGroupBase(parent, elemPart, schema),
         IResolvedChoice {
 
-        override fun checkTerm(checkHelper: CheckHelper) {
-            super<ModelGroupBase>.checkTerm(checkHelper)
-            super<IResolvedChoice>.checkTerm(checkHelper)
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
+            super<ModelGroupBase>.checkTerm()
+            super<IResolvedChoice>.checkTerm()
         }
 
         override fun toString(): String = buildString {
@@ -213,9 +218,10 @@ class ResolvedGlobalGroup internal constructor(
         elemPart: SchemaElement<XSGroup.Sequence>, schema: ResolvedSchemaLike
     ) : ModelGroupBase(parent, elemPart, schema), IResolvedSequence {
 
-        override fun checkTerm(checkHelper: CheckHelper) {
-            super<ModelGroupBase>.checkTerm(checkHelper)
-            super<IResolvedSequence>.checkTerm(checkHelper)
+        context(checkHelper: CheckHelper)
+        override fun checkTerm() {
+            super<ModelGroupBase>.checkTerm()
+            super<IResolvedSequence>.checkTerm()
         }
 
         override fun toString(): String = buildString {

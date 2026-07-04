@@ -24,11 +24,13 @@ import nl.adaptivity.xmlutil.dom.PlatformNodeList
 
 public actual interface NodeList : Iterable<Node>, PlatformNodeList {
     public val size: Int get() = getLength()
-    override val length: Int
-        get() = getLength()
 
     public actual fun getLength(): Int
     public actual override fun item(index: Int): Node?
     public actual operator fun get(index: Int): Node?
     public actual override operator fun iterator(): Iterator<Node>
+}
+
+internal fun addNodeListPropertiesToPrototype(prototype: dynamic) {
+    js("Object").defineProperty(prototype, "length", jsProperty<NodeList> { getLength() })
 }

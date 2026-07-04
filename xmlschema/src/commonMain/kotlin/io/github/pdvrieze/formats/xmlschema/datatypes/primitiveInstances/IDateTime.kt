@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -135,7 +135,7 @@ internal fun Int.toIBits(bitCount: Int): UInt {
 internal fun UInt.toIBits(bitCount: Int, shift: Int): UInt = toIBits(bitCount) shl shift
 
 internal fun UInt.toIBits(bitCount: Int): UInt {
-    return toUInt() and (1u shl (bitCount)) - 1u
+    return this and (1u shl (bitCount)) - 1u
 }
 
 internal fun UInt.toLBits(bitCount: Int, shift: Int): ULong = toLBits(bitCount) shl shift

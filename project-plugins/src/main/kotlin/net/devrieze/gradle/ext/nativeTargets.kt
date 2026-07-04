@@ -20,15 +20,18 @@
 
 package net.devrieze.gradle.ext
 
-import org.gradle.api.Action
+import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyTemplate
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -67,21 +70,10 @@ private val defaultXmlUtilHierarchyTemplate = KotlinHierarchyTemplate {
     withSourceSetTree(KotlinSourceSetTree.main, KotlinSourceSetTree.test)
 
     common {
-        withCompilations { c -> c.target.platformType !in arrayOf(KotlinPlatformType.jvm, KotlinPlatformType.wasm) }
+        withCompilations { true }
 
-        group("javaShared") {
-            withCompilations { c ->
-                c.target.platformType == KotlinPlatformType.jvm && "jvm" !in c.target.name
-            }
-
-            group("commonJvm") {
-                withCompilations { c ->
-                    c.target.platformType == KotlinPlatformType.jvm && "jvm" in c.target.name
-                }
-            }
-        }
-
-        group("commonDom") {
+        group("nativeOrWasm") {
+            withCompilations { it.platformType in arrayOf(KotlinPlatformType.native,KotlinPlatformType.wasm) }
 
             group("wasmCommon") {
                 withWasmJs()
@@ -89,6 +81,8 @@ private val defaultXmlUtilHierarchyTemplate = KotlinHierarchyTemplate {
             }
 
             group("native") {
+                withNative()
+
                 group("apple") {
                     withApple()
 
@@ -135,6 +129,7 @@ fun Project.isKlibValidationEnabled(): Boolean = when {
     else -> property("native.deploy")?.toString()?.lowercase() == "all"
 }
 
+@OptIn(ExperimentalWasmDsl::class)
 fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean = true) {
     val ideaActive = System.getProperty("idea.active") == "true"
     val nativeState = when(property("native.deploy")?.toString()?.lowercase()) {
@@ -143,130 +138,139 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         "hostWasm" -> NativeState.HOST
         "disabled" -> NativeState.DISABLED
         "single" -> NativeState.SINGLE
-        else if gradle.startParameter.taskRequests.any { it.args.any { "updateKotlinAbi" in it} } -> {
-            logger.lifecycle("No native.deploy property set, and abi update task found.\n" +
-                    "  -- Defaulting to all mode")
+        else if gradle.startParameter.taskRequests.any { req ->
+            req.args.any { arg ->
+                listOf( "checkKotlinAbi", "updateKotlinAbi").any { it in arg } || arg.endsWith("check")
+            }
+        } -> {
+            logger.lifecycle("No native.deploy property set, and abi update/check task found.\n" +
+                        "  -- Defaulting to all mode")
             NativeState.ALL
         }
+
         else -> {
             logger.lifecycle("set the native.deploy=[all|host|hostWasm|disabled|single] property to specify the native mode.\n" +
-                    "  -- Defaulting to single mode")
+                        "  -- Defaulting to single mode")
             NativeState.SINGLE
         }
     }
     rootProject.extraProperties.set("nativeTargets", nativeState)
 
+    if (nativeState == NativeState.DISABLED) return
+
     val singleTargetMode = /*ideaActive || */nativeState == NativeState.SINGLE
 
     val ext = extensions.getByName<ExtraPropertiesExtension>("ext")
-    val manager = HostManager()//ext["hostManager"] as HostManager
     val kotlin = extensions.getByName<KotlinMultiplatformExtension>("kotlin")
 
-    val hostTarget = manager.targetByName("host")
-
-    val host = when {
-        hostTarget.name.startsWith("mingw") -> Host.Windows
-        hostTarget.name.startsWith("macos") -> Host.Macos
+    val host = when(HostManager.hostOs()) {
+        "windows" -> Host.Windows
+        "macos" -> Host.Macos
         else -> Host.Linux
     }
 
+    @Suppress("DEPRECATION")
     ext["ideaPreset"] = when (host) {
-        Host.Windows -> fun KotlinMultiplatformExtension.() { mingwX64() }// presets.nativePreset("mingwX64")
-        Host.Macos -> fun KotlinMultiplatformExtension.() { macosX64() }//presets.nativePreset("macosX64")
-        Host.Linux -> fun KotlinMultiplatformExtension.() { linuxX64() } //presets.nativePreset("linuxX64")
+        Host.Windows -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> fun KotlinMultiplatformExtension.() { mingwX64() }
+            "aarch64" -> fun KotlinMultiplatformExtension.() { /* No-op as not supported as native target yet */ }
+            else -> return // unknown/unsupported target
+        }
+
+        Host.Macos -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> fun KotlinMultiplatformExtension.() { macosX64() }
+            "aarch64" -> fun KotlinMultiplatformExtension.() { macosArm64() }
+            else -> fun KotlinMultiplatformExtension.() { /** No op, not supported */ }
+        }
+
+        Host.Linux -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> fun KotlinMultiplatformExtension.() { linuxX64() }
+            "aarch64" -> fun KotlinMultiplatformExtension.() { linuxArm64() }
+            else -> fun KotlinMultiplatformExtension.() { /** No op, unsupported target */ }
+        }
     }
 
-    if (nativeState != NativeState.DISABLED) {
-        with(kotlin) {
-            if (nativeState.hasWasm) {
-                if (includeWasm) {
-                    logger.lifecycle("Adding WASM support")
-                    wasmJs() {
-                        nodejs()
-                        browser {
-                            testTask {
-                                isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
-                            }
+    with(kotlin) {
+        if (nativeState.hasWasm) {
+            if (includeWasm) {
+                logger.lifecycle("Adding WASM support")
+                wasmJs() {
+                    nodejs()
+                    browser {
+                        testTask {
+                            isEnabled = ! System.getenv().containsKey("GITHUB_ACTION")
                         }
                     }
                 }
-                if (includeWasi) {
-                    logger.lifecycle("Adding WASI support")
-                    wasmWasi {
-                        nodejs()
-                    }
-                }
             }
-
-            if (singleTargetMode) {
-                logger.lifecycle("Single target mode: $host")
-                @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
-                targetFun()
-            } else {
-                if(true) {
-                    if (nativeState != NativeState.HOST || host == Host.Linux) {
-                        logger.lifecycle("Adding Linux targets")
-                        linuxX64()
-                        linuxArm64()
-                        @Suppress("DEPRECATION")
-                        linuxArm32Hfp()
-                    }
-
-                    if (nativeState != NativeState.HOST || host == Host.Macos) {
-                        logger.lifecycle("Adding Mac(ish) targets")
-                        macosX64()
-                        macosArm64()
-                        iosArm64()
-                        iosSimulatorArm64()
-                        iosX64()
-
-                        watchosDeviceArm64()
-                        watchosSimulatorArm64()
-                        watchosX64()
-                        watchosArm32()
-                        watchosArm64()
-
-                        tvosSimulatorArm64()
-                        tvosArm64()
-                        tvosX64()
-                    }
-
-                    if (nativeState != NativeState.HOST || host == Host.Windows) {
-                        logger.lifecycle("Adding Windows x64 target")
-                        mingwX64()
-                    }
-
-                    if (nativeState != NativeState.HOST) {
-                        logger.lifecycle("Adding Android native targets")
-                        androidNativeArm32()
-                        androidNativeArm64()
-                        androidNativeX86()
-                        androidNativeX64()
-                    }
+            if (includeWasi) {
+                logger.lifecycle("Adding WASI support")
+                wasmWasi {
+                    nodejs()
                 }
-            }
-
-            project.logger.debug("Registering :${project.name}:nativeTest")
-            project.tasks.register("nativeTest") {
-                group = "verification"
-                val testTasks = tasks.withType<KotlinNativeTest>().filter {
-                    it is KotlinNativeHostTest &&
-                            hostTarget.family.name in it.targetName!!.uppercase() &&
-                            hostTarget.architecture.name in it.targetName!!.uppercase()
-                }
-                project.logger.debug("Configuring ${path} with hostTarget: ${hostTarget.visibleName} to depend on ${testTasks.joinToString { it.path}}")
-                dependsOn(testTasks)
             }
         }
 
-    }
+        if (singleTargetMode) {
+            logger.lifecycle("Single target mode: $host (${HostManager.hostArchOrNull()})")
+            @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
+            targetFun()
+        } else {
+            val ignoreDeprecated = isSnapshot && ! System.getenv("JITPACK").equals("true", true)
+            if (nativeState != NativeState.HOST || host == Host.Linux) {
+                logger.lifecycle("Adding Linux targets")
+                linuxX64()
+                linuxArm64()
+                @Suppress("DEPRECATION")
+                if (!ignoreDeprecated) linuxArm32Hfp()
+            }
 
+            @Suppress("DEPRECATION")
+            if (nativeState != NativeState.HOST || host == Host.Macos) {
+                logger.lifecycle("Adding Mac(ish) targets")
+                if (!ignoreDeprecated) macosX64()
+                macosArm64()
+                iosArm64()
+                iosSimulatorArm64()
+                iosX64()
+
+                watchosDeviceArm64()
+                watchosSimulatorArm64()
+                if (!ignoreDeprecated) watchosX64()
+                watchosArm32()
+                watchosArm64()
+
+                tvosSimulatorArm64()
+                tvosArm64()
+                if (!ignoreDeprecated) tvosX64()
+            }
+
+            if (nativeState != NativeState.HOST || host == Host.Windows) {
+                logger.lifecycle("Adding Windows x64 target")
+                mingwX64()
+            }
+
+            if (nativeState != NativeState.HOST) {
+                logger.lifecycle("Adding Android native targets")
+                androidNativeArm32()
+                androidNativeArm64()
+                androidNativeX86()
+                androidNativeX64()
+            }
+        }
+
+        project.logger.debug("Registering :${project.name}:nativeTest")
+        project.tasks.register("nativeTest") {
+            group = "verification"
+            val testTasks = tasks.withType<KotlinNativeTest>().filter {
+                val upperTarget = it.targetName ?: "UNSUPPORTED_TARGET"
+                it is KotlinNativeHostTest
+                        upperTarget.contains(host.name, true) &&
+                        HostManager.hostArchOrNull().let { a -> a != null && upperTarget.contains(a, true) }
+            }
+            project.logger.debug("Configuring $path with host/target: ${host.name}/${HostManager.hostArchOrNull()} to depend on ${testTasks.joinToString { it.path}}")
+            dependsOn(testTasks)
+        }
+    }
 }
 
-private fun KotlinMultiplatformExtension.targets(configure: Action<Any>): Unit =
-    (this as ExtensionAware).extensions.configure("targets", configure)
-
-private fun KotlinMultiplatformExtension.sourceSets(configure: Action<org.gradle.api.NamedDomainObjectContainer<KotlinSourceSet>>): Unit =
-    (this as ExtensionAware).extensions.configure("sourceSets", configure)
-
-val Project.isWasmSupported: Boolean get() = true

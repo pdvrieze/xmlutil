@@ -38,7 +38,6 @@ import nl.adaptivity.xmlutil.dom2.Node as Node2
 /**
  * Interface representing the (wrapper) type that allows generating xml documents.
  */
-@MpJvmDefaultWithCompatibility
 public interface XmlWriter : Closeable {
 
     /**
@@ -94,6 +93,7 @@ public interface XmlWriter : Closeable {
      *   reserved for blank prefixes.
      * @return The prefix to use
      */
+    @ExperimentalXmlUtilApi
     public fun getOrCreatePrefix(namespaceUri: String, prefixHint: String? = null, isAttr: Boolean = false): String {
         var prefixHint: String? = prefixHint
         if (isAttr) {

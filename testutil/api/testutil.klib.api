@@ -1,0 +1,110 @@
+// Klib ABI Dump
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <io.github.pdvrieze:testutil>
+final enum class io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode : kotlin/Enum<io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode> { // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode|null[0]
+    enum entry AUTO // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.AUTO|null[0]
+    enum entry CHECK // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.CHECK|null[0]
+    enum entry IGNORE // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.IGNORE|null[0]
+
+    final val entries // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode> // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode> // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.values|values#static(){}[0]
+}
+
+final enum class nl.adaptivity.xmlutil.test.multiplatform/Target : kotlin/Enum<nl.adaptivity.xmlutil.test.multiplatform/Target> { // nl.adaptivity.xmlutil.test.multiplatform/Target|null[0]
+    enum entry Browser // nl.adaptivity.xmlutil.test.multiplatform/Target.Browser|null[0]
+    enum entry Java // nl.adaptivity.xmlutil.test.multiplatform/Target.Java|null[0]
+    enum entry Native // nl.adaptivity.xmlutil.test.multiplatform/Target.Native|null[0]
+    enum entry Node // nl.adaptivity.xmlutil.test.multiplatform/Target.Node|null[0]
+    enum entry Wasi // nl.adaptivity.xmlutil.test.multiplatform/Target.Wasi|null[0]
+    enum entry Wasm // nl.adaptivity.xmlutil.test.multiplatform/Target.Wasm|null[0]
+
+    final val entries // nl.adaptivity.xmlutil.test.multiplatform/Target.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.test.multiplatform/Target> // nl.adaptivity.xmlutil.test.multiplatform/Target.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/Target.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<nl.adaptivity.xmlutil.test.multiplatform/Target> // nl.adaptivity.xmlutil.test.multiplatform/Target.values|values#static(){}[0]
+}
+
+abstract interface io.github.pdvrieze.formats.xmlschemaTests/Resource { // io.github.pdvrieze.formats.xmlschemaTests/Resource|null[0]
+    abstract val path // io.github.pdvrieze.formats.xmlschemaTests/Resource.path|{}path[0]
+        abstract fun <get-path>(): kotlin/String // io.github.pdvrieze.formats.xmlschemaTests/Resource.path.<get-path>|<get-path>(){}[0]
+
+    abstract fun <#A1: kotlin/Any?> withXmlReader(kotlin/Boolean = ..., kotlin/Function1<nl.adaptivity.xmlutil/XmlReader, #A1>): #A1 // io.github.pdvrieze.formats.xmlschemaTests/Resource.withXmlReader|withXmlReader(kotlin.Boolean;kotlin.Function1<nl.adaptivity.xmlutil.XmlReader,0:0>){0§<kotlin.Any?>}[0]
+    abstract fun getText(): kotlin/String // io.github.pdvrieze.formats.xmlschemaTests/Resource.getText|getText(){}[0]
+    abstract fun resolve(kotlin/String): io.github.pdvrieze.formats.xmlschemaTests/Resource // io.github.pdvrieze.formats.xmlschemaTests/Resource.resolve|resolve(kotlin.String){}[0]
+}
+
+abstract class nl.adaptivity.xmlutil.test/TestCommonReader { // nl.adaptivity.xmlutil.test/TestCommonReader|null[0]
+    constructor <init>() // nl.adaptivity.xmlutil.test/TestCommonReader.<init>|<init>(){}[0]
+
+    abstract fun createReader(kotlin/String): nl.adaptivity.xmlutil/XmlReader // nl.adaptivity.xmlutil.test/TestCommonReader.createReader|createReader(kotlin.String){}[0]
+    final fun testIgnorableWhitespace(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testIgnorableWhitespace|testIgnorableWhitespace(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testNamespaceDecls(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testNamespaceDecls|testNamespaceDecls(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testProcessingInstruction(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>, kotlin/Function0<nl.adaptivity.xmlutil/XmlWriter>) // nl.adaptivity.xmlutil.test/TestCommonReader.testProcessingInstruction|testProcessingInstruction(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>;kotlin.Function0<nl.adaptivity.xmlutil.XmlWriter>){}[0]
+    final fun testReadCompactFragment(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReadCompactFragment|testReadCompactFragment(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testReadCompactFragmentWithNamespaceInOuter(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReadCompactFragmentWithNamespaceInOuter|testReadCompactFragmentWithNamespaceInOuter(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testReadEntity(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReadEntity|testReadEntity(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testReadSingleTag(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReadSingleTag|testReadSingleTag(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testReadToDom(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReadToDom|testReadToDom(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testReadUnknownEntity(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReadUnknownEntity|testReadUnknownEntity(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    final fun testReaderWithBOM(kotlin/Function1<kotlin/String, nl.adaptivity.xmlutil/XmlReader>) // nl.adaptivity.xmlutil.test/TestCommonReader.testReaderWithBOM|testReaderWithBOM(kotlin.Function1<kotlin.String,nl.adaptivity.xmlutil.XmlReader>){}[0]
+    open fun testEmbeddedJS() // nl.adaptivity.xmlutil.test/TestCommonReader.testEmbeddedJS|testEmbeddedJS(){}[0]
+    open fun testGenericReadEntity() // nl.adaptivity.xmlutil.test/TestCommonReader.testGenericReadEntity|testGenericReadEntity(){}[0]
+    open fun testIgnorableWhitespace() // nl.adaptivity.xmlutil.test/TestCommonReader.testIgnorableWhitespace|testIgnorableWhitespace(){}[0]
+    open fun testNamespaceDecls() // nl.adaptivity.xmlutil.test/TestCommonReader.testNamespaceDecls|testNamespaceDecls(){}[0]
+    open fun testProcessingInstruction() // nl.adaptivity.xmlutil.test/TestCommonReader.testProcessingInstruction|testProcessingInstruction(){}[0]
+    open fun testProcessingInstructionDom() // nl.adaptivity.xmlutil.test/TestCommonReader.testProcessingInstructionDom|testProcessingInstructionDom(){}[0]
+    open fun testReadCompactFragment() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadCompactFragment|testReadCompactFragment(){}[0]
+    open fun testReadCompactFragmentWithNamespaceInOuter() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadCompactFragmentWithNamespaceInOuter|testReadCompactFragmentWithNamespaceInOuter(){}[0]
+    open fun testReadEntity() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadEntity|testReadEntity(){}[0]
+    open fun testReadSingleTag() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadSingleTag|testReadSingleTag(){}[0]
+    open fun testReadToDom() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadToDom|testReadToDom(){}[0]
+    open fun testReadUnknownEntity() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadUnknownEntity|testReadUnknownEntity(){}[0]
+    open fun testReadWsInAttr() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadWsInAttr|testReadWsInAttr(){}[0]
+    open fun testReaderWithBOM() // nl.adaptivity.xmlutil.test/TestCommonReader.testReaderWithBOM|testReaderWithBOM(){}[0]
+    open fun testWhiteSpaceWithEntity() // nl.adaptivity.xmlutil.test/TestCommonReader.testWhiteSpaceWithEntity|testWhiteSpaceWithEntity(){}[0]
+}
+
+final val nl.adaptivity.xmlutil.test.multiplatform/testTarget // nl.adaptivity.xmlutil.test.multiplatform/testTarget|{}testTarget[0]
+    final fun <get-testTarget>(): nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/testTarget.<get-testTarget>|<get-testTarget>(){}[0]
+
+final fun io.github.pdvrieze.formats.xmlschemaTests/getResource(kotlin/String): io.github.pdvrieze.formats.xmlschemaTests/Resource // io.github.pdvrieze.formats.xmlschemaTests/getResource|getResource(kotlin.String){}[0]
+final fun io.github.pdvrieze.xmlutil.testutil/assertQNameEquivalent(nl.adaptivity.xmlutil/QName, nl.adaptivity.xmlutil/QName, kotlin/Function0<kotlin/String?> = ...) // io.github.pdvrieze.xmlutil.testutil/assertQNameEquivalent|assertQNameEquivalent(nl.adaptivity.xmlutil.QName;nl.adaptivity.xmlutil.QName;kotlin.Function0<kotlin.String?>){}[0]
+final fun io.github.pdvrieze.xmlutil.testutil/assertXmlEquals(kotlin/String, kotlin/String, io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode = ..., kotlin/Function0<kotlin/String?> = ...) // io.github.pdvrieze.xmlutil.testutil/assertXmlEquals|assertXmlEquals(kotlin.String;kotlin.String;io.github.pdvrieze.xmlutil.testutil.DocDeclEqualityMode;kotlin.Function0<kotlin.String?>){}[0]
+final fun io.github.pdvrieze.xmlutil.testutil/assertXmlEquals(kotlin/String, kotlin/String, kotlin/Function0<kotlin/String?>) // io.github.pdvrieze.xmlutil.testutil/assertXmlEquals|assertXmlEquals(kotlin.String;kotlin.String;kotlin.Function0<kotlin.String?>){}[0]
+final fun io.github.pdvrieze.xmlutil.testutil/assertXmlEquals(nl.adaptivity.xmlutil/XmlEvent, nl.adaptivity.xmlutil/XmlEvent, kotlin/Function0<kotlin/String?> = ...) // io.github.pdvrieze.xmlutil.testutil/assertXmlEquals|assertXmlEquals(nl.adaptivity.xmlutil.XmlEvent;nl.adaptivity.xmlutil.XmlEvent;kotlin.Function0<kotlin.String?>){}[0]
+final fun io.github.pdvrieze.xmlutil.testutil/assertXmlEquals(nl.adaptivity.xmlutil/XmlReader, nl.adaptivity.xmlutil/XmlReader, io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode = ..., kotlin/Function0<kotlin/String?> = ...) // io.github.pdvrieze.xmlutil.testutil/assertXmlEquals|assertXmlEquals(nl.adaptivity.xmlutil.XmlReader;nl.adaptivity.xmlutil.XmlReader;io.github.pdvrieze.xmlutil.testutil.DocDeclEqualityMode;kotlin.Function0<kotlin.String?>){}[0]
+final fun io.github.pdvrieze.xmlutil.testutil/assertXmlEquals(nl.adaptivity.xmlutil/XmlReader, nl.adaptivity.xmlutil/XmlReader, kotlin/Function0<kotlin/String?>) // io.github.pdvrieze.xmlutil.testutil/assertXmlEquals|assertXmlEquals(nl.adaptivity.xmlutil.XmlReader;nl.adaptivity.xmlutil.XmlReader;kotlin.Function0<kotlin.String?>){}[0]
+
+// Targets: [native]
+final class io.github.pdvrieze.formats.xmlschemaTests/NativeResource : io.github.pdvrieze.formats.xmlschemaTests/Resource { // io.github.pdvrieze.formats.xmlschemaTests/NativeResource|null[0]
+    constructor <init>(kotlin/String) // io.github.pdvrieze.formats.xmlschemaTests/NativeResource.<init>|<init>(kotlin.String){}[0]
+
+    final val path // io.github.pdvrieze.formats.xmlschemaTests/NativeResource.path|{}path[0]
+        final fun <get-path>(): kotlin/String // io.github.pdvrieze.formats.xmlschemaTests/NativeResource.path.<get-path>|<get-path>(){}[0]
+
+    final fun <#A1: kotlin/Any?> withXmlReader(kotlin/Boolean, kotlin/Function1<nl.adaptivity.xmlutil/XmlReader, #A1>): #A1 // io.github.pdvrieze.formats.xmlschemaTests/NativeResource.withXmlReader|withXmlReader(kotlin.Boolean;kotlin.Function1<nl.adaptivity.xmlutil.XmlReader,0:0>){0§<kotlin.Any?>}[0]
+    final fun getText(): kotlin/String // io.github.pdvrieze.formats.xmlschemaTests/NativeResource.getText|getText(){}[0]
+    final fun resolve(kotlin/String): io.github.pdvrieze.formats.xmlschemaTests/Resource // io.github.pdvrieze.formats.xmlschemaTests/NativeResource.resolve|resolve(kotlin.String){}[0]
+}
+
+// Targets: [js]
+final class io.github.pdvrieze.formats.xmlschemaTests/JsResource : io.github.pdvrieze.formats.xmlschemaTests/Resource { // io.github.pdvrieze.formats.xmlschemaTests/JsResource|null[0]
+    constructor <init>(kotlin/String) // io.github.pdvrieze.formats.xmlschemaTests/JsResource.<init>|<init>(kotlin.String){}[0]
+
+    final val path // io.github.pdvrieze.formats.xmlschemaTests/JsResource.path|{}path[0]
+        final fun <get-path>(): kotlin/String // io.github.pdvrieze.formats.xmlschemaTests/JsResource.path.<get-path>|<get-path>(){}[0]
+
+    final fun <#A1: kotlin/Any?> withXmlReader(kotlin/Boolean, kotlin/Function1<nl.adaptivity.xmlutil/XmlReader, #A1>): #A1 // io.github.pdvrieze.formats.xmlschemaTests/JsResource.withXmlReader|withXmlReader(kotlin.Boolean;kotlin.Function1<nl.adaptivity.xmlutil.XmlReader,0:0>){0§<kotlin.Any?>}[0]
+    final fun getText(): kotlin/String // io.github.pdvrieze.formats.xmlschemaTests/JsResource.getText|getText(){}[0]
+    final fun resolve(kotlin/String): io.github.pdvrieze.formats.xmlschemaTests/Resource // io.github.pdvrieze.formats.xmlschemaTests/JsResource.resolve|resolve(kotlin.String){}[0]
+}

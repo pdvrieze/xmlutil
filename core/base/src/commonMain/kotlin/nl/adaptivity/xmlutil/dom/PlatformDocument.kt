@@ -21,11 +21,15 @@
 
 package nl.adaptivity.xmlutil.dom
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.Node
 
 public expect interface PlatformDocument : PlatformNode
 
+@ExperimentalXmlUtilApi
+public expect val PlatformDocument.childNodes: PlatformNodeList
+
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 @Deprecated("Use member instead", level = DeprecationLevel.HIDDEN)
-public expect fun Document.adoptNode(node: PlatformNode): Node
+public expect fun Document.adoptNode(node: PlatformNode): Node?

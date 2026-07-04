@@ -34,8 +34,8 @@ internal object DefaultEntityMap {
     val LT: XmlEntity = DefaultEntity("<", "&#60;")
     val GT: XmlEntity = DefaultEntity(">", "&#62;")
     val AMP: XmlEntity = DefaultEntity("&", "&#38;")
-    val APOS: XmlEntity = DefaultEntity("'", "&#39")
-    val QUOT: XmlEntity = DefaultEntity("\"", "&#34")
+    val APOS: XmlEntity = DefaultEntity("'", "&#39;")
+    val QUOT: XmlEntity = DefaultEntity("\"", "&#34;")
 
     public operator fun get(key: String): XmlEntity? {
         when (key.length) {

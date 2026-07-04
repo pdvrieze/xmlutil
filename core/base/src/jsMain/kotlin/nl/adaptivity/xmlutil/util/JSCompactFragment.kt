@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -49,7 +49,7 @@ public actual class CompactFragment : ICompactFragment {
 
     public actual constructor(namespaces: Iterable<Namespace>, content: CharArray?) {
         this.namespaces = SimpleNamespaceContext.from(namespaces)
-        this.contentString = content?.toString() ?: ""
+        this.contentString = content?.concatToString() ?: ""
     }
 
     /** Convenience constructor for content without namespaces.  */

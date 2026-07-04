@@ -1,0 +1,9 @@
+public final class nl/adaptivity/xmlutil/core/kxio/Accessors_jvmKt {
+	public static final fun newGenericReader (Lnl/adaptivity/xmlutil/IXmlStreaming;Lkotlinx/io/Source;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static final fun newGenericWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Lkotlinx/io/Sink;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newGenericWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Lkotlinx/io/Sink;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static final fun newReader (Lnl/adaptivity/xmlutil/IXmlStreaming;Lkotlinx/io/Source;)Lnl/adaptivity/xmlutil/XmlReader;
+	public static final fun newWriter (Lnl/adaptivity/xmlutil/IXmlStreaming;Lkotlinx/io/Sink;ZLnl/adaptivity/xmlutil/XmlDeclMode;)Lnl/adaptivity/xmlutil/XmlWriter;
+	public static synthetic fun newWriter$default (Lnl/adaptivity/xmlutil/IXmlStreaming;Lkotlinx/io/Sink;ZLnl/adaptivity/xmlutil/XmlDeclMode;ILjava/lang/Object;)Lnl/adaptivity/xmlutil/XmlWriter;
+}
+

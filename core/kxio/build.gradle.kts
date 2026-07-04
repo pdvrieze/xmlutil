@@ -18,8 +18,9 @@
  * permissions and limitations under the License.
  */
 
+@file:Suppress("OPT_IN_USAGE")
+
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.doPublish
 import net.devrieze.gradle.ext.isKlibValidationEnabled
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
@@ -46,22 +47,28 @@ config {
 val autoModuleName = "net.devrieze.xmlutil.core.kxio"
 
 kotlin {
+    applyDefaultHierarchyTemplate {
+        group("web") {
+            withWasmWasi()
+        }
+    }
     explicitApi()
-    applyDefaultXmlUtilHierarchyTemplate()
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
-
-        klib {
-            enabled = isKlibValidationEnabled()
-        }
 
         filters {
             exclude {
                 annotatedWith.add("nl.adaptivity.xmlutil.XmlUtilInternal")
             }
         }
+
+        if (!isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
+        }
+
     }
 
     jvm()
@@ -75,14 +82,14 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(projects.core)
                 api(libs.kotlinx.io.core)
             }
         }
 
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-annotations-common"))

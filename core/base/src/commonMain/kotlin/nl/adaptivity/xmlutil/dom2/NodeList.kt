@@ -27,7 +27,7 @@ public expect interface NodeList : PlatformNodeList, Iterable<Node> {
 
     public fun item(index: Int): Node?
 
-    public operator fun get(index: Int): Node?// = item(index)
+    public operator fun get(index: Int): Node?
 
     public override operator fun iterator(): Iterator<Node>
 }

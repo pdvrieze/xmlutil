@@ -23,9 +23,10 @@ package nl.adaptivity.xmlutil
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.KtXmlWriter
 import nl.adaptivity.xmlutil.core.XmlVersion
+import nl.adaptivity.xmlutil.core.impl.dom.SimpleDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Writer
-import nl.adaptivity.xmlutil.core.impl.wrappingDom.DOMImplementationImpl
+import nl.adaptivity.xmlutil.core.impl.wrappingDom.JsWrappedDOMImplementation
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
 import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
 import nl.adaptivity.xmlutil.dom.PlatformNode
@@ -40,11 +41,6 @@ import org.w3c.dom.Node as DomNode
 public actual interface XmlStreamingFactory
 
 internal actual object XmlStreaming : IXmlStreaming {
-    @Deprecated("Platform nodes are supertypes", level = DeprecationLevel.HIDDEN)
-    @ExperimentalXmlUtilApi
-    actual override fun newReader(source: Node): XmlReader {
-        return DomReader(source, true)
-    }
 
     actual override fun newReader(source: PlatformNode): XmlReader {
         return DomReader(source)
@@ -86,7 +82,7 @@ internal actual object XmlStreaming : IXmlStreaming {
         // fall back to generic reader for contexts without DOM (Node etc.)
         if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(output, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
-        return AppendableXmlWriter(output, DomWriter(xmlDeclMode))
+        return AppendableXmlWriter(output, DomWriter(JsWrappedDOMImplementation.createDocument(), xmlDeclMode = xmlDeclMode))
     }
 
     fun newGenericWriter(
@@ -107,15 +103,16 @@ internal actual object XmlStreaming : IXmlStreaming {
         if (jsTypeOf(js("DOMParser")) == "undefined") return newGenericWriter(writer, repairNamespaces, xmlDeclMode, xmlVersionHint)
 
         val document = xmlStreaming.genericDomImplementation.createDocument()
-        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
+        return AppendableXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
+//        return WriterXmlWriter(writer, DomWriter(document, xmlDeclMode = xmlDeclMode, xmlVersion = xmlVersionHint))
     }
 
     actual override val genericDomImplementation: DOMImplementation
-        get() = DOMImplementationImpl
+        get() = SimpleDOMImplementation
 
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
     actual override val platformDOMImplementation: PlatformDOMImplementation
-        get() = DOMImplementationImpl.delegate as PlatformDOMImplementation
+        get() = JsWrappedDOMImplementation.delegate
 }
 
 /**

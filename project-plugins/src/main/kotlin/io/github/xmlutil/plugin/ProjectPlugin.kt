@@ -39,6 +39,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.testing.Test
@@ -80,11 +81,36 @@ class ProjectPlugin @Inject constructor(
         }
 
         if (project == project.rootProject) {
+            val repositoryDir = project.layout.buildDirectory.dir("project-local-repository")
+
+
+
+            val cleanLocalRepoTask = project.tasks.register("cleanLocalRepo") {
+                doFirst {
+                    if (repositoryDir.isPresent) {
+                        repositoryDir.get().asFile.deleteRecursively()
+                    }
+                }
+            }
+
             val collateTask = project.tasks.register<Zip>("collateModuleRepositories") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Zip task that collates all local repositories into a single zip file"
                 destinationDirectory = project.layout.buildDirectory.dir("repositoryArchive")
                 archiveBaseName = "${project.name}-publishing"
+
+                from(repositoryDir) {
+                    exclude { ".asc." in it.name }
+                    exclude { it.name.startsWith("maven-metadata.xml") }
+//                    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+                }
+
+                project.subprojects {
+                    val publishTasks = tasks.matching { it is PublishToMavenRepository && it.repository?.name == "projectLocal" }
+                    logger.debug("Adding local publication tasks for subproject ${path} as dependency to collateModuleRepositories")
+                    dependsOn(publishTasks)
+                }
+
             }
 
             project.tasks.register<PublishToSonatypeTask>("publishToSonatype") {
@@ -113,7 +139,7 @@ class ProjectPlugin @Inject constructor(
             dokkaModuleName.convention(project.provider { project.name })
             dokkaVersion.convention(project.provider { project.version.toString() })
             dokkaOverrideTarget.convention(project.provider { null })
-            applyLayout.convention(true)
+            applyLayout.convention(false)
             val apiVer = libs.findVersion("apiVersion").getOrNull()
                 ?.run { requiredVersion.let { KotlinVersion.fromVersion(it) } }
                 ?: KotlinVersion.KOTLIN_2_2

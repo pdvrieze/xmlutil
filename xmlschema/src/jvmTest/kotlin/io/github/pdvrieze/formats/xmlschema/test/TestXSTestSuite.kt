@@ -23,15 +23,12 @@
 package io.github.pdvrieze.formats.xmlschema.test
 
 import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.VAnyURI
-import io.github.pdvrieze.formats.xmlschema.datatypes.primitiveInstances.toAnyUri
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.*
 import io.github.pdvrieze.formats.xmlschema.datatypes.serialization.facets.*
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xmlschema.resolved.SimpleResolver
 import io.github.pdvrieze.formats.xmlschema.test.TestXSTestSuite.NON_TESTED.*
 import io.github.pdvrieze.formats.xmlschemaTests.Resource
 import io.github.pdvrieze.formats.xmlschemaTests.getResource
-import io.github.pdvrieze.formats.xmlschemaTests.io.github.pdvrieze.formats.xmlschemaTests.withXmlReader
 import io.github.pdvrieze.formats.xmlschemaTests.openStream
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -39,33 +36,32 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.XMLConstants.XSD_NS_URI
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.jdk.StAXStreamingFactory
+import nl.adaptivity.xmlutil.serialization.LayeredCache
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.defaultPolicy
 import nl.adaptivity.xmlutil.serialization.structure.*
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.w3.xml.xmschematestsuite.*
+import org.w3.xml.xmschematestsuite.TSTestSet
+import org.w3.xml.xmschematestsuite.TSTestSuite
+import org.w3.xml.xmschematestsuite.TSValidityOutcome
 import org.w3.xml.xmschematestsuite.override.CompactOverride
 import org.w3.xml.xmschematestsuite.override.OTSSuite
-import java.net.URI
-import java.net.URL
-import kotlin.experimental.ExperimentalTypeInference
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
-class TestXSTestSuite {
+class TestXSTestSuite : AbstractTestSuiteSupport() {
 
     init {
         xmlStreaming.setFactory(xmlStreaming.genericFactory)
     }
-    @Suppress("DEPRECATION")
-    var xml: XML = XML.compat {
-        recommended_0_87_0()
+
+    override var xml: XML = XML.v1 {
         defaultToGenericParser = true
+        policy {
+            formatCache = LayeredCache(7)
+        }
     }
 
     @Test
@@ -148,7 +144,7 @@ class TestXSTestSuite {
             if (i==warmups+1) {
                 startTime = System.currentTimeMillis()
             }
-            MeasureInfo(i-warmups, rounds, warmups).action()
+            MeasureInfo(i - warmups, rounds, warmups).action()
         }
         val endTime = System.currentTimeMillis()
         println ("Init: ${Instant.fromEpochMilliseconds(initTime)}")
@@ -229,92 +225,74 @@ class TestXSTestSuite {
 
     @DisplayName("Test suites: suite.xml")
     @TestFactory
-    fun testFromTestSetRef(): List<DynamicNode> {
-        val suiteResource: Resource = getResource("/xsts/suite.xml")
+    fun testSuite(): List<DynamicNode> {
+        val nodes = getTestSets { ts ->
+            ts.href.contains("msMeta/Additional")
+        }.map { tsInfo ->
+            val (testSetResource, _, testSet) = tsInfo
 
-        val override = getResource("/override.xml").withXmlReader {
-            val compact = XML.v1().decodeFromReader<CompactOverride>(it)
-            OTSSuite(compact)
-        }
+            buildDynamicContainer("Test set '${tsInfo.displayName}'") {
+/*
+                tsInfo.groupTest {
 
-        val nodes = mutableListOf<DynamicNode>()
-        suiteResource.withXmlReader { xmlReader ->
-            val suite = xml.decodeFromReader<TSTestSuite>(xmlReader)
-            val subNodes = suite.testSetRefs
-//                .filter { it.href.contains("sunMeta/suntest") }
-//                .filter { it.href.contains("msMeta/Additional") }
-//                .filter { (it.href.contains("nistMeta/") /*&& it.href.contains("CType")*/) }
-                .filter {
-                    arrayOf(
-                        "sunMeta/", "nistMeta/", "boeingMeta/", "msMeta/",
-                        "wgMeta"
-                    ).any { m -> it.href.contains(m) }
                 }
-//                .filter { arrayOf("msMeta/Notation", "msMeta/Schema", "msMeta/SimpleType",
-//                    "msMeta/Wildcards").any { m -> it.href.contains(m) } }
-//                .filter { (it.href.contains("msMeta/")) }
-//                .filter { (it.href.contains("wgMeta/")) }
-                .map { setRef ->
+*/
 
-                    val testSetResource = getResource("/xsts/${setRef.href}")
-                    val testSet =
-                        override.applyTo(testSetResource.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) })
-
-                    val folderName = setRef.href.substring(0, setRef.href.indexOf('/')).removeSuffix("Meta")
-
-                    val tsName = "$folderName - ${testSet.name}"
-
-                    buildDynamicContainer("Test set '$tsName'") {
-                        for (group in testSet.testGroups) {
-                            if (false || group.name.equals("addB043")) {
-                                dynamicContainer("Group '${group.name}'") {
-                                    addSchemaTests(testSetResource, group, testSet.schemaVersion?.let(::listOf))
-                                }
-                            }
+                for (group in testSet.testGroups) {
+                    if (false || group.name.equals("addA005")) {
+                        dynamicContainer("Group '${group.name}'") {
+                            addSchemaTests(testSetResource, group, testSet.schemaVersion?.let(::listOf))
                         }
                     }
                 }
-            nodes.addAll(subNodes)
-            val typeTests = buildDynamicContainer("Test types") {
-                val schemaResources: List<Resource> = suite.testSetRefs.flatMap { setRef ->
-                    val setBaseLocation = getResource("/xsts/${setRef.href}")
-                    val resolver = SimpleResolver(setBaseLocation)
-
-                    val ts = setBaseLocation.withXmlReader { r -> xml.decodeFromReader<TSTestSet>(r) }
-                    ts.testGroups.flatMap { tg ->
-                        listOfNotNull(tg.schemaTest)
-                    }.filter { schemaTest ->
-                        schemaTest.expected.firstOrNull { it.version != "1.1" }?.validity == TSValidityOutcome.VALID
-                    }.flatMap { schemaTest ->
-                        schemaTest.schemaDocuments
-                    }.map { schemaDoc ->
-                        setBaseLocation.resolve(schemaDoc.href)
-                    }.filter {
-                        "particlesIc006.xsd" in it.path
-                    }
-                }
-                assertTrue(schemaResources.size > 0, "Expected at least 1 schema, found 0")
-                val schemas: Sequence<XSSchema> = schemaResources.asSequence().map { url ->
-                    url.withXmlReader { reader ->
-                        xml.decodeFromReader<XSSchema>(reader).also {
-                            if (reader.eventType != EventType.END_DOCUMENT) {
-                                var e: EventType
-                                do {
-                                    e = reader.next()
-                                } while (e.isIgnorable && e != EventType.END_DOCUMENT)
-                                require(e == EventType.END_DOCUMENT) {
-                                    "Trailing content in document $reader"
-                                }
-                            }
-                        }
-                    }
-                }
-                testPropertyPresences(schemas)
-
             }
-//            nodes.add(typeTests)
         }
+
         return nodes
+    }
+
+    @DisplayName("Test types")
+    @TestFactory
+    fun testTypes(): List<DynamicNode> {
+
+        val typeTests = buildList<DynamicNode> {
+            val testSets = getTestSets { true }
+
+            val schemaResources: List<Resource> = testSets.flatMap { ts ->
+                ts.testSet.testGroups.flatMap { tg ->
+                    listOfNotNull(tg.schemaTest)
+                }.filter { schemaTest ->
+                    schemaTest.expected.firstOrNull { it.version != "1.1" }?.validity == TSValidityOutcome.VALID
+                }.flatMap { schemaTest ->
+                    schemaTest.schemaDocuments
+                }.map { schemaDoc ->
+                    ts.resource.resolve(schemaDoc.href)
+                }.filter {
+                    "particlesIc006.xsd" in it.path
+                }
+            }
+            assertTrue(schemaResources.size > 0, "Expected at least 1 schema, found 0")
+            val schemas: Sequence<XSSchema> = schemaResources.asSequence().map { res ->
+                res.withXmlReader { reader ->
+                    xml.decodeFromReader<XSSchema>(reader).also {
+                        if (reader.eventType != EventType.END_DOCUMENT) {
+                            var e: EventType
+                            do {
+                                e = reader.next()
+                            } while (e.isIgnorable && e != EventType.END_DOCUMENT)
+                            require(e == EventType.END_DOCUMENT) {
+                                "Trailing content in document $reader"
+                            }
+                        }
+                    }
+                }
+            }
+
+            testPropertyPresences(schemas)
+
+        }
+//            nodes.add(typeTests)
+        return typeTests
     }
 
     @IgnorableReturnValue
@@ -537,7 +515,7 @@ class TestXSTestSuite {
     )
 
     @OptIn(ExperimentalSerializationApi::class)
-    private suspend fun SequenceScope<DynamicNode>.testPropertyPresences(schemas: Sequence<XSSchema>) {
+    private fun MutableList<DynamicNode>.testPropertyPresences(schemas: Sequence<XSSchema>) {
 
         val rootDescriptor = xml.xmlDescriptor(XSSchema.serializer()) as XmlRootDescriptor
 
@@ -555,7 +533,7 @@ class TestXSTestSuite {
 
             val ext = if (expectations.isEmpty()) "" else " (modified: ${expectations.size})"
 
-            dynamicContainer("Test presence/absence of ${serialName.substringAfterLast('.')} (${desc.tagName}) children$ext") {
+            val dc = buildDynamicContainer("Test presence/absence of ${serialName.substringAfterLast('.')} (${desc.tagName}) children$ext") {
                 val info = attributeViewer.structInfo(desc)
 
                 for (i in 0 until desc.elementsCount) {
@@ -580,6 +558,7 @@ class TestXSTestSuite {
                     }
                 }
             }
+            add(dc)
         }
     }
 }
@@ -594,216 +573,4 @@ data class ElementInfo(val name: QName, var hasBeenAbsent: Boolean = false, var 
     constructor(descriptor: XmlDescriptor) : this(descriptor.tagName)
 }
 
-private suspend fun SequenceScope<DynamicNode>.addSchemaTests(
-    baseResource: Resource,
-    group: TSTestGroup,
-    testSetVersion: List<SchemaVersion>?
-) {
-    var targetSchemaDoc: TSSchemaDocument? = null
-    group.schemaTest?.let { schemaTest ->
-        val documentation = group.documentationString()
-        if (schemaTest.schemaDocuments.size == 1) {
-            val schemaDoc = schemaTest.schemaDocuments.single()
-            addSchemaDocTest(baseResource, schemaTest, schemaDoc, documentation, group.version?.let(::listOf) ?: testSetVersion)
-            targetSchemaDoc = schemaDoc
-        } else {
-            dynamicContainer("Schema documents") {
-                for (schemaDoc in schemaTest.schemaDocuments) {
-                    if (true || schemaDoc.href.contains("ipo.xsd")) {
-                        addSchemaDocTest(baseResource, schemaTest, schemaDoc, documentation, group.version?.let(::listOf) ?: testSetVersion)
-                        targetSchemaDoc = schemaDoc
-                    }
-                }
-            }
-        }
-    }
-    if (false && targetSchemaDoc != null && group.instanceTests.isNotEmpty()) {
 
-        for (instanceTest in group.instanceTests) {
-            addInstanceTest(baseResource, instanceTest, targetSchemaDoc!!, group.documentationString())
-        }
-    }
-}
-
-private suspend fun SequenceScope<DynamicNode>.addInstanceTest(
-    setBaseUrl: Resource,
-    instanceTest: TSInstanceTest,
-    schemaDoc: TSSchemaDocument,
-    documentation: String
-) {
-    val instanceDoc = instanceTest.instanceDocument
-    val resolver = SimpleResolver(setBaseUrl)
-    dynamicTest("Instance document ${instanceDoc.href} exists") {
-        setBaseUrl.resolve(instanceDoc.href).openStream().use { stream ->
-            assertNotNull(stream)
-        }
-    }
-    if (instanceTest.expected.firstOrNull { it.version != "1.0" }?.validity == TSValidityOutcome.VALID) {
-        val schemaLocation = schemaDoc.href.toAnyUri()
-        val schema = resolver.readSchema(schemaLocation).resolve(resolver)
-
-    }
-
-//    assertNotNull()
-}
-
-private suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
-    setBaseResource: Resource,
-    schemaTest: TSSchemaTest,
-    schemaDoc: TSSchemaDocument,
-    documentation: String,
-    testGroupVersions: List<SchemaVersion>?,
-) {
-    val defaultVersions = when(schemaTest.version) {
-        "1.0" -> listOf(SchemaVersion.V1_0)
-        "1.1" -> listOf(SchemaVersion.V1_1)
-        else -> testGroupVersions ?: SchemaVersion.entries
-    }
-    val resolver = SimpleResolver(setBaseResource)
-
-    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists") {
-        setBaseResource.resolve(schemaDoc.href).openStream().use { stream ->
-            assertNotNull(stream)
-        }
-    }
-
-    val expecteds = mutableMapOf<SchemaVersion, TSExpected>()
-    for (e in schemaTest.expected) {
-        val version = when (e.version) {
-            "1.0" -> SchemaVersion.V1_0
-            "1.1" -> SchemaVersion.V1_1
-            else -> null
-        }
-        when (version) {
-            null -> {
-                for (ver in defaultVersions) {
-                    expecteds.computeIfAbsent(ver) { e }
-                }
-            }
-            else -> expecteds[version] = e
-        }
-    }
-
-    for ((version, expected) in expecteds) {
-        val versionLabel = " for version ${version}"
-
-        val expectedValidity = expected.validity
-        when (expectedValidity) {
-            TSValidityOutcome.INVALID_LATENT,
-            TSValidityOutcome.INVALID_LAX,
-            TSValidityOutcome.INVALID -> {
-                if (true) {
-                    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} should not parse or be found invalid${versionLabel}") {
-                        val e = assertFails(documentation) {
-                            val schemaLocation = schemaDoc.href.toAnyUri()
-                            val schema = resolver.readSchema(schemaLocation)
-                            val resolvedSchema = schema.resolve(resolver.delegate(schemaLocation), version)
-                            resolvedSchema.check(isLax = expectedValidity == TSValidityOutcome.INVALID_LAX)
-                        }
-                        if (e is Error) throw e
-
-                        try {
-
-                            val exName = expected.exception
-                            if (exName != null) {
-                                if (exName.contains('.')) {
-                                    assertEquals(exName, e.javaClass.name)
-                                } else {
-                                    assertEquals(exName, e.javaClass.name.substringAfterLast('.'))
-                                }
-                            }
-
-                            val exMsg = expected.message?.let { Regex(it.pattern, setOf(RegexOption.UNIX_LINES)) }
-                            if (exMsg != null) {
-                                if (!exMsg.containsMatchIn(e.message ?: "")) {
-                                    val match = exMsg.find(e.message ?: "")?.value
-                                    if (match != null) {
-                                        assertEquals("${exMsg.pattern}\n$match", "${exMsg.pattern}\n${e.message ?: ""}")
-                                    } else {
-                                        assertEquals(exMsg.pattern, e.message)
-                                    }
-                                }
-                            } else {
-                                System.err.println("Expected error: \n")
-                                System.err.println(documentation.prependIndent("        "))
-                                System.err.println("    Exception thrown:")
-                                System.err.println(e.message?.prependIndent("        "))
-                            }
-                        } catch (f: AssertionError) {
-                            if (f != e) {
-                                f.addSuppressed(e)
-                            }
-                            throw f
-                        }
-                    }
-                }
-            }
-
-            TSValidityOutcome.LAX,
-            TSValidityOutcome.VALID -> {
-                val schemaLocation = schemaDoc.href.toAnyUri()
-                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
-                    val schema = resolver.readSchema(schemaLocation)
-                    assertNotNull(schema)
-                }
-                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} resolves and checks$versionLabel") {
-                    val resolvedSchema =
-                        resolver.readSchema(schemaLocation).resolve(resolver.delegate(schemaLocation), version)
-                    resolvedSchema.check(expectedValidity == TSValidityOutcome.LAX)
-                    assertNotNull(resolvedSchema)
-                }
-            }
-
-            TSValidityOutcome.IMPLEMENTATION_DEFINED,
-            TSValidityOutcome.IMPLEMENTATION_DEPENDENT,
-            TSValidityOutcome.INDETERMINATE -> { // indeterminate should parse, but may not check (implementation defined)
-                val schemaLocation = schemaDoc.href.toAnyUri()
-                dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} parses") {
-                    val schema = resolver.readSchema(schemaLocation)
-                    assertNotNull(schema)
-                }
-            }
-
-            TSValidityOutcome.RUNTIME_SCHEMA_ERROR,
-            TSValidityOutcome.NOTKNOWN -> {} // ignore unknown
-        }
-    }
-}
-
-
-@OptIn(ExperimentalTypeInference::class)
-internal fun buildDynamicContainer(
-    displayName: String,
-    block: suspend SequenceScope<DynamicNode>.() -> Unit
-): DynamicContainer {
-    return DynamicContainer.dynamicContainer(displayName, sequence(block).asIterable())
-}
-
-internal suspend fun SequenceScope<DynamicTest>.dynamicTest(displayName: String, testBody: () -> Unit) {
-    yield(DynamicTest.dynamicTest(displayName, testBody))
-}
-
-@OptIn(ExperimentalTypeInference::class)
-internal suspend fun SequenceScope<DynamicContainer>.dynamicContainer(
-    displayName: String,
-    block: suspend SequenceScope<DynamicNode>.() -> Unit
-) {
-    yield(DynamicContainer.dynamicContainer(displayName, sequence(block).asIterable()))
-}
-
-inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
-    return toURL().withXmlReader(body)
-}
-
-inline fun <R> URL.withXmlReader(body: (XmlReader) -> R): R {
-    return openStream().use { inStream ->
-        xmlStreaming.newReader(inStream, "UTF-8").use(body)
-    }
-}
-
-fun URL.resolve(path: String): URL {
-    @Suppress("DEPRECATION")
-    return URL(this, path)
-}
-
-data class MeasureInfo(val round: Int, val rounds: Int, val warmups: Int)

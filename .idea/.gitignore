@@ -7,3 +7,7 @@ compiler.xml
 misc.xml
 jarRepositories.xml
 vcs.xml
+.name
+encodings.xml
+kotlinc.xml
+libraries-with-intellij-classes.xml

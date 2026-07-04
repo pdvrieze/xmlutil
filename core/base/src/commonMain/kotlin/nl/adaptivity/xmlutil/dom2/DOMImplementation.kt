@@ -32,23 +32,28 @@ public fun DOMImplementation.createDocument(namespace: String? = null, qualified
 public expect interface DOMImplementation : PlatformDOMImplementation {
     public val supportsWhitespaceAtToplevel: Boolean
 
+    /**
+     * @since DOM Level 2
+     */
     public fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentType
-    public fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document
 
+    public fun createDocument(namespace: String?, qualifiedName: String?, documentType: PlatformDocumentType?): Document
+    /**
+     * @since DOM Level 2
+     */
+    public fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): Document
+
+    /**
+     * @since DOM Level 3
+     */
     public fun getFeature(feature: String, version: String): Any?
 
-    public fun hasFeature(feature: String, version: String?): Boolean /*{
-        val f = SupportedFeatures.entries.firstOrNull { it.strName == feature } ?: return false
-        val v = when {
-            version.isNullOrEmpty() -> null
-            else -> DOMVersion.entries.firstOrNull { it.strName == version } ?: return false
-        }
-        return hasFeature(f, v)
-    }*/
+    /**
+     * @since DOM Level 1
+     */
+    public fun hasFeature(feature: String, version: String?): Boolean
 
-    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean /*{
-        return version == null || feature.isSupportedVersion(version)
-    }*/
+    public fun hasFeature(feature: SupportedFeatures, version: DOMVersion?): Boolean
 
 
 }

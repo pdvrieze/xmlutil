@@ -20,29 +20,54 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public expect interface Attr : Node, PlatformAttr {
-    public fun getNamespaceURI(): String?
-
-    public fun getPrefix(): String?
-
-    public fun getLocalName(): String?
+    //region dom 1
 
     public fun getName(): String
-
     public fun getValue(): String
-
     public fun setValue(value: String)
+    //TODO public fun isSpecified(): Boolean
 
-    public fun getOwnerElement(): Element?
+    //region overrides
+    public override fun getOwnerDocument(): Document
 
     public override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
     public override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
     public override fun removeChild(node: PlatformNode): Nothing
     public override fun getFirstChild(): Nothing?
     public override fun getLastChild(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    public override fun getAttributes(): Nothing?
+
+    @ExperimentalXmlUtilApi
+    override fun getNodeValue(): String
+
+    @ExperimentalXmlUtilApi
+    override fun cloneNode(deep: Boolean): Attr
+
+    //endregion
+    //endregion
+
+    //region dom 2
+    public fun getOwnerElement(): Element?
+
+    //endregion
+
+    //region dom 3
+    //TODO public fun getSchemaTypeInfo(): TypeInfo?
+    @ExperimentalXmlUtilApi
+    public fun isId(): Boolean
+    //endregion
 
 }
 

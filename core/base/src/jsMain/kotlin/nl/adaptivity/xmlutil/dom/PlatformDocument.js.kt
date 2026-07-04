@@ -21,42 +21,48 @@
 package nl.adaptivity.xmlutil.dom
 
 import nl.adaptivity.xmlutil.core.impl.wrappingDom.wrap
-import nl.adaptivity.xmlutil.dom2.Document as Document2
+import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.dom2.Node as Node2
+import org.w3c.dom.Document as DomDocument
 
-/*
-@Suppress(
-    "ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING",
-    "NON_ACTUAL_MEMBER_DECLARED_IN_EXPECT_NON_FINAL_CLASSIFIER_ACTUALIZATION_WARNING",
-)
-*/
 @JsName("Document")
 public actual external interface PlatformDocument : PlatformNode {
-    public val implementation: PlatformDOMImplementation
-    public val doctype: PlatformDocumentType?
-    public val documentElement: PlatformElement?
-    public val inputEncoding: String?
 
+    @JsName("createElement")
     public fun createElement(localName: String): PlatformElement
 
+    @JsName("createElementNS")
     public fun createElementNS(namespaceURI: String, qualifiedName: String): PlatformElement
 
+    @JsName("createDocumentFragment")
     public fun createDocumentFragment(): PlatformDocumentFragment
 
+    @JsName("createTextNode")
     public fun createTextNode(data: String): PlatformText
 
+    @JsName("createCDATASection")
     public fun createCDATASection(data: String): PlatformCDATASection
 
+    @JsName("createComment")
     public fun createComment(data: String): PlatformComment
 
+    @JsName("createProcessingInstruction")
     public fun createProcessingInstruction(target: String, data: String): PlatformProcessingInstruction
+
+    @JsName("importNode")
     public fun importNode(node: PlatformNode, deep: Boolean): PlatformNode
 
-    public fun adoptNode(node: PlatformNode): PlatformNode
+    @JsName("adoptNode")
+    public fun adoptNode(node: PlatformNode): PlatformNode?
 
+    @JsName("createAttribute")
     public fun createAttribute(localName: String): PlatformAttr
 
+    @JsName("createAttributeNS")
     public fun createAttributeNS(namespace: String?, qualifiedName: String): PlatformAttr
 }
 
-public actual fun Document2.adoptNode(node: PlatformNode): Node2 = adoptNode(node.wrap())
+public actual val PlatformDocument.childNodes: PlatformNodeList
+    get() = unsafeCast<DomDocument>().childNodes.asDynamic()
+
+public actual fun Document.adoptNode(node: PlatformNode): Node2? = adoptNode(node.wrap())

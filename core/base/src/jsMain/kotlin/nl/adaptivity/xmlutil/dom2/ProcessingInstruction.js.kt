@@ -22,16 +22,41 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 
 public actual interface ProcessingInstruction : Node, PlatformProcessingInstruction {
-    override val target: String get() = getTarget()
 
-    override var data: String
-        get() = getData()
-        set(value) { setData(value) }
+    actual override fun getOwnerDocument(): Document
 
     public actual fun getTarget(): String
     public actual fun getData(): String
     public actual fun setData(data: String)
+
+    public actual override fun getNodeValue(): String
+
+    public actual override fun cloneNode(deep: Boolean): ProcessingInstruction
+
+    @IgnorableReturnValue
+    actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
+
+    @IgnorableReturnValue
+    actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
+
+    @IgnorableReturnValue
+    actual override fun removeChild(node: PlatformNode): Nothing
+
+}
+
+internal fun addProcessingInstructionPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+    props.target = jsProperty<ProcessingInstruction> { getTarget() }
+    props.data = jsProperty<ProcessingInstruction>(getter = { getData() }, setter = { setData(it) })
+    js("Object").defineProperties(prototype, props)
 }

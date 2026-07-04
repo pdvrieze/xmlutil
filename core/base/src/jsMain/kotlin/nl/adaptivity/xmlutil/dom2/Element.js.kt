@@ -21,16 +21,15 @@
 package nl.adaptivity.xmlutil.dom2
 
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.dom.NodeConsts
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformElement
 
 @Serializable(with = ElementSerializer::class)
 public actual interface Element : Node, PlatformElement {
-    public actual fun getNamespaceURI(): String?
-    public actual fun getPrefix(): String?
-    public actual fun getLocalName(): String
+
     public actual fun getTagName(): String
-    public actual fun getAttributes(): NamedNodeMap
+    public actual override fun getAttributes(): NamedNodeMap<Attr>
     public actual override fun getAttribute(qualifiedName: String): String?
     public actual override fun getAttributeNS(namespace: String?, localName: String): String?
     public actual override fun setAttribute(qualifiedName: String, value: String)
@@ -44,9 +43,22 @@ public actual interface Element : Node, PlatformElement {
     public actual override fun setAttributeNode(attr: PlatformAttr): Attr?
     public actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?
     public actual override fun removeAttributeNode(attr: PlatformAttr): Attr
+
     public actual override fun getElementsByTagName(qualifiedName: String): NodeList
     public actual override fun getElementsByTagNameNS(
         namespace: String?,
         localName: String
     ): NodeList
+
+    public actual override fun getOwnerDocument(): Document
+    public actual override fun getNodeValue(): Nothing?
+    public actual override fun cloneNode(deep: Boolean): Element
+
+    public override val nodeType: Short get() = NodeConsts.ELEMENT_NODE
+}
+
+
+internal fun addElementPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if (inherit) addNodePropertiesToPrototype(prototype)
+    js("Object").defineProperty(prototype, "tagName", jsProperty<Element> { getTagName() })
 }

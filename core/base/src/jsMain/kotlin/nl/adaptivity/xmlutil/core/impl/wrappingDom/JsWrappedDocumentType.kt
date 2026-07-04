@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2024-2026.
+ *
+ * This file is part of xmlutil.
+ *
+ * This file is licenced to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
+ * with the License.  You should have  received a copy of the license
+ * with the source distribution. Alternatively, you may obtain a copy
+ * of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+package nl.adaptivity.xmlutil.core.impl.wrappingDom
+
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.dom.DOMException
+import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.DocumentType
+import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
+import nl.adaptivity.xmlutil.dom2.NamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Notation
+import org.w3c.dom.DocumentType as DOMDocumentType
+
+internal class JsWrappedDocumentType(delegate: DOMDocumentType) : JsWrappedNode<DOMDocumentType>(delegate), DocumentType {
+
+    override fun getNodeValue(): Nothing? = null
+
+    @ExperimentalXmlUtilApi
+    override fun setNodeValue(value: String?) {}
+
+    override fun getName(): String = delegate.name
+
+    override fun getPublicId(): String = delegate.publicId
+
+    override fun getSystemId(): String = delegate.systemId
+
+    override fun getEntities(): NamedNodeMap<Nothing> {
+        return EmptyNamedNodeMap
+    }
+
+    override fun getNotations(): NamedNodeMap<Notation> {
+        return EmptyNamedNodeMap
+    }
+
+    override fun getNamespaceURI(): Nothing? = null
+    override fun getPrefix(): Nothing? = null
+    override fun getLocalName(): Nothing? = null
+
+    override fun appendChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in document type")
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in document type")
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in document type")
+
+    override fun removeChild(node: PlatformNode): Nothing =
+        throw DOMException.hierarchyRequestErr("No children in document type")
+
+    public override fun getFirstChild(): Nothing? = null
+
+    public override fun getLastChild(): Nothing? = null
+
+    override fun getAttributes(): Nothing? = null
+    @ExperimentalXmlUtilApi
+    override fun hasAttributes(): Boolean = false
+
+    override fun cloneNode(deep: Boolean): JsWrappedDocumentType {
+        return JsWrappedDocumentType(delegate.cloneNode(deep) as DOMDocumentType)
+    }
+}

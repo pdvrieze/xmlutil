@@ -33,6 +33,8 @@ import nl.adaptivity.xmlutil.*
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.StringReader
 import nl.adaptivity.xmlutil.core.internal.StringInOutBuffer
+import nl.adaptivity.xmlutil.dom.PlatformDOMImplementation
+import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.*
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -96,7 +98,7 @@ internal fun defaultXmlFormat(serializersModule: SerializersModule = EmptySerial
         policy {
             autoPolymorphic = false
             typeDiscriminatorName = null
-            formatCache = TestFormatCache(LayeredCache())
+            formatCache = TestFormatCache(LayeredCache(17))
         }
         xmlDeclMode = XmlDeclMode.None
     }
@@ -160,6 +162,26 @@ abstract class XmlTestBase<T>(
     open fun testGenericDeserializeXmlFromString() {
         val reader = KtXmlReader(StringInOutBuffer(expectedXML))
         assertEquals(value, baseXmlFormat.decodeFromReader(serializer, reader))
+    }
+
+    @Test
+    open fun testDomSerializeXml() {
+        val expectedDom = xmlStreaming.platformDOMImplementation
+            .parse(expectedXML)
+
+        val actualReader = xmlStreaming.newReader(expectedDom)
+
+        assertEquals(value, baseXmlFormat.decodeFromReader(serializer, actualReader))
+    }
+
+    @Test
+    open fun testDomDeserializeXml() {
+        val inputDom = xmlStreaming.platformDOMImplementation
+            .parse(expectedXML)
+
+        val actualReader = xmlStreaming.newReader(inputDom)
+
+        assertEquals(value, baseXmlFormat.decodeFromReader(serializer, actualReader))
     }
 
 }
@@ -322,3 +344,11 @@ abstract class TestPolymorphicBase<T>(
 inline fun XML.XmlCompanion<XmlConfig.DefaultBuilder>.pedantic(serializersModule: SerializersModule = EmptySerializersModule(), configure: XmlConfig.DefaultBuilder.() -> Unit = {}) =
     invoke(serializersModule, { -> policy { pedantic = true }; configure() })
 
+expect fun PlatformDOMImplementation.parse(input: String): Document
+
+internal fun parseWithDomWriter(input: String): Document {
+    val dw = DomWriter()
+    val r = xmlStreaming.newReader(input)
+    while (r.hasNext()) { val _ = r.next(); r.writeCurrent(dw) }
+    return dw.target
+}

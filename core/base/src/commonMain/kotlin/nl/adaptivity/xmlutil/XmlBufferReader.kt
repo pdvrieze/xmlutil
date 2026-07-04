@@ -77,6 +77,7 @@ public class XmlBufferReader private constructor(
     override val namespaceDecls: List<Namespace>
         get() = current<StartElementEvent>().namespaceDecls.let { it as? List<Namespace> ?: it.toList() }
 
+    @ExperimentalXmlUtilApi
     override val startLocationInfo: XmlReader.LocationInfo?
         get() = buffer[currentPos].extLocationInfo
 

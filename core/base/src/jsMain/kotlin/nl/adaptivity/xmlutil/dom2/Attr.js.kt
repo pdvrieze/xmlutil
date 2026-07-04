@@ -22,22 +22,25 @@
 
 package nl.adaptivity.xmlutil.dom2
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformAttr
 import nl.adaptivity.xmlutil.dom.PlatformNode
 
 public actual interface Attr : Node, PlatformAttr {
-    override val parentElement: Element?
 
-    public actual fun getNamespaceURI(): String?
-    public actual fun getPrefix(): String?
-    public actual fun getLocalName(): String?
     public actual fun getName(): String
     public actual fun getValue(): String
     public actual fun setValue(value: String)
     public actual fun getOwnerElement(): Element?
 
+    actual override fun getOwnerDocument(): Document
+
     @IgnorableReturnValue
     public actual override fun appendChild(node: PlatformNode): Nothing
+
+    @ExperimentalXmlUtilApi
+    @IgnorableReturnValue
+    actual override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Nothing
 
     @IgnorableReturnValue
     public actual override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): Nothing
@@ -46,5 +49,53 @@ public actual interface Attr : Node, PlatformAttr {
     public actual override fun removeChild(node: PlatformNode): Nothing
 
     public actual override fun getFirstChild(): Nothing?
+
     public actual override fun getLastChild(): Nothing?
+    actual override fun getNodeValue(): String
+    actual override fun getAttributes(): Nothing?
+
+    actual override fun cloneNode(deep: Boolean): Attr
+    public actual fun isId(): Boolean
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun appendChild(node: Node): Nothing = appendChild(node.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun insertBefore(newChild: Node, refChild: Node?): Nothing =
+        insertBefore(newChild.unsafeCast<PlatformNode>(), refChild?.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun replaceChild(newChild: Node, oldChild: Node): Nothing =
+        replaceChild(newChild.unsafeCast<PlatformNode>(), oldChild.unsafeCast<PlatformNode>())
+
+    @IgnorableReturnValue
+    @Deprecated("Binary only", level = DeprecationLevel.HIDDEN)
+    @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+    public override fun removeChild(node: Node): Nothing = removeChild(node.unsafeCast<PlatformNode>())
 }
+
+internal fun addAttrPropertiesToPrototype(prototype: dynamic, inherit: Boolean = true) {
+    if(inherit) addNodePropertiesToPrototype(prototype)
+    val props = js("{}")
+
+    props.name = jsProperty<Attr> { getName() }
+    /*
+        prototype.specified = jsProperty<Attr> { isSpecified() }
+    */
+    props.value = jsProperty<Attr>(getter = { getValue() }, setter = { setValue(it.asDynamic()) })
+    props.ownerElement = jsProperty<Attr> { getOwnerElement() }
+    /*
+    prototype.schemaTypeInfo = jsProperty<Attr> { getSchemaTypeInfo() }
+    */
+    props.isId = jsProperty<Attr> { isId() }
+
+    js("Object").defineProperties(prototype, props)
+
+}
+

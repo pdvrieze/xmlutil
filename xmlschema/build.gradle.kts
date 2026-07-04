@@ -21,7 +21,6 @@
 @file:Suppress("PropertyName")
 
 import net.devrieze.gradle.ext.addNativeTargets
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
 import net.devrieze.gradle.ext.envJvm
 import org.gradle.api.attributes.java.TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE
 import org.jetbrains.kotlin.gradle.dsl.JsMainFunctionExecutionMode
@@ -38,13 +37,21 @@ plugins {
     idea
 }
 
+config {
+    dokkaModuleName = "xmlschema"
+    applyLayout = true
+    allWarningsAsErrors = false
+}
+
 base {
     archivesName = "xmlschema"
     description = "A simple library for serializing/deserializing xmlschema"
 }
 
 kotlin {
-    applyDefaultXmlUtilHierarchyTemplate()
+
+    jvmToolchain(17)
+
     jvm {
         attributes {
             attribute(TARGET_JVM_ENVIRONMENT_ATTRIBUTE, envJvm)
@@ -75,7 +82,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(project(":core"))
                 api(project(":serialization"))
@@ -83,7 +90,7 @@ kotlin {
                 implementation(libs.datetime)
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
                 implementation(projects.schemaTests)
                 implementation(kotlin("test"))
@@ -93,7 +100,7 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(kotlin("test-junit5"))
                 implementation(libs.junit.api)
@@ -114,11 +121,6 @@ tasks.named<Test>("jvmTest") {
 addNativeTargets(includeWasm = false, includeWasi = false)
 
 //doPublish()
-
-config {
-    dokkaModuleName = "xmlschema"
-//    allWarningsAsErrors = false
-}
 
 idea {
     module {

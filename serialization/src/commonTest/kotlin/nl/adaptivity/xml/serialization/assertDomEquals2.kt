@@ -38,35 +38,17 @@ private val Node.isCharacterData: Boolean
         else -> false
     }
 
-private fun NamedNodeMap.asSequence(): Sequence<Attr> {
-    return sequence {
-        for (i in 0 until size) {
-            yield(item(i) as Attr)
-        }
-    }
-}
-
-private fun NodeList.asSequence(): Sequence<Node> {
-    return sequence {
-        for (i in 0 until getLength()) {
-            yield(item(i)!!)
-        }
-    }
-}
-
 fun assertDomEquals(expected: Node, actual: Node): Unit = when {
-    expected.nodeType != actual.nodeType
-    -> throw AssertionError("Node types for $expected and $actual are not the same")
+    expected.nodeType != actual.nodeType ->
+        throw AssertionError("Node types for $expected and $actual are not the same")
 
-    expected.nodeType == NodeConsts.DOCUMENT_NODE
-    -> assertDomEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
+    expected.nodeType == NodeConsts.DOCUMENT_NODE ->
+        assertDomEquals((expected as Document).documentElement!!, (actual as Document).documentElement!!)
 
     expected.isElement -> assertElementEquals(expected as Element, actual as Element)
     expected.isCharacterData -> assertEquals(expected.textContent, actual.textContent)
 
-//    !expected.isEqualNode(actual)
-//         -> throw AssertionError("Nodes $expected and $actual are not equal")
-    else -> Unit // println("Asserting equality for node ${expected} of type ${expected.nodeType}")
+    else -> Unit
 }
 
 private fun assertElementEquals(expected: Element, actual: Element) {
@@ -93,7 +75,8 @@ private fun assertElementEquals(expected: Element, actual: Element) {
                 assertEquals(expected.getNamespaceURI(), actualAttr.getNamespaceURI())
             }
         } else if (!(expectedAttr.getNamespaceURI() == expected.getNamespaceURI() && actualAttr.getNamespaceURI()
-                .isNullOrEmpty())) {
+                .isNullOrEmpty())
+        ) {
             assertEquals(expectedAttr.getNamespaceURI(), actualAttr.getNamespaceURI())
         }
 

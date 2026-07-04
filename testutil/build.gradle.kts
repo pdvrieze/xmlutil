@@ -41,11 +41,13 @@ plugins {
 }
 
 base {
-    archivesName = "xmltestutil"
+    group = "io.github.pdvrieze.xmlutil"
+    archivesName = "testutil"
 }
 
 config {
     kotlinApiVersion = KotlinVersion.DEFAULT
+    applyLayout = true
 }
 
 val moduleName = "io.github.pdvrieze.testutil"
@@ -54,10 +56,10 @@ kotlin {
 
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
-        enabled = true
-
-        klib {
-            enabled = isKlibValidationEnabled()
+        if (!isKlibValidationEnabled()) {
+            checkTaskProvider.configure {
+                enabled = false
+            }
         }
 
         filters {
@@ -85,7 +87,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(libs.serialization.core)
                 api(kotlin("test"))
@@ -95,7 +97,7 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 api(kotlin("test-junit5"))
             }
@@ -106,15 +108,8 @@ kotlin {
 
 addNativeTargets()
 
-doPublish()
+doPublish("testutil")
 
 config {
     dokkaModuleName = "testutil"
-}
-
-
-idea {
-    module {
-        name = "xmlutil-testutil"
-    }
 }

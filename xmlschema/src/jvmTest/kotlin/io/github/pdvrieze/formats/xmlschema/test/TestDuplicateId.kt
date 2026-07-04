@@ -31,7 +31,8 @@ class TestDuplicateId: ResourceTestBase("xsts/msData") {
         val e = assertFailsWith<IllegalArgumentException> {
             deserializeXsd("additional/test72530.xsd")
         }
-        assertEquals("Invalid XML value at position: <unknown>: Duplicate use of id 'anID'", e.message)
+        val msgNorm = e.message?.replace(Regex("position: [0-9]+:[0-9]+"), "position: <unknown>")
+        assertEquals("Invalid XML value at position: <unknown>: Duplicate use of id 'anID'", msgNorm)
     }
 
 }

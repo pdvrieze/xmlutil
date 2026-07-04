@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025.
+ * Copyright (c) 2021-2026.
  *
  * This file is part of xmlutil.
  *
@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.serialization.XmlCData
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import kotlin.test.Test
 
 class CDataFields : PlatformTestBase<CDataFields.Business>(
     Business("ABCD Corp", Address("1", StreetHolder("ABC road ]]> smile"), "ABCVille")),
