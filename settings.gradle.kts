@@ -30,19 +30,6 @@ pluginManagement {
         google()
         mavenCentral()
     }
-/*
-    resolutionStrategy {
-        eachPlugin {
-            when (requested.id.id) {
-                "com.android.library",
-                "com.android.application" -> {
-                    val ver = requested.version ?: "8.0.2"
-                    useModule("com.android.tools.build:gradle:${ver}");
-                }
-            }
-        }
-    }
-*/
 }
 
 val includeSchema = providers.gradleProperty("excludeSchema").map {

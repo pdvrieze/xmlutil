@@ -36,6 +36,7 @@ plugins {
     `maven-publish`
     signing
     idea
+    alias(libs.plugins.mockery)
 }
 
 config {
