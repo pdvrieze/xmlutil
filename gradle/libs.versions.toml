@@ -16,6 +16,7 @@ woodstox = "7.2.1"
 xmlutil = "1.0.1-SNAPSHOT"
 httpComponents5 = "5.6.1"
 atomicfu = "0.33.0"
+mockery = "3.4.2"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
@@ -45,3 +46,4 @@ benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "benchmark" 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+mockery = { id = "dev.mokkery", version.ref = "mockery" }
