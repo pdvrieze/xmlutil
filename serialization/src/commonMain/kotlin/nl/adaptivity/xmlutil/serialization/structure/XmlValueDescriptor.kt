@@ -93,7 +93,7 @@ public sealed class XmlValueDescriptor : XmlDescriptor {
         val ps = DocumentPreserveSpace.DEFAULT.withDefault(defaultPreserveSpace)
 
         return when {
-            effectiveOutputKind.let { it != OutputKind.Text && it != OutputKind.Text } ->
+            effectiveOutputKind != OutputKind.Text ->
                 defaultValue(xmlCodecBase.serializersModule, xmlCodecBase.config, deserializer)
 
             xmlCodecBase is XmlDecoderBase ->
