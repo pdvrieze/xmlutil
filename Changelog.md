@@ -2,6 +2,8 @@
 Fixes:
 - Fix LRU cache so that it properly evicts and maintains its size (#372).
 - Fix reading larger from kotlinx.io sources (#373)
+- Fix close in PseudoBufferedReader (#374), this is probably never called,
+  but still incorrect.
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`
