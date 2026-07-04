@@ -263,7 +263,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
 
         internal fun getPrefix(namespaceURI: String): String? {
             return namespaceHolder.getPrefix(namespaceURI)
-                ?: parentNamespaceContext.getPrefix(namespaceUri)
+                ?: parentNamespaceContext.getPrefix(namespaceURI)
         }
 
         internal fun getNamespaceURI(prefix: String): String? {

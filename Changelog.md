@@ -14,6 +14,8 @@ Fixes:
 - Fix writing namespace attributes through XmlEvent.Attribute (#380). Note
   that the parsing code does not generate Attribute events, so most use cases
   are not hit by this bug.
+- Fix getPrefix in StartElementEvent (#381). It used a property rather
+  than parameter in the fallback.
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`
