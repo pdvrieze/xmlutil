@@ -111,7 +111,7 @@ internal class PseudoBufferedReader(private val delegate: XmlReader) : XmlPeekin
     }
 
     override fun close() {
-        close()
+        delegate.close()
     }
 
     override fun getNamespaceURI(prefix: String): String? = ifNotPeeking {
