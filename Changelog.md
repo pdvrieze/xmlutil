@@ -3,12 +3,14 @@ Fixes:
 - Fix LRU cache so that it properly evicts and maintains its size (#372).
 - Fix reading larger from kotlinx.io sources (#373)
 - Fix close in PseudoBufferedReader (#374), this is probably never called,
-  but still incorrect.
+  but still incorrect. Thanks to @m-sasha for reporting many smaller bugs #374 - #382
 - Fix serialization of negative values for XmlFloat/XmlDouble and related
   serializers (#375).
 - Fix escaping of 0x1f in KtXmlWriter (#376).
 - Allow writing of BOM in CData content, but disallow the sentinal character (0xffff)
-  per the XML standards. Also tidy the error messages (#377)
+  per the XML standards. Also tidy the error messages (#377).
+- Fix DomWriter.getPrefixes that was incorrectly handling checks for already
+  declared prefixes (#379).
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`
