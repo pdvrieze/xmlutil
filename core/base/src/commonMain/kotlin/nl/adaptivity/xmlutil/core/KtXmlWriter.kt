@@ -673,7 +673,7 @@ public class KtXmlWriter(
             it[0xb] = true
             it[0xc] = true
             it[0xd] = true // needs escaping in all cases
-            for (i in 0xe until 0x1f) it[i] = true
+            for (i in 0xe .. 0x1f) it[i] = true
             it['<'.code] = true
             it['>'.code] = true
             it['&'.code] = true
