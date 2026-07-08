@@ -22,6 +22,7 @@
 
 package nl.adaptivity.xmlutil.serialization.impl
 
+import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
 import kotlin.jvm.JvmInline
@@ -219,6 +220,22 @@ internal class LRUCache<K : Any, V : Any> private constructor(
             pos = other.getNewer(pos)
         }
 
+    }
+
+    /**
+     * Check whether the cache contains the given key, without updating the access order.
+     */
+    @ExperimentalXmlUtilApi
+    operator fun contains(key: K): Boolean {
+        val position = posFromHash(key)
+        var currentPosition = position
+        do {
+            val currentKey = getKey(currentPosition) ?: return false
+
+            if (key == currentKey) return true
+            currentPosition = currentPosition.next()
+        } while (currentPosition != position)
+        return false
     }
 
     /**
