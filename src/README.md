@@ -8,12 +8,12 @@ serialization based upon Kotlin's standard serialization library and plugin.
 ## Usage
 Simple usage for serialization (gradle):
 ```
-implementation("io.github.pdvrieze.xmlutil:serialization:1.0.1-SNAPSHOT")
+implementation("io.github.pdvrieze.xmlutil:serialization:1.0.2-SNAHPSHOT")
 ```
 
 If only the core module (XML parsing) is needed:
 ```
-implementation("io.github.pdvrieze.xmlutil:core:1.0.1-SNAPSHOT")
+implementation("io.github.pdvrieze.xmlutil:core:1.0.2-SNAHPSHOT")
 ```
 
 ### Hello world
@@ -22,7 +22,7 @@ To serialize a very simple type you have the following:
 @Serializable
 data class HelloWorld(val user: String)
 
-println(XML1_0.encodeToString(HelloWorld("You!")))
+println(XML.v1.encodeToString(HelloWorld("You!")))
 ```
 
 To deserialize you would do:
@@ -30,7 +30,7 @@ To deserialize you would do:
 @Serializable
 data class HelloWorld(val user: String)
 
-XML1_0.decodeFromString(HelloWorld.serializer(), "<HelloWorld user='You!' />")
+XML.v1.decodeFromString(HelloWorld.serializer(), "<HelloWorld user='You!' />")
 ```
 
 Please look at the examples and the documentation for further features
@@ -40,7 +40,7 @@ used (how lists and polymorphic types are handled), etc.
 ### Custom configuration
 The format can be configured using the `XML1_0` accessor:
 ```kotlin
-val format = XML1_0.recommended(mySerialModule) {  
+val format = XML.v1.recommended(mySerialModule) {  
     // configuration options
     xmlDeclMode = XmlDeclMode.None
     policy {
