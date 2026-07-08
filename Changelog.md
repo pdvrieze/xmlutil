@@ -1,4 +1,5 @@
 # 1.0.1 Cache it well
+*(Jul 8, 2026)<br />*
 Fixes:
 - Fix LRU cache so that it properly evicts and maintains its size (#372).
 - Fix reading larger from kotlinx.io sources (#373)
