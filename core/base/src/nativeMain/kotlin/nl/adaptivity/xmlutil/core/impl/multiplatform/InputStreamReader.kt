@@ -122,6 +122,34 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
         return generateSequence { readLine() }
     }
 
+    override fun read(): Int {
+        if (eof) return -1
+
+        if (pendingLowSurrogate != '\u0000') {
+            val r = pendingLowSurrogate
+            pendingLowSurrogate = '\u0000'
+            return r.code
+        }
+
+        val code = nextByte()
+        if (code < 0) return -1
+
+        // It is regular ascii
+        if (code and 0x80 == 0) return code
+
+        val codePoint: UInt = readMultiByteFrom(code)
+
+        if (codePoint < 0x10000u) return codePoint.toInt()
+
+        // requires surrogate pairs
+        val pt = codePoint - 0x10000u
+        val highSurrogate = (pt.shr(10) and 0x3FFu) or 0xD800u
+        val lowSurrogate = Char((pt and 0x3FFu).toUShort() or 0xDC00u)
+        pendingLowSurrogate = lowSurrogate
+
+        return highSurrogate.toInt()
+    }
+
     override fun read(buf: CharArray, offset: Int, len: Int): Int {
         if (eof) return -1
 

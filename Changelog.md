@@ -25,6 +25,8 @@ Changes:
   individual invocations to a format. 
 - Snapshot releases no longer include javadoc/source artifacts, nor deprecated
   native targets. This should reduce the overall publication size/burden.
+- Make InputStreamReader and SourceUnicodeReader have dedicated single character
+  read implementations rather than reading into an array of length 1.
 
 # 1.0.0 To infinity and beyond
 *(Jun 28, 2026)<br />*
