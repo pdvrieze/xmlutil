@@ -33,9 +33,17 @@ public actual interface NamedNodeMap<out T: Node> : Iterable<T>, PlatformNamedNo
     public actual operator fun get(index: Int): T?
     public actual override fun getNamedItem(qualifiedName: String): T?
     public actual override fun getNamedItemNS(namespace: String?, localName: String): T?
+
+    @IgnorableReturnValue
     public actual override fun setNamedItem(attr: PlatformNode): T?
+
+    @IgnorableReturnValue
     public actual override fun setNamedItemNS(attr: PlatformNode): T?
+
+    @IgnorableReturnValue
     public actual override fun removeNamedItem(qualifiedName: String): T?
+
+    @IgnorableReturnValue
     public actual override fun removeNamedItemNS(namespace: String?, localName: String): T?
     public actual override operator fun iterator(): Iterator<T>
 }

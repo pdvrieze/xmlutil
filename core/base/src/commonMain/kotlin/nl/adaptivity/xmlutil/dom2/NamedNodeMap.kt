@@ -42,12 +42,16 @@ public expect interface NamedNodeMap<out T: Node> : PlatformNamedNodeMap, Iterab
 
     public fun getNamedItemNS(namespace: String?, localName: String): T?
 
+    @IgnorableReturnValue
     public fun setNamedItem(attr: PlatformNode): T?
 
+    @IgnorableReturnValue
     public fun setNamedItemNS(attr: PlatformNode): T?
 
+    @IgnorableReturnValue
     public fun removeNamedItem(qualifiedName: String): T?
 
+    @IgnorableReturnValue
     public fun removeNamedItemNS(namespace: String?, localName: String): T?
 
     public override operator fun iterator(): Iterator<T>

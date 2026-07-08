@@ -45,8 +45,14 @@ public actual interface Element : Node, PlatformElement {
     public actual override fun hasAttributeNS(namespace: String?, localName: String): Boolean
     public actual override fun getAttributeNode(qualifiedName: String): Attr?
     public actual override fun getAttributeNodeNS(namespace: String?, localName: String): Attr?
+
+    @IgnorableReturnValue
     public actual override fun setAttributeNode(attr: PlatformAttr): Attr?
+
+    @IgnorableReturnValue
     public actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?
+
+    @IgnorableReturnValue
     public actual override fun removeAttributeNode(attr: PlatformAttr): Attr
 
     public actual override fun getElementsByTagName(qualifiedName: String): NodeList

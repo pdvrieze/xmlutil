@@ -64,14 +64,17 @@ internal class WrappedJvmElement(delegate: PlatformElement) : WrappedJvmNode<Pla
         return delegate.getAttributeNodeNS(namespace, localName)?.wrap()
     }
 
+    @IgnorableReturnValue
     override fun setAttributeNode(attr: PlatformAttr): WrappedJvmAttr? {
         return delegate.setAttributeNode(attr.unWrap())?.wrap()
     }
 
+    @IgnorableReturnValue
     override fun setAttributeNodeNS(attr: PlatformAttr): WrappedJvmAttr? {
         return delegate.setAttributeNodeNS(attr.unWrap())?.wrap()
     }
 
+    @IgnorableReturnValue
     override fun removeAttributeNode(attr: PlatformAttr): WrappedJvmAttr =
         delegate.removeAttributeNode(attr.unWrap()).wrap()
 
