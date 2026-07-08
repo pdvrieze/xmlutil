@@ -20,34 +20,21 @@
 
 package nl.adaptivity.xmlutil.test.regressions
 
-import dev.mokkery.MockMode
-import dev.mokkery.answering.returnsBy
-import dev.mokkery.every
-import dev.mokkery.matcher.capture.Capture
-import dev.mokkery.matcher.capture.capture
-import dev.mokkery.matcher.capture.get
-import dev.mokkery.mock
 import dev.mokkery.verify
-import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.util.XmlFloatSerializer
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class TestFloatSerializer_375 {
-    lateinit var mockEncoder: Encoder
-
+class TestFloatSerializer_375 : TestFloatCommon() {
     @BeforeTest
-    fun init() {
-        mockEncoder = mock(MockMode.autoUnit) {
-            val floatArg = Capture.slot<Float>()
-            every { encodeFloat(capture(floatArg)) } returnsBy { encodeString(floatArg.get().toString()) }
-        }
+    override fun init() {
+        super.init()
     }
 
     private fun doTest(value: Float, expected: String) {
         XmlFloatSerializer.serialize(mockEncoder, value)
         verify {
-            mockEncoder.encodeString(expected)
+            mockEncoder.encodeString(normalizeExpected(expected))
         }
     }
 

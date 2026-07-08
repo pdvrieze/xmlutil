@@ -20,34 +20,22 @@
 
 package nl.adaptivity.xmlutil.test.regressions
 
-import dev.mokkery.MockMode
-import dev.mokkery.answering.returnsBy
-import dev.mokkery.every
-import dev.mokkery.matcher.capture.Capture
-import dev.mokkery.matcher.capture.capture
-import dev.mokkery.matcher.capture.get
-import dev.mokkery.mock
 import dev.mokkery.verify
-import kotlinx.serialization.encoding.Encoder
 import nl.adaptivity.xmlutil.util.XmlDoubleSerializer
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class TestDoubleSerializer_375 {
-    lateinit var mockEncoder: Encoder
+class TestDoubleSerializer_375 : TestDoubleCommon() {
 
     @BeforeTest
-    fun init() {
-        mockEncoder = mock(MockMode.autoUnit) {
-            val doubleArg = Capture.slot<Double>()
-            every { encodeDouble(capture(doubleArg)) } returnsBy { encodeString(doubleArg.get().toString()) }
-        }
+    override fun init() {
+        super.init()
     }
 
     private fun doTest(value: Double, expected: String) {
         XmlDoubleSerializer.serialize(mockEncoder, value)
         verify {
-            mockEncoder.encodeString(expected)
+            mockEncoder.encodeString(normalizeExpected(expected))
         }
     }
 
