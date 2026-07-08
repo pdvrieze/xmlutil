@@ -130,8 +130,12 @@ public final class nl/adaptivity/xmlutil/serialization/FormatCache$Dummy : nl/ad
 	public static final field INSTANCE Lnl/adaptivity/xmlutil/serialization/FormatCache$Dummy;
 }
 
-public final class nl/adaptivity/xmlutil/serialization/FormatCache_jvmKt {
+public final class nl/adaptivity/xmlutil/serialization/FormatCacheKt {
 	public static final fun defaultSharedFormatCache ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/FormatCache_jvmKt {
+	public static final fun defaultSharedFormatCache (I)Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public abstract class nl/adaptivity/xmlutil/serialization/InputKind : java/lang/Enum {
@@ -146,6 +150,7 @@ public abstract class nl/adaptivity/xmlutil/serialization/InputKind : java/lang/
 public final class nl/adaptivity/xmlutil/serialization/LayeredCache : nl/adaptivity/xmlutil/serialization/FormatCache {
 	public static final field Companion Lnl/adaptivity/xmlutil/serialization/LayeredCache$Companion;
 	public fun <init> ()V
+	public fun <init> (I)V
 }
 
 public final class nl/adaptivity/xmlutil/serialization/LayeredCache$Companion {
@@ -162,6 +167,11 @@ public class nl/adaptivity/xmlutil/serialization/OutputKind : java/lang/Enum {
 	public fun isTextual ()Z
 	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/serialization/OutputKind;
 	public static fun values ()[Lnl/adaptivity/xmlutil/serialization/OutputKind;
+}
+
+public final class nl/adaptivity/xmlutil/serialization/PerSerializationFormatCache : nl/adaptivity/xmlutil/serialization/FormatCache {
+	public fun <init> (Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun copy$io_github_pdvrieze_xmlutil_serialization ()Lnl/adaptivity/xmlutil/serialization/FormatCache;
 }
 
 public final class nl/adaptivity/xmlutil/serialization/PolyInfo {

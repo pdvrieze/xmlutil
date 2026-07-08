@@ -263,7 +263,7 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
 
         internal fun getPrefix(namespaceURI: String): String? {
             return namespaceHolder.getPrefix(namespaceURI)
-                ?: parentNamespaceContext.getPrefix(namespaceUri)
+                ?: parentNamespaceContext.getPrefix(namespaceURI)
         }
 
         internal fun getNamespaceURI(prefix: String): String? {
@@ -326,12 +326,15 @@ public sealed class XmlEvent(public val extLocationInfo: XmlReader.LocationInfo?
         override fun writeTo(writer: XmlWriter) {
             if (hasNamespaceUri()) {
                 val nsPrefix = if (prefix.isEmpty()) "" else localName
-                writer.namespaceAttr(nsPrefix, namespaceUri)
+                writer.namespaceAttr(nsPrefix, value)
             } else {
                 writer.attribute(namespaceUri, localName, prefix, value)
             }
         }
 
+        /**
+         * Determines whether this attribute is a namespace declaration.
+         */
         public fun hasNamespaceUri(): Boolean {
             return XMLConstants.XMLNS_ATTRIBUTE_NS_URI == namespaceUri ||
                     (prefix.isEmpty() && XMLConstants.XMLNS_ATTRIBUTE == localName)

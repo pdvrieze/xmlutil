@@ -31,10 +31,13 @@ public actual interface Element : Node, PlatformElement {
 
     actual override fun getOwnerDocument(): Document
 
+    @IgnorableReturnValue
     actual override fun setAttributeNode(attr: PlatformAttr): Attr?
 
+    @IgnorableReturnValue
     actual override fun setAttributeNodeNS(attr: PlatformAttr): Attr?
 
+    @IgnorableReturnValue
     actual override fun removeAttributeNode(attr: PlatformAttr): Attr
 
     actual override fun cloneNode(deep: Boolean): Element

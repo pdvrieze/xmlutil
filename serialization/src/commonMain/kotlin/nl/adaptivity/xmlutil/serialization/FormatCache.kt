@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -138,4 +138,10 @@ public abstract class FormatCache internal constructor() {
 /**
  * Get an instance of the default format cache that where supported uses threadlocals for thread safety.
  */
-public expect fun defaultSharedFormatCache(): FormatCache
+public fun defaultSharedFormatCache(): FormatCache =
+    defaultSharedFormatCache(500)
+
+/**
+ * Get an instance of the default format cache that where supported uses threadlocals for thread safety.
+ */
+public expect fun defaultSharedFormatCache(cacheSize: Int): FormatCache

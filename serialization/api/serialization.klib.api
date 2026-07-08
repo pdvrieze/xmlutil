@@ -1,6 +1,6 @@
 // Klib ABI Dump
-// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
-// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -632,8 +632,13 @@ final class nl.adaptivity.xmlutil.serialization/DefaultFormatCache : nl.adaptivi
 
 final class nl.adaptivity.xmlutil.serialization/LayeredCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/LayeredCache|null[0]
     constructor <init>() // nl.adaptivity.xmlutil.serialization/LayeredCache.<init>|<init>(){}[0]
+    constructor <init>(kotlin/Int) // nl.adaptivity.xmlutil.serialization/LayeredCache.<init>|<init>(kotlin.Int){}[0]
 
     final object Companion // nl.adaptivity.xmlutil.serialization/LayeredCache.Companion|null[0]
+}
+
+final class nl.adaptivity.xmlutil.serialization/PerSerializationFormatCache : nl.adaptivity.xmlutil.serialization/FormatCache { // nl.adaptivity.xmlutil.serialization/PerSerializationFormatCache|null[0]
+    constructor <init>(kotlin/Function0<nl.adaptivity.xmlutil.serialization/FormatCache>) // nl.adaptivity.xmlutil.serialization/PerSerializationFormatCache.<init>|<init>(kotlin.Function0<nl.adaptivity.xmlutil.serialization.FormatCache>){}[0]
 }
 
 final class nl.adaptivity.xmlutil.serialization/PolyInfo { // nl.adaptivity.xmlutil.serialization/PolyInfo|null[0]
@@ -1245,6 +1250,7 @@ final fun (nl.adaptivity.xmlutil.serialization/XmlSerialName).nl.adaptivity.xmlu
 final fun (nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy).nl.adaptivity.xmlutil.serialization/typeQName(nl.adaptivity.xmlutil.serialization.structure/SafeXmlDescriptor): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/typeQName|typeQName@nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy(nl.adaptivity.xmlutil.serialization.structure.SafeXmlDescriptor){}[0]
 final fun (nl.adaptivity.xmlutil.serialization/XmlSerializationPolicy).nl.adaptivity.xmlutil.serialization/typeQName(nl.adaptivity.xmlutil.serialization.structure/XmlDescriptor): nl.adaptivity.xmlutil/QName // nl.adaptivity.xmlutil.serialization/typeQName|typeQName@nl.adaptivity.xmlutil.serialization.XmlSerializationPolicy(nl.adaptivity.xmlutil.serialization.structure.XmlDescriptor){}[0]
 final fun nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache(): nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache|defaultSharedFormatCache(){}[0]
+final fun nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache(kotlin/Int): nl.adaptivity.xmlutil.serialization/FormatCache // nl.adaptivity.xmlutil.serialization/defaultSharedFormatCache|defaultSharedFormatCache(kotlin.Int){}[0]
 final fun nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule(): kotlinx.serialization.modules/SerializersModule // nl.adaptivity.xmlutil.serialization/getPlatformDefaultModule|getPlatformDefaultModule(){}[0]
 final inline fun (nl.adaptivity.xmlutil.serialization/XmlConfig.Builder<in nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy>).nl.adaptivity.xmlutil.serialization/defaultPolicy(kotlin/Function1<nl.adaptivity.xmlutil.serialization/DefaultXmlSerializationPolicy.Builder10, kotlin/Unit>) // nl.adaptivity.xmlutil.serialization/defaultPolicy|defaultPolicy@nl.adaptivity.xmlutil.serialization.XmlConfig.Builder<in|nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy>(kotlin.Function1<nl.adaptivity.xmlutil.serialization.DefaultXmlSerializationPolicy.Builder10,kotlin.Unit>){}[0]
 

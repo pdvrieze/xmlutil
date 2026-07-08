@@ -13,9 +13,10 @@ kotlinx-serialization = "1.11.0"
 kotlinx-io = "0.9.0"
 kxml2 = "2.3.0"
 woodstox = "7.2.1"
-xmlutil = "1.0.0"
+xmlutil = "1.0.1-SNAPSHOT"
 httpComponents5 = "5.6.1"
 atomicfu = "0.33.0"
+mockery = "3.4.2"
 
 [libraries]
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
@@ -29,6 +30,7 @@ junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref
 
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
 
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "dateTime" }
 benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "benchmark"}
@@ -45,3 +47,4 @@ benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "benchmark" 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+mockery = { id = "dev.mokkery", version.ref = "mockery" }

@@ -50,7 +50,7 @@ class TestXmlOnlyDoubleSerializer {
     fun testSerializeXMLEncodesNormalValueAsString() {
         val enc = ValueCapturingEncoder()
         dummyWriter().use { out -> XmlOnlyDoubleSerializer.serializeXML(enc, out, 1.5, false) }
-        assertEquals("1.5", enc.capturedString)
+        assertEquals(1.5, enc.capturedDouble)
     }
 
     @Test

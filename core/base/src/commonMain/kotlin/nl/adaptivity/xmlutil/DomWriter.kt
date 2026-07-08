@@ -182,7 +182,7 @@ public class DomWriter private constructor(
                     else -> null
                 }
                 if (prefix != null) {
-                    if (prefix in redeclared) {
+                    if (prefix !in redeclared) {
                         if (attr.getValue() == namespaceUri) result.add(prefix)
                         redeclared.add(prefix)
                     }

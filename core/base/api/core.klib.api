@@ -1052,12 +1052,12 @@ abstract interface nl.adaptivity.xmlutil/XmlWriter : nl.adaptivity.xmlutil.core.
 abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<*, *>> nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage : nl.adaptivity.xmlutil.dom2/NamedNodeMap<#A> { // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage|null[0]
     constructor <init>(nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.Adapter<#A>) // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.<init>|<init>(nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage.Adapter<1:0>){}[0]
 
+    abstract val ownerElement // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.ownerElement|{}ownerElement[0]
+        abstract fun <get-ownerElement>(): nl.adaptivity.xmlutil.dom2.impl/AbstractElement<*, *> // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.ownerElement.<get-ownerElement>|<get-ownerElement>(){}[0]
     abstract val size // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.size|{}size[0]
         abstract fun <get-size>(): kotlin/Int // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.size.<get-size>|<get-size>(){}[0]
 
     abstract fun item(kotlin/Int): #A? // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.item|item(kotlin.Int){}[0]
-    abstract fun removeAttrAt(kotlin/Int): #A? // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.removeAttrAt|removeAttrAt(kotlin.Int){}[0]
-    abstract fun set(kotlin/Int, #A): #A? // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.set|set(kotlin.Int;1:0){}[0]
     final fun get(kotlin/Int): #A? // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.get|get(kotlin.Int){}[0]
     final fun getLength(): kotlin/Int // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.getLength|getLength(){}[0]
     final fun isEqualNodes(nl.adaptivity.xmlutil.dom/PlatformNamedNodeMap): kotlin/Boolean // nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.isEqualNodes|isEqualNodes(nl.adaptivity.xmlutil.dom.PlatformNamedNodeMap){}[0]
@@ -1090,6 +1090,7 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
     open fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractAttr.cloneNode|cloneNode(kotlin.Boolean){}[0]
     open fun getAttributes(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2.impl/AbstractAttr.getAttributes|getAttributes(){}[0]
     open fun getOwnerDocument(): nl.adaptivity.xmlutil.dom2.impl/AbstractDocument<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractAttr.getOwnerDocument|getOwnerDocument(){}[0]
+    open fun getOwnerElement(): nl.adaptivity.xmlutil.dom2/Element? // nl.adaptivity.xmlutil.dom2.impl/AbstractAttr.getOwnerElement|getOwnerElement(){}[0]
     open fun isEqualNode(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Boolean // nl.adaptivity.xmlutil.dom2.impl/AbstractAttr.isEqualNode|isEqualNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 }
 
@@ -1363,14 +1364,12 @@ abstract class nl.adaptivity.xmlutil/XmlDelegatingWriter : nl.adaptivity.xmlutil
 }
 
 final class <#A: out nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<*, *>> nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage : nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage<#A> { // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage|null[0]
-    constructor <init>(nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.Adapter<#A>) // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.<init>|<init>(nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage.Adapter<1:0>){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage.Adapter<#A>, nl.adaptivity.xmlutil.dom2.impl/AbstractElement<*, *>) // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.<init>|<init>(nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage.Adapter<1:0>;nl.adaptivity.xmlutil.dom2.impl.AbstractElement<*,*>){}[0]
 
     final val size // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.size|{}size[0]
         final fun <get-size>(): kotlin/Int // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.size.<get-size>|<get-size>(){}[0]
 
     final fun item(kotlin/Int): #A? // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.item|item(kotlin.Int){}[0]
-    final fun removeAttrAt(kotlin/Int): #A? // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.removeAttrAt|removeAttrAt(kotlin.Int){}[0]
-    final fun set(kotlin/Int, #A): #A? // nl.adaptivity.xmlutil.dom2.impl/LinearAttrStorage.set|set(kotlin.Int;1:0){}[0]
 }
 
 final class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #B: out nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode<#A, #B>> nl.adaptivity.xmlutil.dom2.impl/LinkedNodeList : nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B> { // nl.adaptivity.xmlutil.dom2.impl/LinkedNodeList|null[0]

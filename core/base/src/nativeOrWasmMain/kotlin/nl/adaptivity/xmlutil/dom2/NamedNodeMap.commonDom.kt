@@ -31,11 +31,15 @@ public actual interface NamedNodeMap<out T: Node> : PlatformNamedNodeMap, Iterab
 
     actual override fun getNamedItemNS(namespace: String?, localName: String): T?
 
+    @IgnorableReturnValue
     actual override fun setNamedItem(attr: PlatformNode): T?
 
+    @IgnorableReturnValue
     actual override fun setNamedItemNS(attr: PlatformNode): T?
 
+    @IgnorableReturnValue
     actual override fun removeNamedItem(qualifiedName: String): T?
 
+    @IgnorableReturnValue
     actual override fun removeNamedItemNS(namespace: String?, localName: String): T?
 }

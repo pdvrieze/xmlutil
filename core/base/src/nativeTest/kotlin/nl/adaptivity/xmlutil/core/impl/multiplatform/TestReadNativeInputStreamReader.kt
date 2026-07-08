@@ -18,23 +18,55 @@
  * permissions and limitations under the License.
  */
 
-package nl.adaptivity.xmlutil.core.kxio
+package nl.adaptivity.xmlutil.core.impl.multiplatform
 
-import kotlinx.io.Buffer
-import kotlinx.io.writeString
+import kotlinx.cinterop.*
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.core.KtXmlReader
 import nl.adaptivity.xmlutil.core.internal.codepointAt
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import platform.posix.*
+import kotlin.test.*
 
-class TestReadSource {
+@OptIn(ExperimentalForeignApi::class)
+class TestReadNativeInputStreamReader {
+
+
+    private var _testFile: FilePtr? = null
+    private val testFile: FilePtr get() = _testFile!!
+    private lateinit var writer: OutputStreamWriter
+
+    @BeforeTest
+    fun createTestTmpFile() {
+        memScoped {
+            val fileName: CPointer<ByteVar> = "FILEIOTEST.XXXXXX".cstr.ptr
+            val fileDescriptor = mkstemp(fileName).takeIf { it >= 0 } ?: throw IOException.fromErrno()
+            unlink(fileName.toKString())
+            _testFile = FilePtr(fdopen(fileDescriptor, "w+") ?: throw IOException.fromErrno())
+            writer = OutputStreamWriter(FileOutputStream(testFile))
+
+        }
+    }
+
+    @AfterTest
+    fun closeFileAfterTest() {
+        fclose(testFile.value)
+        _testFile = null
+    }
+
+    private fun getInputReaderFor(text: String): InputStreamReader {
+        writer.append(text)
+        rewind(testFile.value)
+        val input = FileInputStream(testFile)
+        return InputStreamReader(input)
+    }
+
+
     @Test
     fun readAllText() {
         val expected = "ajfkldfjaskvoock"
-        val input = Buffer().apply { writeString(expected) }
-        val inputReader = SourceUnicodeReader(input)
+
+        val inputReader = getInputReaderFor(expected)
+
         val actual = buildString {
             var i = inputReader.read()
             while (i>=0) {
@@ -47,8 +79,8 @@ class TestReadSource {
 
     @Test
     fun testKtXmlReaderFromBuffer() {
-        val source = Buffer().apply { writeString("\ufeff<baz:SimpleData xmlns:baz='http://example.org/foo'>bar</baz:SimpleData>"); flush() }
-        val r = SourceUnicodeReader(source)
+        val r = getInputReaderFor("\ufeff<baz:SimpleData xmlns:baz='http://example.org/foo'>bar</baz:SimpleData>")
+
         val kt = KtXmlReader(r)
         var cnt = 0
         while (kt.hasNext()) {
@@ -73,21 +105,22 @@ class TestReadSource {
      */
     @Test
     fun testLargeUnicodeBuffer373() {
+
         val innerText = "<baz:SimpleData xmlns:baz='http://example.org/foo'>bar</baz:SimpleData>\n"
-        val source = Buffer().apply {
-            writeString("<root>\n")
+        val source = buildString {
+            append("<root>\n")
             repeat(500) {
-                writeString(innerText)
+                append(innerText)
             }
-            writeString("</root>")
-            flush()
+            append("</root>")
         }
 
-        assertEquals(14+500*innerText.length, source.size.toInt())
+        assertEquals(14+500*innerText.length, source.length)
 
         val buffer = CharArray(innerText.length)
 
-        val r = SourceUnicodeReader(source)
+        val r = getInputReaderFor(source)
+
         assertEquals(7, r.read(buffer, 0, 7), "7 characters for root")
         assertEquals("<root>\n", buffer.concatToString(0, 7), "Expected to read root")
         repeat(500) {
@@ -104,7 +137,7 @@ class TestReadSource {
         assertTrue(r.read() < 0) // end of file
     }
 
-    private fun fullRead(reader: SourceUnicodeReader, buffer: CharArray, len: Int): Int {
+    private fun fullRead(reader: InputStreamReader, buffer: CharArray, len: Int): Int {
         var totalRead = 0
         while (totalRead < len) {
             val read = reader.read(buffer, totalRead, buffer.size)
@@ -124,8 +157,7 @@ class TestReadSource {
     </fitting>
 </fittings>"""
 
-        val source = Buffer().apply { writeString(INPUT); flush() }
-        val r = SourceUnicodeReader(source)
+        val r = getInputReaderFor(INPUT)
 
         for (i in INPUT.indices) {
             val expected = INPUT.codepointAt(i)
@@ -139,8 +171,7 @@ class TestReadSource {
     fun testReadNonAsciiCharacters_384() {
         val INPUT = "ч\u1fff🙂"
 
-        val source = Buffer().apply { writeString(INPUT); flush() }
-        val r = SourceUnicodeReader(source)
+        val r = getInputReaderFor(INPUT)
 
         for (i in INPUT.indices) {
             val expected = INPUT[i].code
@@ -154,8 +185,7 @@ class TestReadSource {
     fun testReadNonAsciiCharactersBulk_384() {
         val INPUT = "ч\u1fff🙂"
 
-        val source = Buffer().apply { writeString(INPUT); flush() }
-        val r = SourceUnicodeReader(source)
+        val r = getInputReaderFor(INPUT)
 
         val outBuffer = CharArray(INPUT.length)
         val x = r.read(outBuffer, 0, INPUT.length)

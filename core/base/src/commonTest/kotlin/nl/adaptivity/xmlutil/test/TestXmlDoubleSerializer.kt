@@ -34,7 +34,7 @@ class TestXmlDoubleSerializer {
     fun testSerializeNormalValue() {
         val enc = ValueCapturingEncoder()
         XmlDoubleSerializer.serialize(enc, 1.5)
-        assertEquals("1.5", enc.capturedString)
+        assertEquals(1.5, enc.capturedDouble)
     }
 
     @Test

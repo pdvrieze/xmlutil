@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.Reader
 /**
  * An implementation of a reader that reads UTF data from a kotlinx.io.Source
  */
+@OptIn(ExperimentalUnsignedTypes::class)
 @XmlUtilInternal
 internal class SourceUnicodeReader(val source: Source) : Reader() {
     private val inputBuffer = ByteArray(INPUT_BYTE_BUFFER_SIZE)
@@ -53,21 +54,30 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
 
     private fun reloadBuffer() {
         if (!source.exhausted()) {
-            if (inputBufferOffset < inputBufferEnd) {
-                inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
-                inputBufferEnd -= inputBufferOffset
-                inputBufferOffset = 0
+            val readOffset: Int
+            // if there is data in the buffer that was not read yet, move this data to the start of the buffer
+            when {
+                inputBufferOffset == 0 -> readOffset = inputBufferEnd
+
+                inputBufferOffset < inputBufferEnd -> {
+                    inputBuffer.copyInto(inputBuffer, 0, inputBufferOffset, inputBufferEnd)
+                    inputBufferEnd -= inputBufferOffset
+                    readOffset = inputBufferEnd
+                }
+
+                else -> readOffset = 0
             }
 
-            val readCount: Int = source.readAtMostTo(inputBuffer, inputBufferOffset, (inputBuffer.size - inputBufferOffset))
+            inputBufferOffset = 0
+            val readCount: Int = source.readAtMostTo(inputBuffer, readOffset, inputBuffer.size)
             if (readCount < 0) return
             if (readCount == 0) { // hack to ensure at least a single byte is always read
-                inputBuffer[inputBufferOffset] = source.readByte()
-                inputBufferEnd = inputBufferOffset + 1
+                inputBuffer[readOffset] = source.readByte()
+                inputBufferEnd = readOffset + 1
                 return
             }
 
-            inputBufferEnd = inputBufferOffset + readCount
+            inputBufferEnd = readOffset + readCount
         }
     }
 
@@ -77,7 +87,7 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
         try {
             if (inputBufferOffset == inputBufferEnd) reloadBuffer()
             if (inputBufferOffset == inputBufferEnd) return -1
-            return inputBuffer[inputBufferOffset].toInt()
+            return inputBuffer[inputBufferOffset].toUByte().toInt()
         } catch (e: IndexOutOfBoundsException) {
             throw IllegalStateException("Unexpected indexing error: offset: $inputBufferOffset, bufferSize: ${inputBuffer.size}", e)
         }
@@ -128,14 +138,43 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
         return generateSequence { readLine() }
     }
 
+    override fun read(): Int {
+        if (pendingLowSurrogate != '\u0000') {
+            val r = pendingLowSurrogate.code
+            pendingLowSurrogate = '\u0000'
+            return r
+            // must be else, as a pending low surrogate is invalid.
+        }
+
+        val code: Int = nextByte()
+        if (code < 0) return -1
+
+        if (code and 0x80 == 0) return code
+
+        // It is an UTF 8 number
+        val codePoint: UInt = readMultiByteFrom(code)
+
+        if (codePoint < 0x10000u) return codePoint.toInt()
+
+        // requires surrogate pairs
+        val pt = codePoint - 0x10000u
+        val highSurrogate = Char(pt.shr(10).toUShort() or 0xD800u)
+        val lowSurrogate = Char((pt and 0x3ffu).toUShort() or 0xDC00u)
+
+        pendingLowSurrogate = lowSurrogate
+        return highSurrogate.code
+    }
+
     override fun read(buf: CharArray, offset: Int, len: Int): Int {
         var outPos = offset
         val endPos = minOf(buf.size, offset + len)
-        if (pendingLowSurrogate != '\u0000' && outPos < endPos) {
+        if (len > 0 && pendingLowSurrogate != '\u0000' && outPos < endPos) {
             buf[outPos++] = pendingLowSurrogate
             pendingLowSurrogate = '\u0000'
-        }
-        if (peekByte() < 0) return -1
+
+            // must be else, as a pending low surrogate is invalid.
+        } else if (peekByte() < 0) return -1
+
         while (outPos < endPos) {
             val code = nextByte()
             if (code < 0) break
@@ -143,14 +182,18 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
             if (code and 0x80 != 0) { // It is an UTF 8 number
                 val codePoint: UInt = readMultiByteFrom(code)
 
-                val pt = codePoint - 0x10000u
-                val highSurrogate = Char(pt.shr(10).toUShort() or 0xD800u)
-                val lowSurrogate = Char((pt and 0x3ffu).toUShort() or 0xDC00u)
-                buf[outPos++] = highSurrogate
-                if (outPos == endPos) {
-                    pendingLowSurrogate = lowSurrogate
-                } else {
-                    buf[outPos++] = lowSurrogate
+                if (codePoint < 0x10000u) {
+                    buf[outPos++] = codePoint.toInt().toChar()
+                } else { // requires surrogate pairs
+                    val pt = codePoint - 0x10000u
+                    val highSurrogate = Char(pt.shr(10).toUShort() or 0xD800u)
+                    val lowSurrogate = Char((pt and 0x3ffu).toUShort() or 0xDC00u)
+                    buf[outPos++] = highSurrogate
+                    if (outPos == endPos) {
+                        pendingLowSurrogate = lowSurrogate
+                    } else {
+                        buf[outPos++] = lowSurrogate
+                    }
                 }
 
             } else {
@@ -163,7 +206,7 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
     private fun readMultiByteFrom(code: Int): UInt {
         val codePoint: UInt
         when {
-            code and 0xE0 == 0xD0 -> { // 2 bytes
+            code and 0xE0 == 0xC0 -> { // 2 bytes
                 codePoint = ((code and 0x1f) shl 6).toUInt() or continuationByte()
                 if (codePoint < 0x80u) {
                     throw IOException("Overlong UTF8 encoding for ASCII character")
@@ -179,7 +222,7 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
                 }
             }
 
-            code and 0xf8 == 0xf0 -> { // 4 bytes
+            code and 0xF8 == 0xF0 -> { // 4 bytes
                 codePoint = ((code and 0x07).toUInt() shl 18) or
                         (continuationByte() shl 12) or
                         (continuationByte() shl 6) or
