@@ -75,7 +75,7 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
         return inputBuffer[inputBufferOffset].toInt()
     }
 
-    public val eof: Boolean get() = inputBufferEnd <= inputBufferOffset && inputStream.eof
+    public val eof: Boolean get() = inputBufferEnd <= inputBufferOffset && pendingLowSurrogate=='\u0000' && inputStream.eof
 
     private fun continuationByte(): UInt {
         val bOrError = nextByte()
@@ -127,25 +127,29 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
 
         var outPos = offset
         val endPos = minOf(buf.size, offset + len)
-        if (pendingLowSurrogate != '\u0000' && outPos < endPos) {
+        if (len > 0 && pendingLowSurrogate != '\u0000' && outPos < endPos) {
             buf[outPos++] = pendingLowSurrogate
             pendingLowSurrogate = '\u0000'
         }
         while (outPos < endPos) {
             val code = nextByte()
-            if (code < 0) return if (outPos -offset ==0 && eof) -1 else outPos - offset
+            if (code < 0) break
 
             if (code and 0x80 != 0) { // It is an UTF 8 number
                 val codePoint: UInt = readMultiByteFrom(code)
 
-                val pt = codePoint - 0x10000u
-                val highSurrogate = Char(pt.shr(10).toUShort() or 0xD800u)
-                val lowSurrogate = Char((pt and 0x3ffu).toUShort() or 0xDC00u)
-                buf[outPos++] = highSurrogate
-                if (outPos == endPos) {
-                    pendingLowSurrogate = lowSurrogate
-                } else {
-                    buf[outPos++] = lowSurrogate
+                if (codePoint < 0x10000u) {
+                    buf[outPos++] = codePoint.toInt().toChar()
+                } else { // requires surrogate pairs
+                    val pt = codePoint - 0x10000u
+                    val highSurrogate = Char(pt.shr(10).toUShort() or 0xD800u)
+                    val lowSurrogate = Char((pt and 0x3ffu).toUShort() or 0xDC00u)
+                    buf[outPos++] = highSurrogate
+                    if (outPos == endPos) {
+                        pendingLowSurrogate = lowSurrogate
+                    } else {
+                        buf[outPos++] = lowSurrogate
+                    }
                 }
 
             } else {
@@ -158,7 +162,7 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
     private fun readMultiByteFrom(code: Int): UInt {
         val codePoint: UInt
         when {
-            code and 0xE0 == 0xD0 -> { // 2 bytes
+            code and 0xE0 == 0xC0 -> { // 2 bytes
                 codePoint = ((code and 0x1f) shl 6).toUInt() or continuationByte()
                 if (codePoint < 0x80u) {
                     throw IOException("Overlong UTF8 encoding for ASCII character")
@@ -174,7 +178,7 @@ public class InputStreamReader(public val inputStream: InputStream) : Reader() {
                 }
             }
 
-            code and 0xf8 == 0xf0 -> { // 4 bytes
+            code and 0xF8 == 0xF0 -> { // 4 bytes
                 codePoint = ((code and 0x07).toUInt() shl 18) or
                         (continuationByte() shl 12) or
                         (continuationByte() shl 6) or

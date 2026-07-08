@@ -222,7 +222,7 @@ internal class SourceUnicodeReader(val source: Source) : Reader() {
                 }
             }
 
-            code and 0xf8 == 0xF0 -> { // 4 bytes
+            code and 0xF8 == 0xF0 -> { // 4 bytes
                 codePoint = ((code and 0x07).toUInt() shl 18) or
                         (continuationByte() shl 12) or
                         (continuationByte() shl 6) or
