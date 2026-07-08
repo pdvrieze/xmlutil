@@ -49,27 +49,27 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:1.0.1-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core:1.0.1")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
-Please note that this module is not required or needed. It adds support for
+Please note that this module is **not required or needed**. It adds support for
 integrating with the JVM's streaming API for XML (STAX).
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.1-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.1")
 ```
-#### **Optional** Android – Uses the android streaming library
+#### **Not recommended** Android – Uses the android streaming library
 This adds support for parsing from the XMLPullParser API as provided on
 Android. Writing XML will never use the Android writer (as it does not
-work correctly). Only use this module if you need the integration. The
+work correctly). **Only use this module if you need the integration**. The
 cross platform implementation is derived from the Android implementation,
 but has further optimizations and supports more features (such as entity
 parsing).
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.1-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.1")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.1-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.1")
 ```
 
 #### Native
@@ -80,7 +80,7 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform (this coordinate should be used by default)
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.1-SNAPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.1")
 ```
 
 ## Serialization help
