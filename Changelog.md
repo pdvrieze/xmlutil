@@ -16,6 +16,7 @@ Fixes:
   are not hit by this bug.
 - Fix getPrefix in StartElementEvent (#381). It used a property rather
   than parameter in the fallback.
+- Fix reading unicode characters in kotlinx.io.Source reading.
 Changes:
 - Add support to specify the cache size of the underlying cache for LayeredCache 
   and `defaultSharedFormatCache()`

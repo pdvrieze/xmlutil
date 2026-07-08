@@ -24,6 +24,7 @@ import kotlinx.io.Buffer
 import kotlinx.io.writeString
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.core.internal.codepointAt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -113,5 +114,53 @@ class TestReadSource {
             totalRead += read
         }
         return totalRead
+    }
+
+    @Test
+    fun testReadWithRussianCharacter() {
+        val INPUT = """<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<fittings count="1225">
+    <fitting name="Vargurgur 2чSmart" creationTime="1730807493413">
+    </fitting>
+</fittings>"""
+
+        val source = Buffer().apply { writeString(INPUT); flush() }
+        val r = SourceUnicodeReader(source)
+
+        for (i in INPUT.indices) {
+            val expected = INPUT.codepointAt(i)
+            val actual = r.read()
+            assertEquals(expected, actual, "Unexpected character at index $i (char: ${expected.toChar()})")
+        }
+
+    }
+
+    @Test
+    fun testReadNonAsciiCharacters_384() {
+        val INPUT = "ч\u1fff🙂"
+
+        val source = Buffer().apply { writeString(INPUT); flush() }
+        val r = SourceUnicodeReader(source)
+
+        for (i in INPUT.indices) {
+            val expected = INPUT[i].code
+            val actual = r.read()
+            assertEquals(expected, actual, "Unexpected character at index $i (char: ${expected.toChar()})")
+        }
+
+    }
+
+    @Test
+    fun testReadNonAsciiCharactersBulk_384() {
+        val INPUT = "ч\u1fff🙂"
+
+        val source = Buffer().apply { writeString(INPUT); flush() }
+        val r = SourceUnicodeReader(source)
+
+        val outBuffer = CharArray(INPUT.length)
+        val x = r.read(outBuffer, 0, INPUT.length)
+        assertEquals(INPUT.length, x)
+        assertEquals(INPUT, outBuffer.concatToString())
+
     }
 }
