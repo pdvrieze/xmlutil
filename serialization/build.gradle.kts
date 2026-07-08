@@ -145,6 +145,7 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(libs.kotlin.test.junit5)
+                implementation(libs.junit.params)
                 implementation(projects.coreJdk)
             }
         }
@@ -202,8 +203,4 @@ tasks.withType<Test> {
     reports {
         junitXml.required.set(true)
     }
-}
-
-idea {
-    this.module.name = "xmlutil-serialization"
 }
