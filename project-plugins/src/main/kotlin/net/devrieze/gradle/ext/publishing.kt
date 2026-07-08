@@ -106,12 +106,14 @@ fun Project.doPublish(
 
     }
 
-    tasks.withType<PublishToMavenRepository>().configureEach {
-        doFirst {
-            val pubArtifacts = publication.artifacts
+    if (isSnapshot) {
+        tasks.withType<PublishToMavenRepository>().configureEach {
+            doFirst {
+                val pubArtifacts = publication.artifacts
 
-            pubArtifacts.removeIf { artifact ->
-                artifact.classifier == "sources"
+                pubArtifacts.removeIf { artifact ->
+                    artifact.classifier == "sources"
+                }
             }
         }
     }
