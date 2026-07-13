@@ -37,6 +37,7 @@ import org.w3.xml.xmschematestsuite.*
 import java.net.URI
 import java.net.URL
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.streams.asStream
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
@@ -79,7 +80,7 @@ internal suspend fun SequenceScope<DynamicNode>.addInstanceTest(
 ) {
     val instanceDoc = instanceTest.instanceDocument
     val resolver = SimpleResolver(setBaseUrl)
-    dynamicTest("Instance document ${instanceDoc.href} exists") {
+    dynamicTest("Instance document ${instanceDoc.href} exists", setBaseUrl.classPathUri(instanceTest.location)) {
         setBaseUrl.resolve(instanceDoc.href).openStream().use { stream ->
             Assertions.assertNotNull(stream)
         }
@@ -107,7 +108,7 @@ internal suspend fun SequenceScope<DynamicNode>.addSchemaDocTest(
     }
     val resolver = SimpleResolver(setBaseResource)
 
-    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists") {
+    dynamicTest("Test ${schemaTest.name} - Schema document ${schemaDoc.href} exists", setBaseResource.classPathUri(schemaTest.location)) {
         setBaseResource.resolve(schemaDoc.href).openStream().use { stream ->
             Assertions.assertNotNull(stream)
         }
@@ -222,11 +223,24 @@ internal fun buildDynamicContainer(
     displayName: String,
     block: suspend SequenceScope<DynamicNode>.() -> Unit
 ): DynamicContainer {
-    return DynamicContainer.dynamicContainer(displayName, sequence(block).asIterable())
+    return DynamicContainer.dynamicContainer(displayName, sequence(block).asStream())
+}
+
+@OptIn(ExperimentalTypeInference::class)
+internal fun buildDynamicContainer(
+    displayName: String,
+    uri: URI,
+    block: suspend SequenceScope<DynamicNode>.() -> Unit
+): DynamicContainer {
+    return DynamicContainer.dynamicContainer(displayName, uri, sequence(block).asStream())
 }
 
 internal suspend fun SequenceScope<DynamicTest>.dynamicTest(displayName: String, testBody: () -> Unit) {
     yield(DynamicTest.dynamicTest(displayName, testBody))
+}
+
+internal suspend fun SequenceScope<DynamicTest>.dynamicTest(displayName: String, uri: URI, testBody: () -> Unit) {
+    yield(DynamicTest.dynamicTest(displayName, uri, testBody))
 }
 
 @OptIn(ExperimentalTypeInference::class)
@@ -234,7 +248,16 @@ internal suspend fun SequenceScope<DynamicContainer>.dynamicContainer(
     displayName: String,
     block: suspend SequenceScope<DynamicNode>.() -> Unit
 ) {
-    yield(DynamicContainer.dynamicContainer(displayName, sequence(block).asIterable()))
+    yield(DynamicContainer.dynamicContainer(displayName, sequence(block).asStream()))
+}
+
+@OptIn(ExperimentalTypeInference::class)
+internal suspend fun SequenceScope<DynamicContainer>.dynamicContainer(
+    displayName: String,
+    uri: URI,
+    block: suspend SequenceScope<DynamicNode>.() -> Unit
+) {
+    yield(DynamicContainer.dynamicContainer(displayName, uri, sequence(block).asStream()))
 }
 
 inline fun <R> URI.withXmlReader(body: (XmlReader) -> R): R {
@@ -253,3 +276,31 @@ fun URL.resolve(path: String): URL {
 }
 
 data class MeasureInfo(val round: Int, val rounds: Int, val warmups: Int)
+
+
+val Resource.classPathUri: URI
+//    get() = URI.create("classpath:${path.substringAfter('!')}")
+    get() = URI.create("file:/${path}")
+
+fun Resource.classPathUri(locationInfo: XmlReader.ExtLocationInfo?): URI {
+    if (locationInfo == null) return classPathUri
+    val uri = buildString {
+        append("file:/")
+        append(path/*.substringAfter('!')*/)
+        val line = locationInfo.line
+        val col = locationInfo.col
+        var sep = '#'
+        if (line >= 0) {
+            append(sep)
+            sep = ','
+            append("line=$line")
+        }
+        if (col >= 0) {
+            append(sep)
+            sep = '?'
+            append("column=${locationInfo.col}")
+        }
+    }
+
+    return URI(uri)
+}

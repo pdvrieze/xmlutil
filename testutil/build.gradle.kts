@@ -93,6 +93,7 @@ kotlin {
                 api(kotlin("test"))
                 api(kotlin("test-annotations-common"))
                 api(projects.core)
+                implementation(projects.serialization)
 
             }
         }
