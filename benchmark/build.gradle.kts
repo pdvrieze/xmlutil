@@ -62,7 +62,7 @@ kotlin {
         }
         jvmTest {
             dependencies {
-                runtimeOnly(libs.junit5.engine)
+                runtimeOnly(libs.junit.engine)
             }
         }
     }
