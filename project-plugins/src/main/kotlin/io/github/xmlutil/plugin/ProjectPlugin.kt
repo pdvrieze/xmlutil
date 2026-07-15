@@ -31,6 +31,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -263,6 +264,17 @@ class ProjectPlugin @Inject constructor(
                         }
 
                     }
+
+                    project.configurations
+                        .matching { it.name.startsWith("test") && (it.isCanBeConsumed || it.isCanBeResolved) }
+                        .configureEach {
+                            attributes {
+                                attribute(
+                                    TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+                                    projectConfiguration.testJvmTarget.get().target.toInt()
+                                )
+                            }
+                        }
 
                 }
 
