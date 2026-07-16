@@ -258,12 +258,35 @@ class TestBigDecimal {
     }
 
     @Test
+    fun testBigDecimalDiv() {
+        val numerator = BigDecimal("-222045691630255023")
+        val denumerator = BigDecimal("1")
+        val result = numerator / denumerator
+        assertEquals(numerator, result)
+        val s = result.xmlString
+        val dotPos = s.indexOf('.')
+        if (dotPos >= 0) {
+            assertEquals("-222045691630255023", s.substring(0, dotPos))
+            val decDigits = s.substring(dotPos + 1)
+            val expected = "0".repeat(decDigits.length)
+            assertEquals(
+                expected,
+                decDigits,
+                "The decimal part of the result should be zero, but was $decDigits",
+            )
+        } else {
+            assertEquals("-222045691630255023", s)
+        }
+    }
+
+    @Test
     fun testToBigDecimal() {
         val bigInt = BigInt(-999999999999999999)
         val bigDecimal = bigInt.toBigDecimal()
 
         assertEquals("-999999999999999999", bigInt.xmlString)
         assertEquals(-999999999999999999, bigDecimal.toLong())
+        assertEquals(bigDecimal, bigDecimal / BigDecimal(1))
     }
 
 }

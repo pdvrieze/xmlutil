@@ -953,7 +953,11 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             if (multiplySubtractInPlace(mutableDivident, divider, qX, growth_m)) {
                 qX -= 1u
             }
-            quotient.setStoredDigit(maxQuotientSize.toStoredD1000Pos(), qX)
+
+            // Due to rounding it may be possible that a 0 value gets set out of bounds.
+            if (qX > 0u) {
+                quotient.setStoredDigit(maxQuotientSize.toStoredD1000Pos(), qX)
+            }
         }
 
         for (jRaw in (growth_m - 1).p downTo 0) {
