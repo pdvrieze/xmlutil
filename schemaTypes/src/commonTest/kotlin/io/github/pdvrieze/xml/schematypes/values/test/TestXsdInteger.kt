@@ -118,4 +118,11 @@ class TestXsdInteger {
         testBinaryOperator(-0x3514BEEF, -0x34FE4fe2, Long::div, { a, b -> a.div(b) })
     }
 
+    @Test
+    fun testFromStringIsFromLong() {
+        val fromString = BigInt("-999999999999999999")
+        val fromLong = BigInt(-999999999999999999)
+        assertEquals(fromString, fromLong)
+    }
+
 }

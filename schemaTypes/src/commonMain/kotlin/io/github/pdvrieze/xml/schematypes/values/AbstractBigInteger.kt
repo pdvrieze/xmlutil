@@ -62,8 +62,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         get() = ints.size.toULong() + ((31u + exp) shr 32)
 
     override fun toBigDecimal(): BigDecimal {
-        val ints = if (exp==0uL) this.ints else expandExp().ints
-        return BigDecimal(ints, 0)
+        return BigDecimal(this)
     }
 
     override fun get(index: ULong): UInt {

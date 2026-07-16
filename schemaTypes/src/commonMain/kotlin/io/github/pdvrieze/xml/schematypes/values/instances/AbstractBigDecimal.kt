@@ -1077,6 +1077,31 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
         internal abstract fun newInstance(ints: UIntArray, exponent: Int): T
 
+        internal fun toBigDecimal(bigInt: AbstractBigInteger<*>): ParseResult {
+            if (bigInt.sign == 0) return ParseResult(uintArrayOf(0u), 0)
+            // Normalize to a value that has an exponent 0
+            var current = bigInt.expandExp().abs()
+
+            val bits = current.significantBitsFromZero()
+            // Fairly conservative estimage of the ints needed.
+            val uIntArray = UIntArray(bits.toInt() / 29 )
+
+            var index = 0
+            while (current.sign !=0) {
+                val dr = current.divRem(1_000_000_000u)
+                val int = valToUInt(dr.intRemainder.toUInt()).toUInt()
+                uIntArray[index++] = int
+                current = dr.quotient
+            }
+
+            val neededLen = uIntArray.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
+            val shortInts = uIntArray.copyOf(neededLen)
+
+            if (bigInt.sign < 0) shortInts[0] = shortInts[0] or SIGN_BIT.toUInt()
+
+            return ParseResult(shortInts, 0)
+        }
+
         @XmlUtilInternal
         internal fun parse(s: CharSequence): ParseResult {
             if (s.isEmpty()) throw NumberFormatException("Empty string")
@@ -1138,6 +1163,15 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         }
 
         protected fun valToUInts(value: UInt): UIntArray {
+            val combined = valToUInt(value)
+            val uint0 = combined.toUInt()
+            return when (val v = combined.shr(32).toUInt()) {
+                0u -> uintArrayOf(uint0)
+                else -> uintArrayOf(uint0, v)
+            }
+        }
+
+        private fun valToUInt(value: UInt): ULong {
             var v = value
             val part0 = v % MAX_DIGIT.toUInt()
             v /= MAX_DIGIT.toUInt()
@@ -1147,8 +1181,8 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             v /= MAX_DIGIT.toUInt()
             val uint0 = part0 + (part1 shl BITS_PER_DIGIT) + (part2 shl (2 * BITS_PER_DIGIT))
             return when (v) {
-                0u -> uintArrayOf(uint0)
-                else -> uintArrayOf(uint0, v)
+                0u -> uint0.toULong()
+                else -> uint0.toULong() or v.toULong().shl(32)
             }
         }
 

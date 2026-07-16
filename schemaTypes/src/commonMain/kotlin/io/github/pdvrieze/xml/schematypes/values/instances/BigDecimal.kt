@@ -21,11 +21,14 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.requireRange
+import io.github.pdvrieze.xml.schematypes.values.AbstractBigInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdFloat
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
-
+/**
+ * Big decimal implementation that doe snot include infinite values (INF, -INF, NaN)
+ */
 @OptIn(ExperimentalUnsignedTypes::class)
 class BigDecimal(ints: UIntArray, exponent: Int) :
     AbstractBigDecimal<BigDecimal>(ints, exponent) {
@@ -44,6 +47,8 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
     constructor(double: Double) : this(convertToDecimal(double))
 
     constructor(bigDecimal: InfBigDecimal): this(bigDecimal.ints, bigDecimal.exponent)
+
+    constructor(bigInt: AbstractBigInteger<*>): this(toBigDecimal(bigInt))
 
     private constructor(pr: ParseResult) : this(pr.ints, pr.decimalDigits)
 

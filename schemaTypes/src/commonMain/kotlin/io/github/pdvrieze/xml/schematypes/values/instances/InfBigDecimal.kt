@@ -20,14 +20,20 @@
 
 package io.github.pdvrieze.xml.schematypes.values.instances
 
+import io.github.pdvrieze.xml.schematypes.values.AbstractBigInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
+/**
+ * Implementation of BigDecimal that allows infinite values.
+ */
 @OptIn(ExperimentalUnsignedTypes::class)
 class InfBigDecimal(ints: UIntArray, exponent: Int) :
     AbstractBigDecimal<InfBigDecimal>(ints, exponent) {
 
     private constructor(parseResult: ParseResult) : this(parseResult.ints, parseResult.decimalDigits)
+
+    constructor(bigInt: AbstractBigInteger<*>): this(toBigDecimal(bigInt))
 
     constructor(value: CharSequence): this(parse(value))
 

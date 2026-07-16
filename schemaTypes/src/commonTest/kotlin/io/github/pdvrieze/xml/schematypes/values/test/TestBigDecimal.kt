@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.xml.schematypes.values.test
 
+import io.github.pdvrieze.xml.schematypes.values.BigInt
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
@@ -254,6 +255,15 @@ class TestBigDecimal {
     fun testDivNegNegs() {
         testDiv(-0x34FE4fe2, -0x3514BEEF)
         testDiv(-0x3514BEEF, -0x34FE4fe2)
+    }
+
+    @Test
+    fun testToBigDecimal() {
+        val bigInt = BigInt(-999999999999999999)
+        val bigDecimal = bigInt.toBigDecimal()
+
+        assertEquals("-999999999999999999", bigInt.xmlString)
+        assertEquals(-999999999999999999, bigDecimal.toLong())
     }
 
 }
