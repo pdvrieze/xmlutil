@@ -22,7 +22,7 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
@@ -71,7 +71,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode) return false
+            if (it !is XdmNodeOld) return false
             val n = it.node
             if (n !is Document) return false
             if (arg == null) return true
@@ -159,7 +159,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode) return false
+            if (it !is XdmNodeOld) return false
             val elem = it.node as? Element ?: return false
             if (elemName != null) {
                 if (! elemName.eval(elem.namespaceURI, elem.getLocalName()!!)) return false
@@ -193,7 +193,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            return it is XdmNode && it.node is Attr
+            return it is XdmNodeOld && it.node is Attr
         }
 
         context(ctx: ExprEvalContext)
@@ -249,7 +249,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode) return false
+            if (it !is XdmNodeOld) return false
             val n = it.node as? Element ?: return false
             TODO("Schema element matching not complete")
         }
@@ -290,7 +290,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode) return false
+            if (it !is XdmNodeOld) return false
             val n = it.node as? Attr ?: return false
             TODO("Schema element matching not complete")
         }
@@ -334,7 +334,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode) return false
+            if (it !is XdmNodeOld) return false
             val n = it.node as? ProcessingInstruction ?: return false
             if (name != null && ! name.isEquivalent(QName(n.target))) return false
             if (text != null && text != n.data) return false
@@ -386,7 +386,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is XdmNode && it.node is CommentNode
+            return it is XdmNodeOld && it.node is CommentNode
 
         }
 
@@ -406,7 +406,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            return it is XdmNode && it.node is Text
+            return it is XdmNodeOld && it.node is Text
         }
 
         context(ctx: ExprEvalContext)
@@ -445,7 +445,7 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
 
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            return it is XdmNode
+            return it is XdmNodeOld
         }
 
         context(ctx: ExprEvalContext)

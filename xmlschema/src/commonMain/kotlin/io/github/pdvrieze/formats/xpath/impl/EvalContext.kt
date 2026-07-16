@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.SpecVersion
 import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
@@ -184,6 +185,8 @@ open class EvalContext(
         val currentDateTimeStamp: XsdDateTimeStamp get() = _timeData.second
         val defaultTimeZone: FixedOffsetTimeZone get() = _timeData.first
         val defaultLanguage: XsdLanguage = XsdLanguage("EN")
+
+        val resultDocument: Document by lazy { XdmDocument(null) }
     }
 
 }

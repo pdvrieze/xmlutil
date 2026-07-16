@@ -67,7 +67,8 @@ object Accessors : AbstractFunctionObject() {
         if (arg.size > 1) error("Can only convert a sequence of 1 item to a string")
 
         val s = when (val a = arg[0]) {
-            is XdmNode -> a.node.textContent ?: ""
+            is XdmNode<*> -> a.textContent ?: ""
+            is XdmNodeOld -> a.node.textContent ?: ""
             is XdmAtomic<*> -> a.value.xmlString
             is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
         }

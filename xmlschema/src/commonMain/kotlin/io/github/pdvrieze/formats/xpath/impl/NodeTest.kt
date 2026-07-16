@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
@@ -64,7 +64,7 @@ sealed class NodeTest {
     class ProcessingInstructionTest(val literal: NameOrLiteral? = null) : NodeTest() {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            val pi = ((it as? XdmNode)?.node as? ProcessingInstruction) ?: return false
+            val pi = ((it as? XdmNodeOld)?.node as? ProcessingInstruction) ?: return false
             return when (literal) {
                 null -> true
                 is NameOrLiteral.LiteralTest -> literal.literal == pi.data
@@ -102,7 +102,7 @@ sealed class NodeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is XdmNode && (it.node as? Element)?.localName == localName
+            return it is XdmNodeOld && (it.node as? Element)?.localName == localName
         }
 
         context(c: OutputContext)
@@ -128,7 +128,7 @@ sealed class NodeTest {
     class QNameTest(val qName: QName) : NameTest() {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode) return false
+            if (it !is XdmNodeOld) return false
             return when (val n = it.node) {
                 is Attr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
                 is Element -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
@@ -162,7 +162,7 @@ sealed class NodeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is XdmNode && (it.node as? Element).let {
+            return it is XdmNodeOld && (it.node as? Element).let {
                 it?.namespaceURI == namespace.xmlString && it.prefix == prefix?.xmlString
             }
         }
@@ -219,7 +219,7 @@ sealed class NodeTest {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             return when (it) {
-                is XdmNode -> when (it.node) {
+                is XdmNodeOld -> when (it.node) {
                     is Attr,
                     is Element -> true
 

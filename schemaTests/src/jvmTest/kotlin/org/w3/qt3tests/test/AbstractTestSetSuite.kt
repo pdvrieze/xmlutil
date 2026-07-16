@@ -21,7 +21,7 @@
 package org.w3.qt3tests.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -46,7 +46,7 @@ abstract class AbstractTestSetSuite {
         val environment = testCase.environment?.getOrThrow()
         val contextDoc: Document? = environment?.getDocumentOrNull()
 
-        val context = contextDoc?.let { XdmNode(it.documentElement!!) }
+        val context = contextDoc?.let { XdmNodeOld(it.documentElement!!) }
 
         var decimalFormat = DecimalFormat()
         val namedDecimalFormats = mutableListOf<DecimalFormat.Named>()

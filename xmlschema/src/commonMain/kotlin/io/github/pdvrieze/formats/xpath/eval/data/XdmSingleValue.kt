@@ -24,8 +24,8 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.impl.*
 
 @XPathInternal
-sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
-    final override val size: Int get() = 1
+sealed interface XdmSingleValue<out T : XdmSingleValue<T>> : XdmSingleOrEmpty<T> {
+    override val size: Int get() = 1
 
     override fun isEmpty(): Boolean = false
 
@@ -37,17 +37,17 @@ sealed class XdmSingleValue<out T: XdmSingleValue<T>>: XdmSingleOrEmpty<T> {
         return elements.all { this == it }
     }
 
-    abstract val dynamicType: XdmSingleType
+    val dynamicType: XdmSingleType
 
-    abstract fun asT(): T
+    fun asT(): T
 
-    final override fun get(index: Int): T = when {
+    override fun get(index: Int): T = when {
         index == 0 -> asT()
         else -> error("Index out of bounds")
     }
 
     context(ctx: ExprEvalContext)
-    final override fun evalPredicates(predicates: Iterable<Expr>): XdmValue<*> = when {
+    override fun evalPredicates(predicates: Iterable<Expr>): XdmValue<*> = when {
         predicates.evalPredicates(ContextItem(this, 1, 1)) -> this
         else -> XdmSequence.EMPTY
     }

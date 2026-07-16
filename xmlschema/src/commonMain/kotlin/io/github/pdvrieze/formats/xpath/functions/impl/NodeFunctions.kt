@@ -85,7 +85,7 @@ object NodeFunctions : AbstractFunctionObject() {
         }
 
         val arg1 = (args.argOrContext(1) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
-        val node: Node = (arg1 as? XdmNode ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${arg1.staticType}")).node
+        val node: Node = (arg1 as? XdmNodeOld ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${arg1.staticType}")).node
 
         val effectiveLang = generateSequence<Node>(node) { it.parentNode as? Element }
             .filterIsInstance<Element>()
@@ -111,7 +111,7 @@ object NodeFunctions : AbstractFunctionObject() {
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
 
         val r = generateSequence(arg.node) { it.getParentNode() }.last()
-        XdmNode(r)
+        XdmNodeOld(r)
     }
 
     val fnPath: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmString>> = BuiltinFunctionImpl(

@@ -38,7 +38,7 @@ import io.github.pdvrieze.xml.schematypes.values.*
 class XdmAtomic<out T : XsdAtomic>(
     val value: T,
     override val staticType: XdmSchemaType = XdmSchemaType(value.schemaType)
-) : XdmSingleValue<XdmAtomic<T>>(), XdmAtomicOrEmpty<XdmAtomic<T>>, XdmAtomicOrSequence<XdmAtomic<T>> {
+) : XdmSingleValue<XdmAtomic<T>>, XdmAtomicOrEmpty<XdmAtomic<T>>, XdmAtomicOrSequence<XdmAtomic<T>> {
 
     override fun asT(): XdmAtomic<T> = this
 

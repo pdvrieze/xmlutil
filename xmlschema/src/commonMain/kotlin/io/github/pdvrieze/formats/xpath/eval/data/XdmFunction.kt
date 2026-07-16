@@ -28,7 +28,7 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 
 @OptIn(XPathInternal::class)
-sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T>() {
+sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T> {
 
     override abstract val staticType: XdmFunctionType
     abstract override val dynamicType: XdmFunctionType

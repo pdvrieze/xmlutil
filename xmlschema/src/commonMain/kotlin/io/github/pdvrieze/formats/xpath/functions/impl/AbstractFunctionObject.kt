@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
@@ -101,10 +101,10 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected fun List<XdmValue<*>>.toSingleNode(allowContext: Boolean = false): XdmNode? {
+    protected fun List<XdmValue<*>>.toSingleNode(allowContext: Boolean = false): XdmNodeOld? {
         val arg = argOrContext(allowContext) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         if (arg.size == 0) return null
-        return arg as? XdmNode ?: throw EvaluationException(
+        return arg as? XdmNodeOld ?: throw EvaluationException(
             ErrorCodes.XPTY0004_TYPE_ERROR,
             "Expected node, found: ${arg.staticType}"
         )
