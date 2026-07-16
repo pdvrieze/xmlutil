@@ -56,6 +56,8 @@ interface FloatType<out T : XsdFloat> : PrimitiveType<T>, NumericType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override fun fromString(value: CharSequence): XsdFloat {
             return XsdFloat(value)
         }

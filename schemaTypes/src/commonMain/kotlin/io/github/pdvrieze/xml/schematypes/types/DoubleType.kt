@@ -54,6 +54,8 @@ interface DoubleType<out T: XsdDouble> : PrimitiveType<T>, NumericType<T> {
     object Instance: DoubleType<XsdDouble>,PrimitiveTypeInstance<XsdDouble>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "double", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
