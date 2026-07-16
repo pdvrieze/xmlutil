@@ -42,7 +42,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         for (i in ints.indices) {
             if (ints[i] != 0u) return ((i.toULong() * 32uL) + ints[i].countTrailingZeroBits().toULong())
         }
-        throw ArithmeticException("The value is zero, ")
+        throw ArithmeticException("The value is zero, no trailing zero bits")
     }
 
     protected fun countLeadingZeroBits(): ULong {

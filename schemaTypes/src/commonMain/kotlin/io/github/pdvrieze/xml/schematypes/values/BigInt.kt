@@ -79,6 +79,8 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     }
 
     internal fun normalize(): BigInt {
+        if (sign == 0) return ZERO
+
         val trailingBits = countTrailingZeroBits()
         val leadingBits = countLeadingZeroBits()
         if (trailingBits >= 3uL || (trailingBits+leadingBits > 32u)) {
@@ -262,8 +264,13 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         operator fun invoke(init: XsdInteger): BigInt {
             if (init is AbstractBigInteger<*>) return BigInt(init.sign, init.ints, init.exp)
             val sign = init.sign
-            val ints = UIntArray(init.size.toInt()) { init.get(it) }
-            return BigInt(sign, ints, 0uL).normalize()
+            val ints = UIntArray(init.size.toInt()) { init[it] }
+
+            val neededInts = ints.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
+
+            val shortened = if (neededInts == ints.size) ints else ints.copyOf(neededInts)
+
+            return BigInt(sign, shortened, 0uL).normalize()
         }
 
         private fun parse(s: CharSequence): ParseResult {
