@@ -42,6 +42,8 @@ interface GYearType<out T : XsdGYear> : PrimitiveType<T> {
     object Instance: GYearType<XsdGYear>, PrimitiveTypeInstance<XsdGYear>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gYear", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL

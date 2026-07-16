@@ -48,6 +48,7 @@ interface Base64BinaryType<out T : XsdBase64Binary> : PrimitiveType<T> {
 
     object Instance : Base64BinaryType<XsdBase64Binary>, PrimitiveTypeInstance<XsdBase64Binary>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "base64Binary", "xs")
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),

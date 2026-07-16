@@ -41,6 +41,8 @@ interface StringType<out T : XsdString> : PrimitiveType<T> {
     object Instance : StringType<XsdString>, PrimitiveTypeInstance<XsdString>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "string", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.PRESERVE, false)
         )

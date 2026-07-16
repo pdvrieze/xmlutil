@@ -44,6 +44,8 @@ interface QNameType<out T : XsdQName> : PrimitiveType<T> {
     object Instance: QNameType<XsdQName>, PrimitiveTypeInstance<XsdQName>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "QName", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )

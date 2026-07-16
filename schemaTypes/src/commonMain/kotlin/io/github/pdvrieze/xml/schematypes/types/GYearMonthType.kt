@@ -42,6 +42,8 @@ interface GYearMonthType<out T : XsdGYearMonth> : PrimitiveType<T> {
     object Instance: GYearMonthType<XsdGYearMonth>, PrimitiveTypeInstance<XsdGYearMonth>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gYearMonth", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL

@@ -49,6 +49,8 @@ interface DateType<out T : XsdDate> : PrimitiveType<T> {
     object Instance : DateType<XsdDate>, PrimitiveTypeInstance<XsdDate>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "date", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL

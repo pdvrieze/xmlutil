@@ -43,6 +43,8 @@ interface HexBinaryType<out T : XsdHexBinary> : PrimitiveType<T> {
     object Instance: HexBinaryType<XsdHexBinary>, PrimitiveTypeInstance<XsdHexBinary>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "hexBinary", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )

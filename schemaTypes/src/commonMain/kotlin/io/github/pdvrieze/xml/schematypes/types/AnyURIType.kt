@@ -44,6 +44,8 @@ interface AnyURIType<out T : XsdAnyURI> : PrimitiveType<T> {
     object Instance : AnyURIType<XsdAnyURI>, PrimitiveTypeInstance<XsdAnyURI>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "anyURI", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )

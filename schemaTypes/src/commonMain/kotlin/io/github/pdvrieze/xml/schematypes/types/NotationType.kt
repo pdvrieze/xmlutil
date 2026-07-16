@@ -42,6 +42,8 @@ interface NotationType<out T : XsdNotation> : PrimitiveType<T> {
     object Instance: NotationType<XsdNotation>, PrimitiveTypeInstance<XsdNotation>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "NOTATION", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
         )

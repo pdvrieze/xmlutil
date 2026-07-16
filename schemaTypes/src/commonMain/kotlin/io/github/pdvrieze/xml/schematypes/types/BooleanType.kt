@@ -49,6 +49,7 @@ interface BooleanType<out T : XsdBoolean> : PrimitiveType<T> {
 
     object Instance: BooleanType<XsdBoolean>, PrimitiveTypeInstance<XsdBoolean>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "boolean", "xs")
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, false)

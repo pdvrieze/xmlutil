@@ -42,6 +42,8 @@ interface DurationType<out T : XsdDuration> : PrimitiveType<T> {
     object Instance : DurationType<XsdDuration>, PrimitiveTypeInstance<XsdDuration>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "duration", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )

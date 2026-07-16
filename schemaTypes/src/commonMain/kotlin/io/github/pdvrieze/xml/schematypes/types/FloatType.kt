@@ -52,11 +52,11 @@ interface FloatType<out T : XsdFloat> : PrimitiveType<T>, NumericType<T> {
     object Instance : FloatType<XsdFloat>, PrimitiveTypeInstance<XsdFloat>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "float", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
         )
-
-        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
 
         override fun fromString(value: CharSequence): XsdFloat {
             return XsdFloat(value)

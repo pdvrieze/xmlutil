@@ -42,6 +42,8 @@ interface GDayType<out T : XsdGDay> : PrimitiveType<T> {
     object Instance : GDayType<XsdGDay>, PrimitiveTypeInstance<XsdGDay>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "gDay", "xs")
 
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
+
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL

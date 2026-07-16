@@ -51,7 +51,7 @@ interface DoubleType<out T: XsdDouble> : PrimitiveType<T>, NumericType<T> {
         return super<PrimitiveType>.castFrom(other)
     }
 
-    object Instance: DoubleType<XsdDouble>,PrimitiveTypeInstance<XsdDouble>, BuiltinType {
+    object Instance: DoubleType<XsdDouble>, PrimitiveTypeInstance<XsdDouble>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "double", "xs")
 
         override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
