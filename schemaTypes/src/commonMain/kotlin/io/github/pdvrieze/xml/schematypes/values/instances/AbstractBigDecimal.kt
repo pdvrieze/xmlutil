@@ -1087,8 +1087,8 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             var current = bigInt.expandExp().abs()
 
             val bits = current.significantBitsFromZero()
-            // Fairly conservative estimage of the ints needed.
-            val uIntArray = UIntArray(bits.toInt() / 29 )
+            // Fairly conservative estimate of the ints needed.
+            val uIntArray = UIntArray((28 + bits.toInt()) / 29)
 
             var index = 0
             while (current.sign !=0) {
