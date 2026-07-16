@@ -297,4 +297,22 @@ class TestBigDecimal {
         assertEquals(BigDecimal(119, -5), result)
     }
 
+    @Test
+    fun testDivides() {
+        for (e1 in -5..5) {
+            for (e2 in -5..5) {
+                val a = BigDecimal(123, e1)
+                val b = BigDecimal(7, e2)
+                val (result, rem) = a.divRem(b)
+
+                assertEquals(a, (result * b) + rem, "The result of dividing $a by $b should be $result * $b + $rem")
+
+                if (! result.isZero) {
+                    assertEquals(b, (a - rem) / result, "the result of dividing $a by $b should be ($a - $rem)/$b")
+                }
+            }
+        }
+
+    }
+
 }

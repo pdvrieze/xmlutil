@@ -72,7 +72,7 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
     override fun divRem(divider: UInt): DivRem = divRem(XsdUnsignedLong(divider))
 
     override fun div(divider: XsdDecimal): XsdBigDecimal {
-        val withExp = toBigDecimal().exp10(DIV_PRECISION_DIGITS).divRem(divider).quotient
+        val withExp = toBigDecimal().divRem(divider.toBigDecimal().exp10(-DIV_PRECISION_DIGITS)).quotient
 
         return withExp.exp10(-DIV_PRECISION_DIGITS)
     }

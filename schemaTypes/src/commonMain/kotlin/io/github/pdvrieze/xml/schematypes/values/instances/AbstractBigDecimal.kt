@@ -807,7 +807,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
     }
 
     private fun splitAtExponent(newExponent: Int): DivRem<T> {
-        if (newExponent <= exponent) return DivRem(self, companion.ZERO)
+        if (newExponent <= exponent) return DivRem(self.withNewExp(newExponent), companion.ZERO)
         val extraExp = D10Pos(newExponent - exponent)
 
         val intsInRem = extraExp.intSize.coerceAtMost(ints.size)
@@ -881,6 +881,10 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         val dividerSize_n = D10Pos(divider.precisionDigits).toStoredD1000Size()
         val divMSD = divider.getStoredDigit(dividerSize_n - 1) // we use this to determine the approximate quotient
         if (divMSD < 100u) {
+            /*
+             * Because the most significant "digit" is less than 100 we shift both the divident and
+             * divider by 1/2 decimal places to avoid undesired outcomes.
+             */
             val expCorrect = when {
                 divMSD < 10u -> -2
                 else -> -1
@@ -890,17 +894,17 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
                 val (q, r) = newDivident
                     .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), dSign = dSign)
-                val newQ = companion.newInstance(q.ints, divider.exponent)
+                val newQ = companion.newInstance(q.ints, 0)
                 return DivRem(newQ, remPart + r)
             }
 
             val (q, r) = withNewExp(divider.exponent + expCorrect)
                 .unsafeDivRemImpl(divider.withNewExp(divider.exponent + expCorrect), lSign, dSign)
-            val newQ = companion.newInstance(q.ints, divider.exponent)
+            val newQ = companion.newInstance(q.ints, 0)
 
             val newR = r.withNewExp(r.exponent - expCorrect)
 
-            return DivRem(newQ, newR)
+            return DivRem(q, newR)
         }
 
         // Deal with the divident having a smaller exponent than the divider by
@@ -984,7 +988,10 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
         val remainderSize = mutableDivident.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
 
-        val remainder = companion.newInstance(mutableDivident.copyOfRange(0, remainderSize), exponent)
+        val remainder = when {
+            remainderSize == 0 && mutableDivident[0] and 0x3fff_ffffu == 0u -> companion.ZERO
+            else -> companion.newInstance(mutableDivident.copyOfRange(0, remainderSize), exponent)
+        }
 
         if (lSign < 0) mutableDivident[0] = mutableDivident[0] or SIGN_BIT.toUInt()
         val quotientSize = quotient.indexOfLast { it != 0u }.coerceAtLeast(0) + 1
