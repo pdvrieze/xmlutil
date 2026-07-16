@@ -71,7 +71,11 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
 
     override fun divRem(divider: UInt): DivRem = divRem(XsdUnsignedLong(divider))
 
-    override fun div(divider: XsdDecimal): XsdBigDecimal = divRem(divider).quotient
+    override fun div(divider: XsdDecimal): XsdBigDecimal {
+        val withExp = toBigDecimal().exp10(DIV_PRECISION_DIGITS).divRem(divider).quotient
+
+        return withExp.exp10(-DIV_PRECISION_DIGITS)
+    }
 
     override fun rem(divider: XsdDecimal): XsdBigDecimal = divRem(divider).remainder
 
@@ -110,6 +114,8 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
         operator fun invoke(l: Long): XsdBigDecimal = BigDecimal(l)
         operator fun invoke(l: ULong): XsdBigDecimal = BigDecimal(l)
         operator fun invoke(s: String): XsdBigDecimal = BigDecimal(s)
+
+        const val DIV_PRECISION_DIGITS = 9
     }
 
     fun getDecimalDigit(pos: Int): Char
