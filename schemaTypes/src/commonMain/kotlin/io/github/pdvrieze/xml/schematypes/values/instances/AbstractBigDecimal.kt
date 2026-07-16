@@ -544,8 +544,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             cmp  < 0 -> return other.minus(self).unaryMinus().asT()
         }
 
-
-        val newExp: Int = (minOf(exponent, other.exponent) / 3) * 3
+        val newExp: Int = (minOf(exponent, other.exponent).floorDiv(3)) * 3
 
         val maxDecimalDigitCount = maxOf(ints.size *9 + exponent - newExp, other.ints.size *9 + other.exponent - newExp)
         val maxDigitCount = 1 + (2+maxDecimalDigitCount) / 3 // up to 3 decimal digits per "digit"

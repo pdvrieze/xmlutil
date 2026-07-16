@@ -289,4 +289,12 @@ class TestBigDecimal {
         assertEquals(bigDecimal, bigDecimal / BigDecimal(1))
     }
 
+    @Test
+    fun testSubtract() {
+        val a = BigDecimal(123, -5)
+        val b = BigDecimal(4, -5)
+        val result = a - b
+        assertEquals(BigDecimal(119, -5), result)
+    }
+
 }
