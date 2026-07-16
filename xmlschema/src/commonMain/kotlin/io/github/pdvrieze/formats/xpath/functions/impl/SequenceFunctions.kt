@@ -238,14 +238,86 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    private fun seqSum(arg: XdmValue<XdmAtomic<*>>): XsdAtomic {
-        val doubleCoerced = arg.map {
-            when (it.staticType) {
-                XdmSchemaType.UNTYPED_ATOMIC -> XsdDouble(it.value.xmlString)
+    private fun unifyNumericTypes(arg: XdmValue<XdmAtomic<*>>): List<XsdAtomic> {
+        val result = ArrayList<XsdAtomic>(arg.size)
+        var seenDouble = false
+        var lastSeenFloat = -1
+        var lastSeenDecimal = -1
 
-                else -> it.value
+        for (i in arg.indices) {
+            val a = arg[i]
+            val st = a.staticType
+            val v = a.value
+            when {
+                st == XdmSchemaType.UNTYPED_ATOMIC -> {
+                    result.add(XsdDouble(v.xmlString))
+                    seenDouble = true
+                }
+
+                v is XsdDouble -> {
+                    result.add(v)
+                    seenDouble = true
+                }
+
+
+                v is XsdFloat -> when {
+                    seenDouble -> result.add(XsdDouble(v.value.toDouble()))
+                    else -> {
+                        result.add(v)
+                        lastSeenFloat = i
+                    }
+                }
+
+                v is XsdDecimal -> when {
+                    seenDouble -> result.add(XsdDouble(v.toBigDecimal().toDouble()))
+                    lastSeenFloat >=0 -> result.add(XsdFloat(v.toBigDecimal().toFloat()))
+                    else -> {
+                        result.add(v)
+                        lastSeenDecimal = i
+                    }
+                }
+
+                else -> result.add(v)
             }
+
+            when {
+                seenDouble -> {
+                    when {
+                        lastSeenDecimal >= 0 ->
+                            for (i in 0..maxOf(lastSeenFloat, lastSeenDecimal)) {
+                                val v = result[i]
+                                if (v !is XsdDouble) {
+                                    val a = arg[i].value
+                                    if (a is XsdNumeric<*>) result[i] = XsdDouble(a.toDouble())
+                                }
+                            }
+
+                        lastSeenFloat >= 0 -> for (i in 0..maxOf(lastSeenFloat, lastSeenDecimal)) {
+                            val v = result[i]
+                            if (v is XsdFloat) result[i] = XsdDouble(v.toDouble())
+                        }
+                    }
+                    lastSeenDecimal = -1
+                    lastSeenFloat = -1
+                }
+
+                lastSeenFloat >= 0 && lastSeenDecimal >= 0 -> {
+                    for (i in 0..lastSeenDecimal) {
+                        val v = result[i]
+                        if (v is XsdDecimal) result[i] = XsdFloat(v.toFloat())
+                    }
+                    lastSeenDecimal = -1
+                }
+            }
+
         }
+        return result
+    }
+
+    context(ctx: ExprEvalContext)
+    private fun seqSum(arg: XdmValue<XdmAtomic<*>>): XsdAtomic {
+
+        val doubleCoerced = unifyNumericTypes(arg)
         val head = doubleCoerced.first()
         val tail = doubleCoerced.asSequence().drop(1)
 
@@ -260,7 +332,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
 
             is XsdDecimal -> tail.map {
                 when (it) { // do conversion to large types
-                    !is XsdDecimal -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE)
+                    !is XsdDecimal -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Expected decimal, but was ${it.schemaType} ")
                     is XsdLong -> BigInt(it)
                     is XsdUnsignedLong -> BigUnsignedInt(it)
                     else -> it
