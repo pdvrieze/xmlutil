@@ -31,8 +31,8 @@ import nl.adaptivity.xmlutil.dom.PlatformComment
 import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.impl.AbstractComment
 
-@OptIn(XPathInternal::class)
-internal class XdmComment internal constructor(ownerDocument: XdmDocument, data: String) :
+@XPathInternal
+class XdmComment internal constructor(ownerDocument: XdmDocument, data: String) :
     XdmCharacterData(ownerDocument, data), AbstractComment<XdmNode<*>, XdmParentNode<*>> {
 
     internal constructor(ownerDocument: XdmDocument, original: PlatformComment) :

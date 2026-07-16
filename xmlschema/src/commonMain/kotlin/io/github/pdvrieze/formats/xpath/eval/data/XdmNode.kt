@@ -22,35 +22,21 @@ package io.github.pdvrieze.formats.xpath.eval.data
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException.Companion.invoke
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmNodeAlias
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmParentNode
-import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
-import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import io.github.pdvrieze.xml.schematypes.values.XsdString
-import io.github.pdvrieze.xml.schematypes.values.XsdString.Companion.invoke
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractNode
-import nl.adaptivity.xmlutil.dom2.textContent
-import nl.adaptivity.xmlutil.dom2.value
 
 @OptIn(XPathInternal::class)
-internal interface XdmNode<out T: XdmNode<T>>: XdmSingleValue<T>, IAbstractNode<XdmNode<*>, XdmParentNode<*>>, Node {
+public interface XdmNode<out T: XdmNode<T>>: XdmSingleValue<T>, IAbstractNode<XdmNode<*>, XdmParentNode<*>>, Node {
     override val staticType: XdmSingleType// = XdmSchemaType(UntypedType.Instance)
 
     abstract var posInParent: Int

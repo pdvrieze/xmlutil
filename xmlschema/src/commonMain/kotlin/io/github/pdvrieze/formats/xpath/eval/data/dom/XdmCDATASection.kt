@@ -33,8 +33,8 @@ import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractCDataSection
 
-@OptIn(XPathInternal::class)
-internal class XdmCDATASection internal constructor(ownerDocument: XdmDocument, data: String) :
+@XPathInternal
+public class XdmCDATASection internal constructor(ownerDocument: XdmDocument, data: String) :
     XdmText(ownerDocument, data), AbstractCDataSection<XdmNode<*>, XdmParentNode<*>> {
 
     internal constructor(ownerDocument: XdmDocument, original: PlatformCDATASection) : this(ownerDocument, original.getData())

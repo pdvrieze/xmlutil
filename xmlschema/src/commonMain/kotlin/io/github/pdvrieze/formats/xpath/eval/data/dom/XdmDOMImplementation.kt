@@ -21,12 +21,14 @@
 package io.github.pdvrieze.formats.xpath.eval.data.dom
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeFriend
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom2.DOMVersion
 import nl.adaptivity.xmlutil.dom2.DocumentType
 import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDOMImplementation
 
+@OptIn(XPathInternal::class)
 internal object XdmDOMImplementation : AbstractDOMImplementation() {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 

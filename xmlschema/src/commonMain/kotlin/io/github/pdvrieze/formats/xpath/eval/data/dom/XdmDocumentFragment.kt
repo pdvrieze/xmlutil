@@ -38,12 +38,11 @@ import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentFragment
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
 @XmlUtilInternal
-internal class XdmDocumentFragment(ownerDocument: XdmDocument) :
+public class XdmDocumentFragment internal constructor(ownerDocument: XdmDocument) :
     AbstractDocumentFragment<XdmNode<*>, XdmParentNode<*>>(
         ownerDocument,
         { LinearNodeStorage(ownerDocument.storageAdapter) }), XdmParentNode<XdmDocumentFragment> {

@@ -47,8 +47,8 @@ import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
-@OptIn(XPathInternal::class)
-internal class XdmDocument private constructor(doctype: XdmDocumentType?) :
+@XPathInternal
+class XdmDocument private constructor(doctype: XdmDocumentType?) :
     AbstractDocument<XdmNode<*>, XdmParentNode<*>>({
         NodeStorage(it as XdmDocument)
     }), XdmParentNode<XdmDocument>, Document {

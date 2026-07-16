@@ -30,24 +30,12 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformDocumentType
-import nl.adaptivity.xmlutil.dom.getName
-import nl.adaptivity.xmlutil.dom.getOwnerDocument
-import nl.adaptivity.xmlutil.dom.getPublicId
-import nl.adaptivity.xmlutil.dom.getSystemId
-import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Entity
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.Notation
+import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
 
-@OptIn(XPathInternal::class)
-@XmlUtilInternal
-internal class XdmDocumentType internal constructor(
+@XPathInternal
+public class XdmDocumentType internal constructor(
     maybeOwnerDocument: XdmDocument?,
     name: String,
     publicId: String,

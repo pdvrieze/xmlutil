@@ -21,12 +21,13 @@
 package io.github.pdvrieze.formats.xpath.eval.data.dom
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractParentNode
 
-internal interface XdmParentNode<out T: XdmParentNode<T>> : XdmNode<T>, IAbstractParentNode<XdmNode<*>, XdmParentNode<*>> {
+@XPathInternal
+public interface XdmParentNode<out T: XdmParentNode<T>> : XdmNode<T>, IAbstractParentNode<XdmNode<*>, XdmParentNode<*>> {
     override fun getParentElement(): XdmElement?
 
     @ExperimentalXmlUtilApi

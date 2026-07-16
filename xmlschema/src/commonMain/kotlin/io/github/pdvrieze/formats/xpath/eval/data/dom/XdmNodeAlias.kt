@@ -35,8 +35,8 @@ import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractElement
 import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 
-@OptIn(XPathInternal::class)
-internal class XdmNodeAlias<T: XdmNode<T>>(
+@XPathInternal
+class XdmNodeAlias<T: XdmNode<T>> internal constructor(
     val base: XdmNode<T>,
     override val dynamicType: XdmSingleType
 ) : XdmNode<T> {

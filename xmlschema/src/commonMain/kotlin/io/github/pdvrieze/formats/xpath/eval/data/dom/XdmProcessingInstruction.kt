@@ -36,8 +36,8 @@ import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom.getNodeName
 import nl.adaptivity.xmlutil.dom2.impl.AbstractProcessingInstruction
 
-@OptIn(XPathInternal::class)
-internal class XdmProcessingInstruction(
+@XPathInternal
+public class XdmProcessingInstruction internal constructor(
     ownerDocument: XdmDocument,
     target: String,
     data: String,

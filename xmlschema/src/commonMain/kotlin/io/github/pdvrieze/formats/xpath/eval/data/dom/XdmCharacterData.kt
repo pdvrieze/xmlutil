@@ -30,8 +30,8 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractCharacterData
 
-@OptIn(XPathInternal::class)
-internal abstract class XdmCharacterData internal constructor(
+@XPathInternal
+public abstract class XdmCharacterData internal constructor(
     ownerDocument: XdmDocument,
     data: String,
     parentNode: XdmParentNode<*>? = null

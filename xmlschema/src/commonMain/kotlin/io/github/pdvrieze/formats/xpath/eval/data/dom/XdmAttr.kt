@@ -20,34 +20,22 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data.dom
 
-import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException.Companion.invoke
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeFriend
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformAttr
-import nl.adaptivity.xmlutil.dom.getLocalName
-import nl.adaptivity.xmlutil.dom.getNamespaceURI
-import nl.adaptivity.xmlutil.dom.getPrefix
-import nl.adaptivity.xmlutil.dom.getValue
+import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
 import nl.adaptivity.xmlutil.dom2.value
 
-@OptIn(XPathInternal::class)
-internal class XdmAttr internal constructor(
+@XPathInternal
+class XdmAttr internal constructor(
     ownerDocument: XdmDocument,
     namespaceURI: String?,
     localName: String,

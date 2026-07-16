@@ -22,34 +22,20 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data.dom
 
-import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.eval.data.isNil
-import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
-import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom.getData
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.Comment
-import nl.adaptivity.xmlutil.dom2.Document
-import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.NodeType
-import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
-import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.impl.AbstractText
-import nl.adaptivity.xmlutil.dom2.textContent
-import nl.adaptivity.xmlutil.dom2.value
 
-internal open class XdmText(ownerDocument: XdmDocument, data: String) :
+@XPathInternal
+open class XdmText(ownerDocument: XdmDocument, data: String) :
     XdmCharacterData(ownerDocument, data), AbstractText<XdmNode<*>, XdmParentNode<*>> {
 
     constructor(ownerDocument: XdmDocument, original: PlatformText) : this(ownerDocument, original.getData())
