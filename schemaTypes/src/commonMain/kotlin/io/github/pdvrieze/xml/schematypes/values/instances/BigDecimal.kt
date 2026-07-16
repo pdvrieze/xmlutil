@@ -69,7 +69,8 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
             requireRange(isFinite) { "Cannot convert non-finite XsdBigDecimal to BigDecimal" }
             BigDecimal(ints, exponent)
         }
-        is XsdInteger -> BigDecimal(UIntArray(size.toInt()) { get(it) }, 0)
+
+        is XsdInteger -> BigDecimal(this)
         else -> BigDecimal(xmlString) // fallback to parsing
     }
 

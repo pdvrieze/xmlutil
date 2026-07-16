@@ -1222,21 +1222,23 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             }
             // 30 bits is a bit more than can be stored in new ints. So this array is never too small
             // and fairly accurate
-            val resultInts = UIntArray(((value.significantBitsFromZero()+29u)/30u).toInt().coerceAtLeast(1))
-            var r = value.divRem(1_000_000_000u)
+            val resultInts = UIntArray(((value.significantBitsFromZero()+28u)/29u).toInt().coerceAtLeast(1))
+            var r = value.abs().divRem(1_000_000_000u)
+
             // we can just take the first int as the remainder means we never need the follow up int
-            resultInts[0] = valToUInts(r.intRemainder.toUInt())[0]
+            resultInts[0] = valToUInt(r.intRemainder.toUInt()).toUInt()
 
             var i = 1
             while (r.quotient.sign != 0) {
                 r = r.quotient.divRem(1_000_000_000u)
-                resultInts[i++] = valToUInts(r.intRemainder.toUInt())[0]
+                resultInts[i++] = valToUInt(r.intRemainder.toUInt()).toUInt()
             }
 
             val ints = when (resultInts.size) {
                 i -> resultInts
                 else -> resultInts.copyOf(i)
             }
+            if (value.sign < 0) ints[0] = ints[0] or SIGN_BIT.toUInt()
             return newInstance(ints, 0)
         }
 
