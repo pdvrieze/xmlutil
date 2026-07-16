@@ -35,6 +35,7 @@ interface DecimalType<out T: XsdDecimal> : PrimitiveType<T>, NumericType<T> {
     override val numeric: FacetNumeric get() = FacetNumeric.TRUE
 
     override val name: XsdQName? get() = Instance.name
+    override val baseType: AnyAtomicType<*>
     override val primitiveType: PrimitiveTypeInstance<XsdDecimal> get() = Instance
 
     override val members: Collection<DecimalType<T>> get() = emptyList()
@@ -52,6 +53,8 @@ interface DecimalType<out T: XsdDecimal> : PrimitiveType<T>, NumericType<T> {
 
     object Instance: DecimalType<XsdDecimal>, PrimitiveTypeInstance<XsdDecimal>, BuiltinType {
         override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "decimal", "xs")
+
+        override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
 
         override val constrainingFacets: List<ConstrainingFacet> = listOf(
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true)
