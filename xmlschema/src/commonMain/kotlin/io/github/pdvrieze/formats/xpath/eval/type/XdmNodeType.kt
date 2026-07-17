@@ -78,6 +78,10 @@ class XdmNodeType(val nodeType: NodeType) : XdmSingleType() {
         TODO("not implemented")
     }
 
+    override fun toString(): String {
+        return nodeType.toString()
+    }
+
     companion object {
         val NODE = XdmNodeType(NodeType.ANY_NODE)
 
