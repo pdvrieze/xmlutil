@@ -284,8 +284,8 @@ internal class XQueryParser(
         }
     }
 
-    context(ctx: ParseContext)
     @NeedsXPath2
+    context(ctx: ParseContext)
     private fun parseForExprCont(): ForExpr {
         skipWhitespace()
         val bindings = mutableListOf<ForExpr.Binding>()

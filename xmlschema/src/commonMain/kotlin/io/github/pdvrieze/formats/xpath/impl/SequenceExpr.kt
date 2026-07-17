@@ -50,8 +50,8 @@ class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : Abstra
         }
     }
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         val elems = buildList {
             for (e in elements) {

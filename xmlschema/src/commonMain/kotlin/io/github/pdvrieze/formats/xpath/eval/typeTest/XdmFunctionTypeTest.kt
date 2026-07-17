@@ -63,8 +63,8 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
             }
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
             return value is XdmFunction<*>
         }

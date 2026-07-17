@@ -63,8 +63,8 @@ sealed class Operator(
         @OptIn(NeedsXPath3_1::class)
         override val longer: List<Operator> get() = listOf(ARROW)
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
             return when {
                 left.staticType.isAssignableTo(BooleanType.Instance) ->
@@ -76,8 +76,8 @@ sealed class Operator(
     }
     @NeedsXPath1
     object NEQ: Operator("!=", 5, XPathVersion.XPath1_0, true) {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
             val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
             return XdmAtomic((! eval.value))
@@ -182,8 +182,8 @@ sealed class Operator(
     }
     @NeedsXPath2
     object VAL_NEQ: Operator("ne", 5, XPathVersion.XPath2_0, false) {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
             val isEq = (VAL_EQ.eval(left, right) as? XdmAtomic<XsdBoolean>)?.value ?: return XdmSequence.EMPTY
             return XdmBoolean(XsdBoolean(!isEq.value))
@@ -260,25 +260,25 @@ sealed class Operator(
             }
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalFloat(left: Float, right: Float): Float = left + right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDouble(left: Double, right: Double): Double = left + right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
             left + right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left + right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic = when {
             left is XsdTime -> left + (right as XsdDayTimeDuration)
             left is XsdDate -> left + (right as XsdDuration)
@@ -307,25 +307,25 @@ sealed class Operator(
             }
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalFloat(left: Float, right: Float): Float = left - right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDouble(left: Double, right: Double): Double = left - right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
             left - right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left - right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalCustom(left: XsdAtomic, right: XsdAtomic): XsdAtomic {
             when {
                 left is XsdTime -> when (right) {
@@ -354,8 +354,8 @@ sealed class Operator(
 
     @NeedsXPath1
     object MUL: ArithmeticOperator("*", 9, XPathVersion.XPath1_0, true) {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun disjointOperatorMapping(
             leftType: AnyAtomicType<*>,
             rightType: AnyAtomicType<*>
@@ -371,25 +371,25 @@ sealed class Operator(
             }
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalFloat(left: Float, right: Float): Float = left * right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDouble(left: Double, right: Double): Double = left * right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger =
             left * right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal = left * right
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalCustom(
             left: XsdAtomic,
             right: XsdAtomic
@@ -405,8 +405,8 @@ sealed class Operator(
 
     @NeedsXPath1
     object DIV: ArithmeticOperator("div", 9, XPathVersion.XPath1_0, false) {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun operatorMapping(lType: AnyAtomicType<XsdAtomic>, rType: AnyAtomicType<XsdAtomic>): AnyAtomicType<XsdAtomic> {
             //override integer returns
             return when (val t = super.operatorMapping(lType, rType)) {
@@ -415,8 +415,8 @@ sealed class Operator(
             }
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun disjointOperatorMapping(
             leftType: AnyAtomicType<*>,
             rightType: AnyAtomicType<*>
@@ -435,20 +435,20 @@ sealed class Operator(
         }
 
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalFloat(left: Float, right: Float): Float {
             return left/right
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDouble(left: Double, right: Double): Double {
             return left/right
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun evalDecimal(
             left: XsdDecimal,
             right: XsdDecimal
@@ -501,8 +501,8 @@ sealed class Operator(
     open fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> =
         TODO("Evaluation of operator '$literal' not yet implemented")
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     fun eval(param: XdmValue<*>): XdmValue<*> = eval(listOf(param))
 
     @XPathInternal
@@ -575,8 +575,8 @@ abstract class SequenceComparisonOperator(
     isDelimiting: Boolean,
     val isInequality: Boolean = false,
 ) : Operator(literal, priority, minVersion, isDelimiting) {
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
         if (left is XdmAtomic<*> && left.value is XsdBoolean) {
             val rightBool = XsdBoolean(right.toBoolean())
@@ -611,8 +611,8 @@ abstract class ComparisonOperator(
     minVersion: XPathVersion = XPathVersion.XPath3_1,
     isDelimiting: Boolean,
 ) : Operator(literal, priority, minVersion, isDelimiting) {
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
         val leftVal = when (val a = left.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
@@ -637,7 +637,7 @@ abstract class ComparisonOperator(
     }
 
     context(ctx: ExprEvalContext)
-    open protected fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
+    protected open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
         val result: Boolean = when (leftVal) {
             is XsdFloat if rightVal is XsdFloat -> cmp(leftVal.value, rightVal.value)
             is XsdDouble if rightVal is XsdDouble -> cmp(leftVal.value, rightVal.value)

@@ -28,8 +28,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdString
 @XPathInternal
 @NeedsXPath1
 internal class StringLiteral(override val value: String) : LiteralExpr<String>() {
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         return XdmAtomic(XsdString(value))
     }

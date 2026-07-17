@@ -25,8 +25,8 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 @XPathInternal
 @NeedsXPath3_1
 internal object ParamPlaceholder: ExprSingleOrPlaceholder {
-    context(c: OutputContext)
     @XPathInternal
+    context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append("?")
     }

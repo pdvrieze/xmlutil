@@ -27,8 +27,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @XPathInternal
 internal class IntegerLiteral @NeedsXPath2 constructor(override val value: XsdInteger) : NumberLiteral<XsdInteger>() {
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         return XdmAtomic(value)
     }

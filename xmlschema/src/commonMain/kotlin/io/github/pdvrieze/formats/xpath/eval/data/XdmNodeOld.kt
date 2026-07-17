@@ -259,8 +259,8 @@ class XdmNodeOld(
     }
 
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun normalizeToArithmetic(): XdmValue<*> = when (node) {
         is Attr -> dynamicType.fromString(node.value)
         else -> super.normalizeToArithmetic()

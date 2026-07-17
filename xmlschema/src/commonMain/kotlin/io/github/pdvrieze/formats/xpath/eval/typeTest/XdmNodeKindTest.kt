@@ -47,8 +47,8 @@ class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) :
         return nodeKind.isAssignableFrom(source.nodeKind)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun sharedBaseType(
         other: XdmTypeTest,
         neededCardinality: OccurrenceType
@@ -62,8 +62,8 @@ class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) :
         return XdmNodeKindTest(neededNodeKind, neededCardinality)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
         if (value !is XdmNodeOld) return false
         return nodeKind.matches(value.node)

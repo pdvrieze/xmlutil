@@ -74,8 +74,8 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
             }
         }
 
-        context(ctxt: ExprEvalContext)
         @XPathInternal
+        context(ctxt: ExprEvalContext)
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
             return receiver is AnyArray || receiver is XdmTypeTest.AnyItem
         }

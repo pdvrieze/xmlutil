@@ -36,9 +36,9 @@ import nl.adaptivity.xmlutil.dom2.*
 enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0) : Token {
     @NeedsXPath1
     CHILD("child") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
+        context(ctx: ExprEvalContext)
+        override fun elementSequence(context: XdmNode<*>): List<IndexedValue<XdmValue<*>>> {
             var i = 0
             return context.node.getChildNodes().map { IndexedValue(++i, XdmNodeOld(it)) }
         }
@@ -65,8 +65,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     ANCESTOR("ancestor") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             var node = context.node.parentNode ?: return emptyList()
             val result = ArrayDeque<IndexedValue<XdmNodeOld>>()
@@ -82,8 +82,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     FOLLOWING_SIBLING("following-sibling") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             var i = 0
             return buildList {
@@ -98,8 +98,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     PRECEDING_SIBLING("preceding-sibling") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             var i = 0
             val result = ArrayDeque<IndexedValue<XdmNodeOld>>()
@@ -115,9 +115,9 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     FOLLOWING("following") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
-        override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
+        context(ctx: ExprEvalContext)
+        override fun elementSequence(context: XdmNode<*>): List<IndexedValue<XdmValue<*>>> {
             var i = 0
             return buildList {
                 //addAll(context.descendantsSequence())
@@ -141,8 +141,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     PRECEDING("preceding") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             val result = ArrayDeque<IndexedValue<XdmNodeOld>>()
             var i = 0
@@ -166,8 +166,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     ATTRIBUTE("attribute") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             return when (val node = context.node) {
                 is Element -> {
@@ -182,8 +182,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     NAMESPACE("namespace") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             return emptyList()
             /*
@@ -203,8 +203,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     SELF("self") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             return listOf(IndexedValue(1, context))
         }
@@ -212,8 +212,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     DESCENDANT_OR_SELF("descendant-or-self") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             return buildList {
                 add(IndexedValue(1, context))
@@ -225,8 +225,8 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
 
     @NeedsXPath1
     ANCESTOR_OR_SELF("ancestor-or-self") {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun elementSequence(context: XdmNodeOld): List<IndexedValue<XdmValue<*>>> {
             val result = ArrayDeque<IndexedValue<XdmNodeOld>>()
             var i = 0

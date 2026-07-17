@@ -42,8 +42,8 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
             this(name, args.asList())
 
     @OptIn(NeedsXPath3_1::class)
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         val function = when (name.namespaceURI) {
             BuiltinFunction.FN_NAMESPACE, "" -> Fn.of(name.localPart)

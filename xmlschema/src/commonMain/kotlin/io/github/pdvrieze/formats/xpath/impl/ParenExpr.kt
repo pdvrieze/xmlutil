@@ -25,8 +25,8 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 @XPathInternal
 internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         return expr.eval()
     }
@@ -38,7 +38,6 @@ internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
         builder.append(')')
     }
 
-    @OptIn(NeedsXPath2::class)
     fun toExprList(): List<ExprSingle> = when (expr) {
         is SequenceExpr -> expr.elements
         is ExprSingle -> listOf(expr)
@@ -69,13 +68,13 @@ internal class ParenExpr(val expr: Expr): AbstractExprSingle() {
 }
 
 object EmptySequenceExpr : AbstractExprSingle() {
-    context(c: OutputContext)
     @XPathInternal
+    context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append("()")
     }
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> = XdmSequence.EMPTY
 }

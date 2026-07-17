@@ -48,8 +48,8 @@ class CastExpr(val expr: Expr, val type: QName, val allowsEmpty: Boolean) : Abst
         return true
     }
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> = ctx.withExprContext(this) {
         return CastFunctions.createFromSchemaType(type).invoke(expr.eval())
     }

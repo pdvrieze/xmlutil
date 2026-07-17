@@ -32,8 +32,8 @@ import nl.adaptivity.xmlutil.namespaceURI
 @XPathInternal
 @NeedsXPath1
 internal class VariableRef(val varName: QName): AbstractExprSingle() {
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         return ctx.variables[varName.namespaceURI]?.get(varName.localPart)
             ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, "Undeclared variable: $varName")

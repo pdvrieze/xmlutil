@@ -92,8 +92,8 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         }
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: XdmSequenceBuilder<XdmAtomic<*>>) {
         for (e in elements) {
             e.atomizeTo(receiver)

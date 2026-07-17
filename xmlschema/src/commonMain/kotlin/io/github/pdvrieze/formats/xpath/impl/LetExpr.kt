@@ -26,8 +26,8 @@ import nl.adaptivity.xmlutil.QName
 @XPathInternal
 class LetExpr @NeedsXPath3_0 constructor(val bindings: List<Binding>, val returnExp: ExprSingle): AbstractExprSingle() {
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         var effectiveCtx = ctx
         for (binding in bindings) {

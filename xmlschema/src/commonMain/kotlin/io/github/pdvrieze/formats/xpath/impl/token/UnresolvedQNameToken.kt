@@ -31,8 +31,8 @@ data class UnresolvedQNameToken(
 ) : QNameOrBuiltin {
     override val isDelimiting: Boolean get() = true
 
-    context(c: OutputContext)
     @XPathInternal
+    context(c: OutputContext)
     fun appendToString(builder: Appendable) {
         if (prefix != null) {
             builder.append(prefix).append(':').append(localName)

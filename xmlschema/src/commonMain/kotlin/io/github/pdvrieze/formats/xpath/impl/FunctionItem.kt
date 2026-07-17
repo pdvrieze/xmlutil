@@ -26,16 +26,16 @@ import nl.adaptivity.xmlutil.QName
 sealed class FunctionItem: AbstractExprSingle() {
 
     class NamedRef @NeedsXPath3_0 constructor(val name: QName, val index: Long) : FunctionItem() {
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.appendQName(name).append('#').append(index.toString())
         }
     }
 
     class Inline @NeedsXPath3_0 constructor(val params: List<Param>, val returnType: SequenceType?, val body: Expr) : FunctionItem() {
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("function(")
             builder.joinHelper(params) { (n, t) ->

@@ -34,8 +34,8 @@ internal class DecimalLiteral(override val value: XsdDecimal) : NumberLiteral<Xs
     override fun toLong(): Long = value.toLong()
     override fun toInt(): Int = value.toInt()
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmAtomic<XsdDecimal> = XdmAtomic(value)
 
     context(c: OutputContext)

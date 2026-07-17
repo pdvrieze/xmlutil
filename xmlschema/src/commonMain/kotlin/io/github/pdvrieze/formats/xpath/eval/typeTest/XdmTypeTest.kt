@@ -53,8 +53,8 @@ sealed class XdmSequenceTypeTest {
     abstract fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest
 
     object NONE : XdmSequenceTypeTest() {
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun isAssignableTo(receiver: XdmSequenceTypeTest): Boolean {
             return true
         }
@@ -67,8 +67,8 @@ sealed class XdmSequenceTypeTest {
             throw UnsupportedOperationException("None cannot be the type of any value")
         }
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest {
             return other // none is the bottom type
         }
@@ -200,12 +200,12 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
         override val any: AnyItem get() = AnyItem(OccurrenceType.ANY)
         override val atLeastOne: AnyItem get() = AnyItem(OccurrenceType.AT_LEAST_ONE)
 
-        context(ctx: ExprEvalContext)
         @XPathInternal
+        context(ctx: ExprEvalContext)
         override fun isSingleInstance(value: XdmSingleValue<*>): Boolean = true
 
-        context(ctxt: ExprEvalContext)
         @XPathInternal
+        context(ctxt: ExprEvalContext)
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
             return receiver is AnyItem
         }

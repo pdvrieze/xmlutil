@@ -27,8 +27,8 @@ import io.github.pdvrieze.formats.xpath.impl.token.Operator
 internal abstract class AbstractOperatorExpr(val operator: Operator): AbstractExprSingle() {
     protected abstract val operands: List<ExprSingle>
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         return operands.asSequence()
             .map { it.eval() }

@@ -49,8 +49,8 @@ sealed class ArrayConstructor @NeedsXPath3_1 constructor(): AbstractExprSingle()
             values.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
         }
 
-        context(ctx: EvalContext)
         @XPathInternal
+        context(ctx: EvalContext)
         override fun eval(): XdmValue<*> = ctx.withExprContext(this) {
             val values = values.map { it.eval() }
             val staticItemType = values.fold(XdmEmptySequenceType) { acc: XdmType, r: XdmValue<*> ->
@@ -81,8 +81,8 @@ sealed class ArrayConstructor @NeedsXPath3_1 constructor(): AbstractExprSingle()
             expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
         }
 
-        context(ctx: EvalContext)
         @XPathInternal
+        context(ctx: EvalContext)
         override fun eval(): XdmValue<*> = ctx.withExprContext(this) {
             val values = expr.eval()
             val staticItemType = values.fold(XdmEmptySequenceType) { acc: XdmType, r ->

@@ -182,8 +182,8 @@ enum class Fn(
     constructor(type: XdmFunctionType, implementation: context(ExprEvalContext) (List<XdmValue<*>>) -> XdmValue<*>):
             this(null, listOf(type), implementation)
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun invoke(args: List<XdmValue<*>>): XdmValue<*> {
         return implementation(args)
     }

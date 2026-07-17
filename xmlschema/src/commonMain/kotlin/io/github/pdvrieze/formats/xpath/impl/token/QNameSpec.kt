@@ -72,8 +72,8 @@ internal sealed interface QNameSpec {
             return namespace == (namespaceURI ?: "") && localName == this.localName
         }
 
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("Q{").append(namespace).append("}").append(localName)
         }
@@ -104,8 +104,8 @@ internal sealed interface QNameSpec {
             return name
         }
 
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             if (name.prefix.isNotEmpty()) {
                 builder.append(name.prefix).append(':').append(name.localPart)
@@ -139,8 +139,8 @@ internal sealed interface QNameSpec {
         context(ctx: ExprEvalContext)
         override fun eval(namespaceURI: String?, localName: String): Boolean = true
 
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('*')
         }
@@ -164,8 +164,8 @@ internal sealed interface QNameSpec {
             return localName == this.localName
         }
 
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("*:").append(localName)
         }
@@ -183,8 +183,8 @@ internal sealed interface QNameSpec {
             else -> false
         }
 
-        context(c: OutputContext)
         @XPathInternal
+        context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append("Q{").append(namespace).append("}*")
         }

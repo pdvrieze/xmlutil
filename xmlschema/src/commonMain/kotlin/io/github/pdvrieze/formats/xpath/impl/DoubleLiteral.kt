@@ -30,8 +30,8 @@ internal class DoubleLiteral(override val value: Double) : NumberLiteral<Double>
     override fun toLong(): Long = value.toLong()
     override fun toInt(): Int = value.toInt()
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmAtomic<XsdDouble> = XdmAtomic(XsdDouble(value))
 
     context(c: OutputContext)

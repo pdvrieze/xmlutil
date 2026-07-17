@@ -45,8 +45,8 @@ sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T> {
         }, dynamicType.returnType)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
         throw EvaluationException(ErrorCodes.FOTY0013, "Cannot atomize a function")
     }

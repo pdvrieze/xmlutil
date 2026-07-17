@@ -38,8 +38,8 @@ class XdmArray(
     override fun asT(): XdmArray = this
 
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
         for (c in content) c.atomizeTo(receiver)
     }

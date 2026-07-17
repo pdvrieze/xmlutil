@@ -40,8 +40,8 @@ class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : 
         return source is XdmSchemaTypeTest && source.schemaType.derivesFrom(schemaType)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun sharedBaseType(
         other: XdmTypeTest,
         neededCardinality: OccurrenceType
@@ -64,8 +64,8 @@ class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : 
         return XdmSchemaType(schemaType).cardinality(cardinality)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
         return value.dynamicType.isAssignableTo(this)
     }

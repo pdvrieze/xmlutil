@@ -28,8 +28,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
 
 @OptIn(XPathInternal::class)
 class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : AbstractExprSingle() {
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         val start = ((from.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
         val end = ((to.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()

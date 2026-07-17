@@ -62,8 +62,8 @@ class XdmMapType(
         }
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         val receiver = expectedType
         return when (receiver) {

@@ -36,8 +36,8 @@ sealed class UnaryExpr: AbstractExprSingle() {
             expr.appendToString(builder)
         }
 
-        context(ctx: EvalContext)
         @XPathInternal
+        context(ctx: EvalContext)
         override fun eval(): XdmValue<*> {
             val e = expr.eval()
             ctx.withExprContext(this) {
@@ -74,8 +74,8 @@ sealed class UnaryExpr: AbstractExprSingle() {
             expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
         }
 
-        context(ctx: EvalContext)
         @XPathInternal
+        context(ctx: EvalContext)
         override fun eval(): XdmValue<*> {
             val e = expr.eval()
             ctx.withExprContext(this) {

@@ -27,14 +27,14 @@ import io.github.pdvrieze.formats.xpath.impl.token.Axis
 
 @XPathInternal
 object ContextItemExpr : AxisStep(Axis.SELF, NodeTest.node), ExprSingle {
-    context(c: OutputContext)
     @XPathInternal
+    context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         builder.append('.')
     }
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         return ctx.contextValue ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT, "No context item")
     }

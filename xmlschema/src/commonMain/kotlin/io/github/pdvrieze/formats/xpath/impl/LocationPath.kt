@@ -42,8 +42,8 @@ internal class LocationPath(
         listOf(FilterExpr(single))
     )
 
-    context(ctx: EvalContext)
     @XPathInternal
+    context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         withExprContext {
             val base: XdmValue<*>? = steps.dropLast(1).fold(ctx.contextValue) { c, step ->

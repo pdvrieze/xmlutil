@@ -47,8 +47,8 @@ class XdmArrayType(
         else -> super.sharedBaseType(other)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun isAssignableTo(expectedType: XdmSequenceTypeTest): Boolean {
         return when (expectedType) {
             is XdmArrayTypeTest -> returnType.isAssignableTo(expectedType.returnType)
