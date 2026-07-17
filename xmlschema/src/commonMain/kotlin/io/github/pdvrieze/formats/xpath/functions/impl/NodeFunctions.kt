@@ -16,7 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
- */
+ *//
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
@@ -38,7 +38,7 @@ object NodeFunctions : AbstractFunctionObject() {
         contextFunctionTypes(STRING, NODE.opt)
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
-        val name = when(val n = arg.node) {
+        val name = when(val n = arg) {
             is Element -> n.nodeName
             is Attr -> n.nodeName
             is ProcessingInstruction -> n.target
@@ -52,7 +52,7 @@ object NodeFunctions : AbstractFunctionObject() {
         contextFunctionTypes(STRING, NODE.opt)
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl atomic("")
-        val name = when (val n = arg.node) {
+        val name = when (val n = arg) {
             is Element -> n.getLocalName()!!
             is Attr -> n.localName ?: n.nodeName
             is ProcessingInstruction -> n.target
@@ -66,7 +66,7 @@ object NodeFunctions : AbstractFunctionObject() {
         contextFunctionTypes(STRING, NODE.opt)
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl atomic("")
-        val name = when(val n = arg.node) {
+        val name = when(val n = arg) {
             is Element -> n.namespaceURI
             is Attr -> n.namespaceURI
             else -> ""
@@ -85,7 +85,10 @@ object NodeFunctions : AbstractFunctionObject() {
         }
 
         val arg1 = (args.argOrContext(1) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
-        val node: Node = (arg1 as? XdmNodeOld ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${arg1.staticType}")).node
+        val node: Node = (arg1 as? XdmNode<*> ?: throw EvaluationException(
+            ErrorCodes.XPTY0004_TYPE_ERROR,
+            "Expected node, found: ${arg1.staticType}"
+        ))
 
         val effectiveLang = generateSequence<Node>(node) { it.parentNode as? Element }
             .filterIsInstance<Element>()
@@ -110,8 +113,7 @@ object NodeFunctions : AbstractFunctionObject() {
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
 
-        val r = generateSequence(arg.node) { it.getParentNode() }.last()
-        XdmNodeOld(r)
+        generateSequence(arg) { it.getParentNode() }.last()
     }
 
     val fnPath: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmString>> = BuiltinFunctionImpl(
@@ -119,10 +121,10 @@ object NodeFunctions : AbstractFunctionObject() {
         contextFunctionTypes(STRING, NODE.opt)
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val n = arg.node
+        val n = arg
 
         val elemPath =
-            generateSequence((n as? Element) ?: (n.parentNode as? Element)) { it.getParentNode() as? Element }
+            generateSequence((n as? Element) ?: (n.getParentNode() as? Element)) { it.getParentNode() as? Element }
                 .map { a ->
                     val position = generateSequence(a.previousSibling) { it.previousSibling }
                         .filterIsInstance<Element>()
@@ -166,7 +168,7 @@ object NodeFunctions : AbstractFunctionObject() {
         contextFunctionTypes(BOOLEAN, NODE.opt)
     ) { args ->
         val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
-        atomic(arg.node.getChildNodes().getLength() > 0)
+        atomic(arg.getChildNodes().getLength() > 0)
     }
 
     val fnInnermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl(

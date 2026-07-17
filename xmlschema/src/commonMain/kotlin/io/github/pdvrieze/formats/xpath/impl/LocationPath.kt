@@ -16,14 +16,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
- */
+ *//
 
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
@@ -50,16 +50,16 @@ internal class LocationPath(
                 when (val e = step.eval(c)) {
                     XdmSequence.EMPTY -> return XdmSequence.EMPTY
 
+                    is XdmNode<*> -> e
+
                     is XdmSequence<*> -> {
                         for (m in e.elements) {
-                            if (m !is XdmNodeOld) throw EvaluationException(
+                            if (m !is XdmNode<*>) throw EvaluationException(
                                 ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
                             )
                         }
                         e
                     }
-
-                    is XdmNodeOld -> e
 
                     else -> throw EvaluationException(
                         ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES,
@@ -70,18 +70,18 @@ internal class LocationPath(
 
             val last = steps.last()
             val result = last.eval(base)
-            if (result.size == 0) {
-                return XdmSequence.EMPTY
-            }
-            if (result[0] is XdmNodeOld) {
+
+            if (result.isEmpty()) return XdmSequence.EMPTY
+
+            if (result[0] is XdmNode<*>) {
                 for (i in 1 until result.size) {
-                    if (result[i] !is XdmNodeOld) {
+                    if (result[i] !is XdmNode<*>) {
                         throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
                     }
                 }
             } else {
                 for (i in 1 until result.size) {
-                    if (result[i] is XdmNodeOld) {
+                    if (result[i] is XdmNode<*>) {
                         throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
                     }
                 }

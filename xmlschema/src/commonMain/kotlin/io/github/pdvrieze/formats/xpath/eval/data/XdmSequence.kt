@@ -57,7 +57,7 @@ open class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean = when {
         isEmpty() -> false
-        elements[0] is XdmNodeOld -> true
+        elements[0] is XdmNode<*> -> true
         elements.size == 1 -> elements[0].toBoolean() // should not happen, but be sure
         else -> throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Only sequences starting with a node can be cast to boolean")
     }
