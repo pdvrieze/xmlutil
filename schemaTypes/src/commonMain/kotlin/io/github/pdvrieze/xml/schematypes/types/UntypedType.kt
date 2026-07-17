@@ -20,11 +20,8 @@
 
 package io.github.pdvrieze.xml.schematypes.types
 
-import io.github.pdvrieze.xml.schematypes.facets.*
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.XmlUtilInternal
 
 interface UntypedType: ComplexType {
     override val baseType: AnyType get() = ComplexType.Instance
@@ -36,27 +33,3 @@ interface UntypedType: ComplexType {
     }
 }
 
-interface UntypedAtomicType : AnyAtomicType<XsdAtomic> {
-    override val baseType: AnyAtomicType<*> get() = AnyAtomicType.Instance
-    override val name: XsdQName? get() = Instance.name
-
-    object Instance: UntypedAtomicType, BuiltinType {
-        override val name: XsdQName = XsdQName(XMLConstants.XSD_NS_URI, "untypedAtomic", "xs")
-        override val ordered: FacetOrdered get() = baseType.ordered
-        override val bounded: FacetBounded get() = baseType.bounded
-        override val cardinality: FacetCardinality get() = baseType.cardinality
-        override val numeric: FacetNumeric get() = baseType.numeric
-        override val constrainingFacets: List<ConstrainingFacet> get() = baseType.constrainingFacets
-
-        override fun fromString(value: CharSequence): XsdAtomic {
-            return XsdUntyped(value.toString())
-        }
-    }
-
-    @XmlUtilInternal
-    public class XsdUntyped(override val xmlString: String): XsdAtomic {
-        override val schemaType: Instance
-            get() = Instance
-    }
-
-}
