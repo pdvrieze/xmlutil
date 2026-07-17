@@ -20,7 +20,6 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import Axis
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -30,8 +29,6 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
-import kotlin.text.Appendable
-import kotlin.text.append
 
 @XPathInternal
 open class AxisStep(

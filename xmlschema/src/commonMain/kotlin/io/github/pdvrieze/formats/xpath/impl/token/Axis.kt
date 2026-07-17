@@ -1,16 +1,3 @@
-import io.github.pdvrieze.formats.xpath.XPathVersion
-import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.XPTY0020_CONTEXT_ITEM_NOT_NODE
-import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmElement
-import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import nl.adaptivity.xmlutil.dom2.*
-
 /*
  * Copyright (c) 2026.
  *
@@ -29,7 +16,7 @@ import nl.adaptivity.xmlutil.dom2.*
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
- *//
+ */
 
 package io.github.pdvrieze.formats.xpath.impl.token
 
@@ -45,7 +32,8 @@ import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath1
 import io.github.pdvrieze.formats.xpath.impl.NodeTest
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import nl.adaptivity.xmlutil.dom2.*
+import nl.adaptivity.xmlutil.dom2.Element
+import nl.adaptivity.xmlutil.dom2.Node
 
 enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion.XPath1_0) : Token {
     @NeedsXPath1
