@@ -250,7 +250,11 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             val v = a.value
             when {
                 st == XdmSchemaType.UNTYPED_ATOMIC -> {
-                    result.add(XsdDouble(v.xmlString))
+                    try {
+                        result.add(XsdDouble(v.xmlString))
+                    } catch (e: NumberFormatException) {
+                        throw EvaluationException(ErrorCodes.FORG0001, e)
+                    }
                     seenDouble = true
                 }
 
@@ -277,7 +281,9 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                     }
                 }
 
-                else -> result.add(v)
+                v is XsdDuration -> result.add(v)
+
+                else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "numeric sequence function with unsupported type: ${st}")
             }
 
             when {
