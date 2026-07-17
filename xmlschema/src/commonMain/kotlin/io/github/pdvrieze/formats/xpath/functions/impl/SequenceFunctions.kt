@@ -241,8 +241,8 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     private fun unifyNumericTypes(arg: XdmValue<XdmAtomic<*>>): List<XsdAtomic> {
         val result = ArrayList<XsdAtomic>(arg.size)
         var seenDouble = false
-        var lastSeenFloat = -1
-        var lastSeenDecimal = -1
+        var seenFloat = false
+        var seenDecimal = false
 
         for (i in arg.indices) {
             val a = arg[i]
@@ -268,16 +268,17 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                     seenDouble -> result.add(XsdDouble(v.value.toDouble()))
                     else -> {
                         result.add(v)
-                        lastSeenFloat = i
+                        seenFloat = true
                     }
                 }
 
                 v is XsdDecimal -> when {
                     seenDouble -> result.add(XsdDouble(v.toBigDecimal().toDouble()))
-                    lastSeenFloat >=0 -> result.add(XsdFloat(v.toBigDecimal().toFloat()))
+                    seenFloat -> result.add(XsdFloat(v.toBigDecimal().toFloat()))
+
                     else -> {
                         result.add(v)
-                        lastSeenDecimal = i
+                        seenDecimal = true
                     }
                 }
 
@@ -289,8 +290,8 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             when {
                 seenDouble -> {
                     when {
-                        lastSeenDecimal >= 0 ->
-                            for (i in 0..maxOf(lastSeenFloat, lastSeenDecimal)) {
+                        seenDecimal ->
+                            for (i in 0..<i) {
                                 val v = result[i]
                                 if (v !is XsdDouble) {
                                     val a = arg[i].value
@@ -298,21 +299,21 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                                 }
                             }
 
-                        lastSeenFloat >= 0 -> for (i in 0..maxOf(lastSeenFloat, lastSeenDecimal)) {
-                            val v = result[i]
+                        seenFloat -> for (i in 0..<i) {
+                            val v = arg[i].value
                             if (v is XsdFloat) result[i] = XsdDouble(v.toDouble())
                         }
                     }
-                    lastSeenDecimal = -1
-                    lastSeenFloat = -1
+                    seenFloat = false
+                    seenDecimal = false
                 }
 
-                lastSeenFloat >= 0 && lastSeenDecimal >= 0 -> {
-                    for (i in 0..lastSeenDecimal) {
+                seenFloat && seenDecimal -> {
+                    for (i in 0..<i) {
                         val v = result[i]
                         if (v is XsdDecimal) result[i] = XsdFloat(v.toFloat())
                     }
-                    lastSeenDecimal = -1
+                    seenDecimal = false
                 }
             }
 
