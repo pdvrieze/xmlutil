@@ -142,8 +142,7 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
                 OccurrenceType.AT_LEAST_ONE -> !source.cardinality.allowsEmpty
             }
         }
-        if (!r) return false
-        return isAssignableFromSingle(source)
+        return r && isAssignableFromSingle(source)
     }
 
     @XPathInternal
@@ -157,8 +156,7 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
             OccurrenceType.ANY -> receiver.cardinality == OccurrenceType.ANY
             OccurrenceType.AT_LEAST_ONE -> receiver.cardinality.allowsMultiple
         }
-        if (!r) return false
-        return isAssignableToSingle(receiver)
+        return r && isAssignableToSingle(receiver)
     }
 
     @XPathInternal

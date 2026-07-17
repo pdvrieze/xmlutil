@@ -37,8 +37,7 @@ class XdmSchemaTypeTest(val schemaType: AnyType, cardinality: OccurrenceType) : 
     @XPathInternal
     context(ctxt: ExprEvalContext)
     override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean {
-        if (source !is XdmSchemaTypeTest) return false
-        return source.schemaType.derivesFrom(schemaType)
+        return source is XdmSchemaTypeTest && source.schemaType.derivesFrom(schemaType)
     }
 
     context(ctx: ExprEvalContext)
