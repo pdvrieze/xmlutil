@@ -20,7 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeBase
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmNodeType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
@@ -65,8 +65,8 @@ class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) :
     @XPathInternal
     context(ctx: ExprEvalContext)
     override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
-        if (value !is XdmNode<*>) return false
-        return nodeKind.matches(value)
+        if (value !is XdmNodeBase<*>) return false
+        return nodeKind.matches(value.asT())
     }
 
     override fun toValueType(fallbackType: XdmSingleType): XdmType {

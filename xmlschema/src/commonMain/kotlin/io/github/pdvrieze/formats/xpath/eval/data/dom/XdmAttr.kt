@@ -20,19 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data.dom
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeFriend
+import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttr
-import nl.adaptivity.xmlutil.dom2.value
 
 @XPathInternal
 class XdmAttr internal constructor(
@@ -101,6 +99,30 @@ class XdmAttr internal constructor(
     override fun cloneNode(deep: Boolean): XdmAttr {
         return XdmAttr(getOwnerDocument(), _namespaceURI, _localName, _prefix, _value)
     }
+
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(
+        rightNode: Node,
+        collation: Collation
+    ): Boolean {
+        return rightNode is Attr &&
+                getNamespaceURI() == rightNode.getNamespaceURI() &&
+                getLocalName() == rightNode.getLocalName() &&
+                getValue() == rightNode.getValue()
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        if (nodeType != other.nodeType) return false
+        val c: Collation = collation
+        val o = other as? XdmAttr ?: return false
+        return this.namespaceURI == o.namespaceURI && this.localName == o.localName &&
+                c.equals(this.value, o.value)
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun normalizeToArithmetic(): XdmValue<*> = dynamicType.fromString(getValue())
 
     override fun toString(): String {
         val attrName = when (getPrefix().isNullOrBlank()) {

@@ -20,23 +20,15 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data
 
-import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
-import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
-import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
-import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
-import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.isXmlWhitespace
@@ -45,8 +37,8 @@ import nl.adaptivity.xmlutil.isXmlWhitespace
 @OptIn(NeedsXPath2::class)
 class XdmNodeOld(
     val node: Node,
-    override val staticType: XdmSingleType = XdmSchemaType(UntypedType.Instance)
-) : XdmSingleValue<XdmNodeOld> {
+    val staticType: XdmSingleType = XdmSchemaType(UntypedType.Instance)
+) {
     val posSeq: IntArray
 
     init {
@@ -65,9 +57,9 @@ class XdmNodeOld(
     }
 
     // TODO actually use schema types for this
-    override val dynamicType: XdmSingleType get() = staticType
+    val dynamicType: XdmSingleType get() = staticType
 
-    override fun asT(): XdmNodeOld = this
+    fun asT(): XdmNodeOld = this
 
     context(ctx: ExprEvalContext)
     fun typedValue(): XdmValue<*> = when (node) {
@@ -89,18 +81,9 @@ class XdmNodeOld(
     }
 
     context(ctx: ExprEvalContext)
-    override fun toBoolean(): Boolean {
+    fun toBoolean(): Boolean {
         return false
 //        if (type.isSubtypeOf(BooleanType.Instance))
-    }
-
-    @OptIn(NeedsXPath3_0::class)
-    context(ctx: ExprEvalContext)
-    override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
-        if (type !is XdmNodeKindTest) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast node to $type")
-        if (! type.nodeKind.matches(node)) throw EvaluationException(ErrorCodes.XPDY0050_INVALID_TYPE_IN_TREAT_AS, "Cannot cast $node to (${type.nodeKind})")
-        // TODO do some checks
-        return XdmNodeOld(node, type.toValueType(staticType).single)
     }
 
     override fun hashCode(): Int {
@@ -109,10 +92,6 @@ class XdmNodeOld(
 
     override fun equals(other: Any?): Boolean {
         return node == (other as? XdmNodeOld)?.node
-    }
-
-    override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
-        return equals(expected)
     }
 
     context(ctx: ExprEvalContext)
@@ -194,6 +173,7 @@ class XdmNodeOld(
     }
 
 
+/*
     context(ctx: ExprEvalContext)
     override fun isDeepEqual(
         other: XdmValue<*>,
@@ -230,14 +210,18 @@ class XdmNodeOld(
             else -> return false
         }
     }
+*/
 
+/*
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
+    fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<*>>) {
         receiver.add(atomize())
     }
+*/
 
+/*
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
+    fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
         return when (node) {
             is Attr -> (staticType).fromString(node.value) as XdmAtomic<*>
             is ProcessingInstruction -> XdmAtomic(XsdString(node.getData()))
@@ -257,14 +241,17 @@ class XdmNodeOld(
         // TODO add check that the value is not "typed" (there is an actual value in the node)
         // otherwise throw FOTY0012
     }
+*/
 
 
+/*
     @XPathInternal
     context(ctx: ExprEvalContext)
     override fun normalizeToArithmetic(): XdmValue<*> = when (node) {
         is Attr -> dynamicType.fromString(node.value)
         else -> super.normalizeToArithmetic()
     }
+*/
 
     override fun toString(): String {
         return buildString {

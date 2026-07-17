@@ -34,7 +34,6 @@ import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.nodeName
-import nl.adaptivity.xmlutil.dom2.textContent
 
 @XPathInternal
 object Accessors : AbstractFunctionObject() {
@@ -66,8 +65,7 @@ object Accessors : AbstractFunctionObject() {
         if (arg.size > 1) error("Can only convert a sequence of 1 item to a string")
 
         val s = when (val a = arg[0]) {
-            is XdmNode<*> -> a.textContent ?: ""
-            is XdmNodeOld2 -> a.node.textContent ?: ""
+            is XdmNodeBase<*> -> a.asT().getTextContent() ?: ""
             is XdmAtomic<*> -> a.value.xmlString
             is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
         }

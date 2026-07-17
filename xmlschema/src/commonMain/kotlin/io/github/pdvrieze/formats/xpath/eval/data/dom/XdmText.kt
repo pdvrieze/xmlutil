@@ -25,14 +25,19 @@ package io.github.pdvrieze.formats.xpath.eval.data.dom
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.dom.PlatformText
 import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.impl.AbstractText
+import nl.adaptivity.xmlutil.dom2.nodeType
 
 @XPathInternal
 open class XdmText(ownerDocument: XdmDocument, data: String) :
@@ -53,6 +58,21 @@ open class XdmText(ownerDocument: XdmDocument, data: String) :
     context(ctx: ExprEvalContext)
     final override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
         return XdmAtomic(XsdString(this.getData()))
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    override fun normalizeToArithmetic(): XdmValue<*> = dynamicType.fromString(getData())
+
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(rightNode: Node, collation: Collation): Boolean {
+        return rightNode is Text && collation.equals(this.getData(), rightNode.getData())
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        if (nodeType != other.nodeType) return false
+        return other is XdmText && collation.equals(this.getData(), other.getData())
     }
 
     override fun toString(): String {

@@ -20,8 +20,10 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeBase
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmAttr
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmElement
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmProcessingInstruction
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdNCName
@@ -103,7 +105,7 @@ sealed class NodeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is XdmNode<*> && (it as? Element)?.localName == localName
+            return it is XdmNodeBase<*> && (it.asT() as? XdmElement)?.getLocalName() == localName
         }
 
         context(c: OutputContext)
@@ -129,10 +131,10 @@ sealed class NodeTest {
     class QNameTest(val qName: QName) : NameTest() {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
-            if (it !is XdmNode<*>) return false
-            return when (val n = it) {
-                is Attr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
-                is Element -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
+            if (it !is XdmNodeBase<*>) return false
+            return when (val n = it.asT()) {
+                is XdmAttr -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
+                is XdmElement -> n.localName== qName.localPart && (n.namespaceURI ?: "") == qName.namespaceURI
                 else -> false
             }
         }
@@ -163,7 +165,7 @@ sealed class NodeTest {
             index: Int,
             count: Int
         ): Boolean {
-            return it is XdmNode<*> && (it as? Element).let {
+            return it is XdmNodeBase<*> && (it.asT() as? XdmElement).let {
                 it?.namespaceURI == namespace.xmlString && it.prefix == prefix?.xmlString
             }
         }
@@ -220,13 +222,14 @@ sealed class NodeTest {
         context(ctx: ExprEvalContext)
         override fun eval(it: XdmValue<*>, index: Int, count: Int): Boolean {
             return when (it) {
-                is XdmNode<*> -> when (it) {
-                    is Attr,
-                    is Element -> true
+                !is XdmNodeBase<*> -> false
+
+                else -> when (it.asT()) {
+                    is XdmAttr,
+                    is XdmElement -> true
 
                     else -> false
                 }
-                else -> false
             }
         }
     }

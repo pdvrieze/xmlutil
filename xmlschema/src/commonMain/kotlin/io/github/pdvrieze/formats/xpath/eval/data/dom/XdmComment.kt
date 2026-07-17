@@ -25,11 +25,15 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.dom.PlatformComment
 import nl.adaptivity.xmlutil.dom.getData
+import nl.adaptivity.xmlutil.dom2.Comment
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.impl.AbstractComment
+import nl.adaptivity.xmlutil.dom2.nodeType
 
 @XPathInternal
 class XdmComment internal constructor(ownerDocument: XdmDocument, data: String) :
@@ -45,11 +49,22 @@ class XdmComment internal constructor(ownerDocument: XdmDocument, data: String) 
         return XdmAtomic(XsdString(this.getData()))
     }
 
-    override fun toString(): String {
-        return "<!--${getData()}-->"
-    }
-
     override fun cloneNode(deep: Boolean): XdmComment {
         return XdmComment(getOwnerDocument(), getData())
+    }
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(rightNode: Node, collation: Collation): Boolean {
+        return rightNode is Comment &&
+                collation.equals(this.getData(), rightNode.getData())
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        if (nodeType != other.nodeType) return false
+        return other is XdmComment && collation.equals(this.getData(), other.getData())
+    }
+
+    override fun toString(): String {
+        return "<!--${getData()}-->"
     }
 }

@@ -23,7 +23,7 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
+import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeBase
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
@@ -50,11 +50,11 @@ internal class LocationPath(
                 when (val e = step.eval(c)) {
                     XdmSequence.EMPTY -> return XdmSequence.EMPTY
 
-                    is XdmNode<*> -> e
+                    is XdmNodeBase<*> -> e
 
                     is XdmSequence<*> -> {
                         for (m in e.elements) {
-                            if (m !is XdmNode<*>) throw EvaluationException(
+                            if (m !is XdmNodeBase<*>) throw EvaluationException(
                                 ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
                             )
                         }
@@ -73,15 +73,15 @@ internal class LocationPath(
 
             if (result.isEmpty()) return XdmSequence.EMPTY
 
-            if (result[0] is XdmNode<*>) {
+            if (result[0] is XdmNodeBase<*>) {
                 for (i in 1 until result.size) {
-                    if (result[i] !is XdmNode<*>) {
+                    if (result[i] !is XdmNodeBase<*>) {
                         throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
                     }
                 }
             } else {
                 for (i in 1 until result.size) {
-                    if (result[i] is XdmNode<*>) {
+                    if (result[i] is XdmNodeBase<*>) {
                         throw EvaluationException(ErrorCodes.XPTY0018_PATH_RESULT_MISMATCH, "Expected result of path expression to be uniform in type")
                     }
                 }

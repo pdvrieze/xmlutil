@@ -31,12 +31,13 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.DOMException
-import nl.adaptivity.xmlutil.dom.PlatformNode
+import nl.adaptivity.xmlutil.dom2.DocumentFragment
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentFragment
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
@@ -79,49 +80,40 @@ public class XdmDocumentFragment internal constructor(ownerDocument: XdmDocument
         throw UnsupportedOperationException("Unsupported node type: ${NodeType.DOCUMENT_FRAGMENT_NODE}")
     }
 
-    @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): XdmNode<*> {
-        if (node !is XdmNodeAlias<*>) return super<AbstractDocumentFragment>.appendChild(node)
-        val newNode = super<AbstractDocumentFragment>.appendChild(node.base)
-        return when {
-            newNode === node.base -> node
-            else -> XdmNodeAlias(newNode, node.dynamicType)
-        }
-    }
-
-    @IgnorableReturnValue
-    override fun replaceChild(
-        newChild: PlatformNode,
-        oldChild: PlatformNode
-    ): XdmNode<*> {
-        if (newChild !is XdmNodeAlias<*>) return super<AbstractDocumentFragment>.replaceChild(newChild, oldChild)
-        val newNode = super<AbstractDocumentFragment>.replaceChild(newChild.base, oldChild)
-        return when {
-            newNode === newChild.base -> newChild
-            else -> XdmNodeAlias(newNode, newChild.dynamicType)
-        }
-    }
-
-    @IgnorableReturnValue
-    @ExperimentalXmlUtilApi
-    override fun insertBefore(
-        newChild: PlatformNode,
-        refChild: PlatformNode?
-    ): XdmNode<*> {
-        if (newChild !is XdmNodeAlias<*>) return super<AbstractDocumentFragment>.insertBefore(newChild, refChild)
-
-        val newBase = super<AbstractDocumentFragment>.insertBefore(newChild.base, refChild)
-        return when {
-            newBase === newChild.base -> newChild
-            else -> XdmNodeAlias(newBase, newChild.dynamicType)
-        }
-    }
-
     override fun cloneNode(deep: Boolean): XdmDocumentFragment {
         val f = XdmDocumentFragment(getOwnerDocument())
         if (deep) {
             for (c in getChildNodes()) f.appendChild(c.cloneNode(deep))
         }
         return f
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(
+        rightNode: Node,
+        collation: Collation
+    ): Boolean {
+        if (rightNode !is DocumentFragment) return false
+        val l = toList()
+        val r = rightNode.getChildNodes().toList()
+        if (l.size != r.size) return false
+        for (i in l.indices) {
+            if (! l[i].isNodeEqual(r[i], collation)) return false
+        }
+
+        return true
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        if (other !is XdmDocumentFragment) return false
+        val l = toList()
+        val r = other.getChildNodes().map { it as XdmNode<*> }
+        if (l.size != r.size) return false
+        for (i in l.indices) {
+            if (! l[i].isDeepEqual(r[i], collation)) return false
+        }
+
+        return true
     }
 }

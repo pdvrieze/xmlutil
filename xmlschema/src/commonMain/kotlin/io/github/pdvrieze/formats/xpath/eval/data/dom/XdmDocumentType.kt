@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.dom.*
@@ -97,6 +98,16 @@ public class XdmDocumentType internal constructor(
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
         throw UnsupportedOperationException("Unsupported node type: ${NodeType.DOCUMENT_TYPE_NODE}")
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(rightNode: Node, collation: Collation): Boolean {
+        return this === rightNode
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        return this === other
     }
 
     public companion object {

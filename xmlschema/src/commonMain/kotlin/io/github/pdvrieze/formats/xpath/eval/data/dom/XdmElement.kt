@@ -30,18 +30,28 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdString
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
+import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.Text
 import nl.adaptivity.xmlutil.dom2.impl.AbstractElement
 import nl.adaptivity.xmlutil.dom2.impl.LinearAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
+import nl.adaptivity.xmlutil.dom2.localName
+import nl.adaptivity.xmlutil.dom2.name
+import nl.adaptivity.xmlutil.dom2.namespaceURI
+import nl.adaptivity.xmlutil.dom2.nodeType
+import nl.adaptivity.xmlutil.dom2.textContent
+import nl.adaptivity.xmlutil.dom2.value
+import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XPathInternal
 public class XdmElement internal constructor(
@@ -123,44 +133,6 @@ public class XdmElement internal constructor(
         }
     }
 
-    @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): XdmNode<*> {
-        if (node !is XdmNodeAlias<*>) return super<AbstractElement>.appendChild(node)
-        val newNode = super<AbstractElement>.appendChild(node.base)
-        return when {
-            newNode === node.base -> node
-            else -> XdmNodeAlias(newNode, node.dynamicType)
-        }
-    }
-
-    @IgnorableReturnValue
-    override fun replaceChild(
-        newChild: PlatformNode,
-        oldChild: PlatformNode
-    ): XdmNode<*> {
-        if (newChild !is XdmNodeAlias<*>) return super<AbstractElement>.replaceChild(newChild, oldChild)
-        val newNode = super<AbstractElement>.replaceChild(newChild.base, oldChild)
-        return when {
-            newNode === newChild.base -> newChild
-            else -> XdmNodeAlias(newNode, newChild.dynamicType)
-        }
-    }
-
-    @IgnorableReturnValue
-    @ExperimentalXmlUtilApi
-    override fun insertBefore(
-        newChild: PlatformNode,
-        refChild: PlatformNode?
-    ): XdmNode<*> {
-        if (newChild !is XdmNodeAlias<*>) return super<AbstractElement>.insertBefore(newChild, refChild)
-
-        val newBase = super<AbstractElement>.insertBefore(newChild.base, refChild)
-        return when {
-            newBase === newChild.base -> newChild
-            else -> XdmNodeAlias(newBase, newChild.dynamicType)
-        }
-    }
-
     override fun getAttributes(): NamedNodeMap<XdmAttr> {
         @Suppress("UNCHECKED_CAST")
         return super.getAttributes() as NamedNodeMap<XdmAttr>
@@ -178,6 +150,93 @@ public class XdmElement internal constructor(
             for (c in super.getChildNodes()) e.appendChild(c.cloneNode(true))
         }
         return e
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(rightNode: Node, collation: Collation): Boolean {
+        // Do type checks
+        return rightNode is Element && isElemEqual(rightNode, collation)
+    }
+
+    context(ctx: ExprEvalContext)
+    fun isElemEqual(rightElem: Element, collation: Collation): Boolean {
+        when {
+            getNamespaceURI() != rightElem.getNamespaceURI() -> return false
+            getLocalName() != rightElem.getLocalName() -> return false
+            getAttributes().size != rightElem.getAttributes().size -> return false
+            getAttributes().any { a -> !
+                collation.equals(a.value, rightElem.getAttributeNS(a.namespaceURI, a.name)?: return false)
+            }   -> return false
+        }
+
+        val leftIt = getChildNodes().iterator()
+        val rightIt = rightElem.getChildNodes().iterator()
+        // Compare ignoring whitespace
+        do {
+            var lChild: XdmNode<*>?
+            do {
+                lChild = if (leftIt.hasNext()) leftIt.next() else null
+            } while (lChild is Text && lChild.textContent.let { it != null && isXmlWhitespace(it) })
+
+            var rChild: Node?
+            do {
+                rChild = if (rightIt.hasNext()) rightIt.next() else null
+            } while (rChild is Text && rChild.textContent.let { it != null && isXmlWhitespace(it) } && (rightIt.hasNext()))
+
+            if (lChild != null) {
+                if (rChild == null) return false
+                if (! isNodeEqual(rChild, collation)) return false
+            } else {
+                if (rChild != null) return false
+            }
+        } while (lChild != null && rChild != null)
+
+        if (leftIt.hasNext() || rightIt.hasNext()) return false
+        return true
+
+    }
+
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        if (nodeType != other.nodeType) return false
+        val otherNode = other as? XdmElement ?: return false
+        // Do type checks
+
+        when {
+            getNamespaceURI() != otherNode.getNamespaceURI() -> return false
+            getLocalName() != otherNode.getLocalName() -> return false
+            getAttributes().size != otherNode.getAttributes().size -> return false
+            getAttributes().any { a -> !
+            collation.equals(a.value, otherNode.getAttributeNS(a.namespaceURI, a.name)?: return false)
+            }   -> return false
+        }
+
+        val leftIt = getChildNodes().iterator()
+        val rightIt = otherNode.getChildNodes().iterator()
+        // Compare ignoring whitespace
+        do {
+            var lChild: XdmNode<*>?
+            do {
+                lChild = if (leftIt.hasNext()) leftIt.next() else null
+            } while (lChild is Text && lChild.textContent.let { it != null && isXmlWhitespace(it) })
+
+            var rChild: Node?
+            do {
+                rChild = if (rightIt.hasNext()) rightIt.next() else null
+            } while (rChild is Text && rChild.textContent.let { it != null && isXmlWhitespace(it) } && (rightIt.hasNext()))
+
+            if (lChild != null) {
+                if (rChild == null) return false
+                if (! isNodeEqual(rChild, collation)) return false
+            } else {
+                if (rChild != null) return false
+            }
+        } while (lChild != null && rChild != null)
+
+        if (leftIt.hasNext() || rightIt.hasNext()) return false
+        return true
+
     }
 
     override fun toString(): String {

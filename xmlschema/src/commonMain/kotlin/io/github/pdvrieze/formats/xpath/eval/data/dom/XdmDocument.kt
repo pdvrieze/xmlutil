@@ -31,20 +31,22 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocument
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom2.DOMImplementation
 import nl.adaptivity.xmlutil.dom2.Document
+import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocument
 import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
+import nl.adaptivity.xmlutil.dom2.textContent
 import nl.adaptivity.xmlutil.isXmlWhitespace
 
 @XPathInternal
@@ -102,44 +104,6 @@ class XdmDocument private constructor(doctype: XdmDocumentType?) :
         if (node !is XdmNode<*>) throw DOMException.notSupportedErr("node is of a different implementation and cannot be adopted")
 
         return adoptNodeImpl(node)
-    }
-
-    @IgnorableReturnValue
-    override fun appendChild(node: PlatformNode): XdmNode<*> {
-        if (node !is XdmNodeAlias<*>) return super<AbstractDocument>.appendChild(node)
-        val newNode = super<AbstractDocument>.appendChild(node.base)
-        return when {
-            newNode === node.base -> node
-            else -> XdmNodeAlias(newNode, node.dynamicType)
-        }
-    }
-
-    @IgnorableReturnValue
-    override fun replaceChild(
-        newChild: PlatformNode,
-        oldChild: PlatformNode
-    ): XdmNode<*> {
-        if (newChild !is XdmNodeAlias<*>) return super<AbstractDocument>.replaceChild(newChild, oldChild)
-        val newNode = super<AbstractDocument>.replaceChild(newChild.base, oldChild)
-        return when {
-            newNode === newChild.base -> newChild
-            else -> XdmNodeAlias(newNode, newChild.dynamicType)
-        }
-    }
-
-    @IgnorableReturnValue
-    @ExperimentalXmlUtilApi
-    override fun insertBefore(
-        newChild: PlatformNode,
-        refChild: PlatformNode?
-    ): XdmNode<*> {
-        if (newChild !is XdmNodeAlias<*>) return super<AbstractDocument>.insertBefore(newChild, refChild)
-
-        val newBase = super<AbstractDocument>.insertBefore(newChild.base, refChild)
-        return when {
-            newBase === newChild.base -> newChild
-            else -> XdmNodeAlias(newBase, newChild.dynamicType)
-        }
     }
 
     override fun createDocumentFragment(): XdmDocumentFragment {
@@ -230,6 +194,18 @@ class XdmDocument private constructor(doctype: XdmDocumentType?) :
         return Fn.string(this).atomize() as XdmAtomic<*>
     }
 
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(rightNode: Node, collation: Collation): Boolean {
+        return collation.equals(textContent ?: return false, rightNode.textContent ?: return false)
+
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        return this === other
+//        if (nodeType != other.nodeType) return false
+//        return collation.equals(this.getTextContent() ?: return false, other.getTextContent() ?: return false)
+    }
 
     override fun toString(): String = when (val e = _documentElement) {
         null -> "<Empty Document>"
@@ -300,8 +276,6 @@ class XdmDocument private constructor(doctype: XdmDocumentType?) :
             node: XdmNode<*>,
             newPos: Int
         ) {
-            require(node !is XdmNodeAlias<*>) { "Aliases cannot be added to a document" }
-
             val oldParent = node.getParentNode()
             super.setParentAndUpdateChildPos(parent, node, newPos)
             @OptIn(XdmNodeFriend::class)

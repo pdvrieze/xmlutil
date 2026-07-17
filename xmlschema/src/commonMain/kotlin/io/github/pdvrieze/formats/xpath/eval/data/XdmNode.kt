@@ -24,43 +24,28 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmElement
-import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmNodeAlias
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmParentNode
-import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
-import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractNode
 import nl.adaptivity.xmlutil.dom2.previousSibling
 
 @OptIn(XPathInternal::class)
-interface XdmNode<out T: XdmNode<T>>: XdmSingleValue<T>, IAbstractNode<XdmNode<*>, XdmParentNode<*>>, Node {
-    override val staticType: XdmSingleType// = XdmSchemaType(UntypedType.Instance)
+interface XdmNode<out T: XdmNode<T>>: XdmNodeBase<T>,
+    IAbstractNode<XdmNode<*>, XdmParentNode<*>>,
+    Node {
 
     var posInParent: Int
         @XdmNodeFriend set
-
-    @Deprecated("Not needed", ReplaceWith("this"))
-    val node: T get() = asT()
 
     abstract override fun getOwnerDocument(): XdmDocument?
 
     @XdmNodeFriend
     fun setOwnerDocument(ownerDocument: XdmDocument)
-
-    override fun getChildNodes(): AbstractNodeList<XdmNode<*>, XdmParentNode<*>>
-
-    context(ctx: ExprEvalContext)
-    override fun toBoolean(): Boolean {
-        // TODO this is overly simple
-        return false
-//        if (type.isSubtypeOf(BooleanType.Instance))
-    }
 
     @XPathInternal
     context(ctx: ExprEvalContext)
@@ -71,29 +56,11 @@ interface XdmNode<out T: XdmNode<T>>: XdmSingleValue<T>, IAbstractNode<XdmNode<*
         return XdmNodeAlias(this, type.toValueType(staticType).single)
     }
 
-    @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun atomizeTo(receiver: XdmSequence.XdmSequenceBuilder<XdmAtomic<XsdAtomic>>) {
-        receiver.add(atomize())
-    }
+    fun isNodeEqual(rightNode: Node, collation: Collation): Boolean
 
     context(ctx: ExprEvalContext)
-    override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>
-
-    override fun isValEqual(
-        expected: XdmValue<*>,
-        collation: Collation?
-    ): Boolean {
-        TODO("not implemented")
-    }
-
-    context(ctx: ExprEvalContext)
-    override fun isDeepEqual(
-        other: XdmValue<*>,
-        collation: Collation?
-    ): Boolean {
-        TODO("not implemented")
-    }
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean
 
     override fun cloneNode(deep: Boolean): XdmNode<T>
 

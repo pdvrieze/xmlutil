@@ -28,13 +28,17 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
 import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom.getNodeName
+import nl.adaptivity.xmlutil.dom2.Node
+import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
 import nl.adaptivity.xmlutil.dom2.impl.AbstractProcessingInstruction
+import nl.adaptivity.xmlutil.dom2.nodeType
 
 @XPathInternal
 public class XdmProcessingInstruction internal constructor(
@@ -87,4 +91,21 @@ public class XdmProcessingInstruction internal constructor(
     override fun cloneNode(deep: Boolean): XdmProcessingInstruction {
         return XdmProcessingInstruction(getOwnerDocument(), getTarget(), getData())
     }
+
+    context(ctx: ExprEvalContext)
+    override fun isNodeEqual(rightNode: Node, collation: Collation): Boolean {
+        return rightNode is ProcessingInstruction &&
+                getTarget() == rightNode.getTarget() &&
+                getData() == rightNode.getData()
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun isDeepEqual(other: XdmNode<*>, collation: Collation): Boolean {
+        if (nodeType != other.nodeType) return false
+
+        return other is XdmProcessingInstruction &&
+                getTarget() == other.getTarget() &&
+                collation.equals(this.getData(), other.getData())
+    }
+
 }
