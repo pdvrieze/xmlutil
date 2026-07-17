@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.eval.data
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmElement
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmNodeAlias
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmParentNode
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
@@ -35,6 +36,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.dom2.Node
 import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 import nl.adaptivity.xmlutil.dom2.impl.IAbstractNode
+import nl.adaptivity.xmlutil.dom2.previousSibling
 
 @OptIn(XPathInternal::class)
 interface XdmNode<out T: XdmNode<T>>: XdmSingleValue<T>, IAbstractNode<XdmNode<*>, XdmParentNode<*>>, Node {
@@ -99,6 +101,40 @@ interface XdmNode<out T: XdmNode<T>>: XdmSingleValue<T>, IAbstractNode<XdmNode<*
         return emptySequence()
     }
 
+    companion object {
+        val DOCUMENT_ORDER: Comparator<XdmNode<*>> = object : Comparator<XdmNode<*>> {
+            override fun compare(a: XdmNode<*>, b: XdmNode<*>): Int {
+                if (a === b) return 0
+
+                // we include the node itself
+                val ancestorsA = generateSequence(a) { it.getParentNode() as? XdmElement }.toList().reversed()
+                val ancestorsB = generateSequence(b) { it.getParentNode() as? XdmElement }.toList().reversed()
+                if (a in ancestorsB) return -1 // must be before
+                if (b in ancestorsA) return 1 // must be after
+
+                if (ancestorsA[0] != ancestorsB[0])
+                    throw IllegalArgumentException("Nodes have no common ancestor, and thus no document order")
+
+                // loop through all ancestors (not considering the actual node)
+                for (i in 1 until minOf(ancestorsA.size, ancestorsB.size)) {
+                    if (ancestorsA[i] != ancestorsB[i]) {
+                        // We look in the previous siblings of the ancestors to optimize for already sorted
+                        var x = ancestorsB[i].previousSibling
+                        while (x != null) {
+                            if (x === ancestorsA[i]) return -1
+                            x = x.previousSibling
+                        }
+                        return 1
+                    }
+                }
+                // Must have all shared ancestors
+                //return a.posInParent - b.posInParent
+                // should not happen as this implies the list is a subset
+                return ancestorsB.size - ancestorsA.size
+            }
+        }
+
+    }
 }
 
 @RequiresOptIn("Friend for XdmNode")
