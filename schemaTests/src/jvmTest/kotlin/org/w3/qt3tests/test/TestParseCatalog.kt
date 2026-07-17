@@ -215,6 +215,7 @@ class TestParseCatalog {
             }
         }
 
+        @JvmOverloads
         @JvmStatic
         fun getTestSetSpecs(doVerify: Boolean = true): List<Named<TestSetSpec>> {
             val ctx = createResolutionContext(doVerify = doVerify)

@@ -21,13 +21,13 @@
 package org.w3.qt3tests.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeOld
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
-import nl.adaptivity.xmlutil.dom2.Document
 import org.junit.jupiter.api.Named
 import org.opentest4j.AssertionFailedError
 import org.w3.qt3tests.Qt3Dependency
@@ -44,9 +44,17 @@ abstract class AbstractTestSetSuite {
     @IgnorableReturnValue
     protected fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue<*>> {
         val environment = testCase.environment?.getOrThrow()
-        val contextDoc: Document? = environment?.getDocumentOrNull()
+        val contextDoc: XdmDocument? = when (val d = environment?.getDocumentOrNull()) {
+            is XdmDocument? -> d
+            else -> {
+                val xdmDoc = XdmDOMImplementation.createDocument(null, null, null)
+                val newNodes = d.documentElement?.let { xdmDoc.importNode(it, true) }
+                if (newNodes != null) { xdmDoc.appendChild(newNodes) }
+                xdmDoc
+            }
+        }
 
-        val context = contextDoc?.let { XdmNodeOld(it.documentElement!!) }
+        val context = contextDoc?.let { it.getDocumentElement() }
 
         var decimalFormat = DecimalFormat()
         val namedDecimalFormats = mutableListOf<DecimalFormat.Named>()
