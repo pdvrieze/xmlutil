@@ -20,12 +20,18 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import Axis
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.impl.token.Axis
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdNumeric
+import kotlin.text.Appendable
+import kotlin.text.append
 
 @XPathInternal
 open class AxisStep(
@@ -48,7 +54,14 @@ open class AxisStep(
             when (current) {
                 is XdmSequence<*> -> {
                     val newElems = current.filterIndexed { index, value ->
-                        ctx.withValueContext(value, index, current.size) { predicate.eval() }.toBoolean()
+                        val evalResult = ctx.withValueContext(value, index, current.size) { predicate.eval() }
+
+                        when ((evalResult as? XdmAtomic<*>)?.value) {
+                            is XsdNumeric<*> ->
+                                XdmAtomic(XsdInt(index)).isValEqual(evalResult)
+
+                            else -> evalResult.toBoolean()
+                        }
                     }
 
                     current = XdmSequence.fromList (newElems, current.staticType)
