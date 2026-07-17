@@ -29,7 +29,7 @@ import nl.adaptivity.xmlutil.dom2.SupportedFeatures
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDOMImplementation
 
 @OptIn(XPathInternal::class)
-internal object XdmDOMImplementation : AbstractDOMImplementation() {
+public object XdmDOMImplementation : AbstractDOMImplementation() {
     override val supportsWhitespaceAtToplevel: Boolean get() = true
 
 

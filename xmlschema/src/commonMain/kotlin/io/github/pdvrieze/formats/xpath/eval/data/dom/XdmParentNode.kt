@@ -34,4 +34,14 @@ public interface XdmParentNode<out T: XdmParentNode<T>> : XdmNode<T>, IAbstractP
     override fun getAttributes(): NamedNodeMap<XdmAttr>?
 
     override fun cloneNode(deep: Boolean): XdmParentNode<T>
+
+    override fun descendantsSequence(): Sequence<XdmNode<*>> {
+        return sequence {
+            for (value in getChildNodes().iterator()) {
+                yield(value)
+                yieldAll(value.descendantsSequence())
+            }
+        }
+    }
+
 }

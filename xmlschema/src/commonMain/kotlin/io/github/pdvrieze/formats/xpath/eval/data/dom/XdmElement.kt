@@ -27,12 +27,15 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
-import io.github.pdvrieze.formats.xpath.functions.Fn
+import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
+import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
@@ -92,15 +95,29 @@ public class XdmElement internal constructor(
         null, "" -> localName
         else -> "$prefix:$localName"
     }
+
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
         return when {
+            // 2.5.3 part 4 - sub b (maybe should be later
             isNil -> XdmSequence.EMPTY
 
-            staticType.isAssignableTo(AnyAtomicType.Instance) ->
-                staticType.fromString(getTextContent()) as XdmAtomic<*>
+            // Is this even possible?
+            staticType.isAssignableTo(UntypedAtomicType.Instance) -> {
+                val s: XdmAtomic<XsdString> = Accessors.fnString(this)
+                XdmAtomic(UntypedAtomicType.Instance.fromString(s.value))
+            }
 
-            dynamicType == XdmSchemaType.UNTYPED -> Fn.string(this).atomize() as XdmAtomic<*>
+            // 2.5.3 part 4 - sub a
+            staticType == XdmSchemaType.ANY_SIMPLE ||
+            ! staticType.isAssignableTo(AnySimpleType.Instance) ||
+            staticType.isAssignableTo(AnyAtomicType.Instance) ->
+                XdmAtomic(UntypedAtomicType.Instance.fromString(getTextContent()))
+
+            dynamicType == XdmSchemaType.UNTYPED -> {
+                val s = Accessors.fnString(this)
+                XdmAtomic(UntypedAtomicType.Instance.fromString(s.value))
+            }
 
             else -> throw EvaluationException(ErrorCodes.FOTY0012,"Cannot atomize a typed element to non-atomic type yet")
         }

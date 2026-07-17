@@ -20,18 +20,21 @@
 
 package io.github.pdvrieze.formats.xpath.eval.data.dom
 
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNodeFriend
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.*
+import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom2.Attr
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Node
-import nl.adaptivity.xmlutil.dom2.NodeType
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractElement
 import nl.adaptivity.xmlutil.dom2.impl.AbstractNodeList
 
@@ -44,7 +47,7 @@ class XdmNodeAlias<T: XdmNode<T>> internal constructor(
         require(base !is XdmNodeAlias<*>) { "Cannot alias an alias" }
     }
 
-    override val staticType: XdmSingleType get() = base.staticType
+    override val staticType: XdmSingleType get() = dynamicType
 
     override fun asT(): T = base.asT()
 
@@ -171,9 +174,32 @@ class XdmNodeAlias<T: XdmNode<T>> internal constructor(
         return XdmNodeAlias(base.cloneNode(deep), dynamicType)
     }
 
-    context(ctx: ExprEvalContext)
     @XPathInternal
+    context(ctx: ExprEvalContext)
     override fun treatAsNonEmpty(type: XdmTypeTest): XdmNodeAlias<T> {
         return base.treatAsNonEmpty(type)
     }
+
+    context(ctx: ExprEvalContext)
+    override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>> {
+        return when (base) {
+            is XdmAttr -> (dynamicType).fromString(base.value) as XdmAtomic<*>
+            is XdmProcessingInstruction -> XdmAtomic(XsdString(base.getData()))
+            is XdmComment -> XdmAtomic(XsdString(base.getData()))
+            is XdmText -> XdmAtomic(XsdString(base.getData()))
+            is XdmElement if base.isNil -> XdmSequence.EMPTY
+
+            is XdmDocument -> Fn.string(this).atomize() as XdmAtomic<*>
+
+            is XdmElement if dynamicType.isAssignableTo(AnyAtomicType.Instance) ->
+                dynamicType.fromString(base.getTextContent()) as XdmAtomic<*>
+            is XdmElement if dynamicType == XdmSchemaType.UNTYPED -> Fn.string(this).atomize() as XdmAtomic<*>
+            is XdmElement -> throw EvaluationException(ErrorCodes.FOTY0012,"Cannot atomize a typed element to non-atomic type yet")
+            else -> throw UnsupportedOperationException("Unsupported node type: ${base.getNodetype()}")
+        }
+
+        // TODO add check that the value is not "typed" (there is an actual value in the node)
+        // otherwise throw FOTY0012
+    }
+
 }
