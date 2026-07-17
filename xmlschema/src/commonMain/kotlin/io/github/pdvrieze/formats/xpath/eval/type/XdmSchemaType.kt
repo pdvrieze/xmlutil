@@ -112,5 +112,6 @@ class XdmSchemaType(
         val UNTYPED = XdmSchemaType(UntypedType.Instance)
         val UNTYPED_ATOMIC = XdmSchemaType(UntypedAtomicType.Instance)
         val ANY = XdmSchemaType(AnyType.Instance)
+        val ANY_SIMPLE = XdmSchemaType(AnySimpleType.Instance)
     }
 }
