@@ -48,6 +48,15 @@ public final class io/github/pdvrieze/xmlutil/testutil/DocDeclEqualityMode : jav
 	public static fun values ()[Lio/github/pdvrieze/xmlutil/testutil/DocDeclEqualityMode;
 }
 
+public final class io/github/pdvrieze/xmlutil/testutil/LocationInfoSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lio/github/pdvrieze/xmlutil/testutil/LocationInfoSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lnl/adaptivity/xmlutil/XmlReader$ExtLocationInfo;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lnl/adaptivity/xmlutil/XmlReader$ExtLocationInfo;)V
+}
+
 public abstract class nl/adaptivity/xmlutil/test/TestCommonReader {
 	public fun <init> ()V
 	protected abstract fun createReader (Ljava/lang/String;)Lnl/adaptivity/xmlutil/XmlReader;
@@ -82,15 +91,36 @@ public final class nl/adaptivity/xmlutil/test/multiplatform/Platform_jvmKt {
 	public static final fun getTestTarget ()Lnl/adaptivity/xmlutil/test/multiplatform/Target;
 }
 
-public final class nl/adaptivity/xmlutil/test/multiplatform/Target : java/lang/Enum {
-	public static final field Browser Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static final field Java Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static final field Native Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static final field Node Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static final field Wasi Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static final field Wasm Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lnl/adaptivity/xmlutil/test/multiplatform/Target;
-	public static fun values ()[Lnl/adaptivity/xmlutil/test/multiplatform/Target;
+public abstract class nl/adaptivity/xmlutil/test/multiplatform/Target {
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target$Browser : nl/adaptivity/xmlutil/test/multiplatform/Target$Js {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/test/multiplatform/Target$Browser;
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target$Java : nl/adaptivity/xmlutil/test/multiplatform/Target {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/test/multiplatform/Target$Java;
+}
+
+public abstract class nl/adaptivity/xmlutil/test/multiplatform/Target$Js : nl/adaptivity/xmlutil/test/multiplatform/Target {
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target$Native : nl/adaptivity/xmlutil/test/multiplatform/Target {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/test/multiplatform/Target$Native;
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target$Node : nl/adaptivity/xmlutil/test/multiplatform/Target$Js {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/test/multiplatform/Target$Node;
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target$Wasi : nl/adaptivity/xmlutil/test/multiplatform/Target$Wasm {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/test/multiplatform/Target$Wasi;
+}
+
+public abstract class nl/adaptivity/xmlutil/test/multiplatform/Target$Wasm : nl/adaptivity/xmlutil/test/multiplatform/Target {
+}
+
+public final class nl/adaptivity/xmlutil/test/multiplatform/Target$WasmJs : nl/adaptivity/xmlutil/test/multiplatform/Target$Wasm {
+	public static final field INSTANCE Lnl/adaptivity/xmlutil/test/multiplatform/Target$WasmJs;
 }
 
