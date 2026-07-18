@@ -162,4 +162,13 @@ class TestXsdInteger {
         assertContentEquals(uintArrayOf(0x3Fu), normalized.ints)
     }
 
+    @Test
+    fun testDiv3() {
+        val startVal = BigInt(1, uintArrayOf(0x185C29F7u, 0x11216u), 18u)
+        assertEquals("79000000000000000000", startVal.xmlString)
+        val divRem = startVal.divRem(1_000_000_000u)
+        assertEquals(BigInt.ZERO, divRem.remainder)
+        assertEquals("79000000000", divRem.quotient.xmlString)
+    }
+
 }

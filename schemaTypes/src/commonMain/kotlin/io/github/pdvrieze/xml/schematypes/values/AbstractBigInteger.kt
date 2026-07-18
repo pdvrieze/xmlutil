@@ -442,6 +442,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             }
         }
 
+        if (exp > 0u) return expandExp().unsignedDivRem(divider, targetExp)
+
         val newInts = UIntArray(ints.size + intsToAdd)
 
         var rem = 0uL
