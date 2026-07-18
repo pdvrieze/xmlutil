@@ -288,20 +288,12 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             }
 
             when {
-                seenDouble -> {
-                    when {
-                        seenDecimal ->
-                            for (i in 0..<i) {
-                                val v = result[i]
-                                if (v !is XsdDouble) {
-                                    val a = arg[i].value
-                                    if (a is XsdNumeric<*>) result[i] = XsdDouble(a.toDouble())
-                                }
-                            }
-
-                        seenFloat -> for (i in 0..<i) {
-                            val v = arg[i].value
-                            if (v is XsdFloat) result[i] = XsdDouble(v.toDouble())
+                seenDouble -> if (seenDecimal || seenFloat) {
+                    for (i in 0..<i) {
+                        val v = result[i]
+                        if (v !is XsdDouble) {
+                            val a = arg[i].value
+                            if (a is XsdNumeric<*>) result[i] = XsdDouble(a.toDouble())
                         }
                     }
                     seenFloat = false
