@@ -577,4 +577,11 @@ class XPathTest {
         }
     }
 
+    @Test
+    fun testParseFnApply06() {
+        testPath("apply(substring('flower', ?, ?), [ 3, 2 ])") {
+
+        }
+    }
+
 }

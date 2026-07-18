@@ -936,7 +936,7 @@ internal class XQueryParser(
         val args = mutableListOf<ExprSingleOrPlaceholder>()
         do {
             val mark = mark()
-            if (isXPath30 && tryCurrent('?')) {
+            if (isXPath30 && tryCurrentToken('?')) {
 
                 if (peekAnyOf(',', ')')) {
                     @OptIn(NeedsXPath3_1::class)
@@ -951,7 +951,7 @@ internal class XQueryParser(
                 args.add(parseExprSingle())
             }
             skipWhitespace()
-        } while (tryCurrent(','))
+        } while (tryCurrentToken(','))
         parseRequire(tryCurrentToken(')'), "Missing closing parenthesis in parameters")
         return args.toList()
 
