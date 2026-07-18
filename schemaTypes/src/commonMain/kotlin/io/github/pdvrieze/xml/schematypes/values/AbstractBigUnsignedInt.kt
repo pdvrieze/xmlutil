@@ -279,7 +279,7 @@ abstract class AbstractBigUnsignedInt<T : AbstractBigUnsignedInt<T>> protected c
             }
 
             var exponentToUse = 0uL
-            if (intsUsed > 2) {
+            if (false && intsUsed > 2) {
                 for (i in 0 until intsUsed) {
                     val part = numbers[i]
                     if (part != 0u) {

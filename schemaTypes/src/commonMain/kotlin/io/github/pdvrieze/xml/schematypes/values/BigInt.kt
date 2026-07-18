@@ -247,9 +247,11 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         return compareTo(other as? XsdInteger ?: return false) == 0
     }
 
+/*
     override fun toString(): String {
         return xmlString
     }
+*/
 
     class DivRem(
         override val quotient: BigInt,

@@ -22,8 +22,10 @@ package io.github.pdvrieze.xml.schematypes.values.test
 
 import io.github.pdvrieze.xml.schematypes.values.BigInt
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalUnsignedTypes::class)
 class TestXsdInteger {
 
     @Test
@@ -123,6 +125,41 @@ class TestXsdInteger {
         val fromString = BigInt("-999999999999999999")
         val fromLong = BigInt(-999999999999999999)
         assertEquals(fromString, fromLong)
+    }
+
+    @Test
+    fun testOverFlowInt() {
+        val intValue = BigInt("79"+"000000000"+"000000000"+"000000000")
+        assertContentEquals(uintArrayOf(2550136832u, 1364693707u, 4282598581u), intValue.ints, "Unexpected parsed value: ${intValue}")
+        assertEquals("79000000000000000000000000000", intValue.xmlString)
+    }
+
+    @Test
+    fun testDivInt1() {
+        val intValue = BigInt(1, uintArrayOf(2550136832u, 1364693707u, 4282598581u), 0u)
+        val expected = BigInt(1, uintArrayOf(0xA7DC0000u, 0x48586170u, 4u), 0u)
+        val divRem = intValue.divRem(1_000_000_000u)
+        assertEquals(BigInt.ZERO, divRem.remainder)
+        assertEquals(expected, divRem.quotient)
+        assertEquals(expected, divRem.quotient.expandExp())
+    }
+
+    @Test
+    fun testDivInt2() {
+        val intValue = BigInt(1, uintArrayOf(0xA7DC0000u, 0x48586170u, 4u), 0u)
+        val expected = BigInt(1, uintArrayOf(0x64c45600u, 0x12u), 0u)
+        val div = intValue.divRem(1_000_000_000u).quotient
+        assertEquals(expected, div)
+        assertEquals(79_000_000_000uL, 0x12uL.shl(32) + 0x64c45600u)
+        assertEquals(79_000_000_000uL, div.toULong())
+    }
+
+    @Test
+    fun testBigIntNormalize() {
+        val intValue = BigInt(1, uintArrayOf(0u, 0u, 0x7E00u), 41u)
+        val normalized = intValue.normalize()
+        assertEquals(114uL, normalized.exp, "Normalized does not have expected exponent: ${normalized}")
+        assertContentEquals(uintArrayOf(0x3Fu), normalized.ints)
     }
 
 }

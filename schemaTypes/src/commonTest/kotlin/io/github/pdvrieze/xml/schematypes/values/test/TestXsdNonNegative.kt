@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.test
 import io.github.pdvrieze.xml.schematypes.values.BigPositiveInt
 import io.github.pdvrieze.xml.schematypes.values.BigUnsignedInt
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -55,6 +56,7 @@ class TestXsdNonNegative {
     fun testParseSlightlyLarger() {
         val str = "12345678901234567890"
         val bigInt = BigUnsignedInt(str)
+        assertContentEquals(uintArrayOf(3944680146u, 2874452364u), bigInt.expandExp().ints)
         assertEquals(str, bigInt.xmlString)
     }
 

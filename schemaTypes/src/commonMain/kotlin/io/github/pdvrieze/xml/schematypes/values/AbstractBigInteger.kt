@@ -25,6 +25,7 @@ import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.impl.multiplatform.ifAssertions
+import kotlin.jvm.JvmStatic
 
 @OptIn(ExperimentalUnsignedTypes::class)
 abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected constructor(
@@ -38,28 +39,27 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
     abstract val self:T
 
-    override fun countTrailingZeroBits(): ULong {
-        for (i in ints.indices) {
-            if (ints[i] != 0u) return ((i.toULong() * 32uL) + ints[i].countTrailingZeroBits().toULong())
+    override fun toULong(): ULong {
+        return when (size) {
+            1uL -> get(0).toULong()
+            else -> (get(0).toULong() or get(1).toULong().shl(32))
         }
-        throw ArithmeticException("The value is zero, no trailing zero bits")
+    }
+
+    override fun countTrailingZeroBits(): ULong {
+        return ints.countTrailingZeroBits().toULong()
     }
 
     protected fun countLeadingZeroBits(): ULong {
-        for (i in ints.indices.reversed()) {
-            if (ints[i] != 0u) {
-                return (((ints.size - 1 - i).toULong() shl 5) + ints[i].countLeadingZeroBits().toULong())
-            }
-        }
-        return ints.size.toULong() shl 5
+        return ints.countLeadingZeroBits().toULong()
     }
 
     override fun significantBitsFromZero(): ULong {
-        return (ints.size.toULong() shl 5) - countLeadingZeroBits() + exp
+        return ints.significantBits().toULong() + exp
     }
 
     override val size: ULong
-        get() = ints.size.toULong() + ((31u + exp) shr 32)
+        get() = ints.size.toULong() + ((31u + exp) shr 5)
 
     override fun toBigDecimal(): BigDecimal {
         return BigDecimal(this)
@@ -121,29 +121,6 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
     abstract operator fun div(divider: T): AbstractBigInteger<*>
 
-    /** Count the bits used from zero for this value */
-    @Deprecated("Use significantBitsFromZero")
-    protected fun bitCount(): ULong {
-        var r = exp + ints.size.toULong() * 32uL
-        for (i in ints.indices.reversed()) {
-            when (val v = ints[i]) {
-                0u -> r -= 32uL
-                else -> return r - v.countLeadingZeroBits().toULong()
-            }
-        }
-        return 0uL // no non-zero value found at all
-    }
-
-    /**
-     * Determines how many ints are needed to store the result. Will always return at least 1
-     */
-    private fun nonLeadingZeroIntCount(ints: UIntArray): Int {
-        for (i in ints.indices.reversed()) {
-            if (ints[i] != 0u) return i + 1
-        }
-        return 1
-    }
-
     protected abstract fun newInstance(value: Long): T
 
     protected abstract fun newInstance(sign: Int, elems: UIntArray, exp: ULong): T
@@ -153,70 +130,53 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
      * @params exp The exponent of the base elements. This  may not be the final value
      */
     protected open fun createOptimizedInstance(sign: Int, elems: UIntArray, exp: ULong): T {
-        var trailingBits = 0uL
-        for (i in elems.indices) {
-            when (val v = elems[i]) {
-                0u -> trailingBits += 32uL
-                else -> {
-                    trailingBits += v.countTrailingZeroBits().toULong()
-                    break
-                }
-            }
-        }
+        val trailingBits = elems.countTrailingZeroBits()
 
-        val trailingInts = (trailingBits shr 5).toInt() // ints to remove at the ls side
+        val originIntsToSkip = (trailingBits shr 5) // ints to remove at the ls side (rounds down)
 
-        when ((elems.size.toLong() shl 5) - trailingInts) {
+        when ((elems.size.toLong() shl 5) - originIntsToSkip) {
             0L -> return newInstance(0L)
-            1L -> return newInstance(1L)
+            1L -> return newInstance(sign, BigUnsignedInt.ONE.ints, exp + 31u) // single bit, still needs exp
         }
 
-        var mostSigBit = elems.size.toULong() shl 5
+        val mostSigBit = elems.significantBits()
 
-        for (i in elems.size - 1 downTo trailingInts) {
-            when (val v = elems[i]) {
-                0u -> mostSigBit -= 32uL
-                else -> {
-                    mostSigBit -= v.countLeadingZeroBits().toULong()
-                    break
-                }
-            }
-        }
-
-        val bitShift = when (val s = (trailingBits and 0x1fuL).toInt()) {
+        val bitShiftToRight = when (val s = (trailingBits and 0x1f)) {
             0, 1, 2, 3, 4 -> 0 // Ignore 4 or fewer trailing zeros
             else -> s
         }
 
-        if (bitShift == 0) { // optimize the case where no shifts are needed
-            val newMax = (31u + mostSigBit).shr(5).toInt()
-            val newElems = elems.copyOfRange(trailingInts, newMax)
-            val newExp: ULong = exp + (trailingInts.toULong() shl 5)
+        if (bitShiftToRight == 0) { // optimize the case where no shifts are needed
+            val newMax = (31 + mostSigBit).shr(5)
+            val newElems = elems.copyOfRange(originIntsToSkip, newMax)
+            val newExp: ULong = exp + (originIntsToSkip.toULong() shl 5)
             return newInstance(sign, newElems, newExp)
 
         } else {
             val newBitCount = mostSigBit - trailingBits
 
-            val newElems = UIntArray((newBitCount + 31u).shr(5).toInt())
+            val newElems = UIntArray((newBitCount + 31).shr(5))
 
             // we always move a bit of n+1 into n, using trailingInts as offset into elem
-            if (newBitCount > 32u) {
+            if (newElems.size > 1) {
                 for (i in 0..(newElems.size - 2)) {
-                    newElems[i] = elems[i + trailingInts].shr(bitShift) or
-                            elems[i+trailingInts+1].shl(32 - bitShift)
+                    val lsbits = elems[i + originIntsToSkip].shr(bitShiftToRight)
+                    val hsbits = elems[i + originIntsToSkip + 1].shl(32 - bitShiftToRight)
+                    newElems[i] = lsbits or hsbits
                 }
             }
-            newElems[newElems.lastIndex] = elems[trailingInts+newElems.lastIndex].shr(bitShift)
+            val lastIndex = newElems.lastIndex
 
-            val newExp: ULong = exp + (trailingInts.toULong() shr 5) + bitShift.toUInt()
+            val lsbits = elems[lastIndex + originIntsToSkip].shr(bitShiftToRight)
+            val hsbits = when (val idx = lastIndex + originIntsToSkip + 1) {
+                in elems.indices -> elems[idx].shl(32 - bitShiftToRight)
+                else -> 0u
+            }
+            newElems[lastIndex] = lsbits or hsbits
+
+            val newExp: ULong = exp + (originIntsToSkip.toULong() shl 5) + bitShiftToRight.toULong()
             return newInstance(sign, newElems.trimTrailingZeros(), newExp)
         }
-    }
-
-    protected fun UIntArray.trimTrailingZeros(): UIntArray {
-        var newSize = size
-        while (newSize > 1 && this[newSize-1] == 0u) newSize -= 1
-        return if (newSize != size) copyOfRange(0, newSize) else this
     }
 
     override fun plus(other: XsdDecimal): XsdDecimal = when (other) {
@@ -321,6 +281,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         }
 
         val shiftRight = (lsbBitsToDrop and 0x1fu).toInt() // only the bits, not the word shifts
+        if (significantInts<=droppedInts) return newInstance(0)
+
         val newInts = UIntArray(significantInts - droppedInts) { i ->
             val idx = i + droppedInts
             when {
@@ -357,36 +319,25 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
      * shift left and then expand.
      */
     protected fun expandWithEffectiveExp(exp: ULong): T {
-        val leadingZeroBits = countLeadingZeroBits().toLong()
+        val leadingZeroBits = ints.countLeadingZeroBits()
         val intsToAddX = ((exp.toLong() + 31 - leadingZeroBits) shr 5).toInt()
 
         val newInts = UIntArray(ints.size + intsToAddX)
 
-        val shift = exp.and(0x1fu).toInt()
-        val intShift = exp.shr(5).toInt()
+        val bitShiftLeft = exp.and(0x1fu).toInt()
+        val intShiftLeft = exp.shr(5).toInt()
         var carry = 0u
-        for (idx in 0 until (ints.size - (leadingZeroBits shr 5).toInt())) {
-            val mult = ints[idx].toULong().shl(shift) + carry
+        for (idx in 0 until (ints.size - (leadingZeroBits shr 5))) {
+            val mult = ints[idx].toULong().shl(bitShiftLeft) + carry
 
-            newInts[idx + intShift] += mult.toUInt()
+            newInts[idx + intShiftLeft] += mult.toUInt()
 
             carry = mult.shr(32).toUInt()
         }
 
-        // NOTE this cannot use the optimization as it requires the exponent to be 0
-        var significantInts = ints.size
-        for (i in newInts.size - 1 downTo 0) {
-            if (newInts[i] != 0u) {
-                significantInts = i + 1
-                break
-            }
-        }
+        if (carry > 0u) newInts[newInts.lastIndex] = carry
 
-        return when {
-            significantInts != ints.size -> newInstance(sign, newInts.copyOfRange(0, maxOf(significantInts, 1)), 0uL)
-
-            else -> newInstance(sign, newInts, 0u)
-        }
+        return newInstance(sign, newInts.trimTrailingZeros(), 0u)
     }
 
     override fun compareTo(other: XsdInteger): Int {
@@ -418,17 +369,23 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
     override val xmlString: String
         get() {
-            when {
-                exp != 0uL -> return expandExp().xmlString
-                ints.size <= 2 && countLeadingZeroBits() > 0u -> return toLong().toString()
-                else -> return buildString { appendTo(this) }
+            return when {
+                exp != 0uL -> expandExp().xmlString
+                sign == 0 -> "0"
+                else -> {
+                    val sigBits = significantBitsFromZero()
+                    when {
+                        sigBits <= 63u -> toLong().toString()
+                        else -> buildString { appendTo(this) }
+                    }
+                }
             }
         }
 
     internal fun appendTo(appendable: Appendable) {
         when {
             exp != 0uL -> expandExp().appendTo(appendable)
-            ints.size <= 2 && countLeadingZeroBits()>0u -> when (appendable) {
+            ints.size <= 2 && ints.countLeadingZeroBits() > 0 -> when (appendable) {
                 is StringBuilder -> appendable.append(toLong())
                 else -> appendable.append(toLong().toString())
             }
@@ -447,8 +404,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         if (divider == 0u) throw ArithmeticException("Division by zero")
         if (sign == 0) return UnsignedDivRemUInt(BigUnsignedInt.ZERO, 0u)
 
-        val leadingZeroBits = ints.last().countLeadingZeroBits().toUInt()
-        val intsToAdd = ((exp + 31u - leadingZeroBits) shr 5).toInt()
+        val leadingZeroBits = ints.last().countLeadingZeroBits()
+        val intsToAdd = ((exp.toInt() + 31 - leadingZeroBits) shr 5)
 
         when (ints.size + intsToAdd) {
             1 -> {
@@ -610,8 +567,8 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
             quotient[j] = qX.toUInt()
         }
 
-        // Note that shr will optimize, no need here
-        val remainder = BigUnsignedInt(normalizedInts.copyOfRange(0, growth_m+1), 0uL).shr(shiftLeft_d)
+        // Note that shr will optimize, no need here, but trailing zeros still need dropping
+        val remainder = BigUnsignedInt(normalizedInts.trimTrailingZeros(), 0uL).shr(shiftLeft_d)
 
         return UnsignedDivRem(BigUnsignedInt(quotient, 0uL).normalize(), remainder)
 
@@ -690,7 +647,7 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
 
 
     override fun toString(): String = buildString {
-        append("BigUnsignedInt(")
+        append("Big...Int(")
         ints.reversed().joinTo(this, "_") {
             it.toString(16).padStart(8, '0')
         }
@@ -723,4 +680,36 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
     @XmlUtilInternal
     typealias UnsignedDivRem = BigUnsignedInt.PosDivRem
 
+    companion object {
+        @JvmStatic
+        internal fun UIntArray.countTrailingZeroBits(): Int {
+            for (i in this.indices) {
+                val v = get(i)
+                if (v != 0u) return (i * 32) + v.countTrailingZeroBits()
+            }
+            throw ArithmeticException("The value is zero, no trailing zero bits")
+        }
+
+        @JvmStatic
+        protected fun UIntArray.countLeadingZeroBits(): Int {
+            for (i in this.indices.reversed()) {
+                val v = get(i)
+                if (v != 0u) return ((size - 1 - i) shl 5) + v.countLeadingZeroBits()
+            }
+            return size shl 5
+        }
+
+        @JvmStatic
+        protected fun UIntArray.significantBits(): Int {
+            return (size shl 5) - countLeadingZeroBits()
+        }
+
+        @JvmStatic
+        protected fun UIntArray.trimTrailingZeros(): UIntArray {
+            var newSize = size
+            while (newSize > 1 && this[newSize-1] == 0u) newSize -= 1
+            return if (newSize != size) copyOfRange(0, newSize) else this
+        }
+
+    }
 }
