@@ -28,30 +28,27 @@ import nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage
 
 internal class ElementImpl internal constructor(
     ownerDocument: DocumentImpl,
-    private val namespaceURI: String?,
-    private val localName: String,
-    private val prefix: String?,
+    namespaceURI: String?,
+    localName: String,
+    prefix: String?,
     parentNode: ParentNodeImpl? = null,
 ) : AbstractElement<NodeImpl, ParentNodeImpl>(
     ownerDocument = ownerDocument,
+    namespaceURI = namespaceURI,
+    localName = localName,
+    prefix = prefix,
     nodeStorage = { LinearNodeStorage(ownerDocument.storageAdapter) },
     attrStorage = { LinearAttrStorage(ownerDocument.storageAdapter, it as AbstractElement<*, *>) },
-    parentNode = parentNode
+    parentNode = parentNode,
 ), ParentNodeImpl {
 
     override val self: ElementImpl get() = this
 
     override fun getOwnerDocument(): DocumentImpl = super.getOwnerDocument() as DocumentImpl
 
-    override fun getNamespaceURI(): String? = namespaceURI
-
-    override fun getPrefix(): String? = prefix
-
-    override fun getLocalName(): String = localName
-
-    override fun getTagName(): String = when (prefix) {
-        null, "" -> localName
-        else -> "$prefix:$localName"
+    override fun getTagName(): String = when (getPrefix()) {
+        null, "" -> getLocalName()
+        else -> "${getPrefix()}:${getLocalName()}"
     }
 
     override fun toString(): String {

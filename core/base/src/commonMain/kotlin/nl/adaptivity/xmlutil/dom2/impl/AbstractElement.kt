@@ -22,13 +22,17 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom.*
+import nl.adaptivity.xmlutil.dom.PlatformAttr
+import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.*
 
 @ExperimentalXmlUtilApi
 public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbstractParentNode<N, P>>(
     ownerDocument: AbstractDocument<N, P>,
+    private val namespaceURI: String?,
+    private val localName: String,
+    private val prefix: String?,
     nodeStorage: (P) -> MutableAbstractNodeStorage<N, P>,
     attrStorage: (P) -> AbstractAttrStorage<AbstractAttr<N, P>>,
     parentNode: P? = null,
@@ -45,6 +49,11 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
         /** defined as NO-OP */
     }
 
+    final override fun getNamespaceURI(): String? = namespaceURI
+
+    final override fun getPrefix(): String? = prefix
+
+    final override fun getLocalName(): String = localName
 
     final override fun getNodeName(): String = when (val p = getPrefix()) {
         null, "" -> checkNotNull(getLocalName()) { "Missing name in node" }
@@ -57,7 +66,7 @@ public abstract class AbstractElement<out N : IAbstractNode<N, P>, out P : IAbst
 
     final override fun getTextContent(): String = getTextContentImpl()
 
-    final override fun getAttributes(): NamedNodeMap<Attr> = _attrStorage
+    override fun getAttributes(): NamedNodeMap<Attr> = _attrStorage
 
     override fun hasAttributes(): Boolean {
         return _attrStorage.size > 0

@@ -1818,7 +1818,8 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocument : nl/adap
 	public final fun lookupPrefix (Ljava/lang/String;)Ljava/lang/String;
 	public fun setDocumentURI (Ljava/lang/String;)V
 	public final fun setNodeValue (Ljava/lang/String;)V
-	public synthetic fun setOwnerDocument$io_github_pdvrieze_xmlutil_core (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;)V
+	public fun setOwnerDocument (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;)Ljava/lang/Void;
+	public synthetic fun setOwnerDocument (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;)V
 	public final fun setTextContent (Ljava/lang/String;)V
 }
 
@@ -1895,8 +1896,8 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractDocumentType : nl/
 }
 
 public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractElement : nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode, nl/adaptivity/xmlutil/dom2/Element {
-	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
-	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
+	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Element;
 	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
 	public fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractElement;
@@ -1913,7 +1914,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractElement : nl/adapt
 	public synthetic fun getAttributeNodeNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/Attr;
 	public final fun getAttributeNodeNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractAttr;
 	public synthetic fun getAttributeNodeNS (Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/Attr;
-	public final fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
+	public fun getAttributes ()Lnl/adaptivity/xmlutil/dom2/NamedNodeMap;
 	public synthetic fun getAttributes ()Lorg/w3c/dom/NamedNodeMap;
 	public fun getBaseURI ()Ljava/lang/String;
 	public synthetic fun getElementsByTagName (Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/NodeList;
@@ -1922,6 +1923,8 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractElement : nl/adapt
 	public synthetic fun getElementsByTagNameNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/NodeList;
 	public fun getElementsByTagNameNS (Ljava/lang/String;Ljava/lang/String;)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNodeList;
 	public synthetic fun getElementsByTagNameNS (Ljava/lang/String;Ljava/lang/String;)Lorg/w3c/dom/NodeList;
+	public final fun getLocalName ()Ljava/lang/String;
+	public final fun getNamespaceURI ()Ljava/lang/String;
 	public final fun getNodeName ()Ljava/lang/String;
 	public synthetic fun getNodeValue ()Ljava/lang/String;
 	public final fun getNodeValue ()Ljava/lang/Void;
@@ -1929,6 +1932,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractElement : nl/adapt
 	public synthetic fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/Document;
 	public fun getOwnerDocument ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;
 	public synthetic fun getOwnerDocument ()Lorg/w3c/dom/Document;
+	public final fun getPrefix ()Ljava/lang/String;
 	public final fun getTextContent ()Ljava/lang/String;
 	public final fun hasAttribute (Ljava/lang/String;)Z
 	public final fun hasAttributeNS (Ljava/lang/String;Ljava/lang/String;)Z
@@ -2072,7 +2076,7 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode : nl/ad
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;)V
 	public synthetic fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;Lkotlin/jvm/functions/Function1;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
-	public final fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public fun appendChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun appendChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/Node;
 	public synthetic fun cloneNode (Z)Lnl/adaptivity/xmlutil/dom2/impl/AbstractNode;
@@ -2098,15 +2102,17 @@ public abstract class nl/adaptivity/xmlutil/dom2/impl/AbstractParentNode : nl/ad
 	public final fun getSiblingAfter (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public final fun getSiblingBefore (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	protected final fun getTextContentImpl ()Ljava/lang/String;
-	public fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public synthetic fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 	public fun normalize ()V
 	public synthetic fun removeChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
-	public final fun removeChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public fun removeChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun removeChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 	public synthetic fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
-	public final fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun replaceChild (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
+	public fun setOwnerDocument (Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;)V
 	public static final fun setOwnerDocument$io_github_pdvrieze_xmlutil_core (Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;Lnl/adaptivity/xmlutil/dom2/impl/AbstractDocument;)V
 	public fun setTextContent (Ljava/lang/String;)V
 }
@@ -2239,6 +2245,9 @@ public abstract interface class nl/adaptivity/xmlutil/dom2/impl/IAbstractParentN
 	public synthetic fun getPreviousSibling ()Lorg/w3c/dom/Node;
 	public abstract fun getSiblingAfter (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public abstract fun getSiblingBefore (Lnl/adaptivity/xmlutil/dom2/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
+	public abstract fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
+	public synthetic fun insertBefore (Lorg/w3c/dom/Node;Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
 	public synthetic fun removeChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/Node;
 	public abstract fun removeChild (Lorg/w3c/dom/Node;)Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;
 	public synthetic fun removeChild (Lorg/w3c/dom/Node;)Lorg/w3c/dom/Node;
@@ -2259,6 +2268,7 @@ public class nl/adaptivity/xmlutil/dom2/impl/LinearNodeStorage : nl/adaptivity/x
 	public fun <init> (Lnl/adaptivity/xmlutil/dom2/impl/LinearNodeStorage$Adapter;)V
 	public fun appendChild (Lnl/adaptivity/xmlutil/dom2/impl/IAbstractParentNode;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;)V
 	public fun clear ()V
+	public final fun getAdapter ()Lnl/adaptivity/xmlutil/dom2/impl/LinearNodeStorage$Adapter;
 	public final fun getNodeList ()Lnl/adaptivity/xmlutil/dom2/impl/AbstractNodeList;
 	public fun insertBefore (Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;Lnl/adaptivity/xmlutil/dom2/impl/IAbstractNode;)V
 	public fun isEqualNodes (Lorg/w3c/dom/NodeList;)Z

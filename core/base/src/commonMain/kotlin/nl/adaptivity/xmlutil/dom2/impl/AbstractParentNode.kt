@@ -53,14 +53,14 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
 
     final override fun getLastChild(): N? = nodeStorage.getLastChild()
 
-    final override fun appendChild(node: PlatformNode): N {
+    override fun appendChild(node: PlatformNode): N {
         return _nodeStorage.appendChild(self, node)
     }
 
-    final override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N =
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N =
         _nodeStorage.replaceChild(self, newChild, oldChild)
 
-    final override fun removeChild(node: PlatformNode): N = _nodeStorage.removeChild(self, node)
+    override fun removeChild(node: PlatformNode): N = _nodeStorage.removeChild(self, node)
 
     @XmlUtilInternal
     public fun clear() {
@@ -99,7 +99,7 @@ public abstract class AbstractParentNode<out N : IAbstractNode<N, P>, out P : IA
 
     abstract override fun cloneNode(deep: Boolean): AbstractParentNode<N, P>
 
-    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): Node? {
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): N {
         if (refChild == null) return appendChild(newChild)
 
         @Suppress("UNCHECKED_CAST")

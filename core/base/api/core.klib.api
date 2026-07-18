@@ -219,6 +219,7 @@ abstract interface <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B
     abstract fun getPreviousSibling(): #A? // nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode.getPreviousSibling|getPreviousSibling(){}[0]
     abstract fun getSiblingAfter(nl.adaptivity.xmlutil.dom2/Node): #A? // nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode.getSiblingAfter|getSiblingAfter(nl.adaptivity.xmlutil.dom2.Node){}[0]
     abstract fun getSiblingBefore(nl.adaptivity.xmlutil.dom2/Node): #A? // nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode.getSiblingBefore|getSiblingBefore(nl.adaptivity.xmlutil.dom2.Node){}[0]
+    abstract fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): #A // nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
     abstract fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     abstract fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
 }
@@ -1151,6 +1152,7 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
     open fun importNode(nl.adaptivity.xmlutil.dom/PlatformNode, kotlin/Boolean): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractDocument.importNode|importNode(nl.adaptivity.xmlutil.dom.PlatformNode;kotlin.Boolean){}[0]
     open fun isEqualNode(nl.adaptivity.xmlutil.dom/PlatformNode): kotlin/Boolean // nl.adaptivity.xmlutil.dom2.impl/AbstractDocument.isEqualNode|isEqualNode(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     open fun setDocumentURI(kotlin/String?) // nl.adaptivity.xmlutil.dom2.impl/AbstractDocument.setDocumentURI|setDocumentURI(kotlin.String?){}[0]
+    open fun setOwnerDocument(nl.adaptivity.xmlutil.dom2.impl/AbstractDocument<#A, #B>): kotlin/Nothing // nl.adaptivity.xmlutil.dom2.impl/AbstractDocument.setOwnerDocument|setOwnerDocument(nl.adaptivity.xmlutil.dom2.impl.AbstractDocument<1:0,1:1>){}[0]
 }
 
 abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #B: out nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode<#A, #B>> nl.adaptivity.xmlutil.dom2.impl/AbstractDocumentFragment : nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode<#A, #B>, nl.adaptivity.xmlutil.dom2/DocumentFragment { // nl.adaptivity.xmlutil.dom2.impl/AbstractDocumentFragment|null[0]
@@ -1192,16 +1194,18 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
 }
 
 abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #B: out nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode<#A, #B>> nl.adaptivity.xmlutil.dom2.impl/AbstractElement : nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode<#A, #B>, nl.adaptivity.xmlutil.dom2/Element { // nl.adaptivity.xmlutil.dom2.impl/AbstractElement|null[0]
-    constructor <init>(nl.adaptivity.xmlutil.dom2.impl/AbstractDocument<#A, #B>, kotlin/Function1<#B, nl.adaptivity.xmlutil.dom2.impl/MutableAbstractNodeStorage<#A, #B>>, kotlin/Function1<#B, nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage<nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<#A, #B>>>, #B? = ...) // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.<init>|<init>(nl.adaptivity.xmlutil.dom2.impl.AbstractDocument<1:0,1:1>;kotlin.Function1<1:1,nl.adaptivity.xmlutil.dom2.impl.MutableAbstractNodeStorage<1:0,1:1>>;kotlin.Function1<1:1,nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage<nl.adaptivity.xmlutil.dom2.impl.AbstractAttr<1:0,1:1>>>;1:1?){}[0]
+    constructor <init>(nl.adaptivity.xmlutil.dom2.impl/AbstractDocument<#A, #B>, kotlin/String?, kotlin/String, kotlin/String?, kotlin/Function1<#B, nl.adaptivity.xmlutil.dom2.impl/MutableAbstractNodeStorage<#A, #B>>, kotlin/Function1<#B, nl.adaptivity.xmlutil.dom2.impl/AbstractAttrStorage<nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<#A, #B>>>, #B? = ...) // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.<init>|<init>(nl.adaptivity.xmlutil.dom2.impl.AbstractDocument<1:0,1:1>;kotlin.String?;kotlin.String;kotlin.String?;kotlin.Function1<1:1,nl.adaptivity.xmlutil.dom2.impl.MutableAbstractNodeStorage<1:0,1:1>>;kotlin.Function1<1:1,nl.adaptivity.xmlutil.dom2.impl.AbstractAttrStorage<nl.adaptivity.xmlutil.dom2.impl.AbstractAttr<1:0,1:1>>>;1:1?){}[0]
 
     final fun getAttribute(kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getAttribute|getAttribute(kotlin.String){}[0]
     final fun getAttributeNS(kotlin/String?, kotlin/String): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getAttributeNS|getAttributeNS(kotlin.String?;kotlin.String){}[0]
     final fun getAttributeNode(kotlin/String): nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<#A, #B>? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getAttributeNode|getAttributeNode(kotlin.String){}[0]
     final fun getAttributeNodeNS(kotlin/String?, kotlin/String): nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<#A, #B>? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getAttributeNodeNS|getAttributeNodeNS(kotlin.String?;kotlin.String){}[0]
-    final fun getAttributes(): nl.adaptivity.xmlutil.dom2/NamedNodeMap<nl.adaptivity.xmlutil.dom2/Attr> // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getAttributes|getAttributes(){}[0]
+    final fun getLocalName(): kotlin/String // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getLocalName|getLocalName(){}[0]
+    final fun getNamespaceURI(): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getNamespaceURI|getNamespaceURI(){}[0]
     final fun getNodeName(): kotlin/String // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getNodeName|getNodeName(){}[0]
     final fun getNodeValue(): kotlin/Nothing? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getNodeValue|getNodeValue(){}[0]
     final fun getNodetype(): nl.adaptivity.xmlutil.dom2/NodeType // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getNodetype|getNodetype(){}[0]
+    final fun getPrefix(): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getPrefix|getPrefix(){}[0]
     final fun getTextContent(): kotlin/String // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getTextContent|getTextContent(){}[0]
     final fun hasAttribute(kotlin/String): kotlin/Boolean // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.hasAttribute|hasAttribute(kotlin.String){}[0]
     final fun hasAttributeNS(kotlin/String?, kotlin/String): kotlin/Boolean // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.hasAttributeNS|hasAttributeNS(kotlin.String?;kotlin.String){}[0]
@@ -1214,6 +1218,7 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
     final fun setAttributeNodeNS(nl.adaptivity.xmlutil.dom/PlatformAttr): nl.adaptivity.xmlutil.dom2.impl/AbstractAttr<#A, #B>? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.setAttributeNodeNS|setAttributeNodeNS(nl.adaptivity.xmlutil.dom.PlatformAttr){}[0]
     final fun setNodeValue(kotlin/String?) // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.setNodeValue|setNodeValue(kotlin.String?){}[0]
     open fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2.impl/AbstractElement<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.cloneNode|cloneNode(kotlin.Boolean){}[0]
+    open fun getAttributes(): nl.adaptivity.xmlutil.dom2/NamedNodeMap<nl.adaptivity.xmlutil.dom2/Attr> // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getAttributes|getAttributes(){}[0]
     open fun getBaseURI(): kotlin/String? // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getBaseURI|getBaseURI(){}[0]
     open fun getElementsByTagName(kotlin/String): nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getElementsByTagName|getElementsByTagName(kotlin.String){}[0]
     open fun getElementsByTagNameNS(kotlin/String?, kotlin/String): nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractElement.getElementsByTagNameNS|getElementsByTagNameNS(kotlin.String?;kotlin.String){}[0]
@@ -1275,7 +1280,6 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
         final fun <get-nodeStorage>(): nl.adaptivity.xmlutil.dom2.impl/AbstractNodeStorage<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.nodeStorage.<get-nodeStorage>|<get-nodeStorage>(){}[0]
 
     abstract fun cloneNode(kotlin/Boolean): nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.cloneNode|cloneNode(kotlin.Boolean){}[0]
-    final fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
     final fun collectElementsByTagName(nl.adaptivity.xmlutil.dom2.impl/AbstractElement<#A, #B>, kotlin/String, kotlin.collections/MutableList<#A>, kotlin/Boolean = ...) // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.collectElementsByTagName|collectElementsByTagName(nl.adaptivity.xmlutil.dom2.impl.AbstractElement<1:0,1:1>;kotlin.String;kotlin.collections.MutableList<1:0>;kotlin.Boolean){}[0]
     final fun collectElementsByTagNameNS(nl.adaptivity.xmlutil.dom2.impl/AbstractElement<#A, #B>, kotlin/String, kotlin/String, kotlin.collections/MutableList<#A>, kotlin/Boolean = ..., kotlin/Boolean = ...) // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.collectElementsByTagNameNS|collectElementsByTagNameNS(nl.adaptivity.xmlutil.dom2.impl.AbstractElement<1:0,1:1>;kotlin.String;kotlin.String;kotlin.collections.MutableList<1:0>;kotlin.Boolean;kotlin.Boolean){}[0]
     final fun getChildNodes(): nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.getChildNodes|getChildNodes(){}[0]
@@ -1284,10 +1288,12 @@ abstract class <#A: out nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #
     final fun getSiblingAfter(nl.adaptivity.xmlutil.dom2/Node): #A? // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.getSiblingAfter|getSiblingAfter(nl.adaptivity.xmlutil.dom2.Node){}[0]
     final fun getSiblingBefore(nl.adaptivity.xmlutil.dom2/Node): #A? // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.getSiblingBefore|getSiblingBefore(nl.adaptivity.xmlutil.dom2.Node){}[0]
     final fun getTextContentImpl(): kotlin/String // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.getTextContentImpl|getTextContentImpl(){}[0]
-    final fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-    final fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
-    open fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): nl.adaptivity.xmlutil.dom2/Node? // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
+    open fun appendChild(nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.appendChild|appendChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    open fun insertBefore(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode?): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.insertBefore|insertBefore(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode?){}[0]
     open fun normalize() // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.normalize|normalize(){}[0]
+    open fun removeChild(nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.removeChild|removeChild(nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    open fun replaceChild(nl.adaptivity.xmlutil.dom/PlatformNode, nl.adaptivity.xmlutil.dom/PlatformNode): #A // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.replaceChild|replaceChild(nl.adaptivity.xmlutil.dom.PlatformNode;nl.adaptivity.xmlutil.dom.PlatformNode){}[0]
+    open fun setOwnerDocument(nl.adaptivity.xmlutil.dom2.impl/AbstractDocument<#A, #B>) // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.setOwnerDocument|setOwnerDocument(nl.adaptivity.xmlutil.dom2.impl.AbstractDocument<1:0,1:1>){}[0]
     open fun setTextContent(kotlin/String?) // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.setTextContent|setTextContent(kotlin.String?){}[0]
 
     final object Companion // nl.adaptivity.xmlutil.dom2.impl/AbstractParentNode.Companion|null[0]
@@ -1771,6 +1777,9 @@ final class nl.adaptivity.xmlutil/XmlBufferedWriter : nl.adaptivity.xmlutil/XmlW
 
 open class <#A: nl.adaptivity.xmlutil.dom2.impl/IAbstractNode<#A, #B>, #B: nl.adaptivity.xmlutil.dom2.impl/IAbstractParentNode<#A, #B>> nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage : nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B>, nl.adaptivity.xmlutil.dom2.impl/MutableAbstractNodeStorage<#A, #B> { // nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage|null[0]
     constructor <init>(nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.Adapter<#A, #B>) // nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.<init>|<init>(nl.adaptivity.xmlutil.dom2.impl.LinearNodeStorage.Adapter<1:0,1:1>){}[0]
+
+    final val adapter // nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.adapter|{}adapter[0]
+        final fun <get-adapter>(): nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.Adapter<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.adapter.<get-adapter>|<get-adapter>(){}[0]
 
     final fun getNodeList(): nl.adaptivity.xmlutil.dom2.impl/AbstractNodeList<#A, #B> // nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.getNodeList|getNodeList(){}[0]
     open fun appendChild(#B, #A) // nl.adaptivity.xmlutil.dom2.impl/LinearNodeStorage.appendChild|appendChild(1:1;1:0){}[0]

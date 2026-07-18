@@ -30,7 +30,7 @@ import nl.adaptivity.xmlutil.dom2.length
 
 @ExperimentalXmlUtilApi
 public open class LinearNodeStorage<N : IAbstractNode<N, P>, P : IAbstractParentNode<N, P>>(
-    internal val adapter: Adapter<N, P>
+    @ExperimentalXmlUtilApi public val adapter: Adapter<N, P>
 ): MutableAbstractNodeStorage<N, P>, AbstractNodeList<N, P> {
     private val elements = mutableListOf<N>()
 
