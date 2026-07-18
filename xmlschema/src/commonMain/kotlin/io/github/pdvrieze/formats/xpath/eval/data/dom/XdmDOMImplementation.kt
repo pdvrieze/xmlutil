@@ -34,7 +34,7 @@ public object XdmDOMImplementation : AbstractDOMImplementation() {
 
 
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): XdmDocumentType {
-        return XdmDocumentType(XdmDocument(null), qualifiedName, publicId, systemId)
+        return XdmDocumentType(null, qualifiedName, publicId, systemId)
     }
 
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): XdmDocument {
