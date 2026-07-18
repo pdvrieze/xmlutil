@@ -424,6 +424,8 @@ object CastFunctions: AbstractFunctionObject() {
             is DateType,
             is TimeType,
             is DateTimeType -> ErrorCodes.FODT0001
+            is DayTimeDurationType<*>,
+            is YearMonthDurationType<*> -> ErrorCodes.FODT0002
             else -> ErrorCodes.FORG0001
         }
 
