@@ -503,7 +503,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
                             parseError("Missing delimiter before non-delimiting operator")
                         }
 
-                        if (newI < str.length && !Token.isDelimOrWS(str[newI])) continue
+                        if (newI < str.length && isNameChar11(str[newI])) continue
                     }
 
 
