@@ -216,8 +216,12 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         val prefixOrLocal = parseNCNameUndelim()
 
         return when {
-            tryCurrent(':') ->
+            /* Only if the token after the ':' is a nameChar is it treated as prefix:localName.
+            Must allow simpleLetBinding $varName := expr */
+            peekNextToken(':') && isNameStartChar(peekNextChar(2)) -> {
+                curPos+=1 // skip the ':'
                 UnresolvedQNameToken(null, parseNCNameUndelim(), prefixOrLocal)
+            }
 
             else -> UnresolvedQNameToken(null, prefixOrLocal, "")
         }
@@ -383,7 +387,7 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
 
     protected fun peekNextToken(c: Char): Boolean {
         skipWhitespace()
-        return (lastWasDelimited || Token.isDelim(c)) && str[curPos] == c
+        return curPos < str.length && (lastWasDelimited || Token.isDelim(c)) && str[curPos] == c
     }
 
     protected fun tryCurrent(token : WordToken): Boolean {
