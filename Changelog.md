@@ -1,4 +1,8 @@
 # 1.0.2-SNAPSHOT
+Fixes:
+- Fix adding documentType instances to a document. Document types no longer
+  have an initial owning document and having no owning document, the owning
+  document will be set.
 
 # 1.0.1 Cache it well
 *(Jul 8, 2026)<br />*
