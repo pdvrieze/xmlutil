@@ -239,8 +239,12 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
         }
         val nsStart = curPos
         val l = str.length
-        while (curPos < l && str[curPos] != '}') {
-            curPos += 1
+        while (curPos < l) {
+            when(val c = str[curPos]) {
+                '{' -> throw IllegalArgumentException("{ in braced uri literal")
+                '}' -> break
+                else -> curPos += 1
+            }
         }
         val namespace = str.substring(nsStart, curPos) // note that trimming is not expected
         parseRequire(tryCurrentToken('}'), "Expected '}' after namespace name")
@@ -346,11 +350,11 @@ internal abstract class Tokenizer(protected val str: String, private val posInfo
     /**
      * Read until the delimiter, consuming the delimiter as well.
      */
-    protected fun readUntil(delim: Char): String {
-        val end = str.indexOf(delim, curPos)
+    protected fun readUntil(delim: Char, end: Int = str.indexOf(delim, curPos)): String {
         if (end < 0) parseError("Expected '$delim' but found end of input")
+        val start = curPos
         curPos = end + 1
-        return str
+        return str.substring(start, end)
     }
 
     protected fun peekNextToken(): Int {

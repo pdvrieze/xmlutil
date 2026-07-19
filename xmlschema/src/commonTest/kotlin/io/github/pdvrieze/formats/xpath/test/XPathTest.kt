@@ -599,4 +599,16 @@ class XPathTest {
         }
     }
 
+    @Test
+    fun testDoubleOpeningBraceInQName() {
+        val e = assertFailsWith<IllegalArgumentException> {
+            testPath(XPath3_0, "Q{{http://www.w3.org/2005/xpath-functions/math}pi()"){
+                assertFunctionCall(QName("{http://www.w3.org/2005/xpath-functions/math", "pi"))
+            }
+        }
+
+        testPath("for-each((1,4,9,16,25), Q{http://www.w3.org/2005/xpath-functions/math}sqrt#1)") {}
+//        assertEquals(ErrorCodes.XPST0003_INVALID_GRAMMAR, e.errorCode)
+    }
+
 }

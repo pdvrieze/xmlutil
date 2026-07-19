@@ -1000,7 +1000,9 @@ internal class XQueryParser(
         if (isXPath30 && initialWord == "Q" && tryCurrent('{')) {
             val endBrace = str.indexOf('}', curPos)
             parseRequire(endBrace >= 0, "Missing closing brace in Braced URI literal")
-            val namespace = readUntil('}')
+
+            val namespace = readUntil('}', endBrace)
+            require ('{' !in namespace) { "Extra open brace in namespace: '$namespace'" }
 
             if (tryCurrent('*')) { // note that whitespace is not allowed
                 return QNameSpec.Namespace(namespace)
