@@ -489,7 +489,7 @@ internal class XQueryParser(
         while (tryCurrent(Operator.ARROW)) {
             val functionSpecifier = parseArrowFunctionSpecifier()
 
-            val params = parseParameters()
+            val params = parseArgs()
             expr = ArrowFunction(expr, functionSpecifier, params)
         }
         return expr
@@ -502,7 +502,8 @@ internal class XQueryParser(
         skipWhitespace()
         return when (peekNextToken()) {
             '$'.code -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
-            '('.code -> ArrowFunctionSpecifier.SeqFunc(parseParameters())
+            // this is just a sequence, not parameters/arguments
+            '('.code -> ArrowFunctionSpecifier.SeqFunc(parseParenthesizedExpressionList())
             else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameTokenDelim().toQName())
         }
 
@@ -650,7 +651,7 @@ internal class XQueryParser(
                     }
                 }
 
-            '(' if isXPath2 -> @OptIn(NeedsXPath2::class) return parsePostfixExpr(parseParen())
+            '(' if isXPath2 -> @OptIn(NeedsXPath2::class) return parsePostfixExpr(parseParenthesizedExpression())
 
             '$' -> return parsePostfixExpr(parseVariableReference())
 
@@ -774,7 +775,7 @@ internal class XQueryParser(
             '*' -> return LookupExpr(null, LookupExpr.AnyKey)
 
             '(' -> {
-                val params = parseParameters()
+                val params = parseParenthesizedExpressionList()
 
                 return LookupExpr(null, LookupExpr.ParenKey(params))
             }
@@ -819,7 +820,7 @@ internal class XQueryParser(
 
     @NeedsXPath2
     context(ctx: ParseContext)
-    private fun parseParen(): ExprSingle {
+    private fun parseParenthesizedExpression(): ExprSingle {
         parseRequire(tryCurrentToken('('), "Expected '(' in sequence expression")
         if (tryCurrentToken(')')) return EmptySequenceExpr
 
@@ -837,7 +838,7 @@ internal class XQueryParser(
      * For now allow this to generate sequence expressions even if they don't really exist in XPath 2.0
      */
     context(ctx: ParseContext)
-    private fun parseParameters(): List<ExprSingle> {
+    private fun parseParenthesizedExpressionList(): List<ExprSingle> {
         parseRequire(tryCurrentToken('('), "Expected '(' in sequence expression")
         if (tryCurrentToken(')')) return emptyList()
 
@@ -1043,8 +1044,7 @@ internal class XQueryParser(
                         else -> LocationPath(false, listOf(current))
                     }
 
-                    @OptIn(NeedsXPath2::class)
-                    val args = parseParameters()
+                    val args = parseArgs()
                     @OptIn(NeedsXPath3_0::class)
                     current = FilterExpr(DynamicFunctionCall(newPrimary, args))
                 }
@@ -1059,7 +1059,7 @@ internal class XQueryParser(
                     when (val c2 = peekNextChar()) {
                         '\u0000' -> parseError("Missing key specifier at end of expression")
                         '(' -> {
-                            val params = parseParameters()
+                            val params = parseParenthesizedExpressionList()
                             val newExpr = LookupExpr(newPrimary, LookupExpr.ParenKey(params))
                             current = FilterExpr(newExpr)
                         }

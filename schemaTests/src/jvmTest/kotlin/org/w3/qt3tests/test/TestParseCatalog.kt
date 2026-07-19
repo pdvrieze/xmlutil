@@ -193,6 +193,18 @@ class TestParseCatalog {
         }
     }
 
+    @Test
+    fun testParseForEach() {
+        val xml = XML.v1{}
+        val resolutionContext = ResolutionContextImpl.CatalogContext("/xpath/fn/", xml)
+
+        context(resolutionContext) {
+            val testSet = resolutionContext.parseFile(Qt3TestSet.serializer(), "for-each.xml")
+            val resolved = testSet.resolve()
+            println(resolved)
+        }
+    }
+
     @ParameterizedTest()
     @MethodSource("getTestSetSpecs")
     fun testParseTestSet(spec: TestSetSpec) {
