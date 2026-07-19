@@ -631,8 +631,12 @@ internal class XQueryParser(
             '@' -> {
                 assert(tryCurrent('@'))
                 val axis = Axis.ATTRIBUTE
-                val nodeTest = parseNodeTest()
+                val name = parseRequireNotNull(parseEQNameOrWildcard(), "Missing node test in expression")
+                @OptIn(NeedsXPath2::class)
+                val nodeTest = NodeKindTest.AttributeTest(name)
+
                 val predicates = parsePredicates()
+                @OptIn(NeedsXPath2::class)
                 return AxisStep(axis, nodeTest, predicates)
             }
 
