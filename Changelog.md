@@ -3,6 +3,9 @@ Changes:
 - Make FormatCache a public interface with `XmlUtilInternal` interface.
   This allows for external implementation, with appropriate warnings.
 
+Fixes:
+- Backport: Fix LRU cache to be resilient to re-entry in the function argument to getOrPut
+
 # 0.90.4
 *(Jun 30, 2026)<br />*
 Changes:

@@ -162,41 +162,50 @@ internal class LRUCache<K : Any, V : Any> private constructor(
         val position = posFromHash(key)
         var currentPosition = position
         do {
-            val currentKey = getKey(currentPosition)
-            if (key == currentKey) {
-                @Suppress("UNCHECKED_CAST")
-                val value = getValue(currentPosition) as V
-                markEntryAsNewest(currentPosition) // these move the value in the LRU
+            when (getKey(currentPosition)) {
+                null -> break // found position for new value, go to next step that enters the value
 
-                return value
-            } else if (currentKey == null) {
-                if (size >= cacheSize) { // remove the oldest entry
-                    removeOldestEntry()
-                    break
-                } else {
-                    val value = defaultValue()
+                key -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val value = getValue(currentPosition) as V
+                    markEntryAsNewest(currentPosition) // these move the value in the LRU
+
+                    return value
+                }
+            }
+
+            currentPosition = currentPosition.next()
+        } while (true)
+
+        /*
+         * Calculate the default value. Note that defaultValue could be causing re-entry including
+         * adding/removing elements
+         */
+        val value = defaultValue()
+
+        // remove the oldest entry only after determining the new value (it could have changed the size)
+        if (size >= cacheSize) removeOldestEntry()
+
+        currentPosition = position
+        do {
+            val currentKey = getKey(currentPosition)
+            when (currentKey) {
+                null -> {
                     setKeyValue(currentPosition, key, value)
+
                     addEntryToOrderListAsNewest(currentPosition)
                     ++size
                     return value
                 }
 
-            }
-            currentPosition = currentPosition.next()
-        } while (true)
+                key -> {
+                    val oldValue = getValue(currentPosition)
+                    setKeyValue(currentPosition, key, value)
+                    return oldValue as V
+                }
 
-        currentPosition = position
-        do {
-            val currentKey = getKey(currentPosition)
-            if (currentKey == null) {
-                val value = defaultValue()
-                setKeyValue(currentPosition, key, value)
-
-                addEntryToOrderListAsNewest(currentPosition)
-                ++size
-                return value
+                else -> currentPosition = currentPosition.next()
             }
-            currentPosition = currentPosition.next()
         } while (currentPosition != position)
         error("This code should not be reachable")
     }
