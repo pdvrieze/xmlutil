@@ -11,3 +11,4 @@ vcs.xml
 encodings.xml
 kotlinc.xml
 libraries-with-intellij-classes.xml
+/AndroidProjectSystem.xml
