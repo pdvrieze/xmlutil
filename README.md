@@ -105,6 +105,14 @@ Please look at the examples and the documentation for further features
 that can influence: the tag names/namespaces used, the actual structure
 used (how lists and polymorphic types are handled), etc.
 
+### Warning
+Please note that using duplicate `@SerialName` values for types is not
+supported by the underlying kotlinx.serialization library and will
+cause serialization issues due to cache key duplication. Instead of using
+`@SerialName` for the type, please use `@XmlSerialName` this will avoid
+duplicate type names, and in addition allow for more deterministic
+ways to determine the name used in serialization.
+
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
 ### Format
