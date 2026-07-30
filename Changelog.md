@@ -1,4 +1,8 @@
 # 1.0.2-SNAPSHOT
+Changes:
+- Make FormatCache a public interface with `XmlUtilInternal` interface.
+  This allows for external implementation, with appropriate warnings.
+
 Fixes:
 - Fix LRU cache to be resilient to re-entry in the function argument to getOrPut
 - Fix adding documentType instances to a document. Document types no longer

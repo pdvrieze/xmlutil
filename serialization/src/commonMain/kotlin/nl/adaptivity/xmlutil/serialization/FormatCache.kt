@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
  * Interface for format caches that support being delegated to.
  */
 @XmlUtilInternal
-public interface DelegatableFormatCache {
+public interface DelegatableFormatCache: FormatCache {
     @XmlUtilInternal
     public fun lookupType(namespace: Namespace?, serialDesc: SerialDescriptor): XmlTypeDescriptor?
     @XmlUtilInternal
@@ -44,7 +44,7 @@ public interface DelegatableFormatCache {
         canBeAttribute: Boolean): XmlDescriptor?
 
     @XmlUtilInternal
-    public fun copy(): DelegatableFormatCache
+    public override fun copy(): DelegatableFormatCache
 
     /**
      * Create a **new** cache that contains the updates. It returns the updated cache (this may be
@@ -65,25 +65,28 @@ public interface DelegatableFormatCache {
  *   uses threadLocals for native/jvm/android to provide thread safety (at the cost of performance). Note
  *   that the native implementation is not particularly in the case of individual formats.
  *
+ * Note that this class is marked @XmlUtilInternal as custom implementations may break due to
+ * changes or invalid assumptions.
  */
-public abstract class FormatCache internal constructor() {
-    internal abstract fun lookupTypeOrStore(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
+@SubclassOptInRequired(XmlUtilInternal::class)
+public interface FormatCache {
+    @XmlUtilInternal public fun lookupTypeOrStore(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
-    internal abstract fun copy(): FormatCache
+    @XmlUtilInternal public fun copy(): FormatCache
 
     /** Perform an operation with a cache implementation that is not thread safe. Used
      * by the format to avoid looking up thread locals. It will allow uusing the shared cache
      * on completion.
      */
-    internal abstract fun <R> useUnsafe(action: (FormatCache) -> R): R
+    @XmlUtilInternal public fun <R> useUnsafe(action: (FormatCache) -> R): R
 
     /**
      * Lookup a type descriptor for this type with the given namespace.
      * @param parentName A key
      */
-    internal abstract fun lookupTypeOrStore(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
+    @XmlUtilInternal public fun lookupTypeOrStore(parentName: QName, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
 
-    internal abstract fun lookupDescriptorOrStore(
+    @XmlUtilInternal public fun lookupDescriptorOrStore(
         overridenSerializer: KSerializer<*>?,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
@@ -91,14 +94,14 @@ public abstract class FormatCache internal constructor() {
         defaultValue: () -> XmlDescriptor
     ): XmlDescriptor
 
-    internal abstract fun getCompositeDescriptor(
+    @XmlUtilInternal public fun getCompositeDescriptor(
         codecConfig: XML.XmlCodecConfig,
         serializerParent: SafeParentInfo,
         tagParent: SafeParentInfo,
         preserveSpace: TypePreserveSpace,
     ): XmlCompositeDescriptor
 
-    public object Dummy: FormatCache() {
+    public object Dummy: FormatCache {
 
         override fun copy(): FormatCache = this
 
