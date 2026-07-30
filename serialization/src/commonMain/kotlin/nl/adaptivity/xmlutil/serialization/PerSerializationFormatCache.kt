@@ -34,7 +34,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
  * implementation is in the `useUnsafe` function that allows the action to be done on the base.
  * This allows the serialization format to use a single cache throughout.
  */
-public class PerSerializationFormatCache(private val baseCacheGen: () -> FormatCache): FormatCache() {
+public class PerSerializationFormatCache(private val baseCacheGen: () -> FormatCache): FormatCache {
     override fun lookupTypeOrStore(
         namespace: Namespace?,
         serialDesc: SerialDescriptor,

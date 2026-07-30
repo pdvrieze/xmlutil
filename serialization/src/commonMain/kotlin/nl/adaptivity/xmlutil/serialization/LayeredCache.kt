@@ -31,7 +31,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 
 public class LayeredCache private constructor(
     private var baseCache: DelegatableFormatCache
-): FormatCache() {
+): FormatCache {
 
     public constructor() : this(DefaultFormatCache())
 
@@ -114,7 +114,7 @@ public class LayeredCache private constructor(
 
     private abstract class AbstractLayer(
         val extCache: DefaultFormatCache
-    ): FormatCache() {
+    ): FormatCache {
         abstract val base: DelegatableFormatCache
         abstract override fun copy(): AbstractLayer
 

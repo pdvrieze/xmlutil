@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -43,7 +43,7 @@ import kotlin.jvm.JvmStatic
 public class DefaultFormatCache private constructor(
     private val typeDescCache: LRUCache<TypeKey, XmlTypeDescriptor>,
     private val elemDescCache: LRUCache<DescKey, XmlDescriptor>
-) : FormatCache(), DelegatableFormatCache {
+) : FormatCache, DelegatableFormatCache {
     public constructor(cacheSize: Int): this(
         LRUCache<TypeKey, XmlTypeDescriptor>(cacheSize),
         LRUCache<DescKey, XmlDescriptor>(cacheSize)
