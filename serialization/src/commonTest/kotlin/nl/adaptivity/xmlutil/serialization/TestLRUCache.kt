@@ -127,7 +127,7 @@ class TestLRUCache {
         val keys = (0..<5).map { CollidingKey(it, 3) }
         repeat(9) {
             cache.put(keys[it % 5], "value$it")
-            val _ = cache[keys[(it/2)%5]]
+            cache[keys[(it/2)%5]]
         }
 
         val cacheCopy = LRUCache<CollidingKey, String>(40)
