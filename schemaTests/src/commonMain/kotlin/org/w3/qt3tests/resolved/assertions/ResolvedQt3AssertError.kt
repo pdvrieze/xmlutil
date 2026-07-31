@@ -37,4 +37,6 @@ class ResolvedQt3AssertError(val code: String?): ResolvedQt3Assertion() {
             else -> AssertionResult.Failure("Expected error code $code, got ${evalResult.errorCode?.code}", AssertionError("Assertion failure", evalResult))
         }
     }
+
+    override fun canSucceed(): Boolean = false
 }

@@ -46,5 +46,9 @@ class ResolvedQt3AllOf(val assertions: List<ResolvedQt3Assertion>): ResolvedQt3A
             else -> AssertionResult.Success
         }
     }
+
+    override fun canSucceed(): Boolean {
+        return assertions.all { it.canSucceed() }
+    }
 }
 

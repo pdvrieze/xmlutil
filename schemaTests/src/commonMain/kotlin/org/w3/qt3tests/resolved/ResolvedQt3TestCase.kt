@@ -45,9 +45,14 @@ class ResolvedQt3TestCase(
             if (specDep.xpathVersions().isEmpty()) return
         }
 
+        var canSucceed = true
+
         val errorAssertions = buildList {
             if (result != null) {
-                for(r in result.assertions) r.expectedErrors(this)
+                for(r in result.assertions) {
+                    r.expectedErrors(this)
+                    canSucceed = canSucceed && r.canSucceed()
+                }
             }
         }
 
@@ -62,7 +67,7 @@ class ResolvedQt3TestCase(
             // XPST0003 is a parser error. We should be able to handle those (only)
             else if (errorAssertions.any { it.code?.startsWith("XPST0003") == true }) -> {
                 val expr = test.expr
-                if (expr.isSuccess) {
+                if (! canSucceed && expr.isSuccess) {
                     val e = expr.getOrThrow()
                     if (e is XPathExpression) {
                         throw IllegalStateException("${name}: Expression '${e.xmlString}' should fail. with code ${errorAssertions.map { it.code }}")

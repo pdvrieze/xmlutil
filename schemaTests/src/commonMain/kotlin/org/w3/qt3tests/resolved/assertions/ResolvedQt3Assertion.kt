@@ -28,9 +28,15 @@ abstract class ResolvedQt3Assertion {
         expectedErrors(this)
     }
 
+    /**
+     * Collect the errors that are expected by this assertion
+     */
     internal open fun expectedErrors(accumulator: MutableList<ResolvedQt3AssertError>) {}
 
     abstract fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult
+
+    /** Determine whether this assertion has a non-error condition */
+    open fun canSucceed(): Boolean = true
 
 }
 
