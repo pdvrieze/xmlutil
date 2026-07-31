@@ -51,13 +51,16 @@ fun Project.doPublish(
                 }
                 maven {
                     name = "testMavenSnapshot"
-                    setUrl(rootProject.layout.buildDirectory.dir("testMavenSnapshot").map { it.asFile.toURI() })
+
+                    @Suppress("UnstableApiUsage")
+                    url = isolated.rootProject.projectDirectory.dir("build/testMavenSnapshot").asFile.toURI()
                 }
             }
             maven {
                 name = "projectLocal"
 
-                setUrl(rootProject.layout.buildDirectory.dir("project-local-repository").map { it.asFile.toURI() })
+                @Suppress("UnstableApiUsage")
+                url = isolated.rootProject.projectDirectory.dir("build/project-local-repository").asFile.toURI()
             }
 
         }
@@ -131,7 +134,7 @@ fun Project.doPublish(
         dependsOn(dependencies)
     }
 
-    val cleanLocalRepoTask = rootProject.tasks.named("cleanLocalRepo")
+    val cleanLocalRepoTask = ":cleanLocalRepo"
 
     tasks.withType<PublishToMavenRepository>().matching { it.repository?.name == "projectLocal" }.configureEach {
         if (isEnabled) dependsOn(cleanLocalRepoTask)
@@ -144,16 +147,15 @@ fun Project.configureSigningOfPublications() {
     configure<SigningExtension> {
         val priv_key: String? = System.getenv("GPG_PRIV_KEY")
         val passphrase: String? = System.getenv("GPG_PASSPHRASE")
+        var noSigning = false
         when {
             priv_key != null && passphrase != null -> useInMemoryPgpKeys(priv_key, passphrase)
 
             System.getenv("JITPACK").equals("true", true) -> {
-                if (!rootProject.extra.has("NO_SIGNING")) {
-                    logger.warn("No private key information found in environment. Running on Jitpack, skipping signing")
+                logger.info("No private key information found in environment. Running on Jitpack, skipping signing")
 
-                    setRequired(false)
-                    rootProject.extra.set("NO_SIGNING", true)
-                }
+                setRequired(false)
+                noSigning = true
             }
 
             else -> {
@@ -167,8 +169,7 @@ fun Project.configureSigningOfPublications() {
         }
 
         when {
-            rootProject.extra.has("NO_SIGNING") && rootProject.extra["NO_SIGNING"] == true ->
-                setRequired(false)
+            noSigning -> setRequired(false)
 
             else ->
                 setRequired { gradle.taskGraph.run { hasTask("publish") || hasTask("publishNative") } }
