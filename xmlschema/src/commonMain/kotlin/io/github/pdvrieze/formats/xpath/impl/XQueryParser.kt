@@ -715,6 +715,15 @@ internal class XQueryParser(
                     is QNameSpec.EQName -> when (val c = peekNextToken()) {
                         '('.code -> when (val nt = maybeParseNodeTypeTest(nameOrWildcard)) {
                             null -> {
+                                if (nameOrWildcard.prefix.isNullOrEmpty()) {
+                                    val reserved = ReservedFunctions.getReserved(nameOrWildcard.localName)
+                                    if (reserved!=null) {
+                                        require(! xpathVersion.includes(reserved.minSpecVersion)) {
+                                            "Name: ${nameOrWildcard.localName} is reserved and not allowed as unprefixed function name"
+                                        }
+                                    }
+                                }
+
                                 val funcCall = StaticFunctionCall(nameOrWildcard.toQName(), parseArgs())
 
                                 return parsePostfixExpr(funcCall)

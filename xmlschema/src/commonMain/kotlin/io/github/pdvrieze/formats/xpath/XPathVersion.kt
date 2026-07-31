@@ -23,6 +23,8 @@ package io.github.pdvrieze.formats.xpath
 sealed interface SpecVersion {
     fun includes(xpathVersion: XPathVersion): Boolean
     fun includes(xqueryVersion: XQueryVersion): Boolean
+
+    fun includes(anyVersion: SpecVersion): Boolean
 }
 
 enum class XPathVersion : Comparable<XPathVersion>, SpecVersion {
@@ -32,10 +34,14 @@ enum class XPathVersion : Comparable<XPathVersion>, SpecVersion {
     XPath3_1;
 
     override fun includes(xpathVersion: XPathVersion): Boolean {
-        return ordinal>=xpathVersion.ordinal
+        return ordinal >= xpathVersion.ordinal
     }
 
     override fun includes(xqueryVersion: XQueryVersion): Boolean = false
+
+    override fun includes(anyVersion: SpecVersion): Boolean {
+        return anyVersion is XPathVersion && ordinal >= anyVersion.ordinal
+    }
 }
 
 enum class XQueryVersion(val xpath:XPathVersion) : Comparable<XQueryVersion>, SpecVersion {
@@ -49,6 +55,11 @@ enum class XQueryVersion(val xpath:XPathVersion) : Comparable<XQueryVersion>, Sp
 
     override fun includes(xqueryVersion: XQueryVersion): Boolean {
         return ordinal >= xqueryVersion.ordinal
+    }
+
+    override fun includes(anyVersion: SpecVersion): Boolean = when (anyVersion) {
+        is XPathVersion -> includes(anyVersion)
+        is XQueryVersion -> includes(anyVersion)
     }
 }
 

@@ -611,4 +611,19 @@ class XPathTest {
 //        assertEquals(ErrorCodes.XPST0003_INVALID_GRAMMAR, e.errorCode)
     }
 
+    @Test
+    fun testVarNameWithPrefix() {
+        testPath("1 eq (for \$xs:a in 1 return \$xs:a)") {}
+    }
+
+    @Test
+    fun testNoReservedFunctionCall() {
+        val e = assertFailsWith<IllegalArgumentException> {
+            testPath("empty-sequence()") {
+                assertFunctionCall("empty-sequence")
+            }
+        }
+        assertContains(e.message!!, "empty-sequence is reserved")
+    }
+
 }
