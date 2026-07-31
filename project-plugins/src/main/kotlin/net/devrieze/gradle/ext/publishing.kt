@@ -23,6 +23,7 @@ package net.devrieze.gradle.ext
 import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -30,6 +31,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.SigningExtension
+import kotlin.io.extension
 
 fun Project.doPublish(
     pubName: String = project.name,
@@ -109,6 +111,8 @@ fun Project.doPublish(
 
     }
 
+    recordPublicationCoordinates()
+
     tasks.withType<PublishToMavenRepository>().configureEach {
         doFirst {
             val pubArtifacts = publication.artifacts
@@ -141,6 +145,42 @@ fun Project.doPublish(
     }
 
 
+}
+
+private fun Project.recordPublicationCoordinates() {
+    if (name == "xmlutil-bom") return
+
+    val projectName = name
+
+    configure<PublishingExtension> {
+        @Suppress("UnstableApiUsage")
+        val coordinateFolder = isolated.rootProject.projectDirectory.dir("build/coordinates")
+
+        val exportCoordinatesTask = tasks.register("exportArtifactCoordinates") {
+            val publications = publications
+            val outputFile = coordinateFolder.file("${projectName}.txt").asFile
+            outputs.file(outputFile)
+
+            doLast {
+                coordinateFolder.asFile.mkdirs()
+                outputFile.bufferedWriter().use { writer ->
+                    for(p in publications) {
+                        if (p is MavenPublication && !(p.artifactId.endsWith("-metadata") ||
+                                    p.artifactId.endsWith("-kotlinMultiplatform") ||
+                                    p.artifacts.any { it.extension == "klib" }
+                                    )) {
+
+                            writer.write("${p.groupId}:${p.artifactId}:${p.version}\n")
+                        }
+                    }
+                }
+            }
+        }
+
+        tasks.matching { name.startsWith("generatePomFileFor") && name.endsWith("Publication") }.configureEach() {
+            dependsOn(exportCoordinatesTask)
+        }
+    }
 }
 
 fun Project.configureSigningOfPublications() {

@@ -27,29 +27,17 @@ plugins {
     signing
 }
 
+private val coordinatesDir = isolated.rootProject.projectDirectory.dir("build/coordinates").asFile
+
 dependencies {
     constraints {
-        rootProject.subprojects.asSequence()
-            .filter { it.name != project.name }
-            .filter { it.plugins.hasPlugin("maven-publish") }
-            .forEach { subproject: Project ->
-                evaluationDependsOn(subproject.path)
-                for(p in subproject.publishing.publications) {
-                    p as MavenPublication
-                    if (!(p.artifactId.endsWith("-metadata") ||
-                            p.artifactId.endsWith("-kotlinMultiplatform") ||
-                            p.artifacts.any { it.extension == "klib" }
-                            )) {
-                        this@constraints.api(
-                            mapOf(
-                                "group" to p.groupId,
-                                "name" to p.artifactId,
-                                "version" to p.version
-                            )
-                        )
-                    }
+        if (coordinatesDir.exists()) {
+            coordinatesDir.listFiles()?.forEach { file ->
+                file.readLines().forEach { coordinate ->
+                    if (coordinate.isNotBlank()) api(coordinate)
                 }
             }
+        }
     }
 }
 
@@ -67,6 +55,16 @@ publishing {
 }
 
 doPublish(pubDescription = "Centralised dependencies for xmlutil", generateJavadoc = false)
+
+tasks.named("generatePomFileForMavenBomPublication") {
+    dependsOn(provider {
+
+
+        gradle.includedBuilds
+            .filter { "project-plugins" !in it.name }
+            .map { it.task(":exportArtifactCoordinates")/*.toString().lines()*/ }
+    })
+}
 
 tasks.withType<GenerateModuleMetadata>().configureEach {
     enabled = false
