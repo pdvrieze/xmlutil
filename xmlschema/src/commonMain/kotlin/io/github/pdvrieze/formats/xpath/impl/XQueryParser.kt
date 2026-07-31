@@ -742,6 +742,14 @@ internal class XQueryParser(
                         '#'.code if isXPath30 -> {
                             assert(tryCurrent('#'))
 
+                            if (nameOrWildcard.prefix.isNullOrEmpty()) {
+                                if (maybeReserved != null) {
+                                    require(! xpathVersion.includes(maybeReserved.minSpecVersion)) {
+                                        "Name: ${nameOrWildcard.localName} is reserved and not allowed as unprefixed function name"
+                                    }
+                                }
+                            }
+
                             val idx = parseUnsignedLong()
 
                             @OptIn(NeedsXPath3_0::class)
