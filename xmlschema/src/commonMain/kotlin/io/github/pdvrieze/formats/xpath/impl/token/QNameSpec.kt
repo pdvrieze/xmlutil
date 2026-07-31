@@ -87,11 +87,6 @@ internal sealed interface QNameSpec {
         override val prefix: String get() = name.prefix
 
         override fun asNodeTest(version: XPathVersion): NodeTest {
-            if (name.namespaceURI.isEmpty() && name.prefix.isEmpty()) {
-                require(NodeType.maybeValueOf(name.localPart, version) == null) {
-                    throw IllegalArgumentException("Cannot use node type name '${name.localPart}' as unprefixed qname for a node test")
-                }
-            }
             return NodeTest.QNameTest(asQName())
         }
 

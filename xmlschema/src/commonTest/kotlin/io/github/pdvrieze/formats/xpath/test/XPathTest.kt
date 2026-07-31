@@ -618,13 +618,23 @@ class XPathTest {
     }
 
     @Test
-    fun testNoReservedFunctionCall() {
+    fun testNoReservedEmptySequence() {
         val e = assertFailsWith<IllegalArgumentException> {
             testPath("empty-sequence()") {
                 assertFunctionCall("empty-sequence")
             }
         }
         assertContains(e.message!!, "empty-sequence is reserved")
+    }
+
+    @Test
+    fun testNoReservedTypeswitch() {
+        val e = assertFailsWith<IllegalArgumentException> {
+            testPath("typeswitch()") {
+                assertFunctionCall("typeswitch")
+            }
+        }
+        assertContains(e.message!!, "typeswitch is reserved")
     }
 
     @Test

@@ -678,9 +678,6 @@ internal class XQueryParser(
                 val ncName = parseNCNameUndelim().name
 
                 val maybeReserved = ReservedFunctions.getReserved(ncName)
-                parseRequire(maybeReserved == null || maybeReserved.minSpecVersion.isSupported) {
-                    "Reserved function name '$ncName' is not supported in this XPath version ($xpathVersion)"
-                }
 
                 @OptIn(NeedsXQuery1::class)
                 when (maybeReserved) {
@@ -692,17 +689,24 @@ internal class XQueryParser(
                         @OptIn(NeedsXPath3_1::class)
                         return parsePostfixExpr(parseCurlyArrayConstructorCont())
 
+/*
                     ReservedFunctions.SWITCH ->
                         parseError("`switch` is reserved in XPath 3.0 (for XQuery)")
 
                     ReservedFunctions.TYPESWITCH ->
                         parseError("`typeswitch` is reserved in XPath 3.0 (for XQuery)")
+*/
 
-                    ReservedFunctions.FUNCTION if peekNextToken('(') ->
+                    ReservedFunctions.FUNCTION if peekNextToken('(') -> {
+                        parseRequire(ReservedFunctions.FUNCTION.minSpecVersion.isSupported) {
+                            "Reserved function name '$ncName' is not supported in this XPath version ($xpathVersion)"
+                        }
+
                         @OptIn(NeedsXPath3_0::class)
                         return parsePostfixExpr(parseInlineFunctionCont())
+                    }
 
-                    else ->{}
+                    else -> {}
                 }
 
                 if (tryCurrentToken("::")) { // found axis
@@ -720,9 +724,8 @@ internal class XQueryParser(
                         '('.code -> when (val nt = maybeParseNodeTypeTest(nameOrWildcard)) {
                             null -> {
                                 if (nameOrWildcard.prefix.isNullOrEmpty()) {
-                                    val reserved = ReservedFunctions.getReserved(nameOrWildcard.localName)
-                                    if (reserved!=null) {
-                                        require(! xpathVersion.includes(reserved.minSpecVersion)) {
+                                    if (maybeReserved != null) {
+                                        require(! xpathVersion.includes(maybeReserved.minSpecVersion)) {
                                             "Name: ${nameOrWildcard.localName} is reserved and not allowed as unprefixed function name"
                                         }
                                     }

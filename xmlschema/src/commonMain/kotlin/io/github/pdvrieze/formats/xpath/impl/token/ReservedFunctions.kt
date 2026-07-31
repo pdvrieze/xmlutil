@@ -45,9 +45,9 @@ enum class ReservedFunctions(
     PROCESSING_INSTRUCTION("processing-instruction"),
     SCHEMA_ATTRIBUTE("schema-attribute"),
     SCHEMA_ELEMENT("schema-element"),
-    @NeedsXQuery1 SWITCH("switch", XQueryVersion.XQuery1_0),
+    @NeedsXQuery1 SWITCH("switch", XQueryVersion.XQuery1_0.xpath),
     TEXT("text"),
-    @NeedsXQuery1 TYPESWITCH("typeswitch", XQueryVersion.XQuery1_0),
+    @NeedsXQuery1 TYPESWITCH("typeswitch", XQueryVersion.XQuery1_0.xpath),
     ;
 
     override val isDelimiting: Boolean get() = false
