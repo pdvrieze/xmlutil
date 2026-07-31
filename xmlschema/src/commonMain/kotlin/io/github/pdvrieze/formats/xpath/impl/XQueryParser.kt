@@ -1077,6 +1077,7 @@ internal class XQueryParser(
                         current.predicates.isEmpty() -> current.primaryExpr
                         else -> LocationPath(false, listOf(current))
                     }
+                    skipWhitespace()
                     @OptIn(NeedsXPath2::class, NeedsXPath3_1::class)
                     when (val c2 = peekNextChar()) {
                         '\u0000' -> parseError("Missing key specifier at end of expression")
