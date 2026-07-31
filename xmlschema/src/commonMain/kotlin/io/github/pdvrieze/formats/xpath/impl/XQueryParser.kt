@@ -800,7 +800,10 @@ internal class XQueryParser(
         val next = peekNextToken()
         if (next < 0) throw IllegalArgumentException("Expected key specifier, found end of expression")
         when (val c = next.toChar()) {
-            '*' -> return LookupExpr(null, LookupExpr.AnyKey)
+            '*' -> {
+                assert(tryCurrent('*'))
+                return LookupExpr(null, LookupExpr.AnyKey)
+            }
 
             '(' -> {
                 val params = parseParenthesizedExpressionList()

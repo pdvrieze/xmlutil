@@ -653,4 +653,10 @@ class XPathTest {
 
         }
     }
+
+    @Test
+    fun testUnaryLookup014() {
+        testPath("(['a', 'b', 'c'], ['b', 'c', 'd'], ['e', 'f', 'b'])[ ?* = 'c']") {
+        }
+    }
 }
