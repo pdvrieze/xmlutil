@@ -20,10 +20,7 @@
 
 package io.github.xmlutil.plugin
 
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.configureDokka
-import net.devrieze.gradle.ext.envAndroid
-import net.devrieze.gradle.ext.envJvm
+import net.devrieze.gradle.ext.*
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -69,6 +66,7 @@ class ProjectPlugin @Inject constructor(
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
+        project.initProviders()
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
         val xmlutilVersion = libs.findVersion("xmlutil").get().requiredVersion
@@ -421,6 +419,10 @@ abstract class ProjectConfigurationExtension {
     abstract val generateJavaModules: Property<Boolean>
     abstract val allWarningsAsErrors: Property<Boolean>
     abstract val optIns: ListProperty<String>
+}
+
+private fun Project.initProviders() {
+    initNativeState()
 }
 
 private var _isSnapshot: Int = -1

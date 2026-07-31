@@ -23,6 +23,7 @@ package net.devrieze.gradle.ext
 import io.github.xmlutil.plugin.isSnapshot
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -31,7 +32,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyTemplate
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeHostTest
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -120,42 +120,58 @@ private val defaultXmlUtilHierarchyTemplate = KotlinHierarchyTemplate {
     }
 }
 
+private lateinit var _nativeState: Provider<NativeState>
+
+internal fun Project.initNativeState() {
+    _nativeState = providers.gradleProperty("native.deploy").map {
+        when(it.lowercase()) {
+            "all", "true" -> NativeState.ALL
+            "host" -> NativeState.HOST
+            "hostWasm" -> NativeState.HOST
+            "disabled" -> NativeState.DISABLED
+            "single" -> NativeState.SINGLE
+            else if gradle.startParameter.taskRequests.any { req ->
+                req.args.any { arg ->
+                    listOf( "checkKotlinAbi", "updateKotlinAbi").any { it in arg } || arg.endsWith("check")
+                }
+            } -> NativeState.ALL
+            else -> {
+                NativeState.SINGLE
+            }
+        }
+    }.orElse(NativeState.SINGLE)
+}
+
 val Project.nativeState: NativeState
-    get() = rootProject.extraProperties["nativeTargets"] as NativeState
+    get() = _nativeState.get()
 
-fun Project.isKlibValidationEnabled(): Boolean = when {
-    rootProject.extraProperties.has("nativeTargets") -> nativeState == NativeState.ALL
+fun Project.isKlibValidationEnabled(): Boolean = nativeState == NativeState.ALL
 
-    else -> property("native.deploy")?.toString()?.lowercase() == "all"
+@Suppress("DEPRECATION")
+private fun KotlinMultiplatformExtension.ideaPreset(host: Host) {
+    when (host) {
+        Host.Windows -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> mingwX64()
+            "aarch64" -> Unit /* No-op as not supported as native target yet */
+            else -> Unit /* No op, not supported */
+        }
+
+        Host.Macos -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> macosX64()
+            "aarch64" -> macosArm64()
+            else -> Unit /* No op, not supported */
+        }
+
+        Host.Linux -> when (HostManager.hostArchOrNull()) {
+            "x86_64" -> linuxX64()
+            "aarch64" -> linuxArm64()
+            else -> Unit /* No op, unsupported target */
+        }
+    }
 }
 
 @OptIn(ExperimentalWasmDsl::class)
 fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean = true) {
-    val ideaActive = System.getProperty("idea.active") == "true"
-    val nativeState = when(property("native.deploy")?.toString()?.lowercase()) {
-        "all", "true" -> NativeState.ALL
-        "host" -> NativeState.HOST
-        "hostWasm" -> NativeState.HOST
-        "disabled" -> NativeState.DISABLED
-        "single" -> NativeState.SINGLE
-        else if gradle.startParameter.taskRequests.any { req ->
-            req.args.any { arg ->
-                listOf( "checkKotlinAbi", "updateKotlinAbi").any { it in arg } || arg.endsWith("check")
-            }
-        } -> {
-            logger.lifecycle("No native.deploy property set, and abi update/check task found.\n" +
-                        "  -- Defaulting to all mode")
-            NativeState.ALL
-        }
-
-        else -> {
-            logger.lifecycle("set the native.deploy=[all|host|hostWasm|disabled|single] property to specify the native mode.\n" +
-                        "  -- Defaulting to single mode")
-            NativeState.SINGLE
-        }
-    }
-    rootProject.extraProperties.set("nativeTargets", nativeState)
-
     if (nativeState == NativeState.DISABLED) return
 
     val singleTargetMode = /*ideaActive || */nativeState == NativeState.SINGLE
@@ -167,27 +183,6 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
         "windows" -> Host.Windows
         "macos" -> Host.Macos
         else -> Host.Linux
-    }
-
-    @Suppress("DEPRECATION")
-    ext["ideaPreset"] = when (host) {
-        Host.Windows -> when (HostManager.hostArchOrNull()) {
-            "x86_64" -> fun KotlinMultiplatformExtension.() { mingwX64() }
-            "aarch64" -> fun KotlinMultiplatformExtension.() { /* No-op as not supported as native target yet */ }
-            else -> return // unknown/unsupported target
-        }
-
-        Host.Macos -> when (HostManager.hostArchOrNull()) {
-            "x86_64" -> fun KotlinMultiplatformExtension.() { macosX64() }
-            "aarch64" -> fun KotlinMultiplatformExtension.() { macosArm64() }
-            else -> fun KotlinMultiplatformExtension.() { /** No op, not supported */ }
-        }
-
-        Host.Linux -> when (HostManager.hostArchOrNull()) {
-            "x86_64" -> fun KotlinMultiplatformExtension.() { linuxX64() }
-            "aarch64" -> fun KotlinMultiplatformExtension.() { linuxArm64() }
-            else -> fun KotlinMultiplatformExtension.() { /** No op, unsupported target */ }
-        }
     }
 
     with(kotlin) {
@@ -213,8 +208,7 @@ fun Project.addNativeTargets(includeWasm: Boolean = true, includeWasi: Boolean =
 
         if (singleTargetMode) {
             logger.lifecycle("Single target mode: $host (${HostManager.hostArchOrNull()})")
-            @Suppress("UNCHECKED_CAST") val targetFun = ext["ideaPreset"] as TargetFun
-            targetFun()
+            ideaPreset(host)
         } else {
             val ignoreDeprecated = isSnapshot && ! System.getenv("JITPACK").equals("true", true)
             if (nativeState != NativeState.HOST || host == Host.Linux) {
