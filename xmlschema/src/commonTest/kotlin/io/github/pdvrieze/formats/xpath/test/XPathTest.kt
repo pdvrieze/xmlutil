@@ -33,6 +33,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xmlutil.testutil.assertQNameEquivalent
 import nl.adaptivity.xmlutil.QName
+import nl.adaptivity.xmlutil.toCName
 import kotlin.test.*
 
 @OptIn(XPathInternal::class, NeedsXPath2::class, NeedsXPath3_0::class, NeedsXPath3_1::class)
@@ -626,4 +627,20 @@ class XPathTest {
         assertContains(e.message!!, "empty-sequence is reserved")
     }
 
+    @Test
+    fun testInstanceof132() {
+        testPath("filter#2 instance of function(item()*, function(item()) as xs:boolean) as item()*") {
+            val outer = assertIs<InstanceOfExpr>(expr)
+            val left = assertIs<FunctionItem.NamedRef>(outer.expr)
+            assertEquals(2, left.index)
+            assertEquals("filter", left.name.toCName())
+            val typeSeq = assertIs<SequenceType.ItemTypeSequence>(outer.sequenceType)
+            assertEquals(SequenceType.OccurrenceType.SINGLE, typeSeq.occurrence)
+            val functionType = assertIs<FunctionTypeTest.Typed>(typeSeq.itemType)
+            assertEquals(2, functionType.paramTypes.size)
+            assertEquals(SequenceType.ItemTypeSequence(ItemTypeTest.ItemTestTest, SequenceType.OccurrenceType.ANY), functionType.returnType)
+
+
+        }
+    }
 }

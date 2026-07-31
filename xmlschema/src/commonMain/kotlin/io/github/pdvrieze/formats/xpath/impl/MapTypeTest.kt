@@ -125,6 +125,26 @@ sealed class MapTypeTest @NeedsXPath3_1 constructor(): ItemTypeTest {
             outputType.appendToString(builder)
             builder.append(")")
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Typed
+
+            if (inputType != other.inputType) return false
+            if (outputType != other.outputType) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = inputType.hashCode()
+            result = 31 * result + outputType.hashCode()
+            return result
+        }
+
+
     }
 }
 

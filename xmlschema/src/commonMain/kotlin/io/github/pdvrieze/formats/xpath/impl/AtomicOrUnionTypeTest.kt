@@ -76,4 +76,17 @@ class AtomicOrUnionTypeTest(val name: QName): ItemTypeTest {
 */
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as AtomicOrUnionTypeTest
+
+        return name == other.name
+    }
+
+    override fun hashCode(): Int {
+        return name.hashCode()
+    }
+
 }

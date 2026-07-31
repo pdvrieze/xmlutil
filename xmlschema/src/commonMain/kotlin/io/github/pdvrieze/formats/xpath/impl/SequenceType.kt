@@ -76,6 +76,26 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
         override fun eval(): XdmTypeTest {
             return itemType.toTypeTest(occurrence)
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as ItemTypeSequence
+
+            if (itemType != other.itemType) return false
+            if (occurrence != other.occurrence) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = itemType.hashCode()
+            result = 31 * result + occurrence.hashCode()
+            return result
+        }
+
+
     }
 
     enum class OccurrenceType(val literal: String, val allowsEmpty: Boolean, val allowsMultiple: Boolean) {

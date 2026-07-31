@@ -92,5 +92,20 @@ sealed class ArrayTypeTest: ItemTypeTest {
             elemType.appendToString(builder)
             builder.append(")")
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Typed
+
+            return elemType == other.elemType
+        }
+
+        override fun hashCode(): Int {
+            return elemType.hashCode()
+        }
+
+
     }
 }

@@ -90,8 +90,12 @@ internal class XQueryParser(
 
                     else -> {
                         val params = mutableListOf<SequenceType>()
-                        while (!tryCurrentToken(')')) {
-                            params.add(parseSequenceType())
+                        if (!tryCurrentToken(')')) {
+
+                            do {
+                                params.add(parseSequenceType())
+                            } while (tryCurrentToken(','))
+                            parseRequire(tryCurrentToken(')'), "Closing ) needed in function parameters")
                         }
                         parseRequire(tryCurrent(Keywords.AS), "The function type specifier has no return type")
                         val returnType = parseSequenceType()

@@ -106,6 +106,26 @@ sealed class FunctionTypeTest @NeedsXPath3_0 constructor(): ItemTypeTest {
             return true
 */
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Typed
+
+            if (returnType != other.returnType) return false
+            if (paramTypes != other.paramTypes) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = returnType.hashCode()
+            result = 31 * result + paramTypes.hashCode()
+            return result
+        }
+
+
     }
 }
 
