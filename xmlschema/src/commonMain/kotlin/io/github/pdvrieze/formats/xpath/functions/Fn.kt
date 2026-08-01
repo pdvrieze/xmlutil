@@ -67,6 +67,11 @@ enum class Fn(
     codepointsToString(StringFunctions.fnCodepointsToString),
     stringToCodepoints(StringFunctions.fnStringToCodepoints),
 
+    compare(StringFunctions.fnCompare),
+    codePointEqual(StringFunctions.fnCodePointEqual),
+    collationKey(StringFunctions.fnCollationKey),
+    containsToken(StringFunctions.fnContainsToken),
+
     concat(StringFunctions.fnConcat),
     stringJoin(StringFunctions.fnStringJoin),
     substring(StringFunctions.fnSubstring),

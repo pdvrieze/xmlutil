@@ -21,10 +21,16 @@
 package io.github.pdvrieze.formats.xpath.eval
 
 import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.values.XsdBase64Binary
 
 enum class Collations(override val uri: String): Collation {
     CODEPOINT("http://www.w3.org/2005/xpath-functions/collation/codepoint") {
         override fun compare(a: String, b: String): Int = a.compareTo(b)
+
+        override fun key(key: String): XsdBase64Binary {
+            return XsdBase64Binary(key.encodeToByteArray())
+        }
+
     },
     ASCII_CASE_INSENSITIVE("http://www.w3.org/2005/xpath-functions/collation/ascii-case-insensitive") {
         override fun compare(a: String, b: String): Int {
@@ -35,6 +41,22 @@ enum class Collations(override val uri: String): Collation {
             }
             return a.length - b.length
         }
+
+        override fun key(key: String): XsdBase64Binary {
+            val bytes = key.encodeToByteArray()
+            for (i in 0 until bytes.size) {
+                if (bytes[i].toInt() in 'a'.code..'z'.code) {
+                    bytes[i] = (bytes[i] - LOWERCASE_OFFSET).toByte()
+                }
+            }
+            return XsdBase64Binary(bytes)
+        }
     },
+
+    ;
+
+    companion object {
+        private const val LOWERCASE_OFFSET = 'a'.code - 'A'.code
+    }
 
 }

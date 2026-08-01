@@ -87,6 +87,10 @@ open class EvalContext(
         xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
 
+    fun collation(uri: String): Collation? {
+        return Collations.entries.firstOrNull { it.uri == uri }
+    }
+
     fun trace(label: String?, value: String) =
         deterministicState.addTrace(Trace(label, value))
 

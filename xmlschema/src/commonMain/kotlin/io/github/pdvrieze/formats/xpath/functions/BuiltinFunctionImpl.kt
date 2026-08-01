@@ -22,7 +22,6 @@
 
 package io.github.pdvrieze.formats.xpath.functions
 
-import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
@@ -170,14 +169,15 @@ internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T
 }
 
 context(ctx: ExprEvalContext)
-internal fun List<XdmValue<*>>.maybeCollation(pos: Int): Collation? {
+internal fun List<XdmValue<*>>.maybeCollation(pos: Int): Collation {
     return when {
         pos < size -> {
             val cName = atomicArgN<XsdString>(pos).xmlString
-            Collations.entries.firstOrNull { it.uri == cName }
+            ctx.collation(cName)
                 ?: throw EvaluationException(ErrorCodes.FOCH0002, "Unsupported collation: $cName")
         }
-        else -> null
+
+        else -> ctx.defaultCollation
     }
 }
 

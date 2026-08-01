@@ -20,8 +20,12 @@
 
 package io.github.pdvrieze.xml.schematypes
 
+import io.github.pdvrieze.xml.schematypes.values.XsdBase64Binary
+
 interface Collation : Comparator<String> {
     val uri: String
 
     fun equals(left: String, right: String): Boolean = compare(left, right) == 0
+
+    fun key(key: String): XsdBase64Binary
 }

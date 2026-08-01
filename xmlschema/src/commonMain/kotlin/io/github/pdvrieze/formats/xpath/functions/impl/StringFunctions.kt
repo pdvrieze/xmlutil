@@ -28,11 +28,9 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmString
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.argN
-import io.github.pdvrieze.formats.xpath.functions.atomicArgN
-import io.github.pdvrieze.formats.xpath.functions.atomicArgOrEmpty
+import io.github.pdvrieze.formats.xpath.functions.*
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
@@ -46,7 +44,7 @@ import kotlin.math.roundToInt
 @XPathInternal
 object StringFunctions : AbstractFunctionObject() {
 
-    //region functions to assemble and disassemble strings
+    //region 5.2 functions to assemble and disassemble strings
     val fnCodepointsToString = BuiltinFunctionImpl("codepoints-to-string", STRING, INTEGER.any) { args ->
         val arg = args[0].asSequence().map { ((it as XdmAtomic<*>).value as XsdInteger) }
 
@@ -75,7 +73,51 @@ object StringFunctions : AbstractFunctionObject() {
 
     //endregion
 
-    //region functions on string values 5.4
+    //region 5.3 Comparison of strings
+
+    val fnCompare = BuiltinFunctionImpl("compare", listOf(
+        functionType(INTEGER, STRING.opt, STRING.opt),
+        functionType(INTEGER, STRING.opt, STRING.opt, STRING),
+    )) { args ->
+        val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val collation = args.maybeCollation(2)
+        atomic(collation.compare(comparand1.xmlString, comparand2.xmlString))
+    }
+
+    val fnCodePointEqual = BuiltinFunctionImpl("codepoint-equal", BOOLEAN.opt, STRING.opt, STRING.opt) { args ->
+        val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+
+        atomic(comparand1.xmlString == comparand2.xmlString)
+    }
+
+    val fnCollationKey = BuiltinFunctionImpl("collation-key", listOf(
+        functionType(Base64BinaryType.Instance,STRING),
+        functionType(Base64BinaryType.Instance,STRING, STRING),
+    )) { args ->
+        val key = args.atomicArgN<XsdString>(0).xmlString
+        val collation = args.maybeCollation(1)
+        atomic(collation.key(key))
+    }
+
+    val fnContainsToken = BuiltinFunctionImpl("contains-token", listOf(
+        functionType(BOOLEAN, STRING.any, STRING),
+        functionType(BOOLEAN, STRING.any, STRING, STRING),
+    )) { args ->
+        val input = args[0]
+        val token = args[1]
+        val collation = args.maybeCollation(2)
+        if (input.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val tokens = fnTokenize(token).mapTo(HashSet()) { it.value.xmlString }
+        val inputStrings = input.map { (it as XdmAtomic<*>).value.xmlString }
+
+        atomic(inputStrings.any { it in tokens })
+    }
+
+    //endregion
+
+    //region 5.4 functions on string values
     val fnConcat: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("concat", flexFunctionType(STRING, ATOMIC.opt, ATOMIC.opt)) { args ->
         if (args.size < 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Concat requires at least two arguments")
         val concat = args.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString("")
@@ -197,7 +239,7 @@ object StringFunctions : AbstractFunctionObject() {
     }
     //endregion
 
-    //region Functions on substring matching 5.5
+    //region 5.5 Functions on substring matching
     val fnSubstringBefore = BuiltinFunctionImpl("substring-before", listOf(
         functionType(STRING, STRING.opt, STRING.opt),
         functionType(STRING, STRING.opt, STRING.opt, STRING),
@@ -220,7 +262,7 @@ object StringFunctions : AbstractFunctionObject() {
 
     //endregion
 
-    //region String functions using regex 5.6
+    //region 5.6 String functions using regex
     val fnMatches = BuiltinFunctionImpl("matches", listOf(
         functionType(BOOLEAN, STRING.opt, STRING, STRING),
         functionType(BOOLEAN, STRING.opt, STRING),

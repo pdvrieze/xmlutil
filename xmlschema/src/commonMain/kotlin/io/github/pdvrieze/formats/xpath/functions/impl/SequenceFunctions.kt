@@ -168,7 +168,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val distinct = arg.toHashSet()
 
         val result = when (collation) {
-            null -> distinct.toList()
+            // null -> distinct.toList()
             else -> distinct.sortedWith { l, r -> collation.compare(l.value.xmlString, r.value.xmlString) }
         }
 
@@ -186,7 +186,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         XdmSequence.buildAtomic {
             for (arg in seq) {
                 val isEqual = when (collation) {
-                    null -> arg.value == search
+                    // null -> arg.value == search
                     else -> collation.compare(arg.value.xmlString, search.xmlString) == 0
                 }
                 if (isEqual) this.add(arg)
@@ -432,7 +432,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     )) { args ->
         val arg = args[0] as XdmAtomicOrSequence<*>
         if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val collation = args.maybeCollation(1) ?: contextOf<ExprEvalContext>().defaultCollation
+        val collation = args.maybeCollation(1)
 
         val actualValues = getComparisonSequence(arg)
 
@@ -449,7 +449,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     )) { args ->
         val arg = args[0] as XdmAtomicOrSequence<*>
         if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val collation = args.maybeCollation(1) ?: contextOf<ExprEvalContext>().defaultCollation
+        val collation = args.maybeCollation(1)
 
         val actualValues = getComparisonSequence(arg)
 
