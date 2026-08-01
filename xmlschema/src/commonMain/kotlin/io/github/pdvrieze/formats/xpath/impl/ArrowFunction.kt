@@ -21,6 +21,8 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.data.XdmPartialApplication
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 
 @XPathInternal
 internal class ArrowFunction @NeedsXPath3_1 constructor(val expr: ExprSingle, val functionSpecifier: ArrowFunctionSpecifier, val params: List<ExprSingleOrPlaceholder>): AbstractExprSingle() {
@@ -35,6 +37,33 @@ internal class ArrowFunction @NeedsXPath3_1 constructor(val expr: ExprSingle, va
         expr.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
         functionSpecifier.collectUnsupportedExprs(xPathVersion, isXQuery, collector)
         params.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
+    }
+
+    @OptIn(NeedsXPath3_1::class)
+    @XPathInternal
+    context(ctx: EvalContext)
+    override fun eval(): XdmValue<*> {
+        ctx.withExprContext(this) {
+            val function = functionSpecifier.resolve(params.size + 1)
+
+            var isPartial = false
+            val newArgs = buildList<XdmValue<*>?> {
+                add(expr.eval())
+                params.mapTo(this) { p ->
+                    when (p) {
+                        ParamPlaceholder -> {
+                            isPartial = true
+                            null
+                        }
+
+                        is ExprSingle -> p.eval()
+                    }
+                }
+            }
+            if (isPartial) return XdmPartialApplication(function, newArgs)
+
+            return function.invoke(newArgs.filterNotNull())
+        }
     }
 
     context(c: OutputContext)

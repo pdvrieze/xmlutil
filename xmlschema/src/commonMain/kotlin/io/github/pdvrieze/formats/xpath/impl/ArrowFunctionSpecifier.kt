@@ -21,6 +21,11 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -37,6 +42,9 @@ internal sealed class ArrowFunctionSpecifier @NeedsXPath3_1 constructor() {
     context(c: OutputContext)
     abstract fun appendToString(builder: Appendable)
 
+    context(ctx: ExprEvalContext)
+    abstract fun resolve(arity: Int): XdmFunction<*>
+
     internal class QNameFunc @NeedsXPath3_1 constructor(val qname: QName) : ArrowFunctionSpecifier() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
@@ -49,6 +57,11 @@ internal sealed class ArrowFunctionSpecifier @NeedsXPath3_1 constructor() {
             collector: MutableList<Any>
         ) {}
 
+        context(ctx: ExprEvalContext)
+        override fun resolve(arity: Int): XdmFunction<*> {
+            return ctx.resolveFunction(qname, arity)
+                ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, "Function $qname not found")
+        }
     }
 
     internal class SeqFunc @NeedsXPath3_1 internal constructor(val elements: List<ExprSingle>): ArrowFunctionSpecifier() {
@@ -71,6 +84,16 @@ internal sealed class ArrowFunctionSpecifier @NeedsXPath3_1 constructor() {
             elements.forEach { it.collectUnsupportedExprs(xPathVersion, isXQuery, collector) }
         }
 
+        context(ctx: ExprEvalContext)
+        override fun resolve(arity: Int): XdmFunction<*> {
+            val maybeFunction = XdmSequence.build<XdmSingleValue<*>> {
+                for (e in elements) add(e.eval())
+            }
+            if (maybeFunction.size != 1) throw EvaluationException("Sequence not of single element is not a function")
+            val shouldBeFunction = maybeFunction[0] as? XdmFunction<*> ?: throw EvaluationException("${maybeFunction[0]} is not a function")
+            return shouldBeFunction
+        }
+
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.append('(')
@@ -90,6 +113,12 @@ internal sealed class ArrowFunctionSpecifier @NeedsXPath3_1 constructor() {
             isXQuery: Boolean,
             collector: MutableList<Any>
         ) {}
+
+        context(ctx: ExprEvalContext)
+        override fun resolve(arity: Int): XdmFunction<*> {
+            val varValue = ctx.resolveVar(varName) ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, "Undeclared variable: $varName")
+            return varValue as? XdmFunction<*> ?: throw EvaluationException("${varValue} is not a function")
+        }
     }
 }
 

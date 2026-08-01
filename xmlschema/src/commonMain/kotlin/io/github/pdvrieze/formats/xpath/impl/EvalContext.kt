@@ -181,6 +181,10 @@ open class EvalContext(
         }
     }
 
+    fun resolveVar(name: QName): XdmValue<*>? {
+        return variables[name.namespaceURI]?.get(name.localPart)
+    }
+
     data class Trace(val label: String?, val value: String)
 
     @ExperimentalXmlUtilApi

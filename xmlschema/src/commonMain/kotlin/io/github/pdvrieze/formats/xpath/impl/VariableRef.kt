@@ -25,8 +25,6 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.localPart
-import nl.adaptivity.xmlutil.namespaceURI
 
 @OptIn(XPathInternal::class)
 @XPathInternal
@@ -35,7 +33,7 @@ internal class VariableRef(val varName: QName): AbstractExprSingle() {
     @XPathInternal
     context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
-        return ctx.variables[varName.namespaceURI]?.get(varName.localPart)
+        return ctx.resolveVar(varName)
             ?: throw EvaluationException(ErrorCodes.XPST0008_INVALID_NAME, "Undeclared variable: $varName")
     }
 
