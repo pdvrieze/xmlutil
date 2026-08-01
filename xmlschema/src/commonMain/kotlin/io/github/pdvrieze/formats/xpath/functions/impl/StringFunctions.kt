@@ -102,7 +102,7 @@ object StringFunctions : AbstractFunctionObject() {
             var sourcePos: Int = 0
             var charCount = 0
             while (sourcePos < sourceString.length && charCount < start) {
-                sourcePos += sourceString.nextCodePointPos(sourcePos)
+                sourcePos = sourceString.nextCodePointPos(sourcePos)
                 charCount += 1
             }
             charCount = 0
