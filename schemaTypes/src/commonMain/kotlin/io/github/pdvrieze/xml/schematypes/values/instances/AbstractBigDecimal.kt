@@ -281,16 +281,47 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
 
 
         if ((-exponent) %9 ==0) {
-            val newInts = ints.copyOfRange((-exponent)/9, ints.size)
-            return companion.newInstance(newInts, 0)
+            var newInts = ints.copyOfRange((-exponent) / 9, ints.size)
+            return when {
+                newInts.isEmpty() -> when {
+                    sign > 0 -> companion.ZERO
+                    else -> companion.MINUSONE
+                }
+
+                sign > 0 -> companion.newInstance(newInts, 0)
+                else -> {
+                    var carry = 1u
+                    for(i in newInts.indices) {
+                        val value = newInts[i] and 0x3FFF_FFFFu
+                        var newValue = newInts[i] and SPECIAL_MASK.toUInt()
+                        for(j in 0..2) {
+                            val v = value shr (j*BITS_PER_DIGIT)
+                            val w = v + carry
+                            if (w >= MAX_DIGIT.toUInt()) {
+                                newValue = newValue or v
+                            } else {
+                                newValue = newValue or w
+                                carry = 0u
+                            }
+                        }
+                        newInts[i] = newValue
+                        if (carry == 0u)
+                            return companion.newInstance(newInts, 0)
+                    }
+                    newInts = newInts.copyOf(newInts.size+1)
+                    newInts[newInts.lastIndex] = 1u
+
+                    companion.newInstance(newInts, 0)
+                }
+            }
         }
 
         val intDigits = D10Pos(precisionDigits+exponent).toD1000Size()
 
-        val newInts = UIntArray(intDigits.intSize)
+        val newInts = UIntArray(intDigits.intSize.coerceAtLeast(1))
         for (j in 0 until intDigits.p step 3) {
             val i = D1000Pos(j)
-            newInts[i.intPos] = pseudoDigitFromZero(i + 2) * 1_000_000u + pseudoDigitFromZero(i + 1) * 1_000u + pseudoDigitFromZero(i)
+            newInts[i.intPos] = pseudoDigitFromZero(i + 2).shl(20) + pseudoDigitFromZero(i + 1).shl(10) + pseudoDigitFromZero(i)
         }
 
 

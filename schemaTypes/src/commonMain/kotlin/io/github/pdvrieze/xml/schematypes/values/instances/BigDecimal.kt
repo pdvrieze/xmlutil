@@ -78,7 +78,7 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
         override val ZERO = BigDecimal(uintArrayOf(0u), 0)
         override val NEGZERO = BigDecimal(uintArrayOf(0x8000_0000u), 0)
         override val ONE = BigDecimal(uintArrayOf(1u), 0)
-        override val MINUSONE = BigDecimal(uintArrayOf(1u), 0)
+        override val MINUSONE = BigDecimal(uintArrayOf(0x8000_0001u), 0)
 //        val NaN = BigDecimal(NAN_BIT, UIntArray(0), 0)
 //        val POSITIVE_INFINITY = BigDecimal(INFINITY_BIT, NaN.ints, 0)
 //        val NEGATIVE_INFINITY = BigDecimal(-1 xor INFINITY_BIT, NaN.ints, 0)

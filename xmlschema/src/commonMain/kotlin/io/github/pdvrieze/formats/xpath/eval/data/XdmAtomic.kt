@@ -169,7 +169,7 @@ class XdmAtomic<out T : XsdAtomic>(
         }
     }
 
-    override fun toString(): String = value.toString()
+    override fun toString(): String = value.xmlString
 
     companion object {
         val NaN = XdmAtomic(XsdDouble(Double.NaN))
