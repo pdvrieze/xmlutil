@@ -42,7 +42,7 @@ class XdmBuiltinFunction(
     override fun asT(): XdmBuiltinFunction = this
 
     override val dynamicType: XdmFunctionType
-        get() = function.functionTypes.single()
+        get() = staticType
 
     context(ctx: ExprEvalContext)
     override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
