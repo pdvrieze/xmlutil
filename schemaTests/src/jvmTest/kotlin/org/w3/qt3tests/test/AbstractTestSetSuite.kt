@@ -100,7 +100,7 @@ abstract class AbstractTestSetSuite {
             defaultDecimalFormat = decimalFormat,
             decimalFormats = namedDecimalFormats,
             // example variables to test. Note that multiple are needed due to broken tests
-            environmentVariables = mapOf("FOO" to "BAR", "BAR" to "BAZ"),
+            environmentVariables = mapOf("QTTEST" to "42", "QTTEST2" to "other"),
         )
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
