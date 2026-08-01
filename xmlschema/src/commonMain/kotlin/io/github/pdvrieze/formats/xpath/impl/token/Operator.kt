@@ -26,7 +26,6 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
-import io.github.pdvrieze.formats.xpath.functions.impl.BooleanFunctions
 import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
 import io.github.pdvrieze.formats.xpath.functions.impl.StringFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
@@ -59,59 +58,37 @@ sealed class Operator(
     }
 
     @NeedsXPath1
-    object EQ: Operator("=", 5, XPathVersion.XPath1_0, true) {
+    @OptIn(NeedsXPath2::class)
+    object EQ: SequenceComparisonOperator(VAL_EQ, "=", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath3_1::class)
         override val longer: List<Operator> get() = listOf(ARROW)
-
-        @XPathInternal
-        context(ctx: ExprEvalContext)
-        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
-            return when {
-                left.staticType.isAssignableTo(BooleanType.Instance) ->
-                    BooleanFunctions.opBooleanEqual(listOf(left, right))
-
-                else -> XdmBoolean(XsdBoolean(left.isValEqual(right)))
-            }
-        }
-    }
-    @NeedsXPath1
-    object NEQ: Operator("!=", 5, XPathVersion.XPath1_0, true) {
-        @XPathInternal
-        context(ctx: ExprEvalContext)
-        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdBoolean> {
-            val eval = (EQ.eval(left, right) as XdmAtomic<*>).value as XsdBoolean
-            return XdmAtomic((! eval.value))
-        }
     }
 
     @NeedsXPath1
-    object LT: ComparisonOperator("<", 5, XPathVersion.XPath1_0, true) {
+    @OptIn(NeedsXPath2::class)
+    object NEQ: SequenceComparisonOperator(VAL_NEQ,"!=", 5, XPathVersion.XPath1_0, true)
+
+    @NeedsXPath1
+    @OptIn(NeedsXPath2::class)
+    object LT: SequenceComparisonOperator(VAL_LT,"<", 5, XPathVersion.XPath1_0, true) {
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(LE, PRECEDES)
-
-        context(ctx: ExprEvalContext)
-        override fun numericCompare(cmp: Int): Boolean = cmp < 0
     }
 
     @NeedsXPath1
-    object LE : ComparisonOperator("<=", 5, XPathVersion.XPath1_0, true) {
-        context(ctx: ExprEvalContext)
-        override fun numericCompare(cmp: Int): Boolean = cmp <= 0
-    }
+    @OptIn(NeedsXPath2::class)
+    object LE : SequenceComparisonOperator(VAL_LE,"<=", 5, XPathVersion.XPath1_0, true)
+
     @NeedsXPath1
-    object GT : ComparisonOperator(">", 5, XPathVersion.XPath1_0, true){
+    @OptIn(NeedsXPath2::class)
+    object GT : SequenceComparisonOperator(VAL_GT, ">", 5, XPathVersion.XPath1_0, true){
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(GE, FOLLOWS)
-
-        context(ctx: ExprEvalContext)
-        override fun numericCompare(cmp: Int): Boolean = cmp > 0
     }
+
     @NeedsXPath1
-    object GE : ComparisonOperator(">=", 5, XPathVersion.XPath1_0, true) {
-
-        context(ctx: ExprEvalContext)
-        override fun numericCompare(cmp: Int): Boolean = cmp >= 0
-    }
+    @OptIn(NeedsXPath2::class)
+    object GE : SequenceComparisonOperator(VAL_GE, ">=", 5, XPathVersion.XPath1_0, true)
 
     @NeedsXPath2
     object VAL_EQ : ComparisonOperator("eq", 5, XPathVersion.XPath2_0, false) {
@@ -181,12 +158,13 @@ sealed class Operator(
 
     }
     @NeedsXPath2
-    object VAL_NEQ: Operator("ne", 5, XPathVersion.XPath2_0, false) {
-        @XPathInternal
+    object VAL_NEQ: ComparisonOperator("ne", 5, XPathVersion.XPath2_0, false) {
         context(ctx: ExprEvalContext)
-        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
-            val isEq = (VAL_EQ.eval(left, right) as? XdmAtomic<XsdBoolean>)?.value ?: return XdmSequence.EMPTY
-            return XdmBoolean(XsdBoolean(!isEq.value))
+        override fun numericCompare(cmp: Int): Boolean = cmp != 0
+
+        context(ctx: ExprEvalContext)
+        override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
+            return leftVal != rightVal
         }
     }
     @NeedsXPath2
@@ -568,7 +546,7 @@ sealed class Operator(
 }
 
 abstract class SequenceComparisonOperator(
-    private val base: Operator,
+    private val base: ComparisonOperator,
     literal: String,
     priority: Int,
     minVersion: XPathVersion = XPathVersion.XPath3_1,
@@ -577,7 +555,7 @@ abstract class SequenceComparisonOperator(
 ) : Operator(literal, priority, minVersion, isDelimiting) {
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
         if (left is XdmAtomic<*> && left.value is XsdBoolean) {
             val rightBool = XsdBoolean(right.toBoolean())
             return base.eval(left, XdmAtomic(rightBool))
@@ -597,11 +575,12 @@ abstract class SequenceComparisonOperator(
 
         if (leftAtoms.isEmpty() || rightAtoms.isEmpty()) return XdmSequence.EMPTY
 
-        if (left !is XdmAtomic<*> || right !is XdmAtomic<*>) {
-            throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as value comparison operand")
+        for (left in leftAtoms) {
+            for (right in rightAtoms) {
+                if (base.cmpAtomic(left.value, right.value)) return XdmBoolean(true)
+            }
         }
-
-        return base.eval(left, right)
+        return XdmBoolean(false)
     }
 }
 
@@ -637,7 +616,7 @@ abstract class ComparisonOperator(
     }
 
     context(ctx: ExprEvalContext)
-    protected open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
+    internal open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
         val result: Boolean = when (leftVal) {
             is XsdFloat if rightVal is XsdFloat -> cmp(leftVal.value, rightVal.value)
             is XsdDouble if rightVal is XsdDouble -> cmp(leftVal.value, rightVal.value)
