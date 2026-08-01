@@ -98,7 +98,9 @@ abstract class AbstractTestSetSuite {
 
         val deterministicState = EvalContext.DeterministicState(
             defaultDecimalFormat = decimalFormat,
-            decimalFormats = namedDecimalFormats
+            decimalFormats = namedDecimalFormats,
+            // example variables to test. Note that multiple are needed due to broken tests
+            environmentVariables = mapOf("FOO" to "BAR", "BAR" to "BAZ"),
         )
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression
