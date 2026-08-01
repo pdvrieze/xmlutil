@@ -59,7 +59,10 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
                     ParamPlaceholder -> null
                 }
             }
-            return XdmPartialApplication(XdmBuiltinFunction(function), partialArgs)
+
+            val funType = function.functionTypes.single { it.isVarArg || it.argTypes.size == partialArgs.size }
+
+            return XdmPartialApplication(XdmBuiltinFunction(function, funType), partialArgs)
         }
 
         return withExprContext {
