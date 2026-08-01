@@ -45,7 +45,7 @@ abstract class AbstractFunctionObject() {
     context(ctx: ExprEvalContext)
     protected fun List<XdmValue<*>>.argOrContext(
         index: Int,
-        allowContext: Boolean = false
+        allowContext: Boolean = true
     ): XdmValue<*>? = when (size - index){
         0 if allowContext -> ctx.contextValue
         1 -> this[index]
@@ -53,7 +53,7 @@ abstract class AbstractFunctionObject() {
     }
 
     context(ctx: ExprEvalContext)
-    protected fun List<XdmValue<*>>.argOrContext(allowContext: Boolean = false): XdmValue<*>? {
+    protected fun List<XdmValue<*>>.argOrContext(allowContext: Boolean = true): XdmValue<*>? {
         return this.argOrContext(0, allowContext)
     }
 
