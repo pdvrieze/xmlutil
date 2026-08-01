@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmArrayTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmFunctionTypeTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.xdmArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
@@ -34,6 +35,7 @@ import io.github.pdvrieze.formats.xpath.impl.NeedsXPath3_0
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
+import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 object HigherOrderFunctions : AbstractFunctionObject() {
@@ -79,7 +81,13 @@ object HigherOrderFunctions : AbstractFunctionObject() {
     val fnApply = BuiltinFunctionImpl("apply", ITEM.any, XdmFunctionTypeTest.ANY_FUNCTION.single, XdmArrayTypeTest.ANY_ARRAY.single) { args ->
         val function = args.xdmArg<XdmFunction<*>>(0)
         val array = args.xdmArg<XdmArray>(1)
-        function(array.content)
+        val functionName = when (function) {
+            is XdmBuiltinFunction -> function.functionName
+            else -> QName("<anonymous>")
+        }
+
+        val promotedArgs = XFunction.promoteArguments(array.content, function.dynamicType, functionName)
+        function(promotedArgs)
     }
 
     //endregion
