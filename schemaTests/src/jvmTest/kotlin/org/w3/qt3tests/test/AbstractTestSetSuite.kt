@@ -24,10 +24,12 @@ import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.XmlEvent
 import org.junit.jupiter.api.Named
 import org.opentest4j.AssertionFailedError
 import org.w3.qt3tests.Qt3Dependency
@@ -35,7 +37,6 @@ import org.w3.qt3tests.Qt3DependencyType
 import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 import org.w3.qt3tests.resolved.assertions.AssertionResult
-import javax.xml.namespace.NamespaceContext
 import javax.xml.namespace.QName
 
 @OptIn(XPathInternal::class)
@@ -58,7 +59,7 @@ abstract class AbstractTestSetSuite {
 
         var decimalFormat = DecimalFormat()
         val namedDecimalFormats = mutableListOf<DecimalFormat.Named>()
-        var nsContext: NamespaceContext = SimpleNamespaceContext()
+        var nsContext = SimpleNamespaceContext()
         val vars = mutableMapOf<String, MutableMap<String, XdmValue<*>>>()
         if (environment != null) {
             nsContext = environment.getNsContext()
@@ -86,6 +87,13 @@ abstract class AbstractTestSetSuite {
                     (vars.getOrPut(nsUri) { mutableMapOf() })[param.name.localPart] = value
                 }
             }
+        }
+
+        val additionalNamespaces = defaultNamespaces.filter {
+            nsContext.getNamespaceURI(it.prefix) == null
+        }
+        if (additionalNamespaces.isNotEmpty()) {
+            nsContext += additionalNamespaces
         }
 
         val deterministicState = EvalContext.DeterministicState(
@@ -191,6 +199,13 @@ abstract class AbstractTestSetSuite {
                 }
             }
         }
+
+        val defaultNamespaces = listOf(
+            XmlEvent.NamespaceImpl("fn", BuiltinFunction.FN_NAMESPACE),
+            XmlEvent.NamespaceImpl("map", BuiltinFunction.MAP_NAMESPACE),
+            XmlEvent.NamespaceImpl("array", BuiltinFunction.ARRAY_NAMESPACE),
+            XmlEvent.NamespaceImpl("math", BuiltinFunction.MATH_NAMESPACE),
+        )
 
     }
 }
