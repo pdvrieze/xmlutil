@@ -139,7 +139,7 @@ enum class Fn(
     subsequence(SequenceFunctions.fnSubsequence),
     unordered(SequenceFunctions.fnUnordered),
 
-    distinctValues(SequenceFunctions.fnDistincValues),
+    distinctValues(SequenceFunctions.fnDistinctValues),
     indexOf(SequenceFunctions.fnIndexOf),
     deepEqual(SequenceFunctions.fnDeepEqual),
 
@@ -152,6 +152,9 @@ enum class Fn(
     max(SequenceFunctions.fnMax),
     min(SequenceFunctions.fnMin),
     sum(SequenceFunctions.fnSum),
+
+    environmentVariable(SequenceFunctions.fnEnvironmentVariable),
+    availableEnvironmentVariables(SequenceFunctions.fnAvailableEnvironmentVariables),
     //endregion
 
     //region Context functions (15)

@@ -81,6 +81,8 @@ open class EvalContext(
 
     val defaultLanguage: XsdLanguage get() = deterministicState.defaultLanguage
 
+    val environmentVariables: Map<String, String> get() = deterministicState.environmentVariables
+
     val outputDocument: Document by lazy {
         xmlStreaming.genericDomImplementation.createDocument(null, null, null)
     }
@@ -191,6 +193,7 @@ open class EvalContext(
     public class DeterministicState(
         val baseURI: XsdAnyURI? = null,
         val defaultDecimalFormat: DecimalFormat = DecimalFormat(),
+        val environmentVariables: Map<String, String> = emptyMap(),
         decimalFormats: List<DecimalFormat.Named> = emptyList()
     ) {
         private val _traces: MutableList<Trace> = mutableListOf()

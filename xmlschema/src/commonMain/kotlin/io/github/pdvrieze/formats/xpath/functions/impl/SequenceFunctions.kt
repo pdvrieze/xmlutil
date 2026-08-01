@@ -478,6 +478,21 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 14.6 Functions giving access to external information
+    val fnEnvironmentVariable = BuiltinFunctionImpl("environment-variable", STRING.any, STRING.single) { args ->
+        val arg = args.atomicArgN<XsdString>(0).xmlString
+        val ctx = contextOf<ExprEvalContext>()
+        atomicOrNull(ctx.environmentVariables[arg])
+    }
+
+    val fnAvailableEnvironmentVariables = BuiltinFunctionImpl("available-environment-variables", STRING.any) { args ->
+        val ctx = contextOf<ExprEvalContext>()
+        XdmSequence.buildAtomic {
+            for (key in ctx.environmentVariables.keys) {
+                add(atomic(key))
+            }
+        }
+    }
+
     //endregion
 
     //region 14.7 Parsing and serializing

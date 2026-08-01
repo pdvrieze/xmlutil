@@ -22,9 +22,7 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmNode
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
@@ -179,6 +177,33 @@ abstract class AbstractFunctionObject() {
     protected fun atomic(value: Float): XdmAtomic<XsdFloat> = XdmAtomic(XsdFloat(value))
     protected fun atomic(value: Double): XdmAtomic<XsdDouble> = XdmAtomic(XsdDouble(value))
     protected fun atomic(value: Boolean): XdmAtomic<XsdBoolean> = XdmAtomic((value))
+
+    protected fun <T: XsdAtomic> atomicOrNull(value: T?): XdmAtomicOrEmpty<XdmAtomic<T>> =
+        value?.let{ XdmAtomic(it) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: String?): XdmAtomicOrEmpty<XdmAtomic<XsdString>> =
+        value?.let { XdmAtomic(XsdString(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: Int?): XdmAtomicOrEmpty<XdmAtomic<XsdInt>> =
+        value?.let { XdmAtomic(XsdInt(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: Long?): XdmAtomicOrEmpty<XdmAtomic<XsdLong>> =
+        value?.let { XdmAtomic(XsdLong(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: UInt?): XdmAtomicOrEmpty<XdmAtomic<XsdUnsignedInt>> =
+        value?.let { XdmAtomic(XsdUnsignedInt(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: ULong?): XdmAtomicOrEmpty<XdmAtomic<XsdUnsignedLong>> =
+        value?.let { XdmAtomic(XsdUnsignedLong(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: Float?): XdmAtomicOrEmpty<XdmAtomic<XsdFloat>> =
+        value?.let { XdmAtomic(XsdFloat(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: Double?): XdmAtomicOrEmpty<XdmAtomic<XsdDouble>> =
+        value?.let { XdmAtomic(XsdDouble(it)) } ?: XdmSequence.EMPTY
+
+    protected fun atomicOrNull(value: Boolean?): XdmAtomicOrEmpty<XdmAtomic<XsdBoolean>> =
+        value?.let { XdmAtomic((it)) } ?: XdmSequence.EMPTY
 
     companion object {
         val BOOLEAN = XdmSchemaTypeTest(BooleanType.Instance, SINGLE)
