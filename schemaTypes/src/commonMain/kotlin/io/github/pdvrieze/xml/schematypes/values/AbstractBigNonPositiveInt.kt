@@ -173,9 +173,9 @@ abstract class AbstractBigNonPositiveInt<T : AbstractBigNonPositiveInt<T>> prote
     }
 
     override fun compareTo(other: XsdInteger): Int = when {
-        other.sign < 0 -> 1
+        other.sign > 0 -> -1
         other.sign == 0 -> sign
-        else -> compareTo(other.abs())
+        else -> abs().compareTo(other.abs())
     }
 
 
