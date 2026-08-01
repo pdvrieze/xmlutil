@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmArray
 import io.github.pdvrieze.formats.xpath.eval.data.XdmBuiltinFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
@@ -85,8 +87,12 @@ object HigherOrderFunctions : AbstractFunctionObject() {
             is XdmBuiltinFunction -> function.functionName
             else -> QName("<anonymous>")
         }
+        val functionType = function.dynamicType
+        if (! functionType.isVarArg && functionType.argTypes.size != array.content.size) {
+            throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Incorrect argument count in apply")
+        }
 
-        val promotedArgs = XFunction.promoteArguments(array.content, function.dynamicType, functionName)
+        val promotedArgs = XFunction.promoteArguments(array.content, functionType, functionName)
         function(promotedArgs)
     }
 
