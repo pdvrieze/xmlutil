@@ -20,10 +20,32 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+
 @XPathInternal
 class MapExpr @NeedsXPath3_0 constructor(val elements: List<ExprSingle>): AbstractExprSingle() {
     init {
         require(elements.isNotEmpty()) { "Must have at least one element" }
+    }
+
+    @XPathInternal
+    context(ctx: EvalContext)
+    override fun eval(): XdmValue<*> {
+        val elemIt = elements.iterator()
+        var result = elemIt.next().eval()
+
+        while (elemIt.hasNext()) {
+            val elem = elemIt.next()
+            val newSeq = result.flatMapIndexed { index, value ->
+                ctx.withValueContext(value, index, result.size) {
+                    elem.eval()
+                }
+            }
+            result = XdmSequence.fromList(newSeq)
+        }
+
+        return result
     }
 
     context(c: OutputContext)
