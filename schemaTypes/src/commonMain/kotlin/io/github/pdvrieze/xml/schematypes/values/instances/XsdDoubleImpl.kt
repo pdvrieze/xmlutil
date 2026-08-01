@@ -23,12 +23,10 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.math.absoluteValue
-import kotlin.math.nextDown
-import kotlin.math.nextUp
 import kotlin.math.pow
+import kotlin.math.ceil as kmCeil
 import kotlin.math.floor as kmFloor
 import kotlin.math.round as kmRound
 
@@ -45,11 +43,11 @@ class XsdDoubleImpl(override val value: Double): XsdDouble {
     override fun unaryPlus(): XsdDouble = this
 
     override fun ceiling(): XsdDouble {
-        return XsdDouble(value.nextUp())
+        return XsdDouble(kmCeil(value))
     }
 
     override fun floor(): XsdDouble {
-        return XsdDouble(value.nextDown())
+        return XsdDouble(kmFloor(value))
     }
 
     override fun round(): XsdDouble {

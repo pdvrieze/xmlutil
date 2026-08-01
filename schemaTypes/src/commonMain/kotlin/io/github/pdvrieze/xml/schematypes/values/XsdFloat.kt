@@ -27,9 +27,8 @@ import io.github.pdvrieze.xml.schematypes.values.instances.xsToFloat
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
-import kotlin.math.nextDown
-import kotlin.math.nextUp
 import kotlin.math.pow
+import kotlin.math.ceil as kmCeil
 import kotlin.math.floor as kmFloor
 import kotlin.math.round as kmRound
 
@@ -94,11 +93,11 @@ interface XsdFloat: XsdPrimitive, XsdNumeric<XsdFloat> {
 
 
     override fun ceiling(): XsdFloat {
-        return XsdFloat(value.toDouble().nextUp().toFloat())
+        return XsdFloat(kmCeil(value))
     }
 
     override fun floor(): XsdFloat {
-        return XsdFloat(value.toDouble().nextDown().toFloat())
+        return XsdFloat(kmFloor(value))
     }
 
     override fun round(): XsdFloat {
