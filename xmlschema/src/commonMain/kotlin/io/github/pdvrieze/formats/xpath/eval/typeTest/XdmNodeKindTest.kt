@@ -34,7 +34,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 @OptIn(XPathInternal::class, NeedsXPath3_0::class)
 class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) : XdmTypeTest(cardinality) {
 
-    override fun toString(): String = "$nodeKind"
+    override fun toString(): String = "$nodeKind${cardinality.literal}"
 
     override val opt: XdmNodeKindTest get() = XdmNodeKindTest(nodeKind, OccurrenceType.OPTIONAL)
     override val single: XdmNodeKindTest get() = XdmNodeKindTest(nodeKind, OccurrenceType.SINGLE)

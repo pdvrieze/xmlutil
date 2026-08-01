@@ -81,18 +81,21 @@ object Accessors : AbstractFunctionObject() {
             .atomize()
     }
 
-    val fnBaseUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl(
+    val fnBaseUri = BuiltinFunctionImpl(
         "base-uri",
         contextFunctionTypes(t(AnyURIType.Instance).opt, NODE.opt)
     ) { args ->
-        val node = args.toSingleNode() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
-        TODO("Needs XdmNode to properly implement DOM and not do delegation")
+        val node = args.toSingleNode(true)
+            ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+
+        atomicOrNull(node.getBaseURI()?.let { XsdAnyURI(it) })
+//        TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
     val fnDocumentUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl("document-uri",
         contextFunctionTypes(AnyURIType.Instance.opt, NODE.opt)
     ) { args ->
-        val node = args.toSingleNode() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+        val node = args.toSingleNode(true) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
