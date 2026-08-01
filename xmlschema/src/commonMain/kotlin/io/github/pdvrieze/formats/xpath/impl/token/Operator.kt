@@ -70,25 +70,25 @@ sealed class Operator(
 
     @NeedsXPath1
     @OptIn(NeedsXPath2::class)
-    object LT: SequenceComparisonOperator(VAL_LT,"<", 5, XPathVersion.XPath1_0, true) {
+    object LT: SequenceComparisonOperator(VAL_LT,"<", 5, XPathVersion.XPath1_0, true, true) {
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(LE, PRECEDES)
     }
 
     @NeedsXPath1
     @OptIn(NeedsXPath2::class)
-    object LE : SequenceComparisonOperator(VAL_LE,"<=", 5, XPathVersion.XPath1_0, true)
+    object LE : SequenceComparisonOperator(VAL_LE,"<=", 5, XPathVersion.XPath1_0, true, true)
 
     @NeedsXPath1
     @OptIn(NeedsXPath2::class)
-    object GT : SequenceComparisonOperator(VAL_GT, ">", 5, XPathVersion.XPath1_0, true){
+    object GT : SequenceComparisonOperator(VAL_GT, ">", 5, XPathVersion.XPath1_0, true, true){
         @OptIn(NeedsXPath2::class)
         override val longer: List<Operator> get() = listOf(GE, FOLLOWS)
     }
 
     @NeedsXPath1
     @OptIn(NeedsXPath2::class)
-    object GE : SequenceComparisonOperator(VAL_GE, ">=", 5, XPathVersion.XPath1_0, true)
+    object GE : SequenceComparisonOperator(VAL_GE, ">=", 5, XPathVersion.XPath1_0, true, true)
 
     @NeedsXPath2
     object VAL_EQ : ComparisonOperator("eq", 5, XPathVersion.XPath2_0, false) {
@@ -555,29 +555,95 @@ abstract class SequenceComparisonOperator(
 ) : Operator(literal, priority, minVersion, isDelimiting) {
     @XPathInternal
     context(ctx: ExprEvalContext)
-    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
+    override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmBoolean {
+        if (ctx.isXPath1Compat) return evalCompat(left, right)
+
+        val leftAtoms = left.atomize()
+        val rightAtoms = right.atomize()
+
+
+        if (leftAtoms.isEmpty() || rightAtoms.isEmpty()) return XdmBoolean(false)
+
+        for (left in leftAtoms) {
+            for (right in rightAtoms) {
+                var l = left.value
+                var r = right.value
+
+                when {
+                    l is UntypedAtomicType.XsdUntyped -> when {
+                        r is UntypedAtomicType.XsdUntyped -> {
+                            l = StringType.Instance.castFrom(l)
+                            r = StringType.Instance.castFrom(r)
+                        }
+
+                        else -> l = sequenceComparisonCast(r, l)
+                    }
+
+                    r is UntypedAtomicType.XsdUntyped -> r = sequenceComparisonCast(l, r)
+                }
+
+                if (base.cmpAtomic(l, r)) return XdmBoolean(true)
+            }
+        }
+        return XdmBoolean(false)
+    }
+
+    context(ctx: ExprEvalContext)
+    private fun sequenceComparisonCast(typed: XsdAtomic, untyped: UntypedAtomicType.XsdUntyped): XsdAtomic {
+        return when (typed) {
+            is XsdNumeric<*> -> NumericFunctions.fnNumber(XdmAtomic(untyped)).value
+            is XsdDayTimeDuration -> DayTimeDurationType.Instance.castFrom(untyped)
+            is XsdYearMonthDuration -> YearMonthDurationType.Instance.castFrom(untyped)
+            else -> (typed.schemaType as PrimitiveType<*>).primitiveType.castFrom(untyped)
+        }
+    }
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun evalCompat(left: XdmValue<*>, right: XdmValue<*>): XdmBoolean {
+        // Rule 1
         if (left is XdmAtomic<*> && left.value is XsdBoolean) {
             val rightBool = XsdBoolean(right.toBoolean())
-            return base.eval(left, XdmAtomic(rightBool))
+            return XdmBoolean(base.cmpAtomic(left.value, rightBool))
         } else if (right is XdmAtomic<*> && right.value is XsdBoolean) {
             val leftBool = XsdBoolean(left.toBoolean())
-            return base.eval(XdmAtomic(leftBool), right)
+            return XdmBoolean(base.cmpAtomic(leftBool, right.value))
         }
 
+        // rule 2
         var leftAtoms: Collection<XdmAtomic<XsdAtomic>> = left.atomize()
         var rightAtoms: Collection<XdmAtomic<XsdAtomic>> = right.atomize()
 
+        // rule 3
         if (isInequality) {
             leftAtoms = leftAtoms.map { NumericFunctions.fnNumber(it) }
             rightAtoms = rightAtoms.map { NumericFunctions.fnNumber(it) }
         }
 
 
-        if (leftAtoms.isEmpty() || rightAtoms.isEmpty()) return XdmSequence.EMPTY
+        if (leftAtoms.isEmpty() || rightAtoms.isEmpty()) return XdmBoolean(false)
 
         for (left in leftAtoms) {
             for (right in rightAtoms) {
-                if (base.cmpAtomic(left.value, right.value)) return XdmBoolean(true)
+                var l = left.value
+                var r = right.value
+                when {
+                    l is XsdNumeric<*> -> r = r as? XsdNumeric<*> ?: NumericFunctions.fnNumber(right).value
+                    r is XsdNumeric<*> -> l = NumericFunctions.fnNumber(left).value
+                    l is XsdString -> r = StringType.Instance.castFrom(r)
+                    r is XsdString -> l = StringType.Instance.castFrom(l)
+                    l is UntypedAtomicType.XsdUntyped -> when {
+                        r is UntypedAtomicType -> {
+                            l = StringType.Instance.castFrom(l)
+                            r = StringType.Instance.castFrom(r)
+                        }
+                        else -> l = r.schemaType.castFrom(l)
+                    }
+
+                    r is UntypedAtomicType -> r = l.schemaType.castFrom(r)
+                }
+
+                if (base.cmpAtomic(l, r)) return XdmBoolean(true)
             }
         }
         return XdmBoolean(false)
