@@ -156,17 +156,16 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 14.2 Sequence comparison functions
-    val fnDistincValues = BuiltinFunctionImpl("distinct-values", listOf(
+    val fnDistinctValues = BuiltinFunctionImpl("distinct-values", listOf(
         functionType(ATOMIC.any, ATOMIC.any),
         functionType(ATOMIC.any, ATOMIC.any, STRING),
     )) { args ->
-        val arg = args.argN<XdmValue<XdmAtomic<*>>>(0)
+        val arg = args.argN<XdmSequence<XdmAtomic<*>>>(0)
         val collation = args.maybeCollation(1)
 
         if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
 
-        val distinct = HashSet<XdmAtomic<*>>()
-        for(arg in args) { distinct.add(arg as XdmAtomic<*>) }
+        val distinct = arg.toHashSet()
 
         val result = when (collation) {
             null -> distinct.toList()
