@@ -22,7 +22,10 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmInlineFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -59,6 +62,21 @@ sealed class FunctionItem: AbstractExprSingle() {
             if (returnType != null) {
                 builder.append(" as ")
                 returnType.appendToString(builder)
+            }
+        }
+
+        @OptIn(NeedsXPath2::class)
+        @XPathInternal
+        context(ctx: EvalContext)
+        override fun eval(): XdmFunction<*> {
+            ctx.withExprContext(this) {
+                val effectiveReturnType = returnType?.eval() ?: XdmTypeTest.ANY_ITEM.any
+
+                val effectiveParams = params.map {
+                    XdmInlineFunction.Param(it.name, it.type?.eval() ?: XdmTypeTest.ANY_ITEM.any)
+                }
+
+                return XdmInlineFunction(effectiveParams, effectiveReturnType, body)
             }
         }
 

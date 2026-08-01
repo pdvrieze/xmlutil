@@ -125,4 +125,10 @@ sealed class SequenceType @XPathInternal @NeedsXPath2 constructor() {
             AT_LEAST_ONE -> if (other.allowsEmpty) ANY else AT_LEAST_ONE
         }
     }
+
+    companion object {
+        @OptIn(NeedsXPath2::class)
+        val ANY_ITEM: ItemTypeSequence = ItemTypeSequence(ItemTypeTest.ItemTestTest, SequenceType.OccurrenceType.ANY)
+    }
+
 }

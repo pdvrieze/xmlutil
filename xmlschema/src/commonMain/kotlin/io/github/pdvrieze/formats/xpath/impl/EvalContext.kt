@@ -142,6 +142,21 @@ open class EvalContext(
         return EvalContext(contextItem, namepaceContext, isXPath1Compat, newVars, deterministicState, specVersion)
     }
 
+    open fun newVarsScope(vars: Iterable<Pair<QName, XdmValue<*>>>): EvalContext {
+        val newVars = newVarsMap(vars)
+        return EvalContext(contextItem, namepaceContext, isXPath1Compat, newVars, deterministicState, specVersion)
+    }
+
+    protected fun newVarsMap(vars: Iterable<Pair<QName, XdmValue<*>>>): MutableMap<String, Map<String, XdmValue<*>>> {
+        val newVars = variables.toMutableMap()
+        for ((varName, value) in vars) {
+            val nsMap = newVars[varName.namespaceURI]?.toMutableMap() ?: mutableMapOf()
+            nsMap[varName.localPart] = value
+            newVars[varName.namespaceURI] = nsMap
+        }
+        return newVars
+    }
+
     protected fun newVarMap(varName: QName, value: XdmValue<*>): MutableMap<String, Map<String, XdmValue<*>>> {
         val newVars = mutableMapOf<String, Map<String, XdmValue<*>>>()
         newVars.putAll(variables)

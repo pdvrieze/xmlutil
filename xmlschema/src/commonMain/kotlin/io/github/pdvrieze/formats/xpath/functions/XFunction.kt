@@ -139,7 +139,7 @@ interface XFunction<out R : XdmValue<*>> {
         }
 
         context(ctx: ExprEvalContext)
-        private fun promoteArguments(args: List<XdmValue<*>>, functionType: XdmFunctionType, funName: QName): List<XdmValue<*>> {
+        internal fun promoteArguments(args: List<XdmValue<*>>, functionType: XdmFunctionType, funName: QName): List<XdmValue<*>> {
             val result = args.mapIndexed { idx, arg ->
                 val argType = when {
                     idx < functionType.argTypes.size -> functionType.argTypes[idx]

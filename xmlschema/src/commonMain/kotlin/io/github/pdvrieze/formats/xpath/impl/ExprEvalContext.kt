@@ -85,6 +85,11 @@ class ExprEvalContext(
         return copy(variables = newVars)
     }
 
+    override fun newVarsScope(vars: Iterable<Pair<QName, XdmValue<*>>>): ExprEvalContext {
+        val newVars = newVarsMap(vars)
+        return copy(variables = newVars)
+    }
+
     companion object {
         val DUMMY =
             ExprEvalContext(
