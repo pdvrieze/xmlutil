@@ -56,5 +56,11 @@ sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T> {
         throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Cannot cast functions to boolean")
     }
 
+    context(ctx: ExprEvalContext)
+    abstract operator fun invoke(args: List<XdmValue<*>>): XdmValue<*>
+
+    context(ctx: ExprEvalContext)
+    operator fun invoke(vararg args: XdmValue<*>): XdmValue<*> = invoke(args.toList())
+
 }
 

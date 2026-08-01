@@ -22,8 +22,12 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.SpecVersion
 import io.github.pdvrieze.formats.xpath.eval.Collations
+import io.github.pdvrieze.formats.xpath.eval.data.XdmBuiltinFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
@@ -145,6 +149,21 @@ open class EvalContext(
         newVarMap[varName.localPart] = value
         newVars[varName.namespaceURI] = newVarMap
         return newVars
+    }
+
+    fun resolveFunction(name: QName, arity: Int): XdmFunction<*>? {
+        return when (name.getNamespaceURI()) {
+            "", // by default empty functions are just mapped to Fn
+            BuiltinFunction.FN_NAMESPACE ->
+                Fn.of(name.localPart)?.let { c ->
+                    c.functionTypes.firstOrNull { it.argTypes.size == arity || (it.isVarArg && arity >= it.argTypes.size - 1) }
+                        ?.let { type ->
+                            XdmBuiltinFunction(c, type)
+                        }
+                }
+
+            else -> null
+        }
     }
 
     data class Trace(val label: String?, val value: String)

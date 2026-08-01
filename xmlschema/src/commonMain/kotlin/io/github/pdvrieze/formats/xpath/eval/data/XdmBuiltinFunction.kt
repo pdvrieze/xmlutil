@@ -28,12 +28,17 @@ import io.github.pdvrieze.formats.xpath.functions.XFunction
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
+import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 class XdmBuiltinFunction(
     private val function: XFunction<XdmValue<*>>,
     override val staticType: XdmFunctionType = function.functionTypes.single()
 ) : XdmFunction<XdmBuiltinFunction>() {
+
+    val functionName: QName get() = function.functionName
+    val arity: Int get() = staticType.argTypes.size
+
     override fun asT(): XdmBuiltinFunction = this
 
     override val dynamicType: XdmFunctionType
@@ -63,6 +68,11 @@ class XdmBuiltinFunction(
             ErrorCodes.XPTY0004_TYPE_ERROR,
             "Built in functions are not compatible with an arithmetic operator"
         )
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun invoke(args: List<XdmValue<*>>): XdmValue<*> {
+        return function.invoke(args)
     }
 }
 

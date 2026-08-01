@@ -150,6 +150,12 @@ internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.atomicArgOrEmpty(id
     return arg.value
 }
 
+context(ctx: ExprEvalContext)
+internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.xdmArg(idx: Int): T {
+    val r = get(idx) as? T ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected ${T::class.simpleName}, found: ${get(idx)}")
+    return r
+}
+
 
 context(ctx: ExprEvalContext)
 internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.singleAtomicArg(): T {

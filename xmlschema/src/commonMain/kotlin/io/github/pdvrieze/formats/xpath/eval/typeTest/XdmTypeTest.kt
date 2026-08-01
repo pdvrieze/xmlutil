@@ -226,6 +226,11 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
                 else -> XdmSequenceType(fallbackType, cardinality)
             }
         }
+
+        override fun toString(): String = buildString {
+            append("item(*)")
+            append(cardinality.literal)
+        }
     }
 
     abstract val opt: XdmTypeTest

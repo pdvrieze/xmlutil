@@ -123,12 +123,22 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
         override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
             if (value !is XdmFunction<*>) return false
 
-/*
-            value.
-            return isAssignableFromSingle(value.staticType)
-            return value
-*/
-            TODO("not implemented")
+            val funType = value.dynamicType
+            if (! returnType.isAssignableFrom(funType.returnType)) return false
+            // TODO handle vararg
+            if (argTypes.size != funType.argTypes.size) return false
+            for (i in argTypes.indices) {
+                val origArg = argTypes[i]
+                val newFuncArg = funType.argTypes[i]
+                val assignable = when (origArg) {
+                    NONE -> throw IllegalStateException("None type can not be argument type")
+                    EMPTY -> EMPTY.isAssignableFrom(newFuncArg)
+                    is XdmTypeTest -> origArg.isAssignableFromSingle(newFuncArg)
+                }
+                if (!assignable) return false
+            }
+
+            return true
         }
 
         context(ctxt: ExprEvalContext)
@@ -141,6 +151,13 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
 
             else -> argTypes.asSequence().zip(source.argTypes.asSequence())
                 .all { it.second.isAssignableFrom(it.first) }
+        }
+
+        override fun toString(): String = buildString {
+            append("function(")
+            argTypes.joinTo(this)
+            append(") as ")
+            append(returnType)
         }
     }
 

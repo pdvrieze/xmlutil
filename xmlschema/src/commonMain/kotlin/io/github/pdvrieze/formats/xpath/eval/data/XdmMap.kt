@@ -28,6 +28,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.xdmArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -96,6 +97,13 @@ class XdmMap private constructor(
     context(ctx: ExprEvalContext)
     override fun normalizeToArithmetic(): XdmValue<*> {
         throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Maps are not compatible with an arithmetic operator")
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun invoke(args: List<XdmValue<*>>): XdmValue<*> {
+        if (args.size!= 1) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+        val arg = args.xdmArg<XdmAtomic<*>>(0)
+        return content[arg] ?: XdmSequence.EMPTY
     }
 
     companion object {

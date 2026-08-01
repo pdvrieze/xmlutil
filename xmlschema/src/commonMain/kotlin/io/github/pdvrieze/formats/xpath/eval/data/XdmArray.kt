@@ -25,9 +25,11 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @XPathInternal
 class XdmArray(
@@ -77,6 +79,14 @@ class XdmArray(
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean {
         throw EvaluationException(ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE, "Cannot convert array to boolean")
+    }
+
+    context(ctx: ExprEvalContext)
+    override fun invoke(args: List<XdmValue<*>>): XdmValue<*> {
+        if (args.size!= 1) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+        val arg = args.atomicArgN<XsdInteger>(0).toInt()
+        if (arg !in content.indices) throw EvaluationException(ErrorCodes.FOAY0001_ARRAY_BOUNDS, "Index $arg out of array bounds")
+        return content[arg]
     }
 }
 

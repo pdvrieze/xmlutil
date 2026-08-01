@@ -20,6 +20,9 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
@@ -30,6 +33,13 @@ sealed class FunctionItem: AbstractExprSingle() {
         context(c: OutputContext)
         override fun appendToString(builder: Appendable) {
             builder.appendQName(name).append('#').append(index.toString())
+        }
+
+        @XPathInternal
+        context(ctx: EvalContext)
+        override fun eval(): XdmValue<*> {
+            return ctx.resolveFunction(name, index.toInt())
+                ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
         }
     }
 

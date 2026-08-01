@@ -167,6 +167,11 @@ enum class Fn(
     //endregion
 
     //region higher order functions (16)
+    functionLookup(HigherOrderFunctions.fnFunctionLookup),
+    fnFunctionName(HigherOrderFunctions.fnFunctionName),
+    functionArity(HigherOrderFunctions.fnFunctionArity),
+    forEach(HigherOrderFunctions.fnForEach),
+    apply(HigherOrderFunctions.fnApply),
     //endregion
     ;
 

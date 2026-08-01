@@ -92,4 +92,33 @@ class XdmPartialApplication(
             "Partial function applications not compatible with an arithmetic operator"
         )
     }
+
+    context(ctx: ExprEvalContext)
+    override fun invoke(args: List<XdmValue<*>>): XdmValue<*> {
+        val newArgIterator = args.iterator()
+        val oldArgs = this.args
+        val newArgs = buildList {
+            for (oldArgIdx in oldArgs.indices) {
+                val oldArg = oldArgs[oldArgIdx]
+                when(oldArg) {
+                    null if !newArgIterator.hasNext() -> when {
+                        !staticType.isVarArg || oldArgIdx + 1 < args.size ->
+                            throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+                    }
+
+                    null -> add(newArgIterator.next())
+
+                    else -> add(oldArg)
+                }
+            }
+            if (newArgIterator.hasNext()) {
+                if (! staticType.isVarArg) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
+                do {
+                    add(newArgIterator.next())
+                } while (newArgIterator.hasNext())
+            }
+        }
+
+        return function(newArgs)
+    }
 }
