@@ -26,12 +26,10 @@ import io.github.pdvrieze.xml.schematypes.values.XsdHexBinary
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.jvm.JvmInline
 
-@JvmInline
 @XmlUtilInternal
 @OptIn(ExperimentalEncodingApi::class)
-value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, ListHelper<Byte> {
+class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, ListHelper<Byte> {
 
     constructor(hexString: CharSequence) : this(hexString.toString().toByteArray())
 
@@ -43,6 +41,15 @@ value class XsdHexBinaryImpl(override val value: ByteArray) : XsdHexBinary, List
     override val schemaType: HexBinaryType<XsdHexBinary> get() = HexBinaryType.Instance
 
     override fun toString(): String = xmlString
+
+    override fun hashCode(): Int {
+        return value.contentHashCode()
+    }
+
+    override fun equals(other: Any?): Boolean = when (other){
+        is XsdHexBinary -> value.contentEquals(other.value)
+        else -> false
+    }
 
     companion object {
 

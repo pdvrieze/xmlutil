@@ -46,6 +46,5 @@ interface XsdByteArray : XsdAtomic, List<Byte> {
         }
         return value.size.compareTo(other.value.size)
     }
-
 }
 

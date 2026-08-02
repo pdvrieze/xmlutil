@@ -26,12 +26,10 @@ import io.github.pdvrieze.xml.schematypes.values.XsdBase64Binary
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.jvm.JvmInline
 
-@JvmInline
 @XmlUtilInternal
 @OptIn(ExperimentalEncodingApi::class)
-value class XsdBase64BinaryImpl(override val value: ByteArray) : XsdBase64Binary, ListHelper<Byte> {
+class XsdBase64BinaryImpl(override val value: ByteArray) : XsdBase64Binary, ListHelper<Byte> {
     override val xmlString: String get() = Base64.encode(value)
 
     override fun get(index: Int): Byte = value[index]
@@ -41,5 +39,14 @@ value class XsdBase64BinaryImpl(override val value: ByteArray) : XsdBase64Binary
     override val size: Int get() = value.size
 
     override fun toString(): String = xmlString
+
+    override fun hashCode(): Int {
+        return value.contentHashCode()
+    }
+
+    override fun equals(other: Any?): Boolean = when (other){
+        is XsdBase64Binary -> value.contentEquals(other.value)
+        else -> false
+    }
 }
 
