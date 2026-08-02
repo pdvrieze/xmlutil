@@ -32,7 +32,6 @@ import io.github.pdvrieze.formats.xpath.functions.*
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
-import io.github.pdvrieze.xml.schematypes.values.XsdInt
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
@@ -50,10 +49,22 @@ object StringFunctions : AbstractFunctionObject() {
 
         val s = buildString {
             for (cpInt in arg) {
-                when {
-                    cpInt.sign == 0 -> throw NumberFormatException("0 is not a valid xml codepoint")
-                    cpInt.sign < -1 -> throw NumberFormatException("negative values are not valid codepoints")
-                    cpInt > XsdInt(0x10ffff) -> throw NumberFormatException("codepoint out of range")
+                when(val cp = cpInt.toInt()) {
+                    0, in 0xD800..0xDFFF
+                        -> throw EvaluationException(ErrorCodes.FOCH0001, "0x${cp.toString(16)} is not a valid xml codepoint")
+
+                    in Int.MIN_VALUE..-1
+                        -> throw EvaluationException(ErrorCodes.FOCH0001, "negative values are not valid codepoints")
+
+                    in 0xFDD0..0xFDEF
+                        -> throw EvaluationException(ErrorCodes.FOCH0001, "NonCharacter (0x${cp.toString(16)}")
+
+                    in 0x110000..Int.MAX_VALUE
+                        -> throw EvaluationException(ErrorCodes.FOCH0001, "codepoint out of range")
+
+                    else if (cp and 0xFFFE) == 0xFFFE
+                        -> throw EvaluationException(ErrorCodes.FOCH0001, "NonCharacter (0x${cp.toString(16)}")
+
                     else -> appendCodepoint(cpInt.toInt())
                 }
             }

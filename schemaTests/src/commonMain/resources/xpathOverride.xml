@@ -28,4 +28,8 @@
     <test path="fn-format-integer/format-integer-069">
         <expected validity="implementation-dependent" annotation="Word formatting is limited to 1..20"/>
     </test>
+    <test path="fn-codepoints-to-string/K-CodepointToStringFunc-8">
+        <expected validity="implementation-dependent" annotation="References XML version, but out of XML context (thus no error)"/>
+    </test>
+
 </overrides>
