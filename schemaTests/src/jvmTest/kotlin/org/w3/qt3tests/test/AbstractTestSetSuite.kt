@@ -153,7 +153,7 @@ abstract class AbstractTestSetSuite {
                             p.testSet == testSetName && p.group == null || p.group == tc.name || p.test == tc.name
                         }
                     }
-                    .filter { it.dependencies.all { d ->  supportsDependency(d) } }
+                    .filter { it.dependencies.all { d -> supportsDependency(d) } }
                     .map { Named.named(it.name, it) }
                     .toList()
             }
@@ -187,7 +187,11 @@ abstract class AbstractTestSetSuite {
                         Qt3DependencyType.SCHEMAAWARE -> !dep.satisfied
                         Qt3DependencyType.UNICODE_NORMALIZATION_FORM -> !dep.satisfied
                         Qt3DependencyType.UNICODE_VERSION -> !dep.satisfied
-                        Qt3DependencyType.XML_VERSION -> dep.satisfied
+                        Qt3DependencyType.XML_VERSION -> when (dep.value) {
+                            "1.0" -> ! dep.satisfied // No special cases for xml 1.0 (like in codepoints tests)
+
+                            else -> dep.satisfied
+                        }
                         Qt3DependencyType.XSD_VERSION -> when (dep.value) {
                             "1.1" -> dep.satisfied // We support 1.1 only
                             else -> ! dep.satisfied
