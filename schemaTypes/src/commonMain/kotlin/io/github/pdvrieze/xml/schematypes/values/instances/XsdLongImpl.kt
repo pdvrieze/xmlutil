@@ -78,6 +78,10 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
         return XsdUnsignedLong(longValue.absoluteValue.toULong())
     }
 
+    override fun rangeTo(other: XsdLong): Range {
+        return Range(longValue, other.longValue)
+    }
+
     override fun compareTo(other: XsdInteger): Int = when (other) {
         is XsdNonNegativeInteger -> if (longValue < 0L) -1 else longValue.toULong().compareTo(other.toULong())
         else -> longValue.compareTo(other.toLong())
@@ -97,6 +101,28 @@ internal class XsdLongImpl(override val longValue: Long) : XsdLong {
 
     data class DivRem(override val quotient: XsdLong, override val remainder: XsdLong) : XsdLong.DivRem {
         constructor(quotient: Long, remainder: Long): this(XsdLong(quotient), XsdLong(remainder))
+    }
+
+    internal class Range(val start: Long, val endInclusive: Long): XsdIntegerProgression<XsdLong> {
+        override val first: XsdLong get() = XsdLongImpl(start)
+        override val last: XsdLong get() = XsdLongImpl(endInclusive)
+
+        override fun iterator(): Iterator<XsdLong> {
+            return RangeIterator(start, endInclusive)
+        }
+    }
+
+    internal class RangeIterator(start: Long, private val endInclusive: Long): Iterator<XsdLong> {
+        var pos = start
+
+        override fun hasNext(): Boolean {
+            return pos <= endInclusive
+        }
+
+        override fun next(): XsdLong {
+            if (pos > endInclusive) throw NoSuchElementException()
+            return XsdLongImpl(pos++)
+        }
     }
 
 }

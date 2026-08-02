@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdLongImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdUnsignedLongImpl
@@ -158,6 +159,19 @@ interface XsdUnsignedLong : XsdNonNegativeInteger {
 
     override fun abs(): XsdUnsignedLong = this
 
+    operator fun rangeTo(other: XsdUnsignedLong): XsdIntegerProgression<XsdUnsignedLong>
+
+    override operator fun rangeTo(other: XsdInteger): XsdIntegerProgression<XsdInteger> = when (other) {
+        is XsdLong if (other.longValue>=0)
+            -> rangeTo(XsdUnsignedLong(other.longValue.toULong()))
+
+        is XsdLong if uLongValue < Long.MAX_VALUE.toULong() ->
+            XsdLong(toLong()).rangeTo(other)
+
+        is XsdUnsignedLong -> rangeTo(other)
+
+        else -> toBigInt().rangeTo(other)
+    }
 
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other !is XsdUnsignedLong) return -other.compareTo(this)

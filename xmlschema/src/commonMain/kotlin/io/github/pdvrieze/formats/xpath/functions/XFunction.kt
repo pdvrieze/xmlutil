@@ -95,19 +95,11 @@ interface XFunction<out R : XdmValue<*>> {
 
             val atomizedArg = if (type is XdmSchemaTypeTest) arg.atomize() else arg
 
-            when (atomizedArg) {
-                XdmSequence.EMPTY -> return XdmSequence.EMPTY
-                is XdmSingleValue<*> -> return promoteArgument(atomizedArg, type, funName)
-                else -> return XdmSequence.buildSingle {
-                    for (a in atomizedArg) {
-                        add(promoteArgument(a, type, funName))
-                    }
-                }
-            }
+            return atomizedArg.map { promoteArgument(it, type, funName) }
         }
 
         context(ctx: ExprEvalContext)
-        private fun promoteArgument(arg: XdmSingleValue<*>, type: XdmTypeTest, funName: QName): XdmValue<*> {
+        private fun promoteArgument(arg: XdmSingleValue<*>, type: XdmTypeTest, funName: QName): XdmSingleValue<*> {
             when {
                 type.isInstance(arg) -> return arg
                 arg !is XdmAtomic<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected type $type, but got ${arg.staticType}")
@@ -146,7 +138,8 @@ interface XFunction<out R : XdmValue<*>> {
                     functionType.isVarArg -> functionType.argTypes.last()
                     else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name $funName has no matching signature")
                 }
-                promoteArgumentSequence(arg, argType, funName)
+                val p = promoteArgumentSequence(arg, argType, funName)
+                p
             }
             return result
         }

@@ -371,7 +371,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     context(context: ExprEvalContext)
     private fun getComparisonSequence(arg: XdmAtomicOrSequence<*>): List<XsdPrimitive> {
         @Suppress("UNCHECKED_CAST")
-        val seq = arg.map {
+        val seq = arg.toList().map {
             when ((it as XdmAtomic<*>).staticType) {
                 XdmSchemaType.UNTYPED_ATOMIC -> XsdDouble(it.value.xmlString)
 

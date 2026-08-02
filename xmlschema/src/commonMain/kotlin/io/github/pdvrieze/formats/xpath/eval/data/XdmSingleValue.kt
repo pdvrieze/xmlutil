@@ -52,5 +52,9 @@ sealed interface XdmSingleValue<out T : XdmSingleValue<T>> : XdmSingleOrEmpty<T>
         else -> XdmSequence.EMPTY
     }
 
-    override fun iterator(): Iterator<T> = listOf(asT()).iterator()
+    override fun <R : XdmSingleValue<R>> map(operation: (T) -> R): XdmValue<R> = operation(asT())
+
+    override fun iterator(): Iterator<T> = toList().iterator()
+
+    override fun toList(): List<T> = listOf(asT())
 }

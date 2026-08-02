@@ -131,6 +131,16 @@ interface XsdLong : XsdInteger {
     }
     fun divRem(other: XsdLong): DivRem
 
+    operator fun rangeTo(other: XsdLong): XsdIntegerProgression<XsdLong>
+
+    override operator fun rangeTo(other: XsdInteger): XsdIntegerProgression<XsdInteger> = when (other) {
+        is XsdLong -> rangeTo(other)
+
+        is XsdUnsignedLong if other.uLongValue < Long.MAX_VALUE.toULong()
+            -> rangeTo(XsdLong(other.toLong()))
+
+        else -> toBigInt().rangeTo(other)
+    }
 
     override fun abs(): XsdUnsignedLong
 

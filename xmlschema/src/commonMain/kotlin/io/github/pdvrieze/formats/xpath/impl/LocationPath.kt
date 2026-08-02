@@ -53,7 +53,7 @@ internal class LocationPath(
                     is XdmNodeBase<*> -> e
 
                     is XdmSequence<*> -> {
-                        for (m in e.elements) {
+                        for (m in e) {
                             if (m !is XdmNodeBase<*>) throw EvaluationException(
                                 ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
                             )

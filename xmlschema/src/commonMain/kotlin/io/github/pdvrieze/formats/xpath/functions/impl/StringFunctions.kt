@@ -49,21 +49,21 @@ object StringFunctions : AbstractFunctionObject() {
 
         val s = buildString {
             for (cpInt in arg) {
-                when(val cp = cpInt.toInt()) {
-                    0, in 0xD800..0xDFFF
+                when(val cp = cpInt.toLong()) {
+                    0L, in 0xD800..0xDFFF
                         -> throw EvaluationException(ErrorCodes.FOCH0001, "0x${cp.toString(16)} is not a valid xml codepoint")
 
                     in Int.MIN_VALUE..-1
                         -> throw EvaluationException(ErrorCodes.FOCH0001, "negative values are not valid codepoints")
 
                     in 0xFDD0..0xFDEF,
-                    0xFFFE, 0xFFFF
+                    0xFFFEL, 0xFFFFL
                         -> throw EvaluationException(ErrorCodes.FOCH0001, "NonCharacter (0x${cp.toString(16)})")
 
-                    in 0x110000..Int.MAX_VALUE
+                    in 0x110000L..Long.MAX_VALUE
                         -> throw EvaluationException(ErrorCodes.FOCH0001, "codepoint out of range")
 
-                    else -> appendCodepoint(cpInt.toInt())
+                    else -> appendCodepoint(cp.toInt())
                 }
             }
         }
@@ -123,10 +123,10 @@ object StringFunctions : AbstractFunctionObject() {
         val token = args[1]
         val collation = args.maybeCollation(2)
         if (input.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val tokens = fnTokenize(token).mapTo(HashSet()) { it.value.xmlString }
-        val inputStrings = input.map { (it as XdmAtomic<*>).value.xmlString }
+        val tokens = fnTokenize(token).mapTo(HashSet()) { collation.key(it.value.xmlString) }
+        val inputStrings = input.asSequence().map { collation.key((it as XdmAtomic<*>).value.xmlString) }
 
-        atomic(inputStrings.any { it in tokens })
+        atomic(inputStrings.any { a -> a in tokens })
     }
 
     //endregion

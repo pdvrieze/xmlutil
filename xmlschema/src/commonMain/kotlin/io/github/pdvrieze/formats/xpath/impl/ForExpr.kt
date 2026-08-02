@@ -36,8 +36,8 @@ class ForExpr @NeedsXPath2 constructor(val bindings: List<Binding>, val returnEx
         if (bindingIdx >= bindings.size) {
             val evalResult = context(evalContext) { returnExp.eval() }
             when (evalResult) {
-                is XdmSequence<*> -> receiver.addAll(evalResult.elements)
                 is XdmSingleValue<*> -> receiver.add(evalResult)
+                else -> receiver.addAll(evalResult)
             }
             return
         }

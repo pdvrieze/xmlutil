@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 import io.github.pdvrieze.xml.schematypes.types.UnsignedIntType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdIntegerProgression
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
@@ -47,5 +48,28 @@ internal class XsdUnsignedIntImpl(override val uIntValue: UInt) : XsdUnsignedInt
         is XsdDecimal -> other == this
         else -> false
     }
+
+    internal class Range(val start: UInt, val endInclusive: UInt): XsdIntegerProgression<XsdUnsignedInt> {
+        override val first: XsdUnsignedInt get() = XsdUnsignedIntImpl(start)
+        override val last: XsdUnsignedInt get() = XsdUnsignedIntImpl(endInclusive)
+
+        override fun iterator(): Iterator<XsdUnsignedInt> {
+            return RangeIterator(start, endInclusive)
+        }
+    }
+
+    internal class RangeIterator(start: UInt, private val endInclusive: UInt): Iterator<XsdUnsignedInt> {
+        var pos = start
+
+        override fun hasNext(): Boolean {
+            return pos <= endInclusive
+        }
+
+        override fun next(): XsdUnsignedInt {
+            if (pos > endInclusive) throw NoSuchElementException()
+            return XsdUnsignedIntImpl(pos++)
+        }
+    }
+
 }
 

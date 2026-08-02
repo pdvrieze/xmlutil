@@ -146,6 +146,14 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         else -> other.plus(this)
     }
 
+    override fun plus(other: Int): BigInt = plus(XsdInt(other))
+
+    override fun plus(other: Long): BigInt = plus(XsdLong(other))
+
+    override fun plus(other: UInt): BigInt = plus(XsdUnsignedInt(other))
+
+    override fun plus(other: ULong): BigInt = plus(XsdUnsignedLong(other))
+
     override fun plus(other: XsdInteger): BigInt = when {
         sign == 0 -> BigInt(other)
 
@@ -247,11 +255,38 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         return compareTo(other as? XsdInteger ?: return false) == 0
     }
 
-/*
-    override fun toString(): String {
-        return xmlString
+    operator fun rangeTo(other: BigInt): XsdIntegerProgression<BigInt> {
+        return Range(this, other)
     }
-*/
+
+    override fun rangeTo(other: XsdInteger): XsdIntegerProgression<BigInt> = when (other) {
+        is BigInt -> rangeTo(other)
+        else -> rangeTo(other.toBigInt())
+    }
+
+
+    internal class Range(override val first: BigInt, val endInclusive: BigInt): XsdIntegerProgression<BigInt> {
+        override val last: BigInt get() = endInclusive
+
+        override fun iterator(): Iterator<BigInt> {
+            return RangeIterator(first, endInclusive)
+        }
+    }
+
+    internal class RangeIterator(start: BigInt, private val endInclusive: BigInt): Iterator<BigInt> {
+        var pos = start
+
+        override fun hasNext(): Boolean {
+            return pos <= endInclusive
+        }
+
+        override fun next(): BigInt {
+            if (pos > endInclusive) throw NoSuchElementException()
+            return pos.also {
+                pos += 1
+            }
+        }
+    }
 
     class DivRem(
         override val quotient: BigInt,
@@ -259,6 +294,8 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
     ): AbstractBigInteger.DivRem<BigInt, BigInt>, XsdInteger.DivRem, IntDivRem<BigInt, BigInt>
 
     private class ParseResult(val sign: Int, val ints: UIntArray, val exp: ULong)
+
+
 
     companion object {
         public val ZERO: BigInt = BigInt(0, uintArrayOf(0u), 0uL)

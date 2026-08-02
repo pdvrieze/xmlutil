@@ -248,10 +248,10 @@ enum class Axis(val literal: String, val minVersion: XPathVersion = XPathVersion
             is XdmSequence<*> -> {
                 XdmSequence.buildSingle {
                     val seen = HashSet<XdmValue<*>>()
-                    for (e in context.elements) {
+                    for (e in context) {
                         when (val value = eval(e, test)) {
                             is XdmSequence<*> -> {
-                                for (v in value.elements) {
+                                for (v in value) {
                                     if (seen.add(v)) add(v)
                                 }
                             }

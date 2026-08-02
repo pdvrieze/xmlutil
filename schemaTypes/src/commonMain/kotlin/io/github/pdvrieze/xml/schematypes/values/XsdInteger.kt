@@ -55,6 +55,8 @@ interface XsdInteger : XsdDecimal {
 
     override fun roundToInteger(): XsdInteger = this
 
+    operator fun rangeTo(other: XsdInteger): XsdIntegerProgression<XsdInteger>
+
     /** The conceptual size in 32-bit values from 0. */
     val size: ULong
 
@@ -83,6 +85,29 @@ interface XsdInteger : XsdDecimal {
     operator fun get(index: Int): UInt
 
     operator fun plus(other: XsdInteger): XsdInteger
+    override fun plus(other: Int): XsdInteger =
+        super.plus(other) as XsdInteger
+
+    override fun plus(other: Long): XsdInteger =
+        super.plus(other) as XsdInteger
+
+    override fun plus(other: UInt): XsdInteger =
+        super.plus(other) as XsdInteger
+
+    override fun plus(other: ULong): XsdInteger =
+        super.plus(other) as XsdInteger
+
+    override fun minus(other: Int): XsdInteger =
+        super.minus(other) as XsdInteger
+
+    override fun minus(other: Long): XsdInteger =
+        super.minus(other) as XsdInteger
+
+    override fun minus(other: UInt): XsdInteger =
+        super.minus(other) as XsdInteger
+
+    override fun minus(other: ULong): XsdInteger =
+        super.minus(other) as XsdInteger
 
     operator fun minus(other: XsdInteger): XsdInteger
 
@@ -215,3 +240,8 @@ interface XsdInteger : XsdDecimal {
     }
 }
 
+interface XsdIntegerProgression<out T: XsdInteger>: Iterable<T> {
+    val first: T
+    val last: T
+    fun isEmpty(): Boolean = first > last
+}

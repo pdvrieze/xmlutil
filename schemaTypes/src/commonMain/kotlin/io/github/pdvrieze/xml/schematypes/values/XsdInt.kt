@@ -105,6 +105,23 @@ interface XsdInt : XsdLong {
         return intValue.absoluteValue.toUInt()
     }
 
+    operator fun rangeTo(other: XsdInt): XsdIntegerProgression<XsdInt> {
+        return XsdIntImpl.Range(intValue, other.intValue)
+    }
+
+    override fun rangeTo(other: XsdLong): XsdIntegerProgression<XsdLong> = when {
+        other is XsdInt -> rangeTo(other)
+        other.longValue in Int.MIN_VALUE..Int.MAX_VALUE ->
+            rangeTo(XsdInt(other.toInt()))
+
+        else -> XsdLong(longValue).rangeTo(other)
+    }
+
+    override operator fun rangeTo(other: XsdInteger): XsdIntegerProgression<XsdInteger> = when (other) {
+        is XsdInt -> rangeTo(other)
+        else -> super.rangeTo(other)
+    }
+
     override fun countTrailingZeroBits(): ULong {
         return intValue.countTrailingZeroBits().toULong()
     }

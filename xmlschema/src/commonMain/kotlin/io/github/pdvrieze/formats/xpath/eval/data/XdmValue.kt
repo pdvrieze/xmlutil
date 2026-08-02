@@ -106,4 +106,8 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Collection<T> {
         for (i in 0 until size) yield(get(i))
     }
 
+    fun toList(): List<T>// = asSequence().toList()
+
+    fun <R : XdmSingleValue<R>> map(operation: (T) -> R): XdmValue<R>
+
 }

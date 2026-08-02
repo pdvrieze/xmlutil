@@ -56,8 +56,8 @@ class SequenceExpr @NeedsXPath2 constructor(elements: List<ExprSingle>) : Abstra
         val elems = buildList {
             for (e in elements) {
                 when (val r = e.eval()) {
-                    is XdmSequence<*> -> addAll(r.elements)
                     is XdmSingleValue<*> -> add(r)
+                    else -> addAll(r)
                 }
             }
         }

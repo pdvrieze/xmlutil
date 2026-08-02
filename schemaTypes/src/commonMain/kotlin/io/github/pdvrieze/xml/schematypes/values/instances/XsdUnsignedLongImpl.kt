@@ -22,6 +22,8 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.types.UnsignedLongType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
+import io.github.pdvrieze.xml.schematypes.values.XsdIntegerProgression
 import io.github.pdvrieze.xml.schematypes.values.XsdLong
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
@@ -37,6 +39,10 @@ internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsigned
 
     override fun divRem(divider: XsdUnsignedLong): XsdUnsignedLong.DivRem {
         return DivRem(uLongValue / divider.uLongValue, uLongValue % divider.uLongValue)
+    }
+
+    override fun rangeTo(other: XsdUnsignedLong): XsdIntegerProgression<XsdUnsignedLong> {
+        return Range(this.uLongValue, other.uLongValue)
     }
 
     override fun toString(): String {
@@ -56,6 +62,28 @@ internal class XsdUnsignedLongImpl(override val uLongValue: ULong) : XsdUnsigned
 
     data class DivRem(override val quotient: XsdUnsignedLong, override val remainder: XsdUnsignedLong): XsdUnsignedLong.DivRem {
         constructor(quotient: ULong, remainder: ULong): this(XsdUnsignedLongImpl(quotient), XsdUnsignedLongImpl(remainder))
+    }
+
+    internal class Range(val start: ULong, val endInclusive: ULong): XsdIntegerProgression<XsdUnsignedLong> {
+        override val first: XsdUnsignedLong get() = XsdUnsignedLongImpl(start)
+        override val last: XsdUnsignedLong get() = XsdUnsignedLongImpl(endInclusive)
+
+        override fun iterator(): Iterator<XsdUnsignedLong> {
+            return RangeIterator(start, endInclusive)
+        }
+    }
+
+    internal class RangeIterator(start: ULong, private val endInclusive: ULong): Iterator<XsdUnsignedLong> {
+        var pos = start
+
+        override fun hasNext(): Boolean {
+            return pos <= endInclusive
+        }
+
+        override fun next(): XsdUnsignedLong {
+            if (pos > endInclusive) throw NoSuchElementException()
+            return XsdUnsignedLongImpl(pos++)
+        }
     }
 
 }

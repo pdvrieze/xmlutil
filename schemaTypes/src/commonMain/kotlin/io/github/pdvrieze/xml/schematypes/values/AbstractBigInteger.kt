@@ -310,6 +310,10 @@ abstract class AbstractBigInteger<T : AbstractBigInteger<T>> protected construct
         return BigInt(sign, ints, exp)
     }
 
+    open override fun rangeTo(other: XsdInteger): XsdIntegerProgression<BigInt> {
+        return BigInt(this).rangeTo(other.toBigInt())
+    }
+
     fun expandExp(): T {
         return expandWithEffectiveExp(exp)
     }

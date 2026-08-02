@@ -96,6 +96,8 @@ sealed class VAllNNI: Comparable<VAllNNI> { //TODO make interface
 
         operator fun rangeTo(other: VAllNNI): AllNNIRange = AllNNIRange(this, other)
 
+        operator fun rangeTo(other: Value): AllNNIRange = AllNNIRange(this, other as VAllNNI)
+
         override operator fun plus(other: XsdNonNegativeInteger): XsdNonNegativeInteger = when (other) {
             is Value -> Value(value + other.value)
             else -> Value(value + other)

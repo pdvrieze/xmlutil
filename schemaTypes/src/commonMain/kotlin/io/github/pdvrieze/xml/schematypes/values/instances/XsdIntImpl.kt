@@ -25,6 +25,7 @@ import io.github.pdvrieze.xml.schematypes.values.*
 import kotlin.math.absoluteValue
 
 internal class XsdIntImpl(override val intValue: Int) : XsdInt {
+
     override val xmlString: String get() = intValue.toString()
     override val schemaType: IntType<*> get() = IntType.Instance
 
@@ -62,6 +63,28 @@ internal class XsdIntImpl(override val intValue: Int) : XsdInt {
 
     override fun hashCode(): Int {
         return intValue.hashCode()
+    }
+
+    internal class Range(val start: Int, val endInclusive: Int): XsdIntegerProgression<XsdInt> {
+        override val first: XsdInt get() = XsdIntImpl(start)
+        override val last: XsdInt get() = XsdIntImpl(endInclusive)
+
+        override fun iterator(): Iterator<XsdInt> {
+            return RangeIterator(start, endInclusive)
+        }
+    }
+
+    internal class RangeIterator(start: Int, private val endInclusive: Int): Iterator<XsdInt> {
+        var pos = start
+
+        override fun hasNext(): Boolean {
+            return pos <= endInclusive
+        }
+
+        override fun next(): XsdInt {
+            if (pos > endInclusive) throw NoSuchElementException()
+            return XsdIntImpl(pos++)
+        }
     }
 
 }

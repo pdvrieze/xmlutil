@@ -137,6 +137,15 @@ interface XsdUnsignedInt : XsdUnsignedLong {
         else -> BigInt(other).minus(this)
     }
 
+    operator fun rangeTo(other: XsdUnsignedInt): XsdIntegerProgression<XsdUnsignedInt> =
+        XsdUnsignedIntImpl.Range(uIntValue, other.uIntValue)
+
+    override fun rangeTo(other: XsdUnsignedLong): XsdIntegerProgression<XsdUnsignedLong> = when (other) {
+        is XsdUnsignedInt -> rangeTo(other)
+
+        else -> XsdUnsignedLong(uLongValue).rangeTo(other)
+    }
+
     override fun compareTo(other: XsdNonNegativeInteger): Int {
         if (other !is XsdUnsignedInt) return -other.compareTo(this)
         return uIntValue.compareTo(other.uIntValue)
