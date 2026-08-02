@@ -74,8 +74,13 @@ object StringFunctions : AbstractFunctionObject() {
     val fnStringToCodepoints = BuiltinFunctionImpl("string-to-codepoints", INTEGER.any, STRING.opt) { args ->
         val arg = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
 
-        val result = arg.map { atomic(it.code) }
-
+        val result = buildList(arg.length) {
+            var i = 0
+            while (i < arg.length) {
+                add(atomic(arg.codepointAt(i)))
+                i = arg.nextCodePointPos(i)
+            }
+        }
 
         XdmSequence.fromList(result, INTEGER.opt.toValueType())
     }
