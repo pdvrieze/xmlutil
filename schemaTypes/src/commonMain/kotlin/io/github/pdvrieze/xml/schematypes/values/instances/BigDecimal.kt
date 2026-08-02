@@ -21,10 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.requireRange
-import io.github.pdvrieze.xml.schematypes.values.AbstractBigInteger
-import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
-import io.github.pdvrieze.xml.schematypes.values.XsdFloat
-import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import io.github.pdvrieze.xml.schematypes.values.*
 
 /**
  * Big decimal implementation that doe snot include infinite values (INF, -INF, NaN)
@@ -42,6 +39,13 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
 
     constructor(value: CharSequence) : this(parse(value))
 
+    constructor(value: XsdNumeric<*>): this(
+        when(value) {
+            is XsdFloat -> convertToDecimal(value.value)
+            is XsdDouble -> convertToDecimal(value.value)
+            is XsdDecimal -> convertToDecimal(value)
+        }
+    )
     constructor(float: XsdFloat) : this(float.value)
     constructor(float: Float) : this(convertToDecimal(float))
     constructor(double: Double) : this(convertToDecimal(double))

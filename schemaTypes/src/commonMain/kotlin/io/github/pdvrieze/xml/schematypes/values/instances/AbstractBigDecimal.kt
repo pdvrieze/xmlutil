@@ -663,6 +663,10 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         return times(companion.invoke(multiplier.toLong()))
     }
 
+    override fun mod(divider: XsdNumeric<*>): XsdNumeric<*> {
+        return rem(divider)
+    }
+
     infix fun shl(shift: Int): T {
         require (shift >=0) { "Shift must be non-negative" }
         return shl(shift.toULong())
@@ -1353,6 +1357,11 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
             if (d.is_negative) ints[0] = ints[0] or SIGN_BIT.toUInt()
 
             return ParseResult(ints, d.exponent)
+        }
+
+        internal open fun convertToDecimal(decimal: XsdDecimal): ParseResult {
+            val x = decimal.toBigDecimal()
+            return ParseResult(x.ints, x.precisionDigits)
         }
 
     }

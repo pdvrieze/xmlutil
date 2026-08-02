@@ -435,9 +435,33 @@ sealed class Operator(
         }
     }
     @NeedsXPath2
-    object IDIV: Operator("idiv", 9, XPathVersion.XPath2_0, false)
+    object IDIV: ArithmeticOperator("idiv", 9, XPathVersion.XPath2_0, false)
     @NeedsXPath1
-    object MOD: Operator("mod", 9, XPathVersion.XPath1_0, false)
+    object MOD: ArithmeticOperator("mod", 9, XPathVersion.XPath1_0, false) {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun evalFloat(left: Float, right: Float): Float {
+            return left.mod(right)
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun evalDouble(left: Double, right: Double): Double {
+            return left.mod(right)
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger {
+            return left.mod(right)
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal {
+            return left.mod(right)
+        }
+    }
 
     @NeedsXPath1
     object UNION: Operator("union", 10, XPathVersion.XPath1_0, false)

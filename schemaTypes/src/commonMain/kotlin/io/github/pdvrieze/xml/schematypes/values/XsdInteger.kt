@@ -106,9 +106,21 @@ interface XsdInteger : XsdDecimal {
 
     fun rem(divider: XsdInteger): XsdInteger = divRem(divider).remainder
 
+    fun mod(divider: XsdInteger): XsdInteger = rem(divider)
+
     override fun rem(divider: XsdDecimal): XsdDecimal = when (divider) {
         is XsdInteger -> rem(divider)
         else -> divRem(divider).remainder
+    }
+
+    override fun rem(divider: XsdNumeric<*>): XsdNumeric<*> = when (divider) {
+        is XsdInteger -> rem(divider)
+        is XsdDecimal -> toBigDecimal().rem(divider)
+        else -> XsdDouble(toDouble()).rem(XsdDouble(divider.toDouble()))
+    }
+
+    override fun mod(divider: XsdNumeric<*>): XsdNumeric<*> {
+        return rem(divider)
     }
 
     fun divRem(divider: XsdInteger): DivRem

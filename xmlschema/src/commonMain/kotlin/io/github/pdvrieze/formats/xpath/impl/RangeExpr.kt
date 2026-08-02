@@ -31,8 +31,13 @@ class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : Abstrac
     @XPathInternal
     context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
-        val start = ((from.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
-        val end = ((to.eval() as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
+        val fromEval = from.eval()
+        val endEval = to.eval()
+        if (fromEval.isEmpty() || endEval.isEmpty()) return XdmSequence.EMPTY
+
+        val start = ((fromEval as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
+        val end = ((endEval as XdmAtomic<*>).value as XsdNumeric<*>).toInt()
+        if (start >= end) return XdmSequence.EMPTY
 
         return XdmSequence.fromList((start..end).map { XdmAtomic(XsdInt(it)) })
     }

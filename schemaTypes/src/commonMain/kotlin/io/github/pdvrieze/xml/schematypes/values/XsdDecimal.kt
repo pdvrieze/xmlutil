@@ -76,6 +76,13 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
     operator fun div(divider: XsdDecimal): XsdDecimal = divRem(divider).quotient
     operator fun rem(divider: XsdDecimal): XsdDecimal = divRem(divider).remainder
 
+    override fun rem(divider: XsdNumeric<*>): XsdNumeric<*> = when (divider) {
+        is XsdDecimal -> rem(divider)
+        else -> rem(BigDecimal(divider))
+    }
+
+    fun mod(divider: XsdDecimal): XsdDecimal = rem(divider)
+
     override fun compareTo(other: XsdNumeric<*>): Int {
         return when (other) {
             is XsdDouble -> toDouble().compareTo(other.toDouble())
@@ -84,7 +91,7 @@ interface XsdDecimal : XsdPrimitive, XsdNumeric<XsdDecimal> {
         }
     }
 
-    fun toBigDecimal(): XsdBigDecimal
+    fun toBigDecimal(): AbstractBigDecimal<*>
 
     interface DivRem {
         val quotient: XsdDecimal

@@ -61,6 +61,10 @@ sealed interface XsdNumeric<out T : XsdNumeric<T>> : XsdPrimitive {
 
     operator fun times(multiplier: XsdNumeric<*>): XsdNumeric<*>
 
+    operator fun rem(divider: XsdNumeric<*>): XsdNumeric<*>
+
+    fun mod(divider: XsdNumeric<*>): XsdNumeric<*>
+
     operator fun compareTo(other: XsdNumeric<*>): Int
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int {

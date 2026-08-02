@@ -111,6 +111,19 @@ interface XsdLong : XsdInteger {
 
     operator fun rem(other: XsdLong): XsdLong
 
+    override fun rem(divider: XsdDecimal): XsdDecimal = when (divider) {
+        is XsdInteger -> rem(divider)
+        else -> toBigDecimal().rem(divider)
+    }
+
+    override fun rem(divider: XsdNumeric<*>): XsdNumeric<*> = when (divider) {
+        is XsdInteger -> rem(divider)
+        is XsdDouble -> XsdDouble(toDouble()).rem(divider)
+        is XsdFloat -> XsdDouble(toDouble()).rem(divider)
+
+        else -> toBigDecimal().rem(divider)
+    }
+
     override fun divRem(divider: XsdInteger): XsdInteger.DivRem = when (divider){
         is XsdLong -> divRem(divider)
         is XsdUnsignedLong -> divRem(XsdLong(divider.toLong()))
