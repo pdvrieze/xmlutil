@@ -351,7 +351,7 @@ abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         staticType = XdmSequenceType(XdmSchemaType(range.first.schemaType), SequenceType.OccurrenceType.ANY)
     ) {
         override val size: Int
-            get() = super.size
+            get() = (range.last - range.first).toInt() + 1
 
         override fun iterator(): Iterator<XdmAtomic<T>> {
             return RangeIterator(range)
@@ -486,6 +486,10 @@ abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         context(ctx: ExprEvalContext)
         override fun treatAsNonEmpty(type: XdmTypeTest): XdmValue<*> {
             return this
+        }
+
+        override fun toString(): String {
+            return "Map($base, ${operation(base.first())}..${operation(base.last())})"
         }
 
         private inner class MapIterator(private val baseIterator: ListIterator<T>): ListIterator<R> {

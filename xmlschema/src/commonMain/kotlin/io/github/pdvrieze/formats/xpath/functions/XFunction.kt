@@ -138,8 +138,7 @@ interface XFunction<out R : XdmValue<*>> {
                     functionType.isVarArg -> functionType.argTypes.last()
                     else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name $funName has no matching signature")
                 }
-                val p = promoteArgumentSequence(arg, argType, funName)
-                p
+                promoteArgumentSequence(arg, argType, funName)
             }
             return result
         }
