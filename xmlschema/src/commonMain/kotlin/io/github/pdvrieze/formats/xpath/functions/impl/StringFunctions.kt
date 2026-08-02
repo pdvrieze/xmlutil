@@ -56,14 +56,12 @@ object StringFunctions : AbstractFunctionObject() {
                     in Int.MIN_VALUE..-1
                         -> throw EvaluationException(ErrorCodes.FOCH0001, "negative values are not valid codepoints")
 
-                    in 0xFDD0..0xFDEF
-                        -> throw EvaluationException(ErrorCodes.FOCH0001, "NonCharacter (0x${cp.toString(16)}")
+                    in 0xFDD0..0xFDEF,
+                    0xFFFE, 0xFFFF
+                        -> throw EvaluationException(ErrorCodes.FOCH0001, "NonCharacter (0x${cp.toString(16)})")
 
                     in 0x110000..Int.MAX_VALUE
                         -> throw EvaluationException(ErrorCodes.FOCH0001, "codepoint out of range")
-
-                    else if (cp and 0xFFFE) == 0xFFFE
-                        -> throw EvaluationException(ErrorCodes.FOCH0001, "NonCharacter (0x${cp.toString(16)}")
 
                     else -> appendCodepoint(cpInt.toInt())
                 }
