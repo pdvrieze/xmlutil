@@ -138,9 +138,10 @@ interface XPathExpression: XQueryExpression {
             posInfo: XmlReader.LocationInfo? = null,
             isXQuery: Boolean = false
         ): XPathExpression {
-            val parser = XQueryParser(xmlTrimWhitespace(path), namespaceContext, ver, posInfo)
+            val trimmedPath = path.trim()
+            val parser = XQueryParser(trimmedPath, namespaceContext, ver, posInfo)
             return context(XQueryParser.ParseContext(isXQuery)) {
-                XPathExpressionImpl(path, parser.parseXPathExpr(), ver)
+                XPathExpressionImpl(trimmedPath, parser.parseXPathExpr(), ver)
             }
         }
 

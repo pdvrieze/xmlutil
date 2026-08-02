@@ -85,4 +85,6 @@ class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo
         }
     }
 
+    override fun toString(): String = "XPath('$expr')"
+
 }

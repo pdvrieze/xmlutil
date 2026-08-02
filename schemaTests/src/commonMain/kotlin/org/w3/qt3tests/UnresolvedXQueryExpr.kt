@@ -81,13 +81,15 @@ open class UnresolvedXQueryExprImpl(
                 // if not null, xquery is required, but try XPath expression anyway
                 minPath == null -> runCatching {
                     XPathExpression(expr, ctx.namespaceContext, minPath ?: XPathVersion.XPath3_1, locationInfo, true)
-                }
-                    .getOrElse { stubXQueryExpression(expr, ctx.namespaceContext, minQuery ?: XQueryVersion.XQuery3_1, locationInfo) }
+                }.getOrElse { stubXQueryExpression(expr, ctx.namespaceContext, minQuery ?: XQueryVersion.XQuery3_1, locationInfo) }
 
                 else -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
             }
         }
     }
+
+    override fun toString(): String = "XQuery('$expr')"
+
 }
 
 
