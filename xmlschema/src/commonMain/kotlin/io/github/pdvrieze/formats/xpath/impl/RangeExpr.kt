@@ -37,7 +37,7 @@ class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : Abstrac
 
         val start = (fromEval as XdmAtomic<XsdInteger>).value
         val end = (endEval as XdmAtomic<XsdInteger>).value
-        if (start >= end) return XdmSequence.EMPTY
+        if (start > end) return XdmSequence.EMPTY
         if (start == end) return fromEval
 
         return XdmSequence.RangeSequence(start..end)
