@@ -68,6 +68,7 @@ public interface DelegatableFormatCache: FormatCache {
  * Note that this class is marked @XmlUtilInternal as custom implementations may break due to
  * changes or invalid assumptions.
  */
+@OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(XmlUtilInternal::class)
 public interface FormatCache {
     @XmlUtilInternal public fun lookupTypeOrStore(namespace: Namespace?, serialDesc: SerialDescriptor, defaultValue: () -> XmlTypeDescriptor): XmlTypeDescriptor
