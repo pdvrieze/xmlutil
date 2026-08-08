@@ -40,7 +40,7 @@ public class DefaultSerializationProvider : SerializationProvider {
     }
 
     override fun <T : Any> deSerializer(type: KClass<T>): SerializationProvider.XmlDeserializerFun? {
-        val a = type.java.getAnnotation(XmlDeserializer::class.java)
+        val a: XmlDeserializer? = type.java.getAnnotation(XmlDeserializer::class.java)
         return a?.let { DeserializerFun }
     }
 

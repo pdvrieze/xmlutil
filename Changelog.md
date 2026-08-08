@@ -1,35 +1,17 @@
+# 1.0.2-SNAPSHOT
+Changes:
+- Make FormatCache a public interface with `XmlUtilInternal` interface.
+  This allows for external implementation, with appropriate warnings.
+
+Fixes:
+- Fix LRU cache to be resilient to re-entry in the function argument to getOrPut
+- Fix adding documentType instances to a document. Document types no longer
+  have an initial owning document and having no owning document, the owning
+  document will be set.
+- Fix stale service specifications only relevant for xmlserializable.
+
 # 1.0.1 Cache it well
 *(Jul 8, 2026)<br />*
-Fixes:
-- Fix LRU cache so that it properly evicts and maintains its size (#372).
-- Fix reading larger from kotlinx.io sources (#373)
-- Fix close in PseudoBufferedReader (#374), this is probably never called,
-  but still incorrect. Thanks to @m-sasha for reporting many smaller bugs #374 - #382
-- Fix serialization of negative values for XmlFloat/XmlDouble and related
-  serializers (#375).
-- Fix escaping of 0x1f in KtXmlWriter (#376).
-- Allow writing of BOM in CData content, but disallow the sentinal character (0xffff)
-  per the XML standards. Also tidy the error messages (#377).
-- Fix DomWriter.getPrefixes that was incorrectly handling checks for already
-  declared prefixes (#379).
-- Fix writing namespace attributes through XmlEvent.Attribute (#380). Note
-  that the parsing code does not generate Attribute events, so most use cases
-  are not hit by this bug.
-- Fix getPrefix in StartElementEvent (#381). It used a property rather
-  than parameter in the fallback.
-- Fix reading unicode characters in kotlinx.io.Source reading as well
-  as native InputStreamReader (some of the code is common, and was buggy in both).
-Changes:
-- Add support to specify the cache size of the underlying cache for LayeredCache 
-  and `defaultSharedFormatCache()`
-- Add support for a `PerSerializationFormatCache` that allows for caching within
-  individual invocations to a format. 
-- Snapshot releases no longer include javadoc/source artifacts, nor deprecated
-  native targets. This should reduce the overall publication size/burden.
-- Make InputStreamReader and SourceUnicodeReader have dedicated single character
-  read implementations rather than reading into an array of length 1.
-
-# 1.0.1
 Fixes:
 - Fix LRU cache so that it properly evicts and maintains its size (#372).
 - Fix reading larger from kotlinx.io sources (#373)

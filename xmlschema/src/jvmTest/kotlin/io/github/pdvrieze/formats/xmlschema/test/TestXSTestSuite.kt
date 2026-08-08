@@ -231,7 +231,7 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
         }.map { tsInfo ->
             val (testSetResource, _, testSet) = tsInfo
 
-            buildDynamicContainer("Test set '${tsInfo.displayName}'") {
+            buildDynamicContainer("Test set '${tsInfo.displayName}'", testSetResource.classPathUri) {
 /*
                 tsInfo.groupTest {
 
@@ -240,7 +240,7 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
 
                 for (group in testSet.testGroups) {
                     if (false || group.name.equals("addA005")) {
-                        dynamicContainer("Group '${group.name}'") {
+                        dynamicContainer("Group '${group.name}'", testSetResource.classPathUri(group.location)) {
                             addSchemaTests(testSetResource, group, testSet.schemaVersion?.let(::listOf))
                         }
                     }
@@ -548,7 +548,7 @@ class TestXSTestSuite : AbstractTestSuiteSupport() {
                                 val schema = schemaIterator.next()
                                 attributeViewer.encode(XSSchema.serializer(), schema, rootDescriptor)
                             }
-                            assertTrue(elementInfo.seen)
+                            assertTrue(elementInfo.seen, "Expected element ${elementInfo.name} to have been seen")
                         }
                     }
                     if (optional && elementExpectation.testAbsent) {

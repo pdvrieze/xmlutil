@@ -22,9 +22,6 @@ package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.PlatformProcessingInstruction
-import nl.adaptivity.xmlutil.dom.getData
-import nl.adaptivity.xmlutil.dom.getNodeName
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.NodeType
 import nl.adaptivity.xmlutil.dom2.ProcessingInstruction
@@ -35,7 +32,7 @@ public abstract class AbstractProcessingInstruction<out N : IAbstractNode<N, P>,
     parentNode: P? = null
 ) : AbstractLeafNode<N, P>(ownerDocument, parentNode), ProcessingInstruction {
     override fun getOwnerDocument(): AbstractDocument<N, P> {
-        return checkNotNull(super.getOwnerDocument())
+        return checkNotNull(super.getOwnerDocument())  { "Processing instruction nodes cannot have a null owner document" }
     }
 
     final override fun getNodetype(): NodeType = NodeType.PROCESSING_INSTRUCTION_NODE

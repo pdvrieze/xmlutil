@@ -73,9 +73,9 @@ dependencies {
     testImplementation(projects.testutil)
     testImplementation(projects.serialization)
     testImplementation(kotlin("test-junit5"))
-    testImplementation(libs.junit5.api)
+    testImplementation(libs.junit.api)
 
-    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit.engine)
     testRuntimeOnly(libs.woodstox)
 }
 

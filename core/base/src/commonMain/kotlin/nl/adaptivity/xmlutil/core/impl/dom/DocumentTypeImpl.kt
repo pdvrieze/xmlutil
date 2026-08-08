@@ -23,14 +23,9 @@ package nl.adaptivity.xmlutil.core.impl.dom
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.dom.PlatformDocumentType
 import nl.adaptivity.xmlutil.dom.getName
-import nl.adaptivity.xmlutil.dom.getOwnerDocument
 import nl.adaptivity.xmlutil.dom.getPublicId
 import nl.adaptivity.xmlutil.dom.getSystemId
-import nl.adaptivity.xmlutil.dom2.DocumentType
-import nl.adaptivity.xmlutil.dom2.EmptyNamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Entity
-import nl.adaptivity.xmlutil.dom2.NamedNodeMap
-import nl.adaptivity.xmlutil.dom2.Notation
+import nl.adaptivity.xmlutil.dom2.*
 import nl.adaptivity.xmlutil.dom2.impl.AbstractDocumentType
 
 @XmlUtilInternal
@@ -45,7 +40,7 @@ internal class DocumentTypeImpl internal constructor(
     private val _systemId = systemId
 
     internal constructor(original: PlatformDocumentType) : this(
-        original.getOwnerDocument()?.let { DocumentImpl.coerce(it) },
+        null/*original.getOwnerDocument()?.let { DocumentImpl.coerce(it) }*/,
         original.getName(),
         original.getPublicId(),
         original.getSystemId()

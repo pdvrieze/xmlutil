@@ -21,9 +21,7 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.dom.PlatformCharacterData
 import nl.adaptivity.xmlutil.dom.PlatformNode
-import nl.adaptivity.xmlutil.dom.getData
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.CharacterData
 import nl.adaptivity.xmlutil.dom2.data
@@ -38,7 +36,7 @@ public abstract class AbstractCharacterData<out N : IAbstractNode<N, P>, out P :
     override fun normalize() {}
 
     override fun getOwnerDocument(): AbstractDocument<N, P> {
-        return checkNotNull(super.getOwnerDocument()) { "Attributes cannot have a null owner document" }
+        return checkNotNull(super.getOwnerDocument()) { "Character data cannot have a null owner document" }
     }
 
     final override fun getNamespaceURI(): Nothing? = null

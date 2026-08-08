@@ -45,7 +45,9 @@ internal constructor(
         return _ownerDocument
     }
 
-    internal open fun setOwnerDocument(ownerDocument: AbstractDocument<@UnsafeVariance N, @UnsafeVariance P>) {
+    // TODO this should probably protected here
+    @XmlUtilInternal
+    public open fun setOwnerDocument(ownerDocument: AbstractDocument<@UnsafeVariance N, @UnsafeVariance P>) {
         _ownerDocument = ownerDocument
     }
 

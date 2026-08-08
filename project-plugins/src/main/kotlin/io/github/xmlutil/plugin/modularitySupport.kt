@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025.
+ * Copyright (c) 2025-2026.
  *
  * This file is part of xmlutil.
  *
@@ -51,9 +51,7 @@ internal val KotlinProjectExtension.targets: Iterable<KotlinTarget>
     }
 
 fun Project.configureJava9ModuleInfo(multiRelease: Boolean = true) {
-    val disableJPMS = this.rootProject.extra.has("disableJPMS")
-    val ideaActive = System.getProperty("idea.active") == "true"
-//    if (disableJPMS || ideaActive) return
+
     val kotlin = extensions.findByType<KotlinProjectExtension>() ?: return
     val jvmTargets = kotlin.targets.filter { it is KotlinJvmTarget || it is KotlinWithJavaTarget<*, *> }
 

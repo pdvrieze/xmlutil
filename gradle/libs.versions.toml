@@ -6,14 +6,13 @@ dokka = "2.2.0"
 jmh = "0.7.3"
 jmh-core = "1.37"
 benchmark = "0.4.17"
-junit5-jupiter = "5.14.4"
-junit-jupiter = "6.0.3"
-kotlin = "2.4.0"
+junit-jupiter = "6.1.2"
+kotlin = "2.4.10"
 kotlinx-serialization = "1.11.0"
 kotlinx-io = "0.9.0"
 kxml2 = "2.3.0"
 woodstox = "7.2.1"
-xmlutil = "1.0.1"
+xmlutil = "1.0.2-SNAPSHOT"
 httpComponents5 = "5.6.1"
 atomicfu = "0.33.0"
 mockery = "3.4.2"
@@ -24,9 +23,6 @@ kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 
 httpclient = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref="httpComponents5" }
-
-junit5-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5-jupiter" }
-junit5-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5-jupiter" }
 
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }

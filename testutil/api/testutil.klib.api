@@ -1,6 +1,6 @@
 // Klib ABI Dump
-// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
-// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Alias: native => [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -17,21 +17,6 @@ final enum class io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode : kotli
 
     final fun valueOf(kotlin/String): io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.valueOf|valueOf#static(kotlin.String){}[0]
     final fun values(): kotlin/Array<io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode> // io.github.pdvrieze.xmlutil.testutil/DocDeclEqualityMode.values|values#static(){}[0]
-}
-
-final enum class nl.adaptivity.xmlutil.test.multiplatform/Target : kotlin/Enum<nl.adaptivity.xmlutil.test.multiplatform/Target> { // nl.adaptivity.xmlutil.test.multiplatform/Target|null[0]
-    enum entry Browser // nl.adaptivity.xmlutil.test.multiplatform/Target.Browser|null[0]
-    enum entry Java // nl.adaptivity.xmlutil.test.multiplatform/Target.Java|null[0]
-    enum entry Native // nl.adaptivity.xmlutil.test.multiplatform/Target.Native|null[0]
-    enum entry Node // nl.adaptivity.xmlutil.test.multiplatform/Target.Node|null[0]
-    enum entry Wasi // nl.adaptivity.xmlutil.test.multiplatform/Target.Wasi|null[0]
-    enum entry Wasm // nl.adaptivity.xmlutil.test.multiplatform/Target.Wasm|null[0]
-
-    final val entries // nl.adaptivity.xmlutil.test.multiplatform/Target.entries|#static{}entries[0]
-        final fun <get-entries>(): kotlin.enums/EnumEntries<nl.adaptivity.xmlutil.test.multiplatform/Target> // nl.adaptivity.xmlutil.test.multiplatform/Target.entries.<get-entries>|<get-entries>#static(){}[0]
-
-    final fun valueOf(kotlin/String): nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/Target.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<nl.adaptivity.xmlutil.test.multiplatform/Target> // nl.adaptivity.xmlutil.test.multiplatform/Target.values|values#static(){}[0]
 }
 
 abstract interface io.github.pdvrieze.formats.xmlschemaTests/Resource { // io.github.pdvrieze.formats.xmlschemaTests/Resource|null[0]
@@ -72,6 +57,32 @@ abstract class nl.adaptivity.xmlutil.test/TestCommonReader { // nl.adaptivity.xm
     open fun testReadWsInAttr() // nl.adaptivity.xmlutil.test/TestCommonReader.testReadWsInAttr|testReadWsInAttr(){}[0]
     open fun testReaderWithBOM() // nl.adaptivity.xmlutil.test/TestCommonReader.testReaderWithBOM|testReaderWithBOM(){}[0]
     open fun testWhiteSpaceWithEntity() // nl.adaptivity.xmlutil.test/TestCommonReader.testWhiteSpaceWithEntity|testWhiteSpaceWithEntity(){}[0]
+}
+
+sealed class nl.adaptivity.xmlutil.test.multiplatform/Target { // nl.adaptivity.xmlutil.test.multiplatform/Target|null[0]
+    sealed class Js : nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/Target.Js|null[0]
+
+    sealed class Wasm : nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/Target.Wasm|null[0]
+
+    final object Browser : nl.adaptivity.xmlutil.test.multiplatform/Target.Js // nl.adaptivity.xmlutil.test.multiplatform/Target.Browser|null[0]
+
+    final object Java : nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/Target.Java|null[0]
+
+    final object Native : nl.adaptivity.xmlutil.test.multiplatform/Target // nl.adaptivity.xmlutil.test.multiplatform/Target.Native|null[0]
+
+    final object Node : nl.adaptivity.xmlutil.test.multiplatform/Target.Js // nl.adaptivity.xmlutil.test.multiplatform/Target.Node|null[0]
+
+    final object Wasi : nl.adaptivity.xmlutil.test.multiplatform/Target.Wasm // nl.adaptivity.xmlutil.test.multiplatform/Target.Wasi|null[0]
+
+    final object WasmJs : nl.adaptivity.xmlutil.test.multiplatform/Target.Wasm // nl.adaptivity.xmlutil.test.multiplatform/Target.WasmJs|null[0]
+}
+
+final object io.github.pdvrieze.xmlutil.testutil/LocationInfoSerializer : kotlinx.serialization/KSerializer<nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo?> { // io.github.pdvrieze.xmlutil.testutil/LocationInfoSerializer|null[0]
+    final val descriptor // io.github.pdvrieze.xmlutil.testutil/LocationInfoSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // io.github.pdvrieze.xmlutil.testutil/LocationInfoSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo? // io.github.pdvrieze.xmlutil.testutil/LocationInfoSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, nl.adaptivity.xmlutil/XmlReader.ExtLocationInfo?) // io.github.pdvrieze.xmlutil.testutil/LocationInfoSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;nl.adaptivity.xmlutil.XmlReader.ExtLocationInfo?){}[0]
 }
 
 final val nl.adaptivity.xmlutil.test.multiplatform/testTarget // nl.adaptivity.xmlutil.test.multiplatform/testTarget|{}testTarget[0]

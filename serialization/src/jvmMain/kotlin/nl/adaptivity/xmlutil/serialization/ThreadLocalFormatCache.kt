@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025.
+ * Copyright (c) 2024-2026.
  *
  * This file is part of xmlutil.
  *
@@ -28,7 +28,7 @@ import nl.adaptivity.xmlutil.serialization.structure.*
 import java.lang.ref.SoftReference
 import java.util.function.Supplier
 
-public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<FormatCache> = Supplier { DefaultFormatCache() }) : FormatCache() {
+public class ThreadLocalFormatCache(private val baseCacheFactory: Supplier<FormatCache> = Supplier { DefaultFormatCache() }) : FormatCache {
 
     private var threadLocal = ThreadLocal.withInitial(Weaken(baseCacheFactory))
 

@@ -218,6 +218,27 @@ public abstract class AbstractDocument<out N : IAbstractNode<N, P>, out P : IAbs
         return newNode as N
     }
 
+    override fun appendChild(node: PlatformNode): N {
+        if (node is AbstractDocumentType<*, *> && node.getOwnerDocument() == null) {
+            node.setOwnerDocument(this)
+        }
+        return super.appendChild(node)
+    }
+
+    override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N {
+        require(newChild !is AbstractDocumentType<*, *> || newChild == oldChild) {
+            "Document types cannot be replaced"
+        }
+        return super.replaceChild(newChild, oldChild)
+    }
+
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): N {
+        if (newChild is AbstractDocumentType<*, *> && newChild.getOwnerDocument() == null) {
+            newChild.setOwnerDocument(this)
+        }
+        return super.insertBefore(newChild, refChild)
+    }
+
     override fun createAttribute(localName: String): AbstractAttr<N, P> {
         return createAttributeNS("", localName)
     }

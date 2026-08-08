@@ -32,10 +32,6 @@ public abstract class AbstractLeafNode<out N : IAbstractNode<N, P>, out P : IAbs
     parentOrOwner: P? = null,
 ) : AbstractNode<N, P>(ownerDocument, parentOrOwner) {
 
-    override fun getOwnerDocument(): AbstractDocument<N, P>? {
-        return checkNotNull(super.getOwnerDocument()) { "Leaf nodes cannot have a null owner document" }
-    }
-
     final override fun getFirstChild(): Nothing? = null
 
     final override fun getLastChild(): Nothing? = null

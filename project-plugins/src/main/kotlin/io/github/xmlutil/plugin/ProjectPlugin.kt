@@ -20,10 +20,7 @@
 
 package io.github.xmlutil.plugin
 
-import net.devrieze.gradle.ext.applyDefaultXmlUtilHierarchyTemplate
-import net.devrieze.gradle.ext.configureDokka
-import net.devrieze.gradle.ext.envAndroid
-import net.devrieze.gradle.ext.envJvm
+import net.devrieze.gradle.ext.*
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -31,6 +28,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmEnvironment
+import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
@@ -68,6 +66,7 @@ class ProjectPlugin @Inject constructor(
     override fun apply(project: Project) {
         project.logger.info("===================\nUsing ProjectPlugin\n===================")
 
+        project.initProviders()
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
         val xmlutilVersion = libs.findVersion("xmlutil").get().requiredVersion
@@ -264,6 +263,17 @@ class ProjectPlugin @Inject constructor(
 
                     }
 
+                    project.configurations
+                        .matching { it.name.startsWith("test") && (it.isCanBeConsumed || it.isCanBeResolved) }
+                        .configureEach {
+                            attributes {
+                                attribute(
+                                    TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+                                    projectConfiguration.testJvmTarget.get().target.toInt()
+                                )
+                            }
+                        }
+
                 }
 
                 is KotlinMultiplatformPluginWrapper -> project.afterEvaluate {
@@ -409,6 +419,10 @@ abstract class ProjectConfigurationExtension {
     abstract val generateJavaModules: Property<Boolean>
     abstract val allWarningsAsErrors: Property<Boolean>
     abstract val optIns: ListProperty<String>
+}
+
+private fun Project.initProviders() {
+    initNativeState()
 }
 
 private var _isSnapshot: Int = -1

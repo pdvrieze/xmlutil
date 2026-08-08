@@ -32,7 +32,7 @@ internal object SimpleDOMImplementation : AbstractDOMImplementation() {
 
 
     override fun createDocumentType(qualifiedName: String, publicId: String, systemId: String): DocumentTypeImpl {
-        return DocumentTypeImpl(DocumentImpl(null), qualifiedName, publicId, systemId)
+        return DocumentTypeImpl(null, qualifiedName, publicId, systemId)
     }
 
     override fun createDocument(namespace: String?, qualifiedName: String?, documentType: DocumentType?): DocumentImpl {

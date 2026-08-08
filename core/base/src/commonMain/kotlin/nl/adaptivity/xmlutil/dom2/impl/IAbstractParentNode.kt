@@ -42,6 +42,9 @@ public interface IAbstractParentNode<out N : IAbstractNode<N, P>, out P : IAbstr
 
     override fun replaceChild(newChild: PlatformNode, oldChild: PlatformNode): N
 
+    @ExperimentalXmlUtilApi
+    override fun insertBefore(newChild: PlatformNode, refChild: PlatformNode?): N
+
     override fun removeChild(node: PlatformNode): N
 
     public fun getSiblingBefore(ref: Node): N?
