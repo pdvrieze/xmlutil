@@ -1,4 +1,7 @@
-# 1.0.2-SNAPSHOT
+# 1.0.3-SNAPSHOT
+
+# 1.0.2
+*(Aug 8, 2026)<br />*
 Changes:
 - Make FormatCache a public interface with `XmlUtilInternal` interface.
   This allows for external implementation, with appropriate warnings.

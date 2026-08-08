@@ -12,3 +12,5 @@ encodings.xml
 kotlinc.xml
 libraries-with-intellij-classes.xml
 /AndroidProjectSystem.xml
+/markdown.xml
+/runConfigurations.xml

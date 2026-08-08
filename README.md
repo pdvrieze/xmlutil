@@ -49,13 +49,13 @@ package. The `JVM` and `Android` packages provide the native
 implementations and depend on (publishing) the `jvmCommon` package.
 #### multiplatform (will default to multiplatform implementation for JVM/Android)
 ```
-   implementation("io.github.pdvrieze.xmlutil:core:1.0.2-SNAHPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core:1.0.3-SNAPSHOT")
 ```
 #### **Optional** JVM – uses the stax API _not available_ on Android
 Please note that this module is **not required or needed**. It adds support for
 integrating with the JVM's streaming API for XML (STAX).
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.2-SNAHPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-jdk:1.0.3-SNAPSHOT")
 ```
 #### **Not recommended** Android – Uses the android streaming library
 This adds support for parsing from the XMLPullParser API as provided on
@@ -65,11 +65,11 @@ cross platform implementation is derived from the Android implementation,
 but has further optimizations and supports more features (such as entity
 parsing).
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.2-SNAHPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-android:1.0.3-SNAPSHOT")
 ```
 #### JS – Wraps DOM
 ```
-   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.2-SNAHPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:core-js:1.0.3-SNAPSHOT")
 ```
 
 #### Native
@@ -80,7 +80,7 @@ that mirrors the Java API)
 ### Serialization
 #### multiplatform (this coordinate should be used by default)
 ```
-   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.2-SNAHPSHOT")
+   implementation("io.github.pdvrieze.xmlutil:serialization:1.0.3-SNAPSHOT")
 ```
 
 ## Serialization help
@@ -104,6 +104,14 @@ XML.v1.decodeFromString(HelloWorld.serializer(), "<HelloWorld user='You!' />")
 Please look at the examples and the documentation for further features
 that can influence: the tag names/namespaces used, the actual structure
 used (how lists and polymorphic types are handled), etc.
+
+### Warning
+Please note that using duplicate `@SerialName` values for types is not
+supported by the underlying kotlinx.serialization library and will
+cause serialization issues due to cache key duplication. Instead of using
+`@SerialName` for the type, please use `@XmlSerialName` this will avoid
+duplicate type names, and in addition allow for more deterministic
+ways to determine the name used in serialization.
 
 ### Examples
 You should be able to find examples in the [Examples module](examples/README.md)
