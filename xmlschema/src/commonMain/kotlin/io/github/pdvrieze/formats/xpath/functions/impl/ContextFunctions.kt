@@ -36,51 +36,51 @@ import io.github.pdvrieze.xml.schematypes.values.XsdString
 object ContextFunctions : AbstractFunctionObject() {
 
     /** Returns the context position from the dynamic context.*/
-    val fnPosition = BuiltinFunctionImpl("position", functionType(INTEGER)) { args ->
+    val fnPosition = BuiltinFunctionImpl.Fn("position", functionType(INTEGER)) Fn@{ args ->
         val item = contextOf<ExprEvalContext>().contextItem ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         atomic(item.position)
     }
 
     /** Returns the context size from the dynamic context.*/
-    val fnLast = BuiltinFunctionImpl("last", functionType(INTEGER)) { args ->
+    val fnLast = BuiltinFunctionImpl.Fn("last", functionType(INTEGER)) Fn@{ args ->
         val item = contextOf<ExprEvalContext>().contextItem ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         atomic(item.last)
     }
 
     /** Returns the current date and time (with timezone).*/
-    val fnCurrentDateTime = BuiltinFunctionImpl("current-dateTime", functionType(t(DateTimeStampType.Instance))) { args ->
+    val fnCurrentDateTime = BuiltinFunctionImpl.Fn("current-dateTime", functionType(t(DateTimeStampType.Instance))) Fn@{ args ->
         atomic(contextOf<ExprEvalContext>().currentTimeStamp)
     }
 
     /** Returns the current date.*/
-    val fnCurrentDate = BuiltinFunctionImpl("current-date", functionType(t(DateType.Instance))) { args ->
+    val fnCurrentDate = BuiltinFunctionImpl.Fn("current-date", functionType(t(DateType.Instance))) Fn@{ args ->
         atomic(contextOf<ExprEvalContext>().currentTimeStamp.toDate())
     }
 
     /** Returns the current time.*/
-    val fnCurrentTime = BuiltinFunctionImpl("current-time", functionType(t(TimeType.Instance))) { args ->
+    val fnCurrentTime = BuiltinFunctionImpl.Fn("current-time", functionType(t(TimeType.Instance))) Fn@{ args ->
         atomic(contextOf<ExprEvalContext>().currentTimeStamp.toTime())
     }
 
     /** Returns the value of the implicit timezone property from the dynamic context.*/
-    val fnImplicitTimezone = BuiltinFunctionImpl("implicit-timezone", functionType(t(DayTimeDurationType.Instance))) { args ->
+    val fnImplicitTimezone = BuiltinFunctionImpl.Fn("implicit-timezone", functionType(t(DayTimeDurationType.Instance))) Fn@{ args ->
         // don't use the current timezone as that needs the current time to calculate the offset
         val timezoneOffset = contextOf<ExprEvalContext>().currentTimeStamp.timezoneOffset
         atomic(XsdDayTimeDuration.ofMinutes(timezoneOffset))
     }
 
     /** Returns the value of the default collation property from the static context.*/
-    val fnDefaultCollation = BuiltinFunctionImpl("default-collation", functionType(STRING)) { args ->
+    val fnDefaultCollation = BuiltinFunctionImpl.Fn("default-collation", functionType(STRING)) Fn@{ args ->
         atomic(XsdString(contextOf<ExprEvalContext>().defaultCollation.uri))
     }
 
     /** Returns the value of the default language property from the dynamic context.*/
-    val fnDefaultLanguage = BuiltinFunctionImpl("default-language", functionType(t(LanguageType.Instance))) { args ->
+    val fnDefaultLanguage = BuiltinFunctionImpl.Fn("default-language", functionType(t(LanguageType.Instance))) Fn@{ args ->
         atomic(XsdLanguage("en"))
     }
 
     /** This function returns the value of the static base URI property from the static context.*/
-    val fnStaticBaseUri = BuiltinFunctionImpl("static-base-uri", functionType(t(AnyURIType.Instance))) { args ->
+    val fnStaticBaseUri = BuiltinFunctionImpl.Fn("static-base-uri", functionType(t(AnyURIType.Instance))) Fn@{ args ->
         contextOf<ExprEvalContext>().baseUri?.let{ XdmAtomic(it) } ?: XdmSequence.EMPTY
     }
 

@@ -35,8 +35,7 @@ class XdmBuiltinFunction(
     private val function: XFunction<XdmValue<*>>,
     override val staticType: XdmFunctionType = function.functionTypes.single()
 ) : XdmFunction<XdmBuiltinFunction>() {
-
-    val functionName: QName get() = function.functionName
+    override val maybeName: QName get() = function.functionName
     val arity: Int get() = staticType.argTypes.size
 
     override fun asT(): XdmBuiltinFunction = this

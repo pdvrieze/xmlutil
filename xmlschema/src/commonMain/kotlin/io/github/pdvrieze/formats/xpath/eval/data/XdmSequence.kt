@@ -40,6 +40,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdIntegerProgression
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.experimental.ExperimentalTypeInference
 
 @OptIn(XPathInternal::class)
 abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(

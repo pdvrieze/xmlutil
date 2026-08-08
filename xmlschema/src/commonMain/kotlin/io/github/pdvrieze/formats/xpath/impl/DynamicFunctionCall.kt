@@ -20,8 +20,15 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
+import io.github.pdvrieze.formats.xpath.eval.data.XdmPartialApplication
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.XFunction
+import nl.adaptivity.xmlutil.QName
+
 @XPathInternal
 internal class DynamicFunctionCall @NeedsXPath3_0 constructor(val expr: Expr, args: List<ExprSingleOrPlaceholder>): FunctionCall(args) {
+
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
         expr.appendToString(builder)
@@ -42,6 +49,32 @@ internal class DynamicFunctionCall @NeedsXPath3_0 constructor(val expr: Expr, ar
         var result = super.hashCode()
         result = 31 * result + expr.hashCode()
         return result
+    }
+
+    companion object {
+
+        @OptIn(NeedsXPath3_1::class)
+        context(ctx: ExprEvalContext)
+        fun eval(function: XdmFunction<*>, args: List<ExprSingleOrPlaceholder>): XdmValue<*> {
+            var hasPlaceholder = false
+            val evaluatedArgs = args.map {
+                when (it) {
+                    is ExprSingle -> it.eval()
+                    ParamPlaceholder -> {
+                        hasPlaceholder = true; null
+                    }
+                }
+            }
+
+            if (hasPlaceholder) return XdmPartialApplication(function, evaluatedArgs)
+            val notNullArgs = evaluatedArgs.requireNoNulls()
+
+            val realArgs =
+                XFunction.promoteArguments(notNullArgs, function.dynamicType, function.maybeName ?: QName("<unknown>"))
+
+            return function.invoke(realArgs)
+        }
+
     }
 
 }

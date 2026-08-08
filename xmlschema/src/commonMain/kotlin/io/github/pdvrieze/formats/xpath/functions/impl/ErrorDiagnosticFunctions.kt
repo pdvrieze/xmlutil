@@ -35,12 +35,12 @@ import io.github.pdvrieze.xml.schematypes.values.XsdString
 @XPathInternal
 object ErrorDiagnosticFunctions : AbstractFunctionObject() {
 
-    val fnError: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("error", listOf(
+    val fnError: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn("error", listOf(
         functionType(XdmSequenceTypeTest.NONE),
         functionType(XdmSequenceTypeTest.NONE, QNAME.opt),
         functionType(XdmSequenceTypeTest.NONE, QNAME.opt, STRING),
         functionType(XdmSequenceTypeTest.NONE, QNAME.opt, STRING, ITEM.any),
-    )) { args ->
+    )) Fn@{ args ->
         val declaredCode = if (args.size > 0) args.atomicArgOrEmpty<XsdQName>(0) else null
 
         val errorCode: ErrorCodes?
@@ -67,10 +67,10 @@ object ErrorDiagnosticFunctions : AbstractFunctionObject() {
         }
     }
 
-    val fnTrace = BuiltinFunctionImpl("trace", listOf(
+    val fnTrace = BuiltinFunctionImpl.Fn("trace", listOf(
         functionType(ITEM.any, ITEM.any),
         functionType(ITEM.any, ITEM.any, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val value = args[0]
         val label = if (args.size==2) args.atomicArgN<XsdString>(1).xmlString else null
 

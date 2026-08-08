@@ -30,6 +30,7 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
+import nl.adaptivity.xmlutil.QName
 
 @OptIn(XPathInternal::class)
 class XdmPartialApplication(
@@ -38,6 +39,8 @@ class XdmPartialApplication(
     override val staticType: XdmFunctionType = function.partialStaticType(args)
 ) : XdmFunction<XdmPartialApplication>() {
     override fun asT(): XdmPartialApplication = this
+
+    override val maybeName: QName? get() = null
 
     override val dynamicType: XdmFunctionType
         get() = function.partialDynType(args)

@@ -43,25 +43,25 @@ import nl.adaptivity.xmlutil.QName
 object HigherOrderFunctions : AbstractFunctionObject() {
     //region 16.1 Functions on functions
     @OptIn(NeedsXPath3_0::class)
-    val fnFunctionLookup = BuiltinFunctionImpl(
+    val fnFunctionLookup = BuiltinFunctionImpl.Fn(
         "function-lookup",
         XdmFunctionTypeTest.ANY_FUNCTION.opt,
         QNAME, INTEGER
-    ) { args ->
+    ) Fn@{ args ->
         val ctx = contextOf<ExprEvalContext>()
         val name = args.atomicArgN<XsdQName>(0).toQName()
         val arity = args.atomicArgN<XsdInteger>(1).toInt()
         ctx.resolveFunction(name, arity) ?: XdmSequence.EMPTY
     }
 
-    val fnFunctionName = BuiltinFunctionImpl("function-name", QNAME.opt, XdmFunctionTypeTest.ANY_FUNCTION.single) { args ->
+    val fnFunctionName = BuiltinFunctionImpl.Fn("function-name", QNAME.opt, XdmFunctionTypeTest.ANY_FUNCTION.single) Fn@{ args ->
         when(val fn = args.xdmArg<XdmFunction<*>>(0)) {
-            is XdmBuiltinFunction -> atomic(XsdQName(fn.functionName))
+            is XdmBuiltinFunction -> atomic(XsdQName(fn.maybeName))
             else -> XdmSequence.EMPTY
         }
     }
 
-    val fnFunctionArity = BuiltinFunctionImpl("function-arity", INTEGER, XdmFunctionTypeTest.ANY_FUNCTION.single) { args ->
+    val fnFunctionArity = BuiltinFunctionImpl.Fn("function-arity", INTEGER, XdmFunctionTypeTest.ANY_FUNCTION.single) Fn@{ args ->
         val fn = args.xdmArg<XdmFunction<*>>(0)
         atomic(fn.staticType.argTypes.size)
     }
@@ -70,7 +70,7 @@ object HigherOrderFunctions : AbstractFunctionObject() {
 
     //region 16.2 Basic higher order functions
 
-    val fnForEach = BuiltinFunctionImpl("for-each", ITEM.any, ITEM.any, XdmFunctionTypeTest(ITEM.any, ITEM.single)) { args ->
+    val fnForEach = BuiltinFunctionImpl.Fn("for-each", ITEM.any, ITEM.any, XdmFunctionTypeTest(ITEM.any, ITEM.single)) Fn@{ args ->
         val seq = args[0]
         val action = args.xdmArg<XdmFunction<*>>(1)
 
@@ -80,11 +80,11 @@ object HigherOrderFunctions : AbstractFunctionObject() {
         XdmSequence.fromList(results)
     }
 
-    val fnApply = BuiltinFunctionImpl("apply", ITEM.any, XdmFunctionTypeTest.ANY_FUNCTION.single, XdmArrayTypeTest.ANY_ARRAY.single) { args ->
+    val fnApply = BuiltinFunctionImpl.Fn("apply", ITEM.any, XdmFunctionTypeTest.ANY_FUNCTION.single, XdmArrayTypeTest.ANY_ARRAY.single) Fn@{ args ->
         val function = args.xdmArg<XdmFunction<*>>(0)
         val array = args.xdmArg<XdmArray>(1)
         val functionName = when (function) {
-            is XdmBuiltinFunction -> function.functionName
+            is XdmBuiltinFunction -> function.maybeName
             else -> QName("<anonymous>")
         }
         val functionType = function.dynamicType

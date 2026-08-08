@@ -32,7 +32,7 @@ enum class Collations(override val uri: String): Collation {
         }
 
     },
-    ASCII_CASE_INSENSITIVE("http://www.w3.org/2005/xpath-functions/collation/ascii-case-insensitive") {
+    ASCII_CASE_INSENSITIVE("http://www.w3.org/2005/xpath-functions/collation/html-ascii-case-insensitive") {
         override fun compare(a: String, b: String): Int {
             for (i in 0 until minOf(a.length, b.length)) {
                 val l = a[i].let { if (it < 'Z') it.lowercaseChar() else it }

@@ -44,7 +44,7 @@ import kotlin.math.roundToInt
 object StringFunctions : AbstractFunctionObject() {
 
     //region 5.2 functions to assemble and disassemble strings
-    val fnCodepointsToString = BuiltinFunctionImpl("codepoints-to-string", STRING, INTEGER.any) { args ->
+    val fnCodepointsToString = BuiltinFunctionImpl.Fn("codepoints-to-string", STRING, INTEGER.any) Fn@{ args ->
         val arg = args[0].asSequence().map { ((it as XdmAtomic<*>).value as XsdInteger) }
 
         val s = buildString {
@@ -71,8 +71,8 @@ object StringFunctions : AbstractFunctionObject() {
         atomic(s)
     }
 
-    val fnStringToCodepoints = BuiltinFunctionImpl("string-to-codepoints", INTEGER.any, STRING.opt) { args ->
-        val arg = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    val fnStringToCodepoints = BuiltinFunctionImpl.Fn("string-to-codepoints", INTEGER.any, STRING.opt) Fn@{ args ->
+        val arg = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: return@Fn XdmSequence.EMPTY
 
         val result = buildList(arg.length) {
             var i = 0
@@ -89,40 +89,40 @@ object StringFunctions : AbstractFunctionObject() {
 
     //region 5.3 Comparison of strings
 
-    val fnCompare = BuiltinFunctionImpl("compare", listOf(
+    val fnCompare = BuiltinFunctionImpl.Fn("compare", listOf(
         functionType(INTEGER, STRING.opt, STRING.opt),
         functionType(INTEGER, STRING.opt, STRING.opt, STRING),
-    )) { args ->
-        val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    )) Fn@{ args ->
+        val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@Fn XdmSequence.EMPTY
+        val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@Fn XdmSequence.EMPTY
         val collation = args.maybeCollation(2)
         atomic(collation.compare(comparand1.xmlString, comparand2.xmlString))
     }
 
-    val fnCodePointEqual = BuiltinFunctionImpl("codepoint-equal", BOOLEAN.opt, STRING.opt, STRING.opt) { args ->
-        val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    val fnCodePointEqual = BuiltinFunctionImpl.Fn("codepoint-equal", BOOLEAN.opt, STRING.opt, STRING.opt) Fn@{ args ->
+        val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@Fn XdmSequence.EMPTY
+        val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@Fn XdmSequence.EMPTY
 
         atomic(comparand1.xmlString == comparand2.xmlString)
     }
 
-    val fnCollationKey = BuiltinFunctionImpl("collation-key", listOf(
+    val fnCollationKey = BuiltinFunctionImpl.Fn("collation-key", listOf(
         functionType(Base64BinaryType.Instance,STRING),
         functionType(Base64BinaryType.Instance,STRING, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val key = args.atomicArgN<XsdString>(0).xmlString
         val collation = args.maybeCollation(1)
         atomic(collation.key(key))
     }
 
-    val fnContainsToken = BuiltinFunctionImpl("contains-token", listOf(
+    val fnContainsToken = BuiltinFunctionImpl.Fn("contains-token", listOf(
         functionType(BOOLEAN, STRING.any, STRING),
         functionType(BOOLEAN, STRING.any, STRING, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val input = args[0]
         val token = args[1]
         val collation = args.maybeCollation(2)
-        if (input.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (input.isEmpty()) return@Fn XdmSequence.EMPTY
         val tokens = fnTokenize(token).mapTo(HashSet()) { collation.key(it.value.xmlString) }
         val inputStrings = input.asSequence().map { collation.key((it as XdmAtomic<*>).value.xmlString) }
 
@@ -132,13 +132,13 @@ object StringFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 5.4 functions on string values
-    val fnConcat: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("concat", flexFunctionType(STRING, ATOMIC.opt, ATOMIC.opt)) { args ->
+    val fnConcat: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn("concat", flexFunctionType(STRING, ATOMIC.opt, ATOMIC.opt)) Fn@{ args ->
         if (args.size < 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Concat requires at least two arguments")
         val concat = args.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString("")
         atomic(concat)
     }
 
-    val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) { args ->
+    val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) Fn@{ args ->
         if (args.size > 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "String-join takes 1 or 2 arguments")
         val seq = args.argN<XdmAtomicOrSequence<XdmAtomic<*>>>(0)
         val separator = if (args.size == 2) args.atomicArgN<XsdString>(1) else ""
@@ -146,11 +146,11 @@ object StringFunctions : AbstractFunctionObject() {
         atomic(join)
     }
 
-    val fnSubstring = BuiltinFunctionImpl("substring", listOf(
+    val fnSubstring = BuiltinFunctionImpl.Fn("substring", listOf(
         functionType(STRING, STRING.opt, DOUBLE, DOUBLE),
         functionType(STRING, STRING.opt, DOUBLE),
-    )) { args ->
-        val sourceString = args.atomicArgOrEmpty<XsdString>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    )) Fn@{ args ->
+        val sourceString = args.atomicArgOrEmpty<XsdString>(0) ?: return@Fn XdmSequence.EMPTY
         val start = args.atomicArgN<XsdDouble>(1).value.roundToInt() - 1
         val length = if (args.size == 2) Int.MAX_VALUE else args.atomicArgN<XsdDouble>(2).value.roundToInt()
 
@@ -172,34 +172,34 @@ object StringFunctions : AbstractFunctionObject() {
         atomic(result)
     }
 
-    val fnStringLength = BuiltinFunctionImpl("string-length", contextFunctionTypes(INTEGER, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl atomic(0)
+    val fnStringLength = BuiltinFunctionImpl.Fn("string-length", contextFunctionTypes(INTEGER, STRING.opt)) Fn@{ args ->
+        val arg = args.toSingleAtomic<XsdString>(true) ?: return@Fn atomic(0)
 
         atomic(arg.xmlString.length)
     }
 
-    val fnNormalizeSpace = BuiltinFunctionImpl("normalize-space", contextFunctionTypes(STRING, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>(true) ?: return@BuiltinFunctionImpl atomic("")
+    val fnNormalizeSpace = BuiltinFunctionImpl.Fn("normalize-space", contextFunctionTypes(STRING, STRING.opt)) Fn@{ args ->
+        val arg = args.toSingleAtomic<XsdString>(true) ?: return@Fn atomic("")
 
         atomic(xmlCollapseWhitespace(arg.xmlString))
     }
 
-    val fnNormalizeUnicode = BuiltinFunctionImpl("normalize-unicode", listOf(
+    val fnNormalizeUnicode = BuiltinFunctionImpl.Fn("normalize-unicode", listOf(
         functionType(STRING, STRING.opt, STRING),
         functionType(STRING, STRING.opt),
-    )) { args ->
+    )) Fn@{ args ->
         //XdmAtomic(XsdString(""))
         TODO("Unicode normalization not yet supported")
     }
 
-    val fnUpperCase = BuiltinFunctionImpl("upper-case", functionType(STRING, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl atomic("")
+    val fnUpperCase = BuiltinFunctionImpl.Fn("upper-case", functionType(STRING, STRING.opt)) Fn@{ args ->
+        val arg = args.toSingleAtomic<XsdString>() ?: return@Fn atomic("")
 
         atomic(arg.xmlString.uppercase())
     }
 
-    val fnLowerCase = BuiltinFunctionImpl("lower-case", functionType(STRING, STRING.opt)) { args ->
-        val arg = args.toSingleAtomic<XsdString>() ?: return@BuiltinFunctionImpl atomic("")
+    val fnLowerCase = BuiltinFunctionImpl.Fn("lower-case", functionType(STRING, STRING.opt)) Fn@{ args ->
+        val arg = args.toSingleAtomic<XsdString>() ?: return@Fn atomic("")
 
         atomic(arg.xmlString.lowercase())
     }
@@ -231,8 +231,8 @@ object StringFunctions : AbstractFunctionObject() {
         return result
     }
 
-    val fnTranslate = BuiltinFunctionImpl("translate", functionType(STRING, STRING.opt, STRING, STRING)) { args ->
-        val arg = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@BuiltinFunctionImpl atomic("")
+    val fnTranslate = BuiltinFunctionImpl.Fn("translate", functionType(STRING, STRING.opt, STRING, STRING)) Fn@{ args ->
+        val arg = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@Fn atomic("")
         val mapString = args.atomicArgN<XsdString>(1).xmlString
         val transString = args.atomicArgN<XsdString>(1).xmlString
 
@@ -254,22 +254,22 @@ object StringFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 5.5 Functions on substring matching
-    val fnSubstringBefore = BuiltinFunctionImpl("substring-before", listOf(
+    val fnSubstringBefore = BuiltinFunctionImpl.Fn("substring-before", listOf(
         functionType(STRING, STRING.opt, STRING.opt),
         functionType(STRING, STRING.opt, STRING.opt, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
-        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@BuiltinFunctionImpl atomic(arg1)
+        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@Fn atomic(arg1)
         // TODO support collation
         atomic(arg1.substringBefore(arg2, ""))
     }
 
-    val fnSubstringAfter = BuiltinFunctionImpl("substring-after", listOf(
+    val fnSubstringAfter = BuiltinFunctionImpl.Fn("substring-after", listOf(
         functionType(STRING, STRING.opt, STRING.opt),
         functionType(STRING, STRING.opt, STRING.opt, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
-        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@BuiltinFunctionImpl atomic(arg1)
+        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@Fn atomic(arg1)
         // TODO support collation
         atomic(arg1.substringAfter(arg2, ""))
     }
@@ -277,10 +277,10 @@ object StringFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 5.6 String functions using regex
-    val fnMatches = BuiltinFunctionImpl("matches", listOf(
+    val fnMatches = BuiltinFunctionImpl.Fn("matches", listOf(
         functionType(BOOLEAN, STRING.opt, STRING, STRING),
         functionType(BOOLEAN, STRING.opt, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern = args.atomicArgN<XsdString>(1).xmlString
         val flags = if (args.size >2) args.atomicArgN<XsdString>(2).xmlString else ""
@@ -291,10 +291,10 @@ object StringFunctions : AbstractFunctionObject() {
         atomic(result)
     }
 
-    val fnReplace = BuiltinFunctionImpl("replace", listOf(
+    val fnReplace = BuiltinFunctionImpl.Fn("replace", listOf(
         functionType(STRING, STRING.opt, STRING, STRING, STRING),
         functionType(STRING, STRING.opt, STRING, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern = args.atomicArgN<XsdString>(1).xmlString
         val replacement = args.atomicArgN<XsdString>(2).xmlString
@@ -315,11 +315,11 @@ object StringFunctions : AbstractFunctionObject() {
         atomic(result.toString())
     }
 
-    val fnTokenize = BuiltinFunctionImpl("tokenize", listOf(
+    val fnTokenize = BuiltinFunctionImpl.Fn("tokenize", listOf(
         functionType(STRING.any, STRING.opt, STRING, STRING),
         functionType(STRING.any, STRING.opt, STRING),
         functionType(STRING.any, STRING.opt),
-    )) { args ->
+    )) Fn@{ args ->
         var input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern: String
         if (args.size == 1) {

@@ -43,11 +43,11 @@ import kotlin.math.roundToInt
 object DateTimeFunctions : AbstractFunctionObject() {
 
     //region Constructing dateTime 9.3
-    val fnDateTime = BuiltinFunctionImpl("dateTime",
+    val fnDateTime = BuiltinFunctionImpl.Fn("dateTime",
         functionType(DateTimeType.Instance.opt, DateType.Instance.opt, TimeType.Instance.opt)
-    ) { args ->
-        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val time = args.atomicArgOrEmpty<XsdTime>(1) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
+        val time = args.atomicArgOrEmpty<XsdTime>(1) ?: return@Fn XdmSequence.EMPTY
 
         if (date.timezoneOffset!=null && time.timezoneOffset!=null && date.timezoneOffset!=time.timezoneOffset) {
             throw EvaluationException(ErrorCodes.FORG0008, "Inconsistent timezone offsets: ${date.timezoneOffset} and ${time.timezoneOffset}")
@@ -58,116 +58,116 @@ object DateTimeFunctions : AbstractFunctionObject() {
     //endregion
 
     //region Extraction functions 9.5
-    val fnYearFromDateTime = BuiltinFunctionImpl("year-from-dateTime",
+    val fnYearFromDateTime = BuiltinFunctionImpl.Fn("year-from-dateTime",
         functionType(INTEGER, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(dateTime.year)
     }
 
-    val fnMonthFromDateTime = BuiltinFunctionImpl("month-from-dateTime",
+    val fnMonthFromDateTime = BuiltinFunctionImpl.Fn("month-from-dateTime",
         functionType(INTEGER, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(dateTime.month)
     }
 
-    val fnDayFromDateTime = BuiltinFunctionImpl("day-from-dateTime",
+    val fnDayFromDateTime = BuiltinFunctionImpl.Fn("day-from-dateTime",
         functionType(INTEGER, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(dateTime.day)
     }
 
-    val fnHoursFromDateTime = BuiltinFunctionImpl("hours-from-dateTime",
+    val fnHoursFromDateTime = BuiltinFunctionImpl.Fn("hours-from-dateTime",
         functionType(INTEGER, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(dateTime.hour)
     }
 
-    val fnMinutesFromDateTime = BuiltinFunctionImpl("minutes-from-dateTime",
+    val fnMinutesFromDateTime = BuiltinFunctionImpl.Fn("minutes-from-dateTime",
         functionType(INTEGER, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(dateTime.minute)
     }
 
-    val fnSecondsFromDateTime = BuiltinFunctionImpl("seconds-from-dateTime",
+    val fnSecondsFromDateTime = BuiltinFunctionImpl.Fn("seconds-from-dateTime",
         functionType(INTEGER, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(dateTime.second.roundToInteger())
     }
 
-    val fnTimezoneFromDateTime = BuiltinFunctionImpl(
+    val fnTimezoneFromDateTime = BuiltinFunctionImpl.Fn(
         "timezone-from-dateTime",
         functionType(DayTimeDurationType.Instance.opt, DateTimeType.Instance.opt)
-    ) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val offset = dateTime.timezoneOffset ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
+        val offset = dateTime.timezoneOffset ?: return@Fn XdmSequence.EMPTY
         atomic(XsdDayTimeDuration.ofMinutes(offset))
     }
 
-    val fnYearFromDate = BuiltinFunctionImpl("year-from-date",
+    val fnYearFromDate = BuiltinFunctionImpl.Fn("year-from-date",
         functionType(INTEGER, DateType.Instance.opt)
-    ) { args ->
-        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(date.year)
     }
 
-    val fnMonthFromDate = BuiltinFunctionImpl("month-from-date",
+    val fnMonthFromDate = BuiltinFunctionImpl.Fn("month-from-date",
         functionType(INTEGER, DateType.Instance.opt)
-    ) { args ->
-        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(date.month)
     }
 
-    val fnDayFromDate = BuiltinFunctionImpl("day-from-date",
+    val fnDayFromDate = BuiltinFunctionImpl.Fn("day-from-date",
         functionType(INTEGER, DateType.Instance.opt)
-    ) { args ->
-        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(date.day)
     }
 
-    val fnTimezoneFromDate = BuiltinFunctionImpl(
+    val fnTimezoneFromDate = BuiltinFunctionImpl.Fn(
         "timezone-from-date",
         functionType(DayTimeDurationType.Instance.opt, DateType.Instance.opt)
-    ) { args ->
-        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val offset = date.timezoneOffset ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
+        val offset = date.timezoneOffset ?: return@Fn XdmSequence.EMPTY
         atomic(XsdDayTimeDuration.ofMinutes(offset))
     }
 
 
-    val fnHoursFromTime = BuiltinFunctionImpl("hours-from-time",
+    val fnHoursFromTime = BuiltinFunctionImpl.Fn("hours-from-time",
         functionType(INTEGER, TimeType.Instance.opt)
-    ) { args ->
-        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(time.hour)
     }
 
-    val fnMinutesFromTime = BuiltinFunctionImpl("minutes-from-time",
+    val fnMinutesFromTime = BuiltinFunctionImpl.Fn("minutes-from-time",
         functionType(INTEGER, TimeType.Instance.opt)
-    ) { args ->
-        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(time.minute)
     }
 
-    val fnSecondsFromTime = BuiltinFunctionImpl("seconds-from-time",
+    val fnSecondsFromTime = BuiltinFunctionImpl.Fn("seconds-from-time",
         functionType(INTEGER, TimeType.Instance.opt)
-    ) { args ->
-        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
         atomic(time.second.roundToInteger())
     }
 
 
-    val fnTimezoneFromTime = BuiltinFunctionImpl(
+    val fnTimezoneFromTime = BuiltinFunctionImpl.Fn(
         "timezone-from-time",
         functionType(DayTimeDurationType.Instance.opt, TimeType.Instance.opt)
-    ) { args ->
-        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val offset = time.timezoneOffset ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
+        val offset = time.timezoneOffset ?: return@Fn XdmSequence.EMPTY
         atomic(XsdDayTimeDuration.ofMinutes(offset))
     }
 
@@ -184,11 +184,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
         }
     }
 
-    val fnAdjustDateTimeToTimezone = BuiltinFunctionImpl("adjust-dateTime-to-timezone", listOf(
+    val fnAdjustDateTimeToTimezone = BuiltinFunctionImpl.Fn("adjust-dateTime-to-timezone", listOf(
         functionType(DateTimeType.Instance.opt, DateTimeType.Instance.opt),
         functionType(DateTimeType.Instance.opt, DateTimeType.Instance.opt, DayTimeDurationType.Instance.opt),
-    )) { args ->
-        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    )) Fn@{ args ->
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         val timezone = when {
             args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.toValidTimezone()
             else -> contextOf<ExprEvalContext>().defaultTimeZone
@@ -206,11 +206,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
         }
     }
 
-    val fnAdjustDateToTimezone = BuiltinFunctionImpl("adjust-date-to-timezone", listOf(
+    val fnAdjustDateToTimezone = BuiltinFunctionImpl.Fn("adjust-date-to-timezone", listOf(
         functionType(DateType.Instance.opt, DateType.Instance.opt),
         functionType(DateType.Instance.opt, DateType.Instance.opt, DayTimeDurationType.Instance.opt),
-    )) { args ->
-        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    )) Fn@{ args ->
+        val date = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
         val timezone = when {
             args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.toValidTimezone()
             else -> contextOf<ExprEvalContext>().defaultTimeZone
@@ -228,11 +228,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
         }
     }
 
-    val fnAdjustTimeToTimezone = BuiltinFunctionImpl("adjust-time-to-timezone", listOf(
+    val fnAdjustTimeToTimezone = BuiltinFunctionImpl.Fn("adjust-time-to-timezone", listOf(
         functionType(TimeType.Instance.opt, TimeType.Instance.opt),
         functionType(TimeType.Instance.opt, TimeType.Instance.opt, DayTimeDurationType.Instance.opt),
-    )) { args ->
-        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    )) Fn@{ args ->
+        val time = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
         val timezone = when {
             args.size >=2 -> args.atomicArgOrEmpty<XsdDayTimeDuration>(1)?.toValidTimezone()
             else -> contextOf<ExprEvalContext>().defaultTimeZone
@@ -256,12 +256,12 @@ object DateTimeFunctions : AbstractFunctionObject() {
     //endregion
 
     //region Date time formatting 9.8
-    val fnFormatDateTime = BuiltinFunctionImpl("format-dateTime", listOf(
+    val fnFormatDateTime = BuiltinFunctionImpl.Fn("format-dateTime", listOf(
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING),
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
-    )) { args ->
+    )) Fn@{ args ->
         // use IXsdDateTime to allow using this for the date/time versions.
-        val dateTime = args.atomicArgOrEmpty<IXsdDateTime>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+        val dateTime = args.atomicArgOrEmpty<IXsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage?
         val calendar: String?

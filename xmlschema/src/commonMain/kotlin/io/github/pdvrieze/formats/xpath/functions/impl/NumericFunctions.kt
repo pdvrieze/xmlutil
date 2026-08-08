@@ -41,35 +41,35 @@ import nl.adaptivity.xmlutil.xmlTrimWhitespace
 object NumericFunctions: AbstractFunctionObject() {
 
     //region functions on numeric values 4.4
-    val fnAbs: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+    val fnAbs: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl.Fn(
         "abs",
         functionType(NUMERIC.opt, NUMERIC.opt)
-    ) { args ->
-        val n = args.toSingleAtomic<XsdNumeric<*>>() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val n = args.toSingleAtomic<XsdNumeric<*>>() ?: return@Fn XdmSequence.EMPTY
         XdmAtomic(n.abs())
     }
 
-    val fnCeiling: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+    val fnCeiling: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl.Fn(
         "ceiling",
         functionType(NUMERIC.opt, NUMERIC.opt)
-    ) { args ->
-        val n = args.toSingleAtomic<XsdNumeric<*>>() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val n = args.toSingleAtomic<XsdNumeric<*>>() ?: return@Fn XdmSequence.EMPTY
         XdmAtomic(n.ceiling())
     }
 
-    val fnFloor: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+    val fnFloor: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl.Fn(
         "floor",
         functionType(NUMERIC.opt, NUMERIC.opt)
-    ) { args ->
-        val n = args.toSingleAtomic<XsdNumeric<*>>() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val n = args.toSingleAtomic<XsdNumeric<*>>() ?: return@Fn XdmSequence.EMPTY
         XdmAtomic(n.floor())
     }
 
-    val fnRound: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+    val fnRound: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl.Fn(
         "round",
         functionType(NUMERIC.opt, NUMERIC.opt)
-    ) { args ->
-        val value = args.atomicOrEmpty<XsdNumeric<*>>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val value = args.atomicOrEmpty<XsdNumeric<*>>(0) ?: return@Fn XdmSequence.EMPTY
         val r = when (args.size) {
             1 -> value.round()
             2 -> value.round(args.atomicOrEmpty<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR))
@@ -78,11 +78,11 @@ object NumericFunctions: AbstractFunctionObject() {
         XdmAtomic(r)
     }
 
-    val fnRoundHalfToEven: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl(
+    val fnRoundHalfToEven: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmNumeric>> = BuiltinFunctionImpl.Fn(
         "round-half-to-even",
         functionType(NUMERIC.opt, NUMERIC.opt)
-    ) { args ->
-        val value = args.atomicOrEmpty<XsdNumeric<*>>(0) ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val value = args.atomicOrEmpty<XsdNumeric<*>>(0) ?: return@Fn XdmSequence.EMPTY
         val r = when (args.size) {
             1 -> value.roundToHalfEven()
             2 -> value.roundToHalfEven(
@@ -96,12 +96,12 @@ object NumericFunctions: AbstractFunctionObject() {
     //endregion
 
     //region Parsing numbers
-    val fnNumber: BuiltinFunctionImpl<XdmAtomic<XsdNumeric<*>>> = BuiltinFunctionImpl(
+    val fnNumber: BuiltinFunctionImpl<XdmAtomic<XsdNumeric<*>>> = BuiltinFunctionImpl.Fn(
         "number",
         contextFunctionTypes(t(DoubleType.Instance), ATOMIC.opt)
-    ) { args ->
+    ) Fn@{ args ->
         val arg = if (args.isEmpty()) contextOf<ExprEvalContext>().contextValue else args.singleArg<XdmValue<*>>()
-        if (arg !is XdmAtomic<*>) return@BuiltinFunctionImpl XdmAtomic.NaN
+        if (arg !is XdmAtomic<*>) return@Fn XdmAtomic.NaN
 
         @Suppress("UNCHECKED_CAST")
         when (val value = arg.value) {
@@ -114,12 +114,12 @@ object NumericFunctions: AbstractFunctionObject() {
     //endregion
 
     //region Formatting integers 4.5
-    val fnFormatInteger = BuiltinFunctionImpl("format-integer", listOf(
+    val fnFormatInteger = BuiltinFunctionImpl.Fn("format-integer", listOf(
         functionType(STRING.opt, INTEGER.opt, STRING),
         functionType(STRING.opt, INTEGER.opt, STRING, STRING.opt),
-    )) { args ->
+    )) Fn@{ args ->
         val ctx = contextOf<ExprEvalContext>()
-        val value = args.atomicArgOrEmpty<XsdInteger>(0) ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        val value = args.atomicArgOrEmpty<XsdInteger>(0) ?: return@Fn XdmAtomic(XsdString(""))
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage = (if (args.size==2) null else args.atomicArgOrEmpty<XsdString>(2))?.let { XsdLanguage(it.xmlString) }
             ?: ctx.defaultLanguage
@@ -134,10 +134,10 @@ object NumericFunctions: AbstractFunctionObject() {
     //endregion
 
     //region Formatting numbers 4.7
-    val fnFormatNumber = BuiltinFunctionImpl("format-number", listOf(
+    val fnFormatNumber = BuiltinFunctionImpl.Fn("format-number", listOf(
         functionType(STRING.opt, NUMERIC.opt, STRING),
         functionType(STRING.opt, NUMERIC.opt, STRING, STRING.opt),
-    )) { args ->
+    )) Fn@{ args ->
         val ctx = contextOf<ExprEvalContext>()
         val value = args.atomicArgOrEmpty<XsdNumeric<*>>(0) ?: XsdDouble(Double.NaN)
         val picture = args.atomicArgN<XsdString>(1).xmlString

@@ -38,6 +38,7 @@ class XdmInlineFunction(
     val returnType: XdmSequenceTypeTest,
     val body: Expr
 ) : XdmFunction<XdmInlineFunction>() {
+    override val maybeName: Nothing? get() = null
 
     override val staticType: XdmFunctionType
         get() = XdmFunctionType(params.map { it.type }, returnType)

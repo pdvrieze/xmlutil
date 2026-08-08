@@ -29,7 +29,10 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.ARRAY_NAMESPACE
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.MAP_NAMESPACE
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.MATH_NAMESPACE
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
@@ -43,78 +46,202 @@ class BuiltinFunctionImpl<out R: XdmValue<*>>(
     override val functionName: QName,
     override val functionTypes: List<XdmFunctionType>,
     val evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-): BuiltinFunction<R> {
+) : BuiltinFunction<R> {
 
     constructor(
-        functionName: String,
-        functionTypes: List<XdmFunctionType>,
+        name: QName,
+        returnType: AnyType,
+        vararg argumentTypes: AnyType,
         evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-    ): this(QName(FN_NAMESPACE, functionName), functionTypes, evalFunction)
+    ) : this(
+        name,
+        listOf(XdmFunctionType(returnType, *argumentTypes)),
+        evalFunction
+    )
 
     constructor(
-        functionName: String,
+        name: QName,
+        returnType: XdmTypeTest,
+        vararg argumentTypes: XdmTypeTest,
+        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+    ) : this(
+        name,
+        listOf(XdmFunctionType(returnType, *argumentTypes)),
+        evalFunction
+    )
+
+    constructor(
+        name: QName,
         functionType: XdmFunctionType,
         evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-    ): this(QName(FN_NAMESPACE, functionName), listOf(functionType), evalFunction)
-
-    constructor(
-        name: QName,
-        returnType: AnyType,
-        vararg argumentTypes: AnyType,
-        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-    ) : this(
-        name,
-        listOf(XdmFunctionType(returnType, *argumentTypes)),
-        evalFunction
-    )
-
-    constructor(
-        name: QName,
-        returnType: XdmTypeTest,
-        vararg argumentTypes: XdmTypeTest,
-        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-    ) : this(
-        name,
-        listOf(XdmFunctionType(returnType, *argumentTypes)),
-        evalFunction
-    )
-
-    constructor(
-        name: String,
-        returnType: XdmTypeTest,
-        vararg argumentTypes: XdmTypeTest,
-        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-    ) : this(
-        name,
-        listOf(XdmFunctionType(returnType, *argumentTypes)),
-        evalFunction
-    )
-
-    constructor(
-        name: String,
-        returnType: AnyType,
-        vararg argumentTypes: AnyType,
-        evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
-    ) : this(
-        name,
-        listOf(XdmFunctionType(returnType, *argumentTypes)),
-        evalFunction
-    )
-
-    /*
-    constructor(
-        returnType: AnyType,
-        vararg argumentTypes: AnyType,
-        evalFunction: context(ExprEvalContext) (List<XdmValue>) -> XsdAtomic
-    ) : this(
-        XdmSequenceType.Schema(returnType),
-        argumentTypes.map { XdmSequenceType.Schema(it) },
-        { XdmAtomic<XsdAtomic>(evalFunction(it)) }
-    )
-*/
+    ) : this(name, listOf(functionType), evalFunction)
 
     context(ctx: ExprEvalContext)
     override fun invoke(args: List<XdmValue<*>>): R = evalFunction(args)
+
+    companion object {
+
+        fun <R: XdmValue<*>> Fn(
+            functionName: String,
+            functionTypes: List<XdmFunctionType>,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(QName(FN_NAMESPACE, functionName, "fn"), functionTypes, evalFunction)
+
+        fun <R: XdmValue<*>> Fn(
+            functionName: String,
+            functionType: XdmFunctionType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(FN_NAMESPACE, functionName, "fn"),
+            functionType,
+            evalFunction
+        )
+
+        fun <R: XdmValue<*>> Fn(
+            functionName: String,
+            returnType: XdmTypeTest,
+            vararg argumentTypes: XdmTypeTest,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(FN_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Fn(
+            functionName: String,
+            returnType: AnyType,
+            vararg argumentTypes: AnyType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(FN_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Map(
+            functionName: String,
+            functionTypes: List<XdmFunctionType>,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(QName(MAP_NAMESPACE, functionName, "fn"), functionTypes, evalFunction)
+
+        fun <R: XdmValue<*>> Map(
+            functionName: String,
+            functionType: XdmFunctionType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(MAP_NAMESPACE, functionName, "fn"),
+            functionType,
+            evalFunction
+        )
+
+        fun <R: XdmValue<*>> Map(
+            functionName: String,
+            returnType: XdmTypeTest,
+            vararg argumentTypes: XdmTypeTest,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(MAP_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Map(
+            functionName: String,
+            returnType: AnyType,
+            vararg argumentTypes: AnyType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(MAP_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Array(
+            functionName: String,
+            functionTypes: List<XdmFunctionType>,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(QName(ARRAY_NAMESPACE, functionName, "fn"), functionTypes, evalFunction)
+
+        fun <R: XdmValue<*>> Array(
+            functionName: String,
+            functionType: XdmFunctionType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(ARRAY_NAMESPACE, functionName, "fn"),
+            functionType,
+            evalFunction
+        )
+
+        fun <R: XdmValue<*>> Array(
+            functionName: String,
+            returnType: XdmTypeTest,
+            vararg argumentTypes: XdmTypeTest,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(ARRAY_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Array(
+            functionName: String,
+            returnType: AnyType,
+            vararg argumentTypes: AnyType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(ARRAY_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Math(
+            functionName: String,
+            functionTypes: List<XdmFunctionType>,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(QName(MATH_NAMESPACE, functionName, "fn"), functionTypes, evalFunction)
+
+        fun <R: XdmValue<*>> Math(
+            functionName: String,
+            functionType: XdmFunctionType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(MATH_NAMESPACE, functionName, "fn"),
+            functionType,
+            evalFunction
+        )
+
+        fun <R: XdmValue<*>> Math(
+            functionName: String,
+            returnType: XdmTypeTest,
+            vararg argumentTypes: XdmTypeTest,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(MATH_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+        fun <R: XdmValue<*>> Math(
+            functionName: String,
+            returnType: AnyType,
+            vararg argumentTypes: AnyType,
+            evalFunction: context(ExprEvalContext) (List<XdmValue<*>>) -> R
+        ) = BuiltinFunctionImpl(
+            QName(MATH_NAMESPACE, functionName, "fn"),
+            returnType,
+            *argumentTypes,
+            evalFunction = evalFunction
+        )
+
+    }
 }
 
 context(ctx: ExprEvalContext)

@@ -20,6 +20,17 @@
 
 package io.github.pdvrieze.formats.xpath.impl
 
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
+import io.github.pdvrieze.formats.xpath.eval.EvaluationException
+import io.github.pdvrieze.formats.xpath.eval.data.XdmArray
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmMap
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
+import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
+import io.github.pdvrieze.xml.schematypes.values.XsdInt
+
 @XPathInternal
 internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key: KeySpecifier): AbstractExprSingle() {
     context(c: OutputContext)
@@ -27,6 +38,61 @@ internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key
         context?.appendToString(builder)
         builder.append('?')
         key.appendToString(builder)
+    }
+
+    @OptIn(NeedsXPath3_1::class)
+    @XPathInternal
+    context(ctx: EvalContext)
+    override fun eval(): XdmValue<*> {
+        return ctx.withExprContext(this) {
+            when (val c = context?.eval() ?: ctx.contextValue) {
+                is XdmSequence.EMPTY -> XdmSequence.EMPTY
+                is XdmMap -> {
+                    val keyType = c.staticType.keyType.schemaType as AnyAtomicType<*>
+                    val k = when (key) {
+                        is NCNameKey -> XdmAtomic(keyType.fromString(key.value))
+                        is IntegerKey -> XdmAtomic(keyType.castFrom(XsdInt(key.value)))
+
+                        AnyKey -> XdmSequence.build {
+                            for (v in c.content.values) {
+                                addAll(v.atomize())
+                            }
+                        }
+
+                        is ParenKey -> XdmSequence.build {
+                            for (k in Accessors.fnData(key.params.map { it.eval() })) {
+                                val v: XdmValue<*>? = c.content[k]
+                                if (v != null) addAll(v.atomize())
+                            }
+                        }
+                    }
+                    c.content[k] ?: XdmSequence.EMPTY
+                }
+
+                is XdmArray -> when (key) {
+                    is NCNameKey -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Non-integer array code")
+                    is IntegerKey -> c.content[key.value]
+
+                    AnyKey -> XdmSequence.build<XdmAtomic<*>> {
+                        for (v in c.content) {
+                            addAll(v.atomize())
+                        }
+                    }
+
+                    is ParenKey -> XdmSequence.build<XdmAtomic<*>> {
+                        for (k in Accessors.fnData(key.params.map { it.eval() })) {
+                            val intKey = k.toXdmInteger().value.toInt()
+                            if (intKey in c.content.indices) {
+                                addAll(c.content[intKey].atomize())
+                            }
+                        }
+                    }
+                }
+
+                else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Context item not compatible with lookup")
+            }
+
+        }
     }
 
     sealed class KeySpecifier @NeedsXPath3_1 constructor() {

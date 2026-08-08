@@ -24,6 +24,8 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmArrayTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
@@ -215,5 +217,8 @@ abstract class AbstractFunctionObject() {
         val INTEGER = XdmSchemaTypeTest(IntegerType.Instance, SINGLE)
         val DOUBLE = XdmSchemaTypeTest(DoubleType.Instance, SINGLE)
         val QNAME = XdmSchemaTypeTest(QNameType.Instance, SINGLE)
+
+        val ANYMAP = XdmMapTypeTest.ANY
+        val ANYARRAY = XdmArrayTypeTest.ANY_ARRAY
     }
 }

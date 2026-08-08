@@ -28,6 +28,8 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.ARRAY_NAMESPACE
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.MAP_NAMESPACE
 import io.github.pdvrieze.formats.xpath.functions.xdmArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType.SINGLE
@@ -35,6 +37,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
+import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 class XdmMap private constructor(
@@ -43,6 +46,8 @@ class XdmMap private constructor(
     private val _dynamicType: Lazy<XdmMapType>,
 ) : XdmFunction<XdmMap>() {
     override fun asT(): XdmMap = this
+
+    override val maybeName: QName get() = QName(MAP_NAMESPACE, "get", "map")
 
     override val dynamicType: XdmFunctionType
         get() = _dynamicType.value

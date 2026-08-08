@@ -37,18 +37,18 @@ import nl.adaptivity.xmlutil.dom2.nodeName
 
 @XPathInternal
 object Accessors : AbstractFunctionObject() {
-    val fnNodeName: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmQName>> = BuiltinFunctionImpl(
+    val fnNodeName: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmQName>> = BuiltinFunctionImpl.Fn(
         "node-name",
         contextFunctionTypes(t(QNameType.Instance).opt, NODE.opt)
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn XdmSequence.EMPTY
         atomic(XsdQName(arg.nodeName))
     }
 
-    val fnNilled: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl(
+    val fnNilled: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmBoolean>> = BuiltinFunctionImpl.Fn(
         "nilled", contextFunctionTypes(BOOLEAN.opt, NODE.opt)
-    ) { args ->
-        val arg = (args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY)
+    ) Fn@{ args ->
+        val arg = (args.toSingleNode() ?: return@Fn XdmSequence.EMPTY)
         atomic(
             arg is Element &&
                     arg.getAttributeNS(XMLConstants.XSI_NS_URI, "nil")
@@ -56,12 +56,12 @@ object Accessors : AbstractFunctionObject() {
 
     }
 
-    val fnString: BuiltinFunctionImpl<XdmAtomic<XsdString>> = BuiltinFunctionImpl(
+    val fnString: BuiltinFunctionImpl<XdmAtomic<XsdString>> = BuiltinFunctionImpl.Fn(
         "string",
         contextFunctionTypes(STRING.opt, ITEM.opt)
-    ) { args ->
+    ) Fn@{ args ->
         val arg = args.argOrContext() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
-        if (arg.size == 0) return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+        if (arg.size == 0) return@Fn XdmAtomic(XsdString(""))
         if (arg.size > 1) error("Can only convert a sequence of 1 item to a string")
 
         val s = when (val a = arg[0]) {
@@ -73,28 +73,28 @@ object Accessors : AbstractFunctionObject() {
         atomic(s)
     }
 
-    val fnData: BuiltinFunctionImpl<XdmAtomicOrSequence<XdmAtomic<*>>> = BuiltinFunctionImpl(
+    val fnData: BuiltinFunctionImpl<XdmAtomicOrSequence<XdmAtomic<*>>> = BuiltinFunctionImpl.Fn(
         "data",
         contextFunctionTypes(ATOMIC.any, ITEM.any)
-    ) { args ->
+    ) Fn@{ args ->
         (args.argOrContext() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
             .atomize()
     }
 
-    val fnBaseUri = BuiltinFunctionImpl(
+    val fnBaseUri = BuiltinFunctionImpl.Fn(
         "base-uri",
         contextFunctionTypes(t(AnyURIType.Instance).opt, NODE.opt)
-    ) { args ->
+    ) Fn@{ args ->
         val node = args.toSingleNode(true)
-            ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+            ?: return@Fn XdmSequence.EMPTY
 
         atomicOrNull(node.getBaseURI()?.let { XsdAnyURI(it) })
 //        TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
-    val fnDocumentUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl("document-uri",
+    val fnDocumentUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl.Fn("document-uri",
         contextFunctionTypes(AnyURIType.Instance.opt, NODE.opt)
-    ) { args ->
+    ) Fn@{ args ->
         val node = args.toSingleNode(true) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
         TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }

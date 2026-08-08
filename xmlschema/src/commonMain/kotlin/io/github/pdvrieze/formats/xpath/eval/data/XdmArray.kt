@@ -25,11 +25,13 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.ARRAY_NAMESPACE
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
+import nl.adaptivity.xmlutil.QName
 
 @XPathInternal
 class XdmArray(
@@ -39,6 +41,7 @@ class XdmArray(
 ) : XdmFunction<XdmArray>() {
     override fun asT(): XdmArray = this
 
+    override val maybeName: QName get() = QName(ARRAY_NAMESPACE, "get", "array")
 
     @XPathInternal
     context(ctx: ExprEvalContext)

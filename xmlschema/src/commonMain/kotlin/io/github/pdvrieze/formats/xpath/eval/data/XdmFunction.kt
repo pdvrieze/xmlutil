@@ -26,12 +26,15 @@ import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import nl.adaptivity.xmlutil.QName
 
 @OptIn(XPathInternal::class)
 sealed class XdmFunction<out T: XdmFunction<T>> : XdmSingleValue<T> {
 
-    override abstract val staticType: XdmFunctionType
+    abstract override val staticType: XdmFunctionType
     abstract override val dynamicType: XdmFunctionType
+
+    abstract val maybeName: QName?
 
     internal fun partialStaticType(args: List<XdmValue<*>?>): XdmFunctionType {
         return XdmFunctionType(args.indices.mapNotNull { idx ->

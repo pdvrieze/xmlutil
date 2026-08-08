@@ -44,32 +44,32 @@ import kotlin.math.round
 internal object SequenceFunctions : AbstractFunctionObject() {
 
     //region 14.1 General Functions and Operators on Sequences
-    internal val fnEmpty = BuiltinFunctionImpl("empty", BOOLEAN, ITEM.any) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    internal val fnEmpty = BuiltinFunctionImpl.Fn("empty", BOOLEAN, ITEM.any) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
         atomic(arg.isEmpty())
     }
 
-    internal val fnExists = BuiltinFunctionImpl("exists", BOOLEAN, ITEM.any) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    internal val fnExists = BuiltinFunctionImpl.Fn("exists", BOOLEAN, ITEM.any) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
         atomic(arg.isNotEmpty())
     }
 
-    internal val fnHead = BuiltinFunctionImpl("head", ITEM.opt, ITEM.any) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
+    internal val fnHead = BuiltinFunctionImpl.Fn("head", ITEM.opt, ITEM.any) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
+        if (arg.isEmpty()) return@Fn XdmSequence.EMPTY
         arg[0]
     }
 
-    internal val fnTail = BuiltinFunctionImpl("tail", ITEM.any, ITEM.any) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        if (arg !is XdmSequence<*> || arg.size<=1) return@BuiltinFunctionImpl XdmSequence.EMPTY
+    internal val fnTail = BuiltinFunctionImpl.Fn("tail", ITEM.any, ITEM.any) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
+        if (arg !is XdmSequence<*> || arg.size<=1) return@Fn XdmSequence.EMPTY
         XdmSequence.buildSingle(arg.staticType) {
             addAll(arg.asSequence().drop(1))
         }
     }
 
     internal val fnInsertBefore =
-        BuiltinFunctionImpl("insert-before", ITEM.any, ITEM.any, INTEGER, ITEM.any) { args ->
+        BuiltinFunctionImpl.Fn("insert-before", ITEM.any, ITEM.any, INTEGER, ITEM.any) Fn@{ args ->
             if (args.size != 3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
             val target = args[0]
             val position =
@@ -78,8 +78,8 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                     .coerceIn(0, target.size)
             val inserts = args[2]
 
-            if (target.isEmpty()) return@BuiltinFunctionImpl inserts
-            else if (inserts.isEmpty()) return@BuiltinFunctionImpl target
+            if (target.isEmpty()) return@Fn inserts
+            else if (inserts.isEmpty()) return@Fn target
 
             XdmSequence.buildSingle(target.staticType) {
                 for (i in 0 until position) {
@@ -92,11 +92,11 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             }
         }
 
-    internal val fnRemove = BuiltinFunctionImpl("remove", ITEM.any, ITEM.any, INTEGER) { args ->
+    internal val fnRemove = BuiltinFunctionImpl.Fn("remove", ITEM.any, ITEM.any, INTEGER) Fn@{ args ->
         if (args.size != 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val target = args[0]
         val position = ((args.atomicOrEmpty<XsdInteger>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).toInt() -1)
-        if (position < 0 || position >= target.size) return@BuiltinFunctionImpl target
+        if (position < 0 || position >= target.size) return@Fn target
         XdmSequence.buildSingle(target.staticType) {
             for (i in 0 until position) {
                 add(target[i])
@@ -107,33 +107,33 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         }
     }
 
-    internal val fnReverse = BuiltinFunctionImpl("reverse", ITEM.any, ITEM.any) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
-        if (arg.size == 1) return@BuiltinFunctionImpl arg[0]
+    internal val fnReverse = BuiltinFunctionImpl.Fn("reverse", ITEM.any, ITEM.any) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
+        if (arg.size == 1) return@Fn arg[0]
 
         XdmSequence.buildSingle(arg.staticType) {
             for (n in arg.size - 1 downTo 0) add(arg[n])
         }
     }
 
-    internal val fnSubsequence = BuiltinFunctionImpl("subsequence", listOf(
+    internal val fnSubsequence = BuiltinFunctionImpl.Fn("subsequence", listOf(
         functionType(ITEM.any, ITEM.any, DOUBLE),
         functionType(ITEM.any, ITEM.any, DOUBLE, DOUBLE))
-    ) { args ->
+    ) Fn@{ args ->
         if (args.size !in 2..3) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
         val sourceSeq = args[0]
         val startingLocD = (args.atomicOrEmpty<XsdDouble>(1) ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR)).value
         val endLocD = args.getOrNull(2)?.let {
             ((it as? XdmAtomic<*>)?.value as? XsdDouble)?.value ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:double, found: ${it.staticType}")
         }
-        if (startingLocD.isNaN() || startingLocD == Double.POSITIVE_INFINITY) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (startingLocD.isNaN() || startingLocD == Double.POSITIVE_INFINITY) return@Fn XdmSequence.EMPTY
         val startingLoc = (round(startingLocD).toInt() - 1).coerceIn(0, sourceSeq.size)
 
         val endLoc: Int
         if (endLocD != null) {
-            if (endLocD.isNaN() || startingLocD == Double.NEGATIVE_INFINITY) return@BuiltinFunctionImpl XdmSequence.EMPTY
+            if (endLocD.isNaN() || startingLocD == Double.NEGATIVE_INFINITY) return@Fn XdmSequence.EMPTY
             if (startingLocD == Double.NEGATIVE_INFINITY && endLocD == Double.POSITIVE_INFINITY) {
-                return@BuiltinFunctionImpl XdmSequence.EMPTY
+                return@Fn XdmSequence.EMPTY
             }
             endLoc = (startingLoc +round(endLocD).toInt()).coerceIn(0, sourceSeq.size)
         } else {
@@ -150,20 +150,20 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     /**
      * Returns the same sequence as the argument. This function is only relevant for optimization.
      */
-    internal val fnUnordered = BuiltinFunctionImpl("unordered", ITEM.any, ITEM.any) { args ->
+    internal val fnUnordered = BuiltinFunctionImpl.Fn("unordered", ITEM.any, ITEM.any) Fn@{ args ->
         args.argOrContext() ?: XdmSequence.EMPTY
     }
     //endregion
 
     //region 14.2 Sequence comparison functions
-    val fnDistinctValues = BuiltinFunctionImpl("distinct-values", listOf(
+    val fnDistinctValues = BuiltinFunctionImpl.Fn("distinct-values", listOf(
         functionType(ATOMIC.any, ATOMIC.any),
         functionType(ATOMIC.any, ATOMIC.any, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val arg = args.argN<XdmSequence<XdmAtomic<*>>>(0)
         val collation = args.maybeCollation(1)
 
-        if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (arg.isEmpty()) return@Fn XdmSequence.EMPTY
 
         val distinct = arg.toHashSet()
 
@@ -175,10 +175,10 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         XdmSequence.fromList(result, arg.staticType)
     }
 
-    val fnIndexOf = BuiltinFunctionImpl("index-of", listOf(
+    val fnIndexOf = BuiltinFunctionImpl.Fn("index-of", listOf(
         functionType(INTEGER, ATOMIC.any, ATOMIC),
         functionType(INTEGER, ATOMIC.any, ATOMIC, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val seq = args.argN<XdmValue<XdmAtomic<*>>>(0) as XdmValue<XdmAtomic<*>>
         val search = args.atomicArgN<XsdAtomic>(1)
         val collation = args.maybeCollation(2)
@@ -193,23 +193,23 @@ internal object SequenceFunctions : AbstractFunctionObject() {
             }
         }
     }
-    val fnDeepEqual = BuiltinFunctionImpl("deep-equal", listOf(
+    val fnDeepEqual = BuiltinFunctionImpl.Fn("deep-equal", listOf(
         functionType(BOOLEAN, ITEM.any, ITEM.any),
         functionType(BOOLEAN, ITEM.any, ITEM.any, STRING),
-    )) { args ->
+    )) Fn@{ args ->
         val param1 = args.argN<XdmValue<*>>(0)
         val param2 = args.argN<XdmValue<*>>(1)
         val collation = args.maybeCollation(2)
 
         when {
-            param1.size != param2.size -> return@BuiltinFunctionImpl atomic(false)
-            param1.size == 0 -> return@BuiltinFunctionImpl atomic(true)
+            param1.size != param2.size -> return@Fn atomic(false)
+            param1.size == 0 -> return@Fn atomic(true)
         }
 
         for (i in 0 until param1.size) {
             val elem1 = param1[i]
             val elem2 = param1[i]
-            if (! elem1.isDeepEqual(elem2, collation)) return@BuiltinFunctionImpl atomic(false)
+            if (! elem1.isDeepEqual(elem2, collation)) return@Fn atomic(false)
         }
 
         atomic(true)
@@ -217,22 +217,22 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 14.3 Sequence cardinality testing functions
-    internal val fnZeroOrOne = BuiltinFunctionImpl("zero-or-one", ITEM.opt, ITEM.any) { args ->
+    internal val fnZeroOrOne = BuiltinFunctionImpl.Fn("zero-or-one", ITEM.opt, ITEM.any) Fn@{ args ->
         args[0].also { if (it.size > 1) throw EvaluationException(ErrorCodes.FORG0003) }
     }
 
-    internal val fnOneOrMore = BuiltinFunctionImpl("one-or-more", ITEM.atLeastOne, ITEM.any) { args ->
+    internal val fnOneOrMore = BuiltinFunctionImpl.Fn("one-or-more", ITEM.atLeastOne, ITEM.any) Fn@{ args ->
         args[0].also { if (it.size == 0) throw EvaluationException(ErrorCodes.FORG0004) }
     }
 
-    internal val fnExactlyOne = BuiltinFunctionImpl("exactly-one", ITEM.single, ITEM.any) { args ->
+    internal val fnExactlyOne = BuiltinFunctionImpl.Fn("exactly-one", ITEM.single, ITEM.any) Fn@{ args ->
         args[0].also { if (it.size != 1) throw EvaluationException(ErrorCodes.FORG0005) }
     }
 
     //endregion
 
     //region 14.4 Sequence aggregate functions
-    internal val fnCount = BuiltinFunctionImpl("count", INTEGER, ITEM.any) { args ->
+    internal val fnCount = BuiltinFunctionImpl.Fn("count", INTEGER, ITEM.any) Fn@{ args ->
         atomic(args[0].size)
     }
 
@@ -353,10 +353,10 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     }
 
 
-    internal val fnAvg = BuiltinFunctionImpl("avg", functionType(ATOMIC.opt, ATOMIC.any)) { args ->
+    internal val fnAvg = BuiltinFunctionImpl.Fn("avg", functionType(ATOMIC.opt, ATOMIC.any)) Fn@{ args ->
         @Suppress("UNCHECKED_CAST")
         val arg = args[0] as XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>
-        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
+        if (arg.size == 0) return@Fn XdmSequence.EMPTY
 
         when (val sum = seqSum(arg)) {
             is XsdDouble -> atomic(sum.value / arg.size)
@@ -426,47 +426,49 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         return actualValues
     }
 
-    internal val fnMax = BuiltinFunctionImpl<XdmAtomicOrSequence<*>>("max", listOf(
-        functionType(ATOMIC.opt, ATOMIC.any),
-        functionType(ATOMIC.opt, ATOMIC.any, STRING),
-    )) { args ->
-        val arg = args[0] as XdmAtomicOrSequence<*>
-        if (arg.size == 0) return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val collation = args.maybeCollation(1)
+    internal val fnMax = BuiltinFunctionImpl.Fn(
+        "max", listOf(
+            functionType(ATOMIC.opt, ATOMIC.any),
+            functionType(ATOMIC.opt, ATOMIC.any, STRING),
+        ), Fn@{ args ->
+            val arg = args[0] as XdmAtomicOrSequence<*>
+            if (arg.size == 0) return@Fn XdmSequence.EMPTY
+            val collation = args.maybeCollation(1)
 
-        val actualValues = getComparisonSequence(arg)
-
-
-        val max = actualValues.reduce { left, right ->
-            if (left.compareTo(right, collation) > 0) left else right
-        }
-        atomic(max)
-    }
-
-    internal val fnMin = BuiltinFunctionImpl<XdmAtomicOrSequence<*>>("min", listOf(
-        functionType(ATOMIC.opt, ATOMIC.any),
-        functionType(ATOMIC.opt, ATOMIC.any, STRING),
-    )) { args ->
-        val arg = args[0] as XdmAtomicOrSequence<*>
-        if (arg.isEmpty()) return@BuiltinFunctionImpl XdmSequence.EMPTY
-        val collation = args.maybeCollation(1)
-
-        val actualValues = getComparisonSequence(arg)
+            val actualValues = getComparisonSequence(arg)
 
 
-        val min = actualValues.reduce { left, right ->
-            if (left.compareTo(right, collation) < 0) left else right
-        }
-        atomic(min)
-    }
+            val max = actualValues.reduce { left, right ->
+                if (left.compareTo(right, collation) > 0) left else right
+            }
+            atomic(max)
+        })
 
-    internal val fnSum = BuiltinFunctionImpl("sum", listOf(
+    internal val fnMin = BuiltinFunctionImpl.Fn(
+        "min", listOf(
+            functionType(ATOMIC.opt, ATOMIC.any),
+            functionType(ATOMIC.opt, ATOMIC.any, STRING),
+        ), Fn@{ args ->
+            val arg = args[0] as XdmAtomicOrSequence<*>
+            if (arg.isEmpty()) return@Fn XdmSequence.EMPTY
+            val collation = args.maybeCollation(1)
+
+            val actualValues = getComparisonSequence(arg)
+
+
+            val min = actualValues.reduce { left, right ->
+                if (left.compareTo(right, collation) < 0) left else right
+            }
+            atomic(min)
+        })
+
+    internal val fnSum = BuiltinFunctionImpl.Fn("sum", listOf(
         functionType(ATOMIC.single, ATOMIC.any),
         functionType(ATOMIC.opt, ATOMIC.any, ATOMIC.opt),
-    )) { args ->
+    )) Fn@{ args ->
         val arg = args[0]
         val zero = args.getOrNull(1)
-        if (arg.isEmpty()) return@BuiltinFunctionImpl zero ?: XdmAtomic(XsdInt(0))
+        if (arg.isEmpty()) return@Fn zero ?: XdmAtomic(XsdInt(0))
 
         atomic(seqSum(arg as XdmAtomic<XsdAtomic>))
     }
@@ -478,13 +480,13 @@ internal object SequenceFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 14.6 Functions giving access to external information
-    val fnEnvironmentVariable = BuiltinFunctionImpl("environment-variable", STRING.any, STRING.single) { args ->
+    val fnEnvironmentVariable = BuiltinFunctionImpl.Fn("environment-variable", STRING.any, STRING.single) Fn@{ args ->
         val arg = args.atomicArgN<XsdString>(0).xmlString
         val ctx = contextOf<ExprEvalContext>()
         atomicOrNull(ctx.environmentVariables[arg])
     }
 
-    val fnAvailableEnvironmentVariables = BuiltinFunctionImpl("available-environment-variables", STRING.any) { args ->
+    val fnAvailableEnvironmentVariables = BuiltinFunctionImpl.Fn("available-environment-variables", STRING.any) { args ->
         val ctx = contextOf<ExprEvalContext>()
         XdmSequence.buildAtomic {
             for (key in ctx.environmentVariables.keys) {

@@ -731,6 +731,7 @@ abstract class ComparisonOperator(
             is XsdGYearMonth if rightVal is XsdGYearMonth -> cmp(leftVal, rightVal)
             is XsdGYear if rightVal is XsdGYear -> cmp(leftVal, rightVal)
             is XsdHexBinary if rightVal is XsdHexBinary -> cmp(leftVal, rightVal)
+            is XsdBase64Binary if rightVal is XsdBase64Binary -> cmp(leftVal, rightVal)
 
             is XsdNotation if rightVal is XsdNotation -> cmp(leftVal, rightVal)
             is XsdQName if rightVal is XsdQName -> cmp(leftVal, rightVal)
@@ -739,7 +740,7 @@ abstract class ComparisonOperator(
                 cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))
             }
 
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch (${leftVal.schemaType} and ${rightVal.schemaType})")
         }
         return result
     }
@@ -825,6 +826,9 @@ abstract class ComparisonOperator(
 
     context(ctx: ExprEvalContext)
     open fun cmp(left: XsdHexBinary, right: XsdHexBinary): Boolean = defaultCmpXXX(left, right)
+
+    context(ctx: ExprEvalContext)
+    open fun cmp(left: XsdBase64Binary, right: XsdBase64Binary): Boolean = defaultCmpXXX(left, right)
 
     context(ctx: ExprEvalContext)
     open fun cmp(left: XsdNotation, right: XsdNotation): Boolean = defaultCmpXXX(left, right)

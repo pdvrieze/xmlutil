@@ -33,11 +33,11 @@ import nl.adaptivity.xmlutil.dom2.*
 @XPathInternal
 object NodeFunctions : AbstractFunctionObject() {
 
-    val fnName: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl(
+    val fnName: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn(
         "name",
         contextFunctionTypes(STRING, NODE.opt)
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmAtomic(XsdString(""))
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn XdmAtomic(XsdString(""))
         val name = when(val n = arg) {
             is Element -> n.nodeName
             is Attr -> n.nodeName
@@ -47,11 +47,11 @@ object NodeFunctions : AbstractFunctionObject() {
         atomic(name)
     }
 
-    val fnLocalName: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl(
+    val fnLocalName: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn(
         "local-name",
         contextFunctionTypes(STRING, NODE.opt)
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl atomic("")
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn atomic("")
         val name = when (val n = arg) {
             is Element -> n.getLocalName()!!
             is Attr -> n.localName ?: n.nodeName
@@ -61,11 +61,11 @@ object NodeFunctions : AbstractFunctionObject() {
         atomic(name)
     }
 
-    val fnNamespaceUri: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl(
+    val fnNamespaceUri: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn(
         "namespace-uri",
         contextFunctionTypes(STRING, NODE.opt)
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl atomic("")
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn atomic("")
         val name = when(val n = arg) {
             is Element -> n.namespaceURI
             is Attr -> n.namespaceURI
@@ -74,10 +74,10 @@ object NodeFunctions : AbstractFunctionObject() {
         atomic(name ?: "")
     }
 
-    val fnLang: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+    val fnLang: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl.Fn(
         "lang",
         contextFunctionTypes(BOOLEAN, NODE, STRING.opt)
-    ) { args ->
+    ) Fn@{ args ->
         val testLang = when {
             args.isEmpty() -> throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT)
             else -> ((args[0] as? XdmAtomic<*>)?.value as? XsdString)?.xmlString
@@ -105,22 +105,22 @@ object NodeFunctions : AbstractFunctionObject() {
         atomic(r)
     }
 
-    val fnRoot: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl("root",
+    val fnRoot: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl.Fn("root",
         listOf(
             functionType(NODE.single),
             functionType(NODE.opt, NODE.opt)
         )
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn XdmSequence.EMPTY
 
         generateSequence(arg) { it.getParentNode() }.last()
     }
 
-    val fnPath: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmString>> = BuiltinFunctionImpl(
+    val fnPath: BuiltinFunctionImpl<XdmAtomicOrEmpty<XdmString>> = BuiltinFunctionImpl.Fn(
         "path",
         contextFunctionTypes(STRING, NODE.opt)
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn XdmSequence.EMPTY
         val n = arg
 
         val elemPath =
@@ -163,29 +163,29 @@ object NodeFunctions : AbstractFunctionObject() {
         atomic(path)
     }
 
-    val fnHasChildren: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl(
+    val fnHasChildren: BuiltinFunctionImpl<XdmBoolean> = BuiltinFunctionImpl.Fn(
         "has-children",
         contextFunctionTypes(BOOLEAN, NODE.opt)
-    ) { args ->
-        val arg = args.toSingleNode() ?: return@BuiltinFunctionImpl XdmAtomic(XsdBoolean.FALSE)
+    ) Fn@{ args ->
+        val arg = args.toSingleNode() ?: return@Fn XdmAtomic(XsdBoolean.FALSE)
         atomic(arg.getChildNodes().getLength() > 0)
     }
 
-    val fnInnermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl(
+    val fnInnermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl.Fn(
         "innermost",
         contextFunctionTypes(NODE.any, NODE.any)
-    ) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
 
         TODO("Not yet implemented")
 
     }
 
-    val fnOutermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl(
+    val fnOutermost: BuiltinFunctionImpl<XdmValue<*>> = BuiltinFunctionImpl.Fn(
         "outermost",
         contextFunctionTypes(NODE.any, NODE.any)
-    ) { args ->
-        val arg = args.argOrContext() ?: return@BuiltinFunctionImpl XdmSequence.EMPTY
+    ) Fn@{ args ->
+        val arg = args.argOrContext() ?: return@Fn XdmSequence.EMPTY
 
         TODO("Not yet implemented")
     }
