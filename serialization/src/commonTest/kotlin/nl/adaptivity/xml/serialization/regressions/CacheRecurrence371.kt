@@ -31,7 +31,6 @@ class CacheRecurrence371 {
         val cache = LRUCache<Int, String>(512) // = DefaultFormatCache() default (LayeredCache per-decode layer)
         var next = 0
 
-        @IgnorableReturnValue
         fun insert(depth: Int, breadth: Int): String {
             val key = next++
             // Mirrors DefaultFormatCache.lookupDescriptorOrStore: the value-factory passed to getOrPut

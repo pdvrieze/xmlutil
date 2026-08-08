@@ -34,7 +34,7 @@ import kotlin.jvm.JvmStatic
  * intended to be stored on the config, thus reused through multiple serializations.
  * Note that this requires the `serialName` attribute of `SerialDescriptor` instances to be unique.
  */
-public class TestFormatCache : FormatCache() {
+public class TestFormatCache : FormatCache {
     private val typeDescCache = HashMap<TypeKey, XmlTypeDescriptor>()
     private val elemDescCache = HashMap<DescKey, XmlDescriptor>()
     private val pendingDescs = HashSet<DescKey>()
