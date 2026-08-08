@@ -54,7 +54,7 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
 
     constructor(bigInt: AbstractBigInteger<*>): this(toBigDecimal(bigInt))
 
-    private constructor(pr: ParseResult) : this(pr.ints, pr.decimalDigits)
+    private constructor(pr: ParseResult) : this(pr.ints, pr.exponent)
 
     constructor(value: UInt) : this(ints = valToUInts(value), exponent = 0)
 
@@ -71,7 +71,7 @@ class BigDecimal(ints: UIntArray, exponent: Int) :
         is BigDecimal -> this
         is AbstractBigDecimal<*> -> {
             requireRange(isFinite) { "Cannot convert non-finite XsdBigDecimal to BigDecimal" }
-            BigDecimal(ints, exponent)
+            BigDecimal(ints, this@asT.exponent)
         }
 
         is XsdInteger -> BigDecimal(this)

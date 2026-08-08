@@ -31,7 +31,7 @@ import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 class InfBigDecimal(ints: UIntArray, exponent: Int) :
     AbstractBigDecimal<InfBigDecimal>(ints, exponent) {
 
-    private constructor(parseResult: ParseResult) : this(parseResult.ints, parseResult.decimalDigits)
+    private constructor(parseResult: ParseResult) : this(parseResult.ints, parseResult.exponent)
 
     constructor(bigInt: AbstractBigInteger<*>): this(toBigDecimal(bigInt))
 
