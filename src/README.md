@@ -8,12 +8,12 @@ serialization based upon Kotlin's standard serialization library and plugin.
 ## Usage
 Simple usage for serialization (gradle):
 ```
-implementation("io.github.pdvrieze.xmlutil:serialization:1.0.2-SNAHPSHOT")
+implementation("io.github.pdvrieze.xmlutil:serialization:1.0.2")
 ```
 
 If only the core module (XML parsing) is needed:
 ```
-implementation("io.github.pdvrieze.xmlutil:core:1.0.2-SNAHPSHOT")
+implementation("io.github.pdvrieze.xmlutil:core:1.0.2")
 ```
 
 ### Hello world
