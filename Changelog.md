@@ -1,4 +1,4 @@
-# 0.90.5-SNAPSHOT
+# 0.90.5
 Changes:
 - Make FormatCache a public interface with `XmlUtilInternal` interface.
   This allows for external implementation, with appropriate warnings.
