@@ -47,10 +47,10 @@ open class XsdDateTimeImpl private constructor(
         day = dateTime.day.toUInt(),
         hour = dateTime.hour.toUInt(),
         minute = dateTime.minute.toUInt(),
-        second = dateTime.nanosecond.let {// retain nano seconds
-            when {
-                it % 1_000_000_000 == 0 -> XsdInt(dateTime.second)
-                else -> BigDecimal(it, -9) + XsdInt(dateTime.second)
+        second = dateTime.nanosecond.let {
+            when (val rem = it % 1_000_000_000) {// retain nano seconds
+                0 -> XsdInt(dateTime.second)
+                else -> BigDecimal(rem, -9) + XsdInt(dateTime.second)
             }
         },
         timezoneOffset = timezoneOffset,
