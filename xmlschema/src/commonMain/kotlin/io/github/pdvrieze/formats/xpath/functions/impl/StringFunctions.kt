@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
+import io.github.pdvrieze.formats.xmlschema.regex.impl.RegexVariant
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -28,12 +29,15 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmString
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.functions.*
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
+import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 import io.github.pdvrieze.xml.schematypes.values.XsdString
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
@@ -331,7 +335,7 @@ object StringFunctions : AbstractFunctionObject() {
 
         val flags = if (args.size == 3) args.atomicArgN<XsdString>(2).xmlString else ""
 
-        val regex = XRegex(pattern, SchemaVersion.V1_1)
+        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
         var start = 0
         val result = mutableListOf<XdmAtomic<XsdString>>()
         var match = regex.find(input, start)
@@ -345,6 +349,64 @@ object StringFunctions : AbstractFunctionObject() {
         }
         if (start < input.length) result.add(atomic(input.substring(start, input.length)))
         XdmSequence.fromList(result, STRING.any.toValueType())
+    }
+
+    @OptIn(NeedsXPath2::class)
+    val fnAnalyzeString = BuiltinFunctionImpl.Fn("analyze-string", listOf(
+        functionType(
+            XdmNodeKindTest(
+                NodeKindTest.ElementTest(QName(FN_NAMESPACE, "analyze-string-result")),
+                SequenceType.OccurrenceType.SINGLE
+            ),
+            STRING.opt,
+            STRING,
+        ),
+        functionType(
+            XdmNodeKindTest(
+                NodeKindTest.ElementTest(QName(FN_NAMESPACE, "analyze-string-result")),
+                SequenceType.OccurrenceType.SINGLE
+            ),
+            STRING.opt,
+            STRING,
+            STRING,
+        ),
+    )) FN@{ args ->
+        val input = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val pattern = args.atomicArgN<XsdString>(1).xmlString
+        val flags = if (args.size == 3) args.atomicArgN<XsdString>(2).xmlString else ""
+
+        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        val ctx = contextOf<ExprEvalContext>()
+        val doc = ctx.outputDocument
+        val outer = doc.createElementNS(FN_NAMESPACE, "analyze-string-result")
+
+        var lastIdx = 0
+        for (match in regex.findAll(input)) {
+            if (lastIdx<match.range.first) {
+                outer.appendChild(doc.createElementNS(FN_NAMESPACE, "non-match").apply {
+                    appendChild(doc.createTextNode(input.substring(lastIdx, match.range.first)))
+                })
+            }
+
+            outer.appendChild(doc.createElementNS(FN_NAMESPACE, "match").also { matchElem ->
+                for ((groupIdx, group) in match.groups.asSequence().withIndex().mapNotNull { (index, group) -> group?.let { IndexedValue(index, it)} }) {
+                    if (lastIdx < group.range.first)
+                        matchElem.appendChild(doc.createTextNode(input.substring(lastIdx, group.range.first)))
+                    matchElem.appendChild(doc.createElementNS(FN_NAMESPACE, "group").also { groupElem ->
+                        groupElem.setAttribute("nr", "$groupIdx")
+                        groupElem.appendChild(doc.createTextNode(group.value))
+                    })
+                    lastIdx = group.range.last
+                }
+
+                if (lastIdx < match.range.last) {
+                    matchElem.appendChild(doc.createTextNode(input.substring(lastIdx, match.range.last)))
+                }
+            })
+            lastIdx = match.range.last
+        }
+        if (lastIdx < input.length) outer.appendChild(doc.createTextNode(input.substring(lastIdx)))
+        outer
     }
 
     //endregion

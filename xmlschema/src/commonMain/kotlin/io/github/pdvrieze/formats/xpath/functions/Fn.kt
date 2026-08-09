@@ -86,6 +86,9 @@ enum class Fn(
     substringAfter(StringFunctions.fnSubstringAfter),
 
     matches(StringFunctions.fnMatches),
+    replace(StringFunctions.fnReplace),
+    tokenize(StringFunctions.fnTokenize),
+    analyzeString(StringFunctions.fnAnalyzeString),
     //endregion
 
     //region Boolean functions (7)

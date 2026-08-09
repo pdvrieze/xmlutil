@@ -111,6 +111,10 @@ sealed class NodeKindTest : NodeTest(), ItemTypeTest {
     @NeedsXPath2
     internal class ElementTest private constructor(val elemName: QNameSpec?, val typeName: QName?, val isOptional: Boolean, dummy: Unit) : NodeKindTest() {
         constructor(name: QNameSpec? = null): this(name, null, false, Unit)
+
+        @OptIn(NeedsXPath3_0::class)
+        constructor(name: QName): this(QNameSpec.ResolvedQName(name))
+
         constructor(name: QNameSpec, typeName: QName, isOptional: Boolean): this(name, typeName, isOptional, Unit)
 
         override val type: NodeType get() = NodeType.ELEMENT
