@@ -337,6 +337,9 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
             // Quantifier ({x,y}).
             '{' -> lookAheadSpecialToken = processQuantifier()
 
+            // $.
+            '$' if regexContext.isXpath2 -> lookAhead = CHAR_DOLLAR
+
             // A group or a special construction.
             '(' -> {
                 if (pattern[index] != '?') {
@@ -408,6 +411,7 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
             ')' -> lookAhead = CHAR_RIGHT_PARENTHESIS
             ']' -> { lookAhead = CHAR_RIGHT_SQUARE_BRACKET } // allows for it to trigger an error
             '[' -> { lookAhead = CHAR_LEFT_SQUARE_BRACKET; mode = Mode.RANGE }
+            '^' if regexContext.isXpath2 -> lookAhead = CHAR_CARET
             '|' -> lookAhead = CHAR_VERTICAL_BAR
             '.' -> lookAhead = CHAR_DOT
         }
@@ -466,6 +470,16 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                 // Special characters like EOL, EOI etc
 
                 '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return
+
+                '$' if regexContext.isXpath2 -> return
+
+                // Back references to capturing groups.
+                // \n
+                in '1'..'9' if regexContext.isXpath2 -> {
+                    if (mode == Mode.PATTERN) {
+                        lookAhead = 0x80000000.toInt() or lookAhead  // Captured group reference is 0x80...<group number>
+                    }
+                }
 
                 else ->
                     throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)

@@ -889,8 +889,8 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
         context(regexContext: RegexContext)
         fun getPredefinedClass(name: String, negative: Boolean): XRAbstractCharClass {
             val charClass = classCacheMap[name] ?: when(regexContext.variant) {
-                RegexVariant.Schema1_0 -> throw XRPatternSyntaxException("No such character class ($name)")
-                else -> classCacheMap["all"]!! // xsd 1.1 allows unknown classes }
+                RegexVariant.Schema1_1 -> classCacheMap["all"]!! // xsd 1.1 allows unknown classes }
+                else -> throw XRPatternSyntaxException("No such character class ($name)")
             }
             val cachedClass = classCache[charClass.ordinal].value
             return cachedClass.getValue(negative)

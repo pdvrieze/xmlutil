@@ -22,7 +22,6 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.regex.impl.RegexVariant
-import io.github.pdvrieze.formats.xmlschema.regex.impl.XMatchResult
 import io.github.pdvrieze.formats.xmlschema.regex.impl.XRPatternSyntaxException
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -377,8 +376,9 @@ object StringFunctions : AbstractFunctionObject() {
         if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
 
         var start = 0
-        var match: XMatchResult? = regex.find(input, start)
-            ?: return@Fn atomic(input)
+        var match = regex.find(input, start)
+        @Suppress("FoldInitializerAndIfToElvis")
+        if (match == null) return@Fn atomic(input)
 
         val result = mutableListOf<XdmAtomic<XsdString>>()
         do {

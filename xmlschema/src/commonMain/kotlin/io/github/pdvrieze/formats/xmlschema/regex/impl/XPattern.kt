@@ -179,7 +179,8 @@ internal class XPattern(val pattern: String, regexCtx: RegexContext, patternFlag
                     || !lexemes.isNextSpecial && XRLexer.isLetter(lexemes.lookAhead)
                     || lexemes.lookAhead == XRLexer.CHAR_RIGHT_PARENTHESIS
                     || lexemes.lookAhead and 0x8000ffff.toInt() == XRLexer.CHAR_LEFT_PARENTHESIS
-                    || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR)
+                    || lexemes.lookAhead == XRLexer.CHAR_VERTICAL_BAR
+                    /*|| lexemes.lookAhead == XRLexer.CHAR_DOLLAR*/)
         ) {
             val ch = lexemes.next()
 
@@ -449,6 +450,43 @@ internal class XPattern(val pattern: String, regexCtx: RegexContext, patternFlag
                     term = XRDotSet(XRAbstractLineTerminator.getInstance(flags), hasFlag(DOTALL))
                 }
 
+                XRLexer.CHAR_CARET if regexContext.isXpath2 -> { // Beginning of the string: ^
+                    lexemes.next()
+                    term = XRSOLSet(XRAbstractLineTerminator.getInstance(flags), hasFlag(MULTILINE))
+                    consumersCount++
+                }
+
+                XRLexer.CHAR_DOLLAR if regexContext.isXpath2 -> { // End of the string: $
+                    lexemes.next()
+                    term = XREOLSet(consumersCount++, XRAbstractLineTerminator.getInstance(flags), hasFlag(MULTILINE))
+
+                }
+
+                // Back references: \1, \2 etc.
+                0x80000000.toInt() or '1'.toInt(),
+                0x80000000.toInt() or '2'.toInt(),
+                0x80000000.toInt() or '3'.toInt(),
+                0x80000000.toInt() or '4'.toInt(),
+                0x80000000.toInt() or '5'.toInt(),
+                0x80000000.toInt() or '6'.toInt(),
+                0x80000000.toInt() or '7'.toInt(),
+                0x80000000.toInt() or '8'.toInt(),
+                0x80000000.toInt() or '9'.toInt() -> {
+                    if (!regexContext.isXpath2) throw IllegalArgumentException("Back references only supported in xpath mode")
+                    var groupIndex = (char and 0x7FFFFFFF) - '0'.code
+                    while (lexemes.lookAhead in '0'.code..'9'.code) {
+                        val newGroupIndex = (groupIndex * 10) + (lexemes.lookAhead - '0'.code)
+                        if (newGroupIndex in 0 until capturingGroups.size) {
+                            groupIndex = newGroupIndex
+                            lexemes.next()
+                        } else {
+                            break
+                        }
+                    }
+                    term = createBackReference(groupIndex)
+                    lexemes.next()
+                }
+
                 // A special token (\D, \w etc), 'u0000' or the end of the pattern.
                 0 -> {
                     val cc: XRAbstractCharClass? = lexemes.curSpecialToken as XRAbstractCharClass?
@@ -499,6 +537,17 @@ internal class XPattern(val pattern: String, regexCtx: RegexContext, patternFlag
             }
         }
         return term
+    }
+
+    /** Creates a back reference to the group with specified [groupIndex], or throws if the group doesn't exist yet. */
+    private fun createBackReference(groupIndex: Int): XRBackReferenceSet {
+        if (groupIndex >= 0 && groupIndex < capturingGroups.size) {
+            capturingGroups[groupIndex].isBackReferenced = true
+            needsBackRefReplacement = true // And process back references in the second pass.
+            return XRBackReferenceSet(groupIndex, consumersCount++, hasFlag(CASE_INSENSITIVE))
+        } else {
+            throw XRPatternSyntaxException("No such group yet exists at this point in the pattern", pattern, lexemes.curTokenIndex)
+        }
     }
 
     /**
