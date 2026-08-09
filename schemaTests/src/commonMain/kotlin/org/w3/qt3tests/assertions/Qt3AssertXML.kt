@@ -26,10 +26,11 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.util.CompactFragment
 import nl.adaptivity.xmlutil.xmlStreaming
 import org.w3.qt3tests.QT3TNS
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
@@ -75,14 +76,18 @@ class Qt3AssertXML(
     @OptIn(XPathInternal::class)
     context(ctx: AssertionResolutionContext)
     override fun resolve(): ResolvedQt3AssertXML {
-        val parsedFrag: XdmDocumentFragment = KtXmlReader(assertion).use { r ->
-            val outDoc = XdmDOMImplementation.createDocument(null, null, null)
-            val outFrag = outDoc.createDocumentFragment()
-            val out = xmlStreaming.newWriter(outFrag)
-            while (r.hasNext()) {
-                r.next().writeEvent(out, r)
+        val parsedFrag: XdmDocumentFragment = try {
+            CompactFragment(assertion).getXmlReader().use { r ->
+                val outDoc = XdmDOMImplementation.createDocument(null, null, null)
+                val outFrag = outDoc.createDocumentFragment()
+                val out = xmlStreaming.newWriter(outFrag)
+                while (r.hasNext()) {
+                    r.next().writeEvent(out, r)
+                }
+                outFrag
             }
-            outFrag
+        } catch (e: XmlException) {
+            throw IllegalArgumentException("Could not parse assertion to XML: '$assertion'", e)
         }
 
         return ResolvedQt3AssertXML(parsedFrag, file, ignorePrefixes)
