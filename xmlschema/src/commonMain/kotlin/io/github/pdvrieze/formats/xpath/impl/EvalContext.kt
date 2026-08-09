@@ -25,6 +25,7 @@ import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.data.XdmBuiltinFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.functions.Fn
@@ -83,8 +84,8 @@ open class EvalContext(
 
     val environmentVariables: Map<String, String> get() = deterministicState.environmentVariables
 
-    val outputDocument: Document by lazy {
-        xmlStreaming.genericDomImplementation.createDocument(null, null, null)
+    val outputDocument: XdmDocument by lazy {
+        XdmDOMImplementation.createDocument(null, null, null)
     }
 
     fun collation(uri: String): Collation? {

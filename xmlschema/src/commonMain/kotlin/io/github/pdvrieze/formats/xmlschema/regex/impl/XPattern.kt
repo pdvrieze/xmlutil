@@ -21,16 +21,16 @@
 @file:Suppress("DEPRECATION") // Char.toInt()
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
-
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
-internal class XPattern(val pattern: String, version: SchemaVersion) {
+internal class XPattern(val pattern: String, regexCtx: RegexContext) {
 
     var flags = 0
         private set
 
     /** A lexer instance used to get tokens from the pattern. */
-    private val lexemes = XRLexer(pattern, version)
+    private val lexemes = XRLexer(pattern, regexCtx)
+
+    private val regexContext: RegexContext get() = lexemes.regexContext
 
     /** List of all capturing groups in the pattern. Primarily used for handling back references. */
     val capturingGroups = mutableListOf<XRFSet>()
@@ -581,7 +581,7 @@ internal class XPattern(val pattern: String, version: SchemaVersion) {
                         buffer = -1
                     } else if (firstInClass
                         || lexemes.lookAhead == XRLexer.CHAR_RIGHT_SQUARE_BRACKET
-                        || (buffer < 0 && lexemes.version != SchemaVersion.V1_0)
+                        || (buffer < 0 && regexContext.variant != RegexVariant.Schema1_0)
                     ) {
                         // Note that mid-range hyphens are only supported in 1.1
 

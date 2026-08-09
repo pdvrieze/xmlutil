@@ -21,6 +21,7 @@
 package nl.adaptivity.xmlutil.dom2.impl
 
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.dom.PlatformNode
 import nl.adaptivity.xmlutil.dom.nodeType
 import nl.adaptivity.xmlutil.dom2.*
@@ -47,6 +48,8 @@ public abstract class AbstractAttr<out N : IAbstractNode<N, P>, out P : IAbstrac
         null, "" -> getLocalName()
         else -> "$p:${getLocalName()}"
     }
+
+    public fun getQName(): QName = QName(getNamespaceURI() ?: "", getLocalName(), getPrefix() ?: "")
 
     final override fun getNodetype(): NodeType = NodeType.ATTRIBUTE_NODE
 

@@ -48,3 +48,16 @@ sealed class AssertionResult {
 
     }
 }
+
+inline fun AssertionResult.flatMap(onSuccess: () -> AssertionResult): AssertionResult {
+    return when (this) {
+        is AssertionResult.Failure -> this
+        is AssertionResult.Success -> onSuccess()
+    }
+}
+
+@IgnorableReturnValue
+inline fun AssertionResult.onFailure(action: (AssertionResult.Failure) -> Nothing): AssertionResult.Success = when (this) {
+    is AssertionResult.Success -> this
+    is AssertionResult.Failure -> action(this)
+}

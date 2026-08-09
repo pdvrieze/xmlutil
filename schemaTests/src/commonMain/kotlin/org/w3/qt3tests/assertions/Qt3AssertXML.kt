@@ -20,11 +20,17 @@
 
 package org.w3.qt3tests.assertions
 
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocumentFragment
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import nl.adaptivity.xmlutil.core.KtXmlReader
+import nl.adaptivity.xmlutil.core.impl.multiplatform.use
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import nl.adaptivity.xmlutil.xmlStreaming
 import org.w3.qt3tests.QT3TNS
 import org.w3.qt3tests.attrGroups.Qt3FileAttr
 import org.w3.qt3tests.context.AssertionResolutionContext
@@ -65,9 +71,21 @@ class Qt3AssertXML(
     @SerialName("ignore-prefixes")
     val ignorePrefixes: Boolean = false
 ): Qt3AbstractAssertion(), Qt3FileAttr {
+
+    @OptIn(XPathInternal::class)
     context(ctx: AssertionResolutionContext)
     override fun resolve(): ResolvedQt3AssertXML {
-        return ResolvedQt3AssertXML(assertion, file, ignorePrefixes)
+        val parsedFrag: XdmDocumentFragment = KtXmlReader(assertion).use { r ->
+            val outDoc = XdmDOMImplementation.createDocument(null, null, null)
+            val outFrag = outDoc.createDocumentFragment()
+            val out = xmlStreaming.newWriter(outFrag)
+            while (r.hasNext()) {
+                r.next().writeEvent(out, r)
+            }
+            outFrag
+        }
+
+        return ResolvedQt3AssertXML(parsedFrag, file, ignorePrefixes)
     }
 }
 

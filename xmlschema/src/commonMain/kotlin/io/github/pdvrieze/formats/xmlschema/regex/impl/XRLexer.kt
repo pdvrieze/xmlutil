@@ -21,7 +21,6 @@
 @file:Suppress("DEPRECATION")
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 
@@ -45,7 +44,7 @@ internal abstract class XRSpecialToken {
     }
 }
 
-internal class XRLexer(val patternString: String, internal val version: SchemaVersion) {
+internal class XRLexer(val patternString: String, internal val regexContext: RegexContext) {
 
     // The property is set in the init block after some transformations over the pattern string.
     private val pattern: CharArray
@@ -320,11 +319,11 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
         when (lookAheadChar) {
             // Quantifier (*, +, ?).
             '+', '*', '?' -> {
-                if (index < pattern.size && pattern[index] in arrayOf('+', '*', '?', '{')) {
+                if (!regexContext.isXpath2 && pattern.getOrZero(index) in arrayOf('+', '*', '?', '{')) {
                     throw XRPatternSyntaxException("Duplicate quantifier", patternString, index - 1)
                 }
 
-                val mode = if (index < pattern.size) pattern[index] else '*'
+                val mode = pattern.getOrElse(index) { '*' }
                 // look at the next character to determine if the mode is greedy, reluctant or possessive.
                 when (mode) {
                     '+' -> { lookAhead = lookAhead or QMOD_POSSESSIVE; nextIndex() }
@@ -374,47 +373,48 @@ internal class XRLexer(val patternString: String, internal val version: SchemaVe
 
     /** Processes an escaped (\x) character in any mode. Returns whether we need to reread the character or not */
     private fun processEscapedChar() {
-        val escapedCharIndex = prevNonWhitespaceIndex + 1
-        if (escapedCharIndex >= pattern.size - 2) {
-            throw XRPatternSyntaxException("Trailing \\", patternString, curTokenIndex)
-        }
-        index = escapedCharIndex
-        val lookAheadChar = pattern[nextIndex()]
-        lookAhead = lookAheadChar.toInt()
-
-        when (lookAheadChar) {
-            // Character class.
-            'P', 'p' -> {
-                val cs = parseCharClassName()
-                val negative = lookAheadChar == 'P'
-
-                lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(cs, negative, version)
-                lookAhead = 0
+        regexContext {
+            val escapedCharIndex = prevNonWhitespaceIndex + 1
+            if (escapedCharIndex >= pattern.size - 2) {
+                throw XRPatternSyntaxException("Trailing \\", patternString, curTokenIndex)
             }
+            index = escapedCharIndex
+            val lookAheadChar = pattern[nextIndex()]
+            lookAhead = lookAheadChar.toInt()
 
-            // Word/whitespace/digit.
-            'w', 's', 'd', 'c', 'i', 'W', 'S', 'D', 'C', 'I' -> {
-                lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(
-                    pattern.concatToString(prevNonWhitespaceIndex, prevNonWhitespaceIndex + 1),
-                    false,
-                    version
-                )
-                lookAhead = 0
+            when (lookAheadChar) {
+                // Character class.
+                'P', 'p' -> {
+                    val cs = parseCharClassName()
+                    val negative = lookAheadChar == 'P'
+
+                    lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(cs, negative)
+                    lookAhead = 0
+                }
+
+                // Word/whitespace/digit.
+                'w', 's', 'd', 'c', 'i', 'W', 'S', 'D', 'C', 'I' -> {
+                    lookAheadSpecialToken = XRAbstractCharClass.getPredefinedClass(
+                        pattern.concatToString(prevNonWhitespaceIndex, prevNonWhitespaceIndex + 1),
+                        false
+                    )
+                    lookAhead = 0
+                }
+
+                // Special characters like tab, new line etc.
+                't' -> lookAhead = '\t'.toInt()
+                'n' -> lookAhead = '\n'.toInt()
+                'r' -> lookAhead = '\r'.toInt()
+
+                // Special characters like EOL, EOI etc
+
+                '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return
+
+                else ->
+                    throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)
             }
-
-            // Special characters like tab, new line etc.
-            't' -> lookAhead = '\t'.toInt()
-            'n' -> lookAhead = '\n'.toInt()
-            'r' -> lookAhead = '\r'.toInt()
-
-            // Special characters like EOL, EOI etc
-
-            '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return
-
-            else ->
-                throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)
+            return
         }
-        return
     }
 
     /** Process [lookAhead] in assumption that it's quantifier. */

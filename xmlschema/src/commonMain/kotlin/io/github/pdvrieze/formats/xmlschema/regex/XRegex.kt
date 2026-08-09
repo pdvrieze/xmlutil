@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xmlschema.regex
 
-import io.github.pdvrieze.formats.xmlschema.regex.impl.XMatchNamedGroupCollection
-import io.github.pdvrieze.formats.xmlschema.regex.impl.XMatchResult
-import io.github.pdvrieze.formats.xmlschema.regex.impl.XPattern
-import io.github.pdvrieze.formats.xmlschema.regex.impl.XRMatchResultImpl
+import io.github.pdvrieze.formats.xmlschema.regex.impl.*
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import nl.adaptivity.xmlutil.core.impl.multiplatform.Language
 
@@ -66,7 +63,10 @@ public class XRegex internal constructor(internal val parsedPattern: XPattern) {
     }
 
     /** Creates a regular expression from the specified [pattern] string and the default options.  */
-    constructor(@Language("XsdRegExp") pattern: String, version: SchemaVersion) : this(XPattern(pattern, version))
+    constructor(@Language("XsdRegExp") pattern: String, version: SchemaVersion) : this(pattern, RegexVariant.of(version))
+
+    /** Creates a regular expression from the specified [pattern] string and the default options.  */
+    constructor(@Language("XsdRegExp") pattern: String, variant: RegexVariant) : this(XPattern(pattern, RegexContext(variant)))
 
     /** The pattern string of this regular expression. */
     val pattern: String
