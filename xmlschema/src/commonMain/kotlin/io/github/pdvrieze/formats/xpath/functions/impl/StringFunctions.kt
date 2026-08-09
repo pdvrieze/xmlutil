@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.regex.impl.RegexVariant
+import io.github.pdvrieze.formats.xmlschema.regex.impl.XMatchResult
 import io.github.pdvrieze.formats.xmlschema.regex.impl.XRPatternSyntaxException
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -357,7 +358,7 @@ object StringFunctions : AbstractFunctionObject() {
         functionType(STRING.any, STRING.opt, STRING),
         functionType(STRING.any, STRING.opt),
     )) Fn@{ args ->
-        var input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        var input = args.atomicOrEmpty<XsdString>(0)?.xmlString?.takeUnless { it.isEmpty() } ?: return@Fn XdmSequence.EMPTY
         val pattern: String
         if (args.size == 1) {
             input = xmlCollapseWhitespace(input)
@@ -376,16 +377,19 @@ object StringFunctions : AbstractFunctionObject() {
         if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
 
         var start = 0
+        var match: XMatchResult? = regex.find(input, start)
+            ?: return@Fn atomic(input)
+
         val result = mutableListOf<XdmAtomic<XsdString>>()
-        var match = regex.find(input, start)
-        while (match != null) {
-            result.add(atomic(input.substring(start, match.range.first)))
+        do {
+            result.add(atomic(input.substring(start, match!!.range.first)))
             start = match.range.last + 1
             if (start >= input.length) break
 
             match = regex.find(input, start)
-        }
+        } while (match != null)
         result.add(atomic(input.substring(start, input.length)))
+
         XdmSequence.fromList(result, STRING.any.toValueType())
     }
 
