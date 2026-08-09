@@ -133,7 +133,7 @@ public class XRegex internal constructor(internal val parsedPattern: XPattern) {
      * @throws IndexOutOfBoundsException if [startIndex] is less than zero or greater than the length of the [input] char sequence.
      */
     fun find(input: CharSequence, startIndex: Int = 0): XMatchResult? {
-        if (startIndex < 0 || startIndex > input.length) {
+        if (startIndex !in input.indices) {
             throw IndexOutOfBoundsException("Start index is out of bounds: $startIndex, input length: ${input.length}")
         }
         val matchResult = XRMatchResultImpl(input, this)

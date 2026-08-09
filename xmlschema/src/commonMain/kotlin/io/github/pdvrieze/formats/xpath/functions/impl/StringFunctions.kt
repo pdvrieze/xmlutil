@@ -23,7 +23,6 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.regex.impl.RegexVariant
 import io.github.pdvrieze.formats.xmlschema.regex.impl.XRPatternSyntaxException
-import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
@@ -311,7 +310,9 @@ object StringFunctions : AbstractFunctionObject() {
         val pattern = args.atomicArgN<XsdString>(1).xmlString
         val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
-        val regex = XRegex(pattern, SchemaVersion.V1_1)
+        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
+
         // TODO support flags
         val result = regex.containsMatchIn(input)
         atomic(result)
@@ -324,9 +325,11 @@ object StringFunctions : AbstractFunctionObject() {
         val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern = args.atomicArgN<XsdString>(1).xmlString
         val replacement = args.atomicArgN<XsdString>(2).xmlString
-        val flags = if (args.size == 4) args.atomicArgN<XsdString>(3).xmlString else ""
+        val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
-        val regex = XRegex(pattern, SchemaVersion.V1_1)
+        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
+
         var start = 0
         val result = StringBuilder()
         var match = regex.find(input, start)
@@ -355,9 +358,11 @@ object StringFunctions : AbstractFunctionObject() {
             pattern = args.atomicArgN<XsdString>(1).xmlString
         }
 
-        val flags = if (args.size == 3) args.atomicArgN<XsdString>(2).xmlString else ""
+        val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
         val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
+
         var start = 0
         val result = mutableListOf<XdmAtomic<XsdString>>()
         var match = regex.find(input, start)
@@ -366,6 +371,7 @@ object StringFunctions : AbstractFunctionObject() {
                 result.add(atomic(input.substring(start, match.range.first)))
             }
             start = match.range.last + 1
+            if (start >= input.length) break
 
             match = regex.find(input, start)
         }

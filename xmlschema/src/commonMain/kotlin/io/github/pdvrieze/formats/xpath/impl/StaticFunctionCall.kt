@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmBuiltinFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmPartialApplication
@@ -50,7 +51,7 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
             XMLConstants.XSD_NS_URI -> ctx.withExprContext(this) { CastFunctions.createFromSchemaType(name) }
             else -> throw EvaluationException("No builtin function from namespace: '${name.namespaceURI}'")
         }
-        if (function == null) throw EvaluationException("Function with name ${name} not found")
+        if (function == null) throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name ${name} not found")
 
         if (args.any { it is ParamPlaceholder }) {
             val partialArgs = args.map {
