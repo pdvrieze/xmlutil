@@ -551,47 +551,10 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                     positive = false
                 }
 
-                'c' -> result = if (positive)
-                                    result or XPattern.CANON_EQ
-                                else
-                                    result xor XPattern.CANON_EQ and result
-
-                'i' -> result = if (positive)
-                                    result or XPattern.CASE_INSENSITIVE
-                                else
-                                    result xor XPattern.CASE_INSENSITIVE and result
-
-                'd' -> result = if (positive)
-                                    result or XPattern.UNIX_LINES
-                                else
-                                    result xor XPattern.UNIX_LINES and result
-
-                'm' -> result = if (positive)
-                                    result or XPattern.MULTILINE
-                                else
-                                    result xor XPattern.MULTILINE and result
-
-                's' -> result = if (positive)
-                                    result or XPattern.DOTALL
-                                else
-                                    result xor XPattern.DOTALL and result
-
-                // We don't support UNICODE_CASE.
-                'u' -> {}/*result = if (positive)
-                                    result or Pattern.UNICODE_CASE
-                                else
-                                    result xor Pattern.UNICODE_CASE and result*/
-
-                // We don't support UNICODE_CHARACTER_CLASS.
-                'U' -> {}/*result = if (positive)
-                                    result or Pattern.UNICODE_CHARACTER_CLASS
-                                else
-                                    result xor Pattern.UNICODE_CHARACTER_CLASS and result*/
-
-                'x' -> result = if (positive)
-                                    result or XPattern.COMMENTS
-                                else
-                                    result xor XPattern.COMMENTS and result
+                'c', 'i', 'd', 'm', 's', 'u', 'U', 'x' ->
+                    parseFlag(char, patternString, curTokenIndex).let { f ->
+                        result = if (positive) result or f else result xor f and result
+                    }
 
                 ':' -> {
                     nextIndex()
@@ -953,6 +916,32 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                 }
                 return decomp
             }
+        }
+
+        internal fun parseFlags(flags: String): Int {
+            return flags.fold(0) { acc, f -> acc or parseFlag(f) }
+        }
+
+        private fun parseFlag(char: Char, pattern: String = "", index: Int = -1): Int {
+            when (char) {
+                'c' -> return XPattern.CANON_EQ
+
+                'i' -> return XPattern.CASE_INSENSITIVE
+
+                'd' -> return XPattern.UNIX_LINES
+
+                'm' -> return XPattern.MULTILINE
+
+                's' -> return XPattern.DOTALL
+
+                // We don't support UNICODE_CASE or UNICODE_CHARACTER_CLAS
+                'u', 'U' -> return 0
+
+                'x' -> return XPattern.COMMENTS
+
+                else -> throw XRPatternSyntaxException("Unknown flag: $char", pattern, index)
+            }
+
         }
     }
 }

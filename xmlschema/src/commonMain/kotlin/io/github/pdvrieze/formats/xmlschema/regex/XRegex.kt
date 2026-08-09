@@ -66,7 +66,8 @@ public class XRegex internal constructor(internal val parsedPattern: XPattern) {
     constructor(@Language("XsdRegExp") pattern: String, version: SchemaVersion) : this(pattern, RegexVariant.of(version))
 
     /** Creates a regular expression from the specified [pattern] string and the default options.  */
-    constructor(@Language("XsdRegExp") pattern: String, variant: RegexVariant) : this(XPattern(pattern, RegexContext(variant)))
+    constructor(@Language("XsdRegExp") pattern: String, variant: RegexVariant, patternFlags: String = "") : this(XPattern(pattern, RegexContext(variant),
+        XRLexer.parseFlags(patternFlags)))
 
     /** The pattern string of this regular expression. */
     val pattern: String
@@ -133,8 +134,10 @@ public class XRegex internal constructor(internal val parsedPattern: XPattern) {
      * @throws IndexOutOfBoundsException if [startIndex] is less than zero or greater than the length of the [input] char sequence.
      */
     fun find(input: CharSequence, startIndex: Int = 0): XMatchResult? {
-        if (startIndex !in input.indices) {
-            throw IndexOutOfBoundsException("Start index is out of bounds: $startIndex, input length: ${input.length}")
+        when (startIndex) {
+            !in 0..input.length -> { // allow for index after last char (for example for empty string)
+                throw IndexOutOfBoundsException("Start index is out of bounds: $startIndex, input length: ${input.length}")
+            }
         }
         val matchResult = XRMatchResultImpl(input, this)
         matchResult.mode = Mode.FIND
@@ -169,7 +172,7 @@ public class XRegex internal constructor(internal val parsedPattern: XPattern) {
     fun matchEntire(input: CharSequence): XMatchResult?= doMatch(input, Mode.MATCH)
 
     public fun matchAt(input: CharSequence, index: Int): XMatchResult? {
-        if (index < 0 || index > input.length) {
+        if (index !in 0..input.length) {
             throw IndexOutOfBoundsException("index is out of bounds: $index, input length: ${input.length}")
         }
         val matchResult = XRMatchResultImpl(input, this)

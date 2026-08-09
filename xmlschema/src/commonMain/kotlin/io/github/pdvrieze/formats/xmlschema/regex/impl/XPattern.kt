@@ -22,7 +22,7 @@
 package io.github.pdvrieze.formats.xmlschema.regex.impl
 
 /** Represents a compiled pattern used by [Regex] for matching, searching, or replacing strings. */
-internal class XPattern(val pattern: String, regexCtx: RegexContext) {
+internal class XPattern(val pattern: String, regexCtx: RegexContext, patternFlags: Int = 0) {
 
     var flags = 0
         private set
@@ -60,7 +60,7 @@ internal class XPattern(val pattern: String, regexCtx: RegexContext) {
         if (flags != 0 && flags or FLAGS_BIT_MASK != FLAGS_BIT_MASK) {
             throw IllegalArgumentException("Invalid match flags value")
         }
-        startNode = processExpression(this.flags, null)
+        startNode = processExpression(patternFlags, null)
 
         if (!lexemes.isEmpty()) {
             throw XRPatternSyntaxException("Trailing characters", pattern, lexemes.curTokenIndex)
