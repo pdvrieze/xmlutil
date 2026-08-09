@@ -27,6 +27,7 @@ data class RegexContext(
         return context(this) { action(this) }
     }
 
+    val isSchema: Boolean get() = variant == RegexVariant.Schema1_0 || variant == RegexVariant.Schema1_1
     val isXpath2: Boolean get() = variant == RegexVariant.XPath_2_0
 }
 

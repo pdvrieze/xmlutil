@@ -22,6 +22,7 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.regex.impl.RegexVariant
+import io.github.pdvrieze.formats.xmlschema.regex.impl.XRPatternSyntaxException
 import io.github.pdvrieze.formats.xmlschema.resolved.SchemaVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -42,6 +43,7 @@ import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
 import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 import nl.adaptivity.xmlutil.xmlCollapseWhitespace
+import kotlin.jvm.JvmInline
 import kotlin.math.roundToInt
 
 @XPathInternal
@@ -281,13 +283,33 @@ object StringFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 5.6 String functions using regex
+
+    context(ctx: ExprEvalContext)
+    private fun parseFlags(flags: String): RegexFlags {
+        var r = RegexFlags()
+
+        for (c in flags) {
+            when (c) {
+                's' -> r = r.setDotMatchesAll()
+                'm' -> r = r.setMultilineMode()
+                'i' -> r = r.setCaseInsensitive()
+                'x' -> r = r.setRemoveRegexWS()
+                'q' -> r = r.setEscapeMetachars()
+                else -> throw EvaluationException(ErrorCodes.FORX0001, "Unexpected flag '$c' in regex flags")
+            }
+        }
+        return r
+    }
+
+
+
     val fnMatches = BuiltinFunctionImpl.Fn("matches", listOf(
         functionType(BOOLEAN, STRING.opt, STRING, STRING),
         functionType(BOOLEAN, STRING.opt, STRING),
     )) Fn@{ args ->
         val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern = args.atomicArgN<XsdString>(1).xmlString
-        val flags = if (args.size >2) args.atomicArgN<XsdString>(2).xmlString else ""
+        val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
         val regex = XRegex(pattern, SchemaVersion.V1_1)
         // TODO support flags
@@ -373,9 +395,15 @@ object StringFunctions : AbstractFunctionObject() {
     )) FN@{ args ->
         val input = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern = args.atomicArgN<XsdString>(1).xmlString
-        val flags = if (args.size == 3) args.atomicArgN<XsdString>(2).xmlString else ""
+        val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
-        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        val regex = try {
+            XRegex(pattern, RegexVariant.XPath_2_0)
+        } catch (e: XRPatternSyntaxException) {
+            throw EvaluationException(ErrorCodes.FORX0002, e)
+        }
+        if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
+
         val ctx = contextOf<ExprEvalContext>()
         val doc = ctx.outputDocument
         val outer = doc.createElementNS(FN_NAMESPACE, "analyze-string-result")
@@ -389,25 +417,55 @@ object StringFunctions : AbstractFunctionObject() {
             }
 
             outer.appendChild(doc.createElementNS(FN_NAMESPACE, "match").also { matchElem ->
-                for ((groupIdx, group) in match.groups.asSequence().withIndex().mapNotNull { (index, group) -> group?.let { IndexedValue(index, it)} }) {
+                val groups = match.groups.asSequence().withIndex()
+                    .mapNotNull { (index, group) -> group?.let { IndexedValue(index, it) } }
+                    .filter { it.index > 0 }
+                for ((groupIdx, group) in groups) {
                     if (lastIdx < group.range.first)
                         matchElem.appendChild(doc.createTextNode(input.substring(lastIdx, group.range.first)))
                     matchElem.appendChild(doc.createElementNS(FN_NAMESPACE, "group").also { groupElem ->
                         groupElem.setAttribute("nr", "$groupIdx")
                         groupElem.appendChild(doc.createTextNode(group.value))
                     })
-                    lastIdx = group.range.last
+                    lastIdx = group.range.last + 1
                 }
 
                 if (lastIdx < match.range.last) {
                     matchElem.appendChild(doc.createTextNode(input.substring(lastIdx, match.range.last)))
                 }
             })
-            lastIdx = match.range.last
+            lastIdx = match.range.last + 1
         }
         if (lastIdx < input.length) outer.appendChild(doc.createTextNode(input.substring(lastIdx)))
         outer
     }
 
     //endregion
+}
+
+@JvmInline
+value class RegexFlags(val value: Int) {
+    constructor(): this(0)
+    val isDotMatchesAll: Boolean get() = value and REGEX_FLAG_DOTMATCHESALL != 0
+    val isMultilineMode: Boolean get() = value and REGEX_FLAG_MULTILINEMODE != 0
+    val isCaseInsensitive: Boolean get() = value and REGEX_FLAG_CASEINSENSITIVE != 0
+    val isRemoveRegexWS: Boolean get() = value and REGEX_FLAG_REMOVEREGEXWS != 0
+    val isEscapeMetachars: Boolean get() = value and REGEX_FLAG_ESCAPEMETACHARS != 0
+
+    fun setDotMatchesAll(): RegexFlags = RegexFlags(value or REGEX_FLAG_DOTMATCHESALL)
+    fun setMultilineMode(): RegexFlags = RegexFlags(value or REGEX_FLAG_MULTILINEMODE)
+    fun setCaseInsensitive(): RegexFlags = RegexFlags(value or REGEX_FLAG_CASEINSENSITIVE)
+    fun setRemoveRegexWS(): RegexFlags = RegexFlags(value or REGEX_FLAG_REMOVEREGEXWS)
+    fun setEscapeMetachars(): RegexFlags = RegexFlags(value or REGEX_FLAG_ESCAPEMETACHARS)
+
+
+    companion object {
+
+        const val REGEX_FLAG_DOTMATCHESALL = 1
+        const val REGEX_FLAG_MULTILINEMODE = 2
+        const val REGEX_FLAG_CASEINSENSITIVE = 4
+        const val REGEX_FLAG_REMOVEREGEXWS = 8
+        const val REGEX_FLAG_ESCAPEMETACHARS = 16
+
+    }
 }
