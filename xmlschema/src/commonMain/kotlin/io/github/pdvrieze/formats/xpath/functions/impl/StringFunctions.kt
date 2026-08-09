@@ -310,7 +310,11 @@ object StringFunctions : AbstractFunctionObject() {
         val pattern = args.atomicArgN<XsdString>(1).xmlString
         val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
-        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        val regex = try {
+            XRegex(pattern, RegexVariant.XPath_2_0, flags.string)
+        } catch (e: XRPatternSyntaxException) {
+            throw EvaluationException(ErrorCodes.FORX0002, e)
+        }
         if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
 
         // TODO support flags
@@ -327,7 +331,11 @@ object StringFunctions : AbstractFunctionObject() {
         val replacement = args.atomicArgN<XsdString>(2).xmlString
         val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
-        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        val regex = try {
+            XRegex(pattern, RegexVariant.XPath_2_0, flags.string)
+        } catch (e: XRPatternSyntaxException) {
+            throw EvaluationException(ErrorCodes.FORX0002, e)
+        }
         if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
 
         var start = 0
@@ -360,22 +368,24 @@ object StringFunctions : AbstractFunctionObject() {
 
         val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
-        val regex = XRegex(pattern, RegexVariant.XPath_2_0)
+        val regex = try {
+            XRegex(pattern, RegexVariant.XPath_2_0, flags.string)
+        } catch (e: XRPatternSyntaxException) {
+            throw EvaluationException(ErrorCodes.FORX0002, e)
+        }
         if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
 
         var start = 0
         val result = mutableListOf<XdmAtomic<XsdString>>()
         var match = regex.find(input, start)
         while (match != null) {
-            if (match.range.first > start) {
-                result.add(atomic(input.substring(start, match.range.first)))
-            }
+            result.add(atomic(input.substring(start, match.range.first)))
             start = match.range.last + 1
             if (start >= input.length) break
 
             match = regex.find(input, start)
         }
-        if (start < input.length) result.add(atomic(input.substring(start, input.length)))
+        result.add(atomic(input.substring(start, input.length)))
         XdmSequence.fromList(result, STRING.any.toValueType())
     }
 
@@ -404,7 +414,7 @@ object StringFunctions : AbstractFunctionObject() {
         val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
 
         val regex = try {
-            XRegex(pattern, RegexVariant.XPath_2_0)
+            XRegex(pattern, RegexVariant.XPath_2_0, flags.string)
         } catch (e: XRPatternSyntaxException) {
             throw EvaluationException(ErrorCodes.FORX0002, e)
         }
@@ -463,6 +473,14 @@ value class RegexFlags(val value: Int) {
     fun setCaseInsensitive(): RegexFlags = RegexFlags(value or REGEX_FLAG_CASEINSENSITIVE)
     fun setRemoveRegexWS(): RegexFlags = RegexFlags(value or REGEX_FLAG_REMOVEREGEXWS)
     fun setEscapeMetachars(): RegexFlags = RegexFlags(value or REGEX_FLAG_ESCAPEMETACHARS)
+
+    val string get(): String = buildString {
+        if (isDotMatchesAll) append("s")
+        if (isMultilineMode) append("m")
+        if (isCaseInsensitive) append("i")
+        if (isRemoveRegexWS) append("x")
+        if (isEscapeMetachars) append("q")
+    }
 
 
     companion object {
