@@ -39,7 +39,7 @@ internal class XsdByteImpl(override val byteValue: Byte) : XsdByte {
 
     override fun plus(other: XsdInteger): XsdInteger = when (other) {
         is XsdByte -> XsdByteImpl((byteValue + other.byteValue).toByte())
-        else -> other.plus(this)
+        else -> other.unaryMinus().plus(this)
     }
 
     override fun minus(other: XsdInteger): XsdInteger = when (other) {

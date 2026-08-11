@@ -44,7 +44,7 @@ internal class XsdShortImpl(override val shortValue: Short) : XsdShort {
 
     override fun minus(other: XsdInteger): XsdInteger = when (other) {
         is XsdShort -> XsdShortImpl((shortValue - other.shortValue).toShort())
-        else -> other.plus(this)
+        else -> other.unaryMinus().plus(this)
     }
 
     override fun compareTo(other: XsdInteger): Int = when (other) {

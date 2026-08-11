@@ -42,8 +42,8 @@ internal class XsdIntImpl(override val intValue: Int) : XsdInt {
     }
 
     override fun minus(other: XsdInteger): XsdInteger = when (other) {
-        is XsdInt -> XsdIntImpl(intValue + other.intValue)
-        else -> other.plus(this)
+        is XsdInt -> XsdIntImpl(intValue - other.intValue)
+        else -> other.unaryMinus().plus(this)
     }
 
     override fun toString(): String = xmlString
