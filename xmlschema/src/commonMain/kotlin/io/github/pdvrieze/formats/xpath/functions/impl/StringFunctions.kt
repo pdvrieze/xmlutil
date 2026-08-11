@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xmlschema.regex.XRegex
 import io.github.pdvrieze.formats.xmlschema.regex.impl.RegexVariant
 import io.github.pdvrieze.formats.xmlschema.regex.impl.XRPatternSyntaxException
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
@@ -359,7 +360,10 @@ object StringFunctions : AbstractFunctionObject() {
     )) Fn@{ args ->
         var input = args.atomicOrEmpty<XsdString>(0)?.xmlString?.takeUnless { it.isEmpty() } ?: return@Fn XdmSequence.EMPTY
         val pattern: String
+        val ctx = contextOf<ExprEvalContext>()
         if (args.size == 1) {
+            if (! ctx.specVersion.includes(XPathVersion.XPath3_1))
+                throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Single arg tokenize is only supported by xpath 3.1+")
             input = xmlCollapseWhitespace(input)
             pattern = " "
         } else {
@@ -377,8 +381,9 @@ object StringFunctions : AbstractFunctionObject() {
 
         var start = 0
         var match = regex.find(input, start)
-        @Suppress("FoldInitializerAndIfToElvis")
-        if (match == null) return@Fn atomic(input)
+
+        @Suppress("FoldInitializerAndIfToElvis", "RedundantSuppression")
+        if (match == null) return@Fn if (input.isEmpty()) XdmSequence.EMPTY else atomic(input)
 
         val result = mutableListOf<XdmAtomic<XsdString>>()
         do {
