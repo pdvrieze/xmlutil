@@ -84,6 +84,8 @@ open class EvalContext(
 
     val environmentVariables: Map<String, String> get() = deterministicState.environmentVariables
 
+    val collections: Map<XsdAnyURI, XdmValue<*>> get() = deterministicState.collections
+
     val outputDocument: XdmDocument by lazy {
         XdmDOMImplementation.createDocument(null, null, null)
     }
@@ -199,6 +201,7 @@ open class EvalContext(
         val baseURI: XsdAnyURI? = null,
         val defaultDecimalFormat: DecimalFormat = DecimalFormat(),
         val environmentVariables: Map<String, String> = emptyMap(),
+        val collections: Map<XsdAnyURI, XdmValue<*>> = emptyMap(),
         decimalFormats: List<DecimalFormat.Named> = emptyList()
     ) {
         private val _traces: MutableList<Trace> = mutableListOf()

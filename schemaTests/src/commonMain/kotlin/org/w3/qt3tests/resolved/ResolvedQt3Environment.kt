@@ -20,10 +20,12 @@
 
 package org.w3.qt3tests.resolved
 
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
-import nl.adaptivity.xmlutil.dom2.Document
 import org.w3.qt3tests.*
 
+@OptIn(XPathInternal::class)
 class ResolvedQt3Environment(
     val name: String?,
     val schemas: List<Qt3Schema>,
@@ -34,7 +36,7 @@ class ResolvedQt3Environment(
     val decimalFormats: List<Qt3DecimalFormat>,
     val namespaces: List<Qt3Namespace>,
     val functionLibraries: List<Qt3FunctionLibrary>,
-    val collections: List<Qt3Collection>,
+    val collections: List<ResolvedQt3Collection>,
     val staticBaseUris: List<Qt3StaticBaseUri>,
     val collations: List<Qt3Collation>
 ) {
@@ -42,7 +44,7 @@ class ResolvedQt3Environment(
         require(name == null || name.isNotBlank()) { "Names can not be blank" }
     }
 
-    fun getDocumentOrNull(): Document? {
+    fun getDocumentOrNull(): XdmDocument? {
         return sources.singleOrNull { it.role == "." }?.content
     }
 

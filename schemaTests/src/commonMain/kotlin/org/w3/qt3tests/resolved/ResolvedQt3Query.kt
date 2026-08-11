@@ -20,24 +20,16 @@
 
 package org.w3.qt3tests.resolved
 
+import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.XQueryExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import org.w3.qt3tests.Qt3Created
-import org.w3.qt3tests.Qt3Description
-import org.w3.qt3tests.Qt3Modified
-import org.w3.qt3tests.Qt3Validations
 
-@XPathInternal
-class ResolvedQt3Source(
-    val content: XdmDocument,
-    val role: String?,
-    val validation: Qt3Validations?,
-    val created: Qt3Created?,
-    val modified: List<Qt3Modified>,
-    val description: Qt3Description?
-): ResolvedQt3Collection.Element {
+class ResolvedQt3Query(val query: Result<XQueryExpression>) : ResolvedQt3Collection.Element {
+    val evaluation: Result<XdmValue<*>> by lazy {
+        query.mapCatching { q: XQueryExpression -> (q as XPathExpression).eval() }
+    }
+
     override fun asXdmValue(): XdmValue<*> {
-        return content
+        return evaluation.getOrThrow()
     }
 }

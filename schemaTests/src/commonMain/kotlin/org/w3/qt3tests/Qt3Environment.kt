@@ -20,6 +20,7 @@
 
 package org.w3.qt3tests
 
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -44,6 +45,7 @@ import org.w3.qt3tests.resolved.ResolvedQt3Environment
  * by its `ref` attribute) or a locally-defined environment (with no `name` or `ref`
  * attributes.
  */
+@OptIn(XPathInternal::class)
 @Serializable
 @XmlSerialName("environment", QT3TNS)
 class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
@@ -109,7 +111,7 @@ class Qt3Environment : Qt3BaseType, Qt3NameAttr, Qt3RefAttr {
             decimalFormats,
             namespaces,
             functionLibraries,
-            collections,
+            collections.map { it.resolve() },
             staticBaseUris,
             collations,
         ).also { if (name != null) ctx.knownEnvironments[name] = it }

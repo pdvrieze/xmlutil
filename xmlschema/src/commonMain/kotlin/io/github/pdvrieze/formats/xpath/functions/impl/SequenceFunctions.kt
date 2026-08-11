@@ -495,6 +495,18 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         }
     }
 
+    val fnCollection = BuiltinFunctionImpl.Fn("collection", listOf(
+        functionType(ITEM.any),
+        functionType(ITEM.any, STRING.opt),
+    )) { args ->
+        val uri = when (args.size) {
+            0 -> XsdAnyURI("")
+            else -> args.atomicArgN<XsdString>(0).let { XsdAnyURI(it.xmlString) }
+        }
+        val ctx = contextOf<ExprEvalContext>()
+        ctx.collections[uri] ?: throw EvaluationException(ErrorCodes.FODC0002, "Unknown collection: $uri")
+    }
+
     //endregion
 
     //region 14.7 Parsing and serializing

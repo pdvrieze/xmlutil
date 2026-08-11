@@ -163,6 +163,8 @@ enum class Fn(
 
     environmentVariable(SequenceFunctions.fnEnvironmentVariable),
     availableEnvironmentVariables(SequenceFunctions.fnAvailableEnvironmentVariables),
+
+    collection(SequenceFunctions.fnCollection),
     //endregion
 
     //region Context functions (15)

@@ -20,10 +20,12 @@
 
 package org.w3.qt3tests.test
 
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.XmlException
 import nl.adaptivity.xmlutil.core.KtXmlReader
-import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
 import nl.adaptivity.xmlutil.serialization.XmlSerialException
 import nl.adaptivity.xmlutil.writeCurrent
@@ -34,6 +36,7 @@ import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
 import org.w3.qt3tests.resolved.TestSetResolutionContext
 
+@OptIn(XPathInternal::class)
 abstract class ResolutionContextImpl(
     override val base: String,
     override val xml: XML,
@@ -59,8 +62,9 @@ abstract class ResolutionContextImpl(
     }
 
 
-    override fun parseDocument(relativePath: String): Document {
-        val out = xmlStreaming.newWriter()
+    override fun parseDocument(relativePath: String): XdmDocument {
+        val doc = XdmDOMImplementation.createDocument(null, null, null)
+        val out = xmlStreaming.newWriter(doc)
 
         requireNotNull(javaClass.getResourceAsStream("$base$relativePath")) {
             "Could not find resource $base$relativePath"
@@ -91,7 +95,7 @@ abstract class ResolutionContextImpl(
                 throw XmlException(xr.extLocationInfo, e)
             }
         }
-        return out.target
+        return doc
     }
 
     override fun <T> parseFile(

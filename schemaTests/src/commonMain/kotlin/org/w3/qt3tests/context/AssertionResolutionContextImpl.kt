@@ -22,10 +22,11 @@ package org.w3.qt3tests.context
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryVersion
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.XMLConstants
-import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.CatalogResolutionContext
@@ -33,12 +34,13 @@ import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
 import org.w3.qt3tests.resolved.TestSetResolutionContext
 
+@OptIn(XPathInternal::class)
 class AssertionResolutionContextImpl(
     private val orig: ResolutionContext,
     override val environment: ResolvedQt3Environment?,
     override val specDep: Qt3SpecDependency?,
     override val doVerify: Boolean
-) : ResolutionContext, AssertionResolutionContext {
+) : AssertionResolutionContext {
 
     constructor(orig: TestSetResolutionContext, environment: ResolvedQt3Environment?, specDep: Qt3SpecDependency?) :
         this(orig, environment, specDep, orig.doVerify)
@@ -68,7 +70,7 @@ class AssertionResolutionContextImpl(
     }
 
 
-    override fun parseDocument(relativePath: String): Document {
+    override fun parseDocument(relativePath: String): XdmDocument {
         return orig.parseDocument(relativePath)
     }
 

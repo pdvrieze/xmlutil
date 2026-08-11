@@ -24,6 +24,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.w3.qt3tests.attrGroups.Qt3UriAttr
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Collection
 
 /**
  * Represents a collection accessible to the collection() function.
@@ -37,8 +39,21 @@ import org.w3.qt3tests.attrGroups.Qt3UriAttr
 @Serializable
 @XmlSerialName("collection", QT3TNS)
 class Qt3Collection(
-    val sources: List<Qt3Source>,
-    val resources: List<Qt3Resource>,
-    val queries: List<Qt3Query>,
+    val elements: List<Element>,
     override val uri: XsdAnyURI? = null,
-): Qt3Environment.Element, Qt3UriAttr
+): Qt3Environment.Element, Qt3UriAttr {
+
+    context(_: ResolutionContext)
+    fun resolve(): ResolvedQt3Collection {
+        return ResolvedQt3Collection(
+            elements = elements.map { it.resolve() },
+            uri = uri
+        )
+    }
+
+    @Serializable
+    sealed interface Element {
+        context(ctx: ResolutionContext)
+        fun resolve(): ResolvedQt3Collection.Element
+    }
+}

@@ -20,6 +20,7 @@
 
 package org.w3.qt3tests
 
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
@@ -40,9 +41,10 @@ import org.w3.qt3tests.resolved.ResolvedQt3Source
  * appears. A validated source document references the schema, which maps to the `@id` of the Schema
  * element.
  */
+@OptIn(XPathInternal::class)
 @Serializable
 @XmlSerialName("source", QT3TNS)
-class Qt3Source: Qt3SourceType, Qt3Environment.Element {
+class Qt3Source: Qt3SourceType, Qt3Environment.Element, Qt3Collection.Element {
 
     constructor(
         id: XsdID?,
@@ -56,7 +58,7 @@ class Qt3Source: Qt3SourceType, Qt3Environment.Element {
     ) : super(file, id, description, created, modified, role, uri, validation)
 
     context(ctx: ResolutionContext)
-    fun resolve(): ResolvedQt3Source {
+    override fun resolve(): ResolvedQt3Source {
         val parsed = ctx.parseDocument(file.value)
         return ResolvedQt3Source(
             parsed,

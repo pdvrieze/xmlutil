@@ -24,6 +24,8 @@ import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdID
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Resource
 
 /**
  * An element which provides information about a file that can be read as text, used as input to
@@ -45,7 +47,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
  */
 @Serializable
 @XmlSerialName("resource", QT3TNS)
-class Qt3Resource: Qt3ResourceType, Qt3Environment.Element {
+class Qt3Resource: Qt3ResourceType, Qt3Environment.Element, Qt3Collection.Element {
     constructor(
         id: XsdID? = null,
         description: Qt3Description? = null,
@@ -56,5 +58,10 @@ class Qt3Resource: Qt3ResourceType, Qt3Environment.Element {
         mediaType: String? = null,
         encoding: String? = null,
     ) : super(id, description, created, modified, file, uri, mediaType, encoding)
+
+    context(ctx: ResolutionContext)
+    override fun resolve(): ResolvedQt3Resource {
+        return ResolvedQt3Resource(this)
+    }
 }
 

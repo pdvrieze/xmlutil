@@ -20,20 +20,22 @@
 
 package org.w3.qt3tests.resolved
 
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationException
-import nl.adaptivity.xmlutil.dom2.Document
 import nl.adaptivity.xmlutil.serialization.XML
 import org.w3.qt3tests.FileContextException
 import org.w3.qt3tests.Qt3Dependency
 
+@OptIn(XPathInternal::class)
 interface ResolutionContext {
     val base: String
     val xml: XML
     val knownEnvironments: MutableMap<String, ResolvedQt3Environment>
     val idMap: MutableMap<String, Any>
 
-    fun parseDocument(relativePath: String): Document
+    fun parseDocument(relativePath: String): XdmDocument
     fun <T> parseFile(deserializer: DeserializationStrategy<T>, relativePath: String): T
     fun subContext(file: String): CatalogResolutionContext
 }

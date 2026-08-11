@@ -24,9 +24,10 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryVersion
 import nl.adaptivity.xmlutil.NamespaceContext
 import org.w3.qt3tests.Qt3SpecDependency
+import org.w3.qt3tests.resolved.ResolutionContext
 import org.w3.qt3tests.resolved.ResolvedQt3Environment
 
-interface AssertionResolutionContext {
+interface AssertionResolutionContext: ResolutionContext {
     val namespaceContext: NamespaceContext
 
     val environment: ResolvedQt3Environment?

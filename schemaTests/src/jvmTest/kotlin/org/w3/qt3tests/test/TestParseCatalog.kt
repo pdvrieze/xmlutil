@@ -21,6 +21,7 @@
 package org.w3.qt3tests.test
 
 import io.github.pdvrieze.formats.xmlschemaTests.getResource
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import nl.adaptivity.xmlutil.EventType
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlReader
@@ -45,6 +46,7 @@ import org.w3.qt3tests.resolved.ResolvedQt3TestSet
 import org.w3.xml.xmschematestsuite.override.CompactOverride
 import kotlin.test.Test
 
+@OptIn(XPathInternal::class)
 class TestParseCatalog {
 
     @Test

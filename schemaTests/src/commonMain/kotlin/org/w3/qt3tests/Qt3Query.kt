@@ -20,9 +20,12 @@
 
 package org.w3.qt3tests
 
+import io.github.pdvrieze.formats.xpath.XPathExpression
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import nl.adaptivity.xmlutil.serialization.XmlValue
+import org.w3.qt3tests.resolved.ResolutionContext
+import org.w3.qt3tests.resolved.ResolvedQt3Query
 
 /**
  * The content of the element is an XQuery expression to be evaluated. This should return a
@@ -34,7 +37,13 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
  */
 @Serializable
 @XmlSerialName("query", QT3TNS)
-class Qt3Query(@XmlValue val xQueryExpression: String) {
+class Qt3Query(@XmlValue val xQueryExpression: UnresolvedXQueryExpr): Qt3Collection.Element {
+    context(ctx: ResolutionContext)
+    override fun resolve(): ResolvedQt3Query {
+        val q = runCatching { XPathExpression(xQueryExpression.expr) }
+
+        return ResolvedQt3Query(q)
+    }
 
 }
 

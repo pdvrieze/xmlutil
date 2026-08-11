@@ -22,11 +22,11 @@ package org.w3.qt3tests.test
 
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.impl.EvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.XmlEvent
@@ -45,22 +45,15 @@ abstract class AbstractTestSetSuite {
     @IgnorableReturnValue
     protected fun testEvalTestCaseImpl(testCase: ResolvedQt3TestCase): Result<XdmValue<*>> {
         val environment = testCase.environment?.getOrThrow()
-        val contextDoc: XdmDocument? = when (val d = environment?.getDocumentOrNull()) {
-            is XdmDocument? -> d
-            else -> {
-                val xdmDoc = XdmDOMImplementation.createDocument(null, null, null)
-                val newNodes = d.documentElement?.let { xdmDoc.importNode(it, true) }
-                if (newNodes != null) { xdmDoc.appendChild(newNodes) }
-                xdmDoc
-            }
-        }
+        val contextDoc: XdmDocument? = environment?.getDocumentOrNull()
 
-        val context = contextDoc?.let { it.getDocumentElement() }
+        val context = contextDoc?.getDocumentElement()
 
         var decimalFormat = DecimalFormat()
         val namedDecimalFormats = mutableListOf<DecimalFormat.Named>()
         var nsContext = SimpleNamespaceContext()
         val vars = mutableMapOf<String, MutableMap<String, XdmValue<*>>>()
+        val collections = mutableMapOf<XsdAnyURI, XdmValue<*>>()
         if (environment != null) {
             nsContext = environment.getNsContext()
 
@@ -87,6 +80,11 @@ abstract class AbstractTestSetSuite {
                     (vars.getOrPut(nsUri) { mutableMapOf() })[param.name.localPart] = value
                 }
             }
+
+            for (c in environment.collections) {
+                val uri = c.uri ?: ""
+                val seq = c.getValues()
+            }
         }
 
         val additionalNamespaces = defaultNamespaces.filter {
@@ -101,6 +99,7 @@ abstract class AbstractTestSetSuite {
             decimalFormats = namedDecimalFormats,
             // example variables to test. Note that multiple are needed due to broken tests
             environmentVariables = mapOf("QTTEST" to "42", "QTTEST2" to "other"),
+            collections = collections
         )
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression

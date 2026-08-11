@@ -21,23 +21,10 @@
 package org.w3.qt3tests.resolved
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
-import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
-import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import org.w3.qt3tests.Qt3Created
-import org.w3.qt3tests.Qt3Description
-import org.w3.qt3tests.Qt3Modified
-import org.w3.qt3tests.Qt3Validations
+import org.w3.qt3tests.Qt3Resource
 
-@XPathInternal
-class ResolvedQt3Source(
-    val content: XdmDocument,
-    val role: String?,
-    val validation: Qt3Validations?,
-    val created: Qt3Created?,
-    val modified: List<Qt3Modified>,
-    val description: Qt3Description?
-): ResolvedQt3Collection.Element {
+class ResolvedQt3Resource(val raw: Qt3Resource): ResolvedQt3Collection.Element {
     override fun asXdmValue(): XdmValue<*> {
-        return content
+        TODO("not implemented")
     }
 }
