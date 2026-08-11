@@ -187,6 +187,144 @@ public class XRegex internal constructor(internal val parsedPattern: XPattern) {
     }
 
     /**
+     * Replaces all occurrences of this regular expression in the specified [input] string with specified [replacement] expression.
+     *
+     * The replacement string may contain references to the captured groups during a match. Occurrences of `${name}` or `$index`
+     * in the replacement string will be substituted with the subsequences corresponding to the captured groups with the specified name or index.
+     * In case of `$index`, the first digit after '$' is always treated as a part of group reference. Subsequent digits are incorporated
+     * into `index` only if they would form a valid group reference. Only the digits '0'..'9' are considered as potential components
+     * of the group reference. Note that indexes of captured groups start from 1, and the group with index 0 is the whole match.
+     * In case of `${name}`, the `name` can consist of latin letters 'a'..'z' and 'A'..'Z', or digits '0'..'9'. The first character must be
+     * a letter.
+     *
+     * Backslash character '\' can be used to include the succeeding character as a literal in the replacement string, e.g, `\$` or `\\`.
+     * [Regex.escapeReplacement] can be used if [replacement] have to be treated as a literal string.
+     *
+     * @param input the char sequence to find matches of this regular expression in
+     * @param replacement the expression to replace found matches with
+     * @return the result of replacing each occurrence of this regular expression in [input] with the result of evaluating the [replacement] expression
+     * @throws RuntimeException if [replacement] expression is malformed, or capturing group with specified `name` or `index` does not exist
+     */
+    fun replace(input: CharSequence, replacement: String): String
+            = replace(input) { match -> substituteGroupRefs(match, replacement) }
+
+    /**
+     * Replaces all occurrences of this regular expression in the specified [input] string with the result of
+     * the given function [transform] that takes [MatchResult] and returns a string to be used as a
+     * replacement for that match.
+     */
+    fun replace(input: CharSequence, transform: (XMatchResult) -> CharSequence): String {
+        var match: XMatchResult? = find(input) ?: return input.toString()
+
+        var lastStart = 0
+        val length = input.length
+        val sb = StringBuilder(length)
+        do {
+            val foundMatch = match!!
+            sb.append(input, lastStart, foundMatch.range.start)
+            sb.append(transform(foundMatch))
+            lastStart = foundMatch.range.endInclusive + 1
+            match = foundMatch.next()
+        } while (lastStart < length && match != null)
+
+        if (lastStart < length) {
+            sb.append(input, lastStart, length)
+        }
+
+        return sb.toString()
+    }
+
+    /**
+     * Replaces the first occurrence of this regular expression in the specified [input] string with specified [replacement] expression.
+     *
+     * The replacement string may contain references to the captured groups during a match. Occurrences of `${name}` or `$index`
+     * in the replacement string will be substituted with the subsequences corresponding to the captured groups with the specified name or index.
+     * In case of `$index`, the first digit after '$' is always treated as a part of group reference. Subsequent digits are incorporated
+     * into `index` only if they would form a valid group reference. Only the digits '0'..'9' are considered as potential components
+     * of the group reference. Note that indexes of captured groups start from 1, and the group with index 0 is the whole match.
+     * In case of `${name}`, the `name` can consist of latin letters 'a'..'z' and 'A'..'Z', or digits '0'..'9'. The first character must be
+     * a letter.
+     *
+     * Backslash character '\' can be used to include the succeeding character as a literal in the replacement string, e.g, `\$` or `\\`.
+     * [Regex.escapeReplacement] can be used if [replacement] have to be treated as a literal string.
+     *
+     * @param input the char sequence to find a match of this regular expression in
+     * @param replacement the expression to replace the found match with
+     * @return the result of replacing the first occurrence of this regular expression in [input] with the result of evaluating the [replacement] expression
+     * @throws RuntimeException if [replacement] expression is malformed, or capturing group with specified `name` or `index` does not exist
+     */
+    fun replaceFirst(input: CharSequence, replacement: String): String {
+        val match = find(input) ?: return input.toString()
+        val length = input.length
+        val result = StringBuilder(length)
+        result.append(input, 0, match.range.start)
+        result.append(substituteGroupRefs(match, replacement))
+        if (match.range.endInclusive + 1 < length) {
+            result.append(input, match.range.endInclusive + 1, length)
+        }
+        return result.toString()
+    }
+
+    /**
+     * Splits the [input] CharSequence to a list of strings around matches of this regular expression.
+     *
+     * @param limit Non-negative value specifying the maximum number of substrings the string can be split to.
+     * Zero by default means no limit is set.
+     */
+    fun split(input: CharSequence, limit: Int = 0): List<String> {
+        require(limit >= 0) { "Limit must be non-negative, but was $limit" }
+
+        var match: XMatchResult? = find(input)
+
+        if (match == null || limit == 1) return listOf(input.toString())
+
+        val result = ArrayList<String>(if (limit > 0) limit.coerceAtMost(10) else 10)
+        var lastStart = 0
+        val lastSplit = limit - 1 // negative if there's no limit
+
+        do {
+            result.add(input.substring(lastStart, match!!.range.start))
+            lastStart = match.range.endInclusive + 1
+            if (lastSplit >= 0 && result.size == lastSplit) break
+            match = match.next()
+        } while (match != null)
+
+        result.add(input.substring(lastStart, input.length))
+
+        return result
+    }
+
+    /**
+     * Splits the [input] CharSequence to a sequence of strings around matches of this regular expression.
+     *
+     * @param limit Non-negative value specifying the maximum number of substrings the string can be split to.
+     * Zero by default means no limit is set.
+     */
+    public fun splitToSequence(input: CharSequence, limit: Int = 0): Sequence<String> {
+        require(limit >= 0) { "Limit must be non-negative, but was $limit" }
+
+        return sequence {
+            var match = find(input)
+            if (match == null || limit == 1) {
+                yield(input.toString())
+                return@sequence
+            }
+
+            var nextStart = 0
+            var splitCount = 0
+
+            do {
+                val foundMatch = match!!
+                yield(input.substring(nextStart, foundMatch.range.first))
+                nextStart = foundMatch.range.endInclusive + 1
+                match = foundMatch.next()
+            } while (++splitCount != limit - 1 && match != null)
+
+            yield(input.substring(nextStart, input.length))
+        }
+    }
+
+    /**
      * Returns the string representation of this regular expression, namely the [pattern] of this regular expression.
      */
     override fun toString(): String = parsedPattern.toString()

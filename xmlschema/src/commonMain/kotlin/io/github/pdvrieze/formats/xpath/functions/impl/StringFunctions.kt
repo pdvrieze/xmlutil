@@ -339,18 +339,7 @@ object StringFunctions : AbstractFunctionObject() {
         }
         if (regex.matches("")) throw EvaluationException(ErrorCodes.FORX0003, "Pattern '$pattern' matches the empty string")
 
-        var start = 0
-        val result = StringBuilder()
-        var match = regex.find(input, start)
-        while (match != null) {
-            if (match.range.first > start) result.append(input, start, match.range.first)
-            result.append(replacement)
-            start = match.range.last + 1
-
-            match = regex.find(input, start)
-        }
-        if (start < input.length) result.append(input, start, input.length)
-        atomic(result.toString())
+        atomic(regex.replace(input, replacement))
     }
 
     val fnTokenize = BuiltinFunctionImpl.Fn("tokenize", listOf(
