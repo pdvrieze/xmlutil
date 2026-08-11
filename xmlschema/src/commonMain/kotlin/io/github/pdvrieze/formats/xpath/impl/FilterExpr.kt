@@ -21,8 +21,10 @@
 package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.XPathVersion
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.xml.schematypes.values.XsdLong
 
 @OptIn(XPathInternal::class)
 @NeedsXPath1
@@ -42,15 +44,17 @@ internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr
             } else {
                 when (current) {
                     is XdmSequence<*> -> {
-                        val newElems = current.filterIndexed {index, value ->
-                            ctx.withValueContext(value, index, current.size) { predicate.eval() }.toBoolean()
+                        // note that the predicate needs repeated evaluation as it could use context
+                        // position in evaluation
+                        val newElems = current.filterIndexed { index, value ->
+                            ctx.withValueContext(value, index + 1, current.size) { predicate.eval().toPredicateBoolean() }
                         }
 
                         current = XdmSequence.fromList (newElems, current.staticType)
                     }
 
                     else -> ctx.withValueContext(current, 1, 1) {
-                        if (!predicate.eval().toBoolean()) return XdmSequence.EMPTY
+                        if (!predicate.eval().toPredicateBoolean()) return XdmSequence.EMPTY
                     }
                 }
             }
@@ -98,4 +102,14 @@ internal class FilterExpr(val primaryExpr: ExprSingle, val predicates: List<Expr
     }
 
 
+}
+
+@OptIn(XPathInternal::class)
+context(ctx: ExprEvalContext)
+private fun XdmValue<*>.toPredicateBoolean(): Boolean {
+    val itemIdx = ctx.contextItem?.position ?: return toBoolean()
+    return when (val v = (this as? XdmAtomic<*>)?.value) {
+        is XsdLong -> (v.toLong() == itemIdx.toLong())
+        else -> this.toBoolean()
+    }
 }
