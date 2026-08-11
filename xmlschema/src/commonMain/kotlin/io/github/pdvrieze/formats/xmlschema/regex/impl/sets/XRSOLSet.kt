@@ -33,8 +33,10 @@ internal class XRSOLSet(val lt: XRAbstractLineTerminator, val multiline: Boolean
                 return next.matches(startIndex, testString, matchResult)
             }
         } else {
-            if ((startIndex == 0
-                    || lt.isAfterLineTerminator(testString[startIndex - 1], testString[startIndex]))) {
+            if (startIndex == 0
+                || (startIndex < testString.length &&
+                        lt.isAfterLineTerminator(testString[startIndex - 1], testString[startIndex]))
+            ) {
                 return next.matches(startIndex, testString, matchResult)
             }
         }
