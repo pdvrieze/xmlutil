@@ -687,19 +687,13 @@ abstract class ComparisonOperator(
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
-            is XdmSequence<*> -> throw EvaluationException(
-                ErrorCodes.XPTY0004_TYPE_ERROR,
-                "Sequence as value comparison operand"
-            )
+            is XdmSequence<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as value comparison operand")
         }
         val rightVal = when (val a = right.atomize()) {
             is XdmSequence.EMPTY -> return XdmSequence.EMPTY
             is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
             is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
-            is XdmSequence<*> -> throw EvaluationException(
-                ErrorCodes.XPTY0004_TYPE_ERROR,
-                "Sequence as value comparison operand"
-            )
+            is XdmSequence<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Sequence as value comparison operand")
         }
 
         return XdmAtomic((cmpAtomic(leftVal, rightVal)))

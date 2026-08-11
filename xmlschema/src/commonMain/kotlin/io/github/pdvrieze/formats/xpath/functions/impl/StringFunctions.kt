@@ -330,7 +330,7 @@ object StringFunctions : AbstractFunctionObject() {
         val input = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
         val pattern = args.atomicArgN<XsdString>(1).xmlString
         val replacement = args.atomicArgN<XsdString>(2).xmlString
-        val flags = if (args.size == 3) parseFlags(args.atomicArgN<XsdString>(2).xmlString) else RegexFlags()
+        val flags = if (args.size == 4) parseFlags(args.atomicArgN<XsdString>(3).xmlString) else RegexFlags()
 
         val regex = try {
             XRegex(pattern, RegexVariant.XPath_2_0, flags.string)
