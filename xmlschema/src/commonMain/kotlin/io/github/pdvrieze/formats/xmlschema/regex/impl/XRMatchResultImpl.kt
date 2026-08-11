@@ -251,5 +251,13 @@ constructor (internal val input: CharSequence, internal val regex: XRegex) : XMa
         groupBounds[index * 2] = srtOffset
         groupBounds[index * 2 + 1] = endOffset
     }
+
+    override fun toString(): String {
+        return "XRMatchResultImpl(" +
+                "$range: ${input.substring(0, getStart(0))}>${input.substring(range)}<${input.substring(getEnd())}" +
+                ")"
+    }
+
+
 }
 
