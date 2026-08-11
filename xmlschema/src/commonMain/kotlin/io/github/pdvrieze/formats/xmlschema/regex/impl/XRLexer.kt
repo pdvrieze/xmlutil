@@ -44,12 +44,12 @@ internal abstract class XRSpecialToken {
     }
 }
 
-internal class XRLexer(val patternString: String, internal val regexContext: RegexContext) {
+internal class XRLexer(val patternString: String, internal val regexContext: RegexContext, flags: Int) {
 
     // The property is set in the init block after some transformations over the pattern string.
     private val pattern: CharArray
 
-    var flags = 0
+    var flags = flags
         private set
 
     // Modes ===========================================================================================================
@@ -125,6 +125,7 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
     // Character checks ================================================================================================
     /** Returns true, if current token is special, i.e. quantifier, or other compound token. */
     val isSpecial: Boolean      get() = curSpecialToken != null
+    val isQuantifier: Boolean   get() = isSpecial && curSpecialToken!!.type == XRSpecialToken.Type.QUANTIFIER
     val isNextSpecial: Boolean  get() = lookAheadSpecialToken != null
 
     private fun Int.isSurrogatePair() : Boolean {
@@ -265,27 +266,31 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
         curSpecialToken = lookAheadSpecialToken
         curTokenIndex = lookAheadTokenIndex
         lookAheadTokenIndex = index
+        var reread: Boolean
+        do {
+            // Read the next character, analyze it and construct a token.
+            lookAhead = if (index < pattern.size) nextCodePoint() else 0
+            lookAheadSpecialToken = null
 
-        // Read the next character, analyze it and construct a token.
-        lookAhead = if (index < pattern.size) nextCodePoint() else 0
-        lookAheadSpecialToken = null
+            if (mode == Mode.ESCAPE) {
+                processInEscapeMode()
+            } // note this may change the mode
 
-        if (mode == Mode.ESCAPE) {
-            processInEscapeMode()
-        } // note this may change the mode
-
-        when (mode) {
-            Mode.PATTERN -> processInPatternMode()
-            Mode.RANGE -> processInRangeMode()
-            else -> {}
-        }
+            reread = when (mode) {
+                Mode.PATTERN -> processInPatternMode()
+                Mode.RANGE -> processInRangeMode()
+                else -> false
+            }
+        } while (reread)
     }
 
     // Special functions called from [movePointer] function to process chars in different modes ========================
     /**
      * Processing an escaped sequence like "\Q foo \E". Just skip a character if it is not \E.
+     * Returns whether we need to reread the character or not
      */
-    private fun processInEscapeMode() {
+    @IgnorableReturnValue
+    private fun processInEscapeMode(): Boolean {
         if (lookAhead == '\\'.toInt()) {
             // Need not care about supplementary code points here.
             val lookAheadChar: Char = if (index < pattern.size) pattern[nextIndex()] else '\u0000'
@@ -303,16 +308,18 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                 index = prevNonWhitespaceIndex
             }
         }
+        return false
     }
 
     /** Processes a next character in [Mode.PATTERN] mode. Returns whether we need to reread the character or not */
-    private fun processInPatternMode() {
-        if (lookAhead.isSurrogatePair()) return
+    private fun processInPatternMode(): Boolean {
+        if (lookAhead.isSurrogatePair()) {
+            return false
+        }
         val lookAheadChar = lookAhead.toChar()
 
         if (lookAheadChar == '\\') {
-            processEscapedChar()
-            return
+            return processEscapedChar()
         }
 
         // TODO: Look like we can create a quantifier here.
@@ -415,25 +422,26 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
             '|' -> lookAhead = CHAR_VERTICAL_BAR
             '.' -> lookAhead = CHAR_DOT
         }
-        return
+        return false
     }
 
     /** Processes a character inside a range. Returns whether we need to reread the character or not */
-    private fun processInRangeMode() {
-        if (lookAhead.isSurrogatePair()) return
+    private fun processInRangeMode(): Boolean {
+        if (lookAhead.isSurrogatePair()) return false
         val lookAheadChar = lookAhead.toChar()
 
         when (lookAheadChar) {
-            '\\' -> processEscapedChar()
+            '\\' -> return processEscapedChar()
             '['  -> lookAhead = CHAR_LEFT_SQUARE_BRACKET
             ']'  -> lookAhead = CHAR_RIGHT_SQUARE_BRACKET
             '^'  -> lookAhead = CHAR_CARET
             '-'  -> lookAhead = CHAR_HYPHEN
         }
+        return false
     }
 
     /** Processes an escaped (\x) character in any mode. Returns whether we need to reread the character or not */
-    private fun processEscapedChar() {
+    private fun processEscapedChar(): Boolean {
         regexContext {
             val escapedCharIndex = prevNonWhitespaceIndex + 1
             if (escapedCharIndex >= pattern.size - 2) {
@@ -462,6 +470,15 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                     lookAhead = 0
                 }
 
+                // Enter in ESCAPE mode. Skip this \Q symbol.
+                'Q' -> {
+                    savedMode = mode
+                    mode = Mode.ESCAPE
+                    index = escapedCharIndex // index of 'Q'
+                    nextIndex() // skip 'Q' and process the following chars with ESCAPE mode
+                    return true
+                }
+
                 // Special characters like tab, new line etc.
                 't' -> lookAhead = '\t'.toInt()
                 'n' -> lookAhead = '\n'.toInt()
@@ -469,9 +486,10 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
 
                 // Special characters like EOL, EOI etc
 
-                '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|' -> return
+                '?', '*', '.', '(', ')', '+', '-', '[', '\\', ']', '^', '{', '}', '|'
+                    -> return false
 
-                '$' if regexContext.isXpath2 -> return
+                '$' if regexContext.isXpath2 -> return false
 
                 // Back references to capturing groups.
                 // \n
@@ -484,7 +502,7 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                 else ->
                     throw XRPatternSyntaxException("Illegal escape sequence", patternString, curTokenIndex)
             }
-            return
+            return false
         }
     }
 
@@ -947,6 +965,8 @@ internal class XRLexer(val patternString: String, internal val regexContext: Reg
                 'm' -> return XPattern.MULTILINE
 
                 's' -> return XPattern.DOTALL
+
+                'q' -> return XPattern.LITERAL
 
                 // We don't support UNICODE_CASE or UNICODE_CHARACTER_CLAS
                 'u', 'U' -> return 0

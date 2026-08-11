@@ -28,7 +28,7 @@ internal class XPattern(val pattern: String, regexCtx: RegexContext, patternFlag
         private set
 
     /** A lexer instance used to get tokens from the pattern. */
-    private val lexemes = XRLexer(pattern, regexCtx)
+    private val lexemes = XRLexer(pattern, regexCtx, patternFlags)
 
     private val regexContext: RegexContext get() = lexemes.regexContext
 
