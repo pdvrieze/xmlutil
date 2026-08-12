@@ -179,13 +179,13 @@ object StringFunctions : AbstractFunctionObject() {
     }
 
     val fnStringLength = BuiltinFunctionImpl.Fn("string-length", contextFunctionTypes(INTEGER, STRING.opt)) Fn@{ args ->
-        val arg = args.toSingleAtomic<XsdString>(true) ?: return@Fn atomic(0)
+        val arg = args.stringArgOrContext(0) ?: return@Fn atomic(0)
 
         atomic(arg.xmlString.length)
     }
 
     val fnNormalizeSpace = BuiltinFunctionImpl.Fn("normalize-space", contextFunctionTypes(STRING, STRING.opt)) Fn@{ args ->
-        val arg = args.toSingleAtomic<XsdString>(true) ?: return@Fn atomic("")
+        val arg = args.stringArgOrContext(0) ?: return@Fn atomic("")
 
         atomic(xmlCollapseWhitespace(arg.xmlString))
     }
@@ -194,6 +194,7 @@ object StringFunctions : AbstractFunctionObject() {
         functionType(STRING, STRING.opt, STRING),
         functionType(STRING, STRING.opt),
     )) Fn@{ args ->
+
         //XdmAtomic(XsdString(""))
         TODO("Unicode normalization not yet supported")
     }
@@ -260,11 +261,62 @@ object StringFunctions : AbstractFunctionObject() {
     //endregion
 
     //region 5.5 Functions on substring matching
+    val fnContains = BuiltinFunctionImpl.Fn("contains", listOf(
+        functionType(BOOLEAN, STRING.opt, STRING.opt),
+        functionType(BOOLEAN, STRING.opt, STRING.opt, STRING),
+
+    )) { args ->
+        val arg1 = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val arg2 = args.atomicArgOrEmpty<XsdString>(1)?.xmlString ?: ""
+        val collation = args.maybeCollation(2)
+        if (arg2.isEmpty()) return@Fn atomic(true)
+        if (arg1.isEmpty()) return@Fn atomic(false)
+
+        atomic(collation.contains(value = arg1, key = arg2))
+    }
+
+    val fnStartsWith = BuiltinFunctionImpl.Fn("starts-with", listOf(
+        functionType(BOOLEAN, STRING.opt, STRING.opt),
+        functionType(BOOLEAN, STRING.opt, STRING.opt, STRING),
+
+    )) { args ->
+        val arg1 = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val arg2 = args.atomicArgOrEmpty<XsdString>(1)?.xmlString ?: ""
+        val collation = args.maybeCollation(2)
+        if (arg2.isEmpty()) return@Fn atomic(true)
+        if (arg1.isEmpty()) return@Fn atomic(false)
+
+        val r = when {
+            arg2.length > arg1.length -> false
+            else -> collation.equals(arg2, arg1.substring(0, arg2.length))
+        }
+        atomic(r)
+    }
+
+    val fnEndsWith = BuiltinFunctionImpl.Fn("ends-with", listOf(
+        functionType(BOOLEAN, STRING.opt, STRING.opt),
+        functionType(BOOLEAN, STRING.opt, STRING.opt, STRING),
+
+    )) { args ->
+        val arg1 = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val arg2 = args.atomicArgOrEmpty<XsdString>(1)?.xmlString ?: ""
+        val collation = args.maybeCollation(2)
+        if (arg2.isEmpty()) return@Fn atomic(true)
+        if (arg1.isEmpty()) return@Fn atomic(false)
+
+        val r = when {
+            arg2.length > arg1.length -> false
+            else -> collation.equals(arg2, arg1.substring(arg1.length - arg2.length))
+        }
+        atomic(r)
+    }
+
     val fnSubstringBefore = BuiltinFunctionImpl.Fn("substring-before", listOf(
         functionType(STRING, STRING.opt, STRING.opt),
         functionType(STRING, STRING.opt, STRING.opt, STRING),
     )) Fn@{ args ->
-        val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
+        val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString?.takeUnless { it.isEmpty() }
+            ?: return@Fn atomic("")
         val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@Fn atomic(arg1)
         // TODO support collation
         atomic(arg1.substringBefore(arg2, ""))
@@ -274,8 +326,8 @@ object StringFunctions : AbstractFunctionObject() {
         functionType(STRING, STRING.opt, STRING.opt),
         functionType(STRING, STRING.opt, STRING.opt, STRING),
     )) Fn@{ args ->
-        val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: ""
-        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@Fn atomic(arg1)
+        val arg1 = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@Fn atomic("")
+        val arg2 = args.atomicOrEmpty<XsdString>(1)?.xmlString ?: return@Fn atomic("")
         // TODO support collation
         atomic(arg1.substringAfter(arg2, ""))
     }

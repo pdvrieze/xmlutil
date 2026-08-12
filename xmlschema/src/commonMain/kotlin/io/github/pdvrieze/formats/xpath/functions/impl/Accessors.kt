@@ -64,13 +64,15 @@ object Accessors : AbstractFunctionObject() {
         if (arg.size == 0) return@Fn XdmAtomic(XsdString(""))
         if (arg.size > 1) error("Can only convert a sequence of 1 item to a string")
 
-        val s = when (val a = arg[0]) {
-            is XdmNodeBase<*> -> a.asT().getTextContent() ?: ""
-            is XdmAtomic<*> -> a.value.xmlString
+        @Suppress("UNCHECKED_CAST")
+        when (val a = arg[0]) {
+            is XdmNodeBase<*> -> atomic(a.asT().getTextContent() ?: "")
+            is XdmAtomic<*> -> when (val v = a.value) {
+                is XsdString -> a as XdmAtomic<XsdString>
+                else -> atomic(v.xmlString)
+            }
             is XdmFunction<*> -> throw EvaluationException(ErrorCodes.FOTY0014_FN_IN_TOSTRING, "Type has no text content: ${a.staticType}")
         }
-
-        atomic(s)
     }
 
     val fnData: BuiltinFunctionImpl<XdmAtomicOrSequence<XdmAtomic<*>>> = BuiltinFunctionImpl.Fn(

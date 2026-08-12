@@ -24,12 +24,7 @@ import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmArrayTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.*
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
@@ -49,6 +44,16 @@ abstract class AbstractFunctionObject() {
     ): XdmValue<*>? = when (size - index){
         0 if allowContext -> ctx.contextValue
         1 -> this[index]
+        else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
+    }
+
+    context(ctx: ExprEvalContext)
+    protected fun List<XdmValue<*>>.stringArgOrContext(index: Int): XsdString? = when (size - index){
+        0 -> Accessors.fnString(ctx.contextValue ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)).value
+        1 -> when (val v = (this[index] as? XdmAtomic<*>?)?.value) {
+            is XsdString -> v
+            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected xs:string, found: ${this[index].staticType}")
+        }
         else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
     }
 
