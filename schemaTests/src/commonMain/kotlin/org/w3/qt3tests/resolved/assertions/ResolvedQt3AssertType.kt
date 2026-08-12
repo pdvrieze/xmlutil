@@ -20,11 +20,12 @@
 
 package org.w3.qt3tests.resolved.assertions
 
+import io.github.pdvrieze.formats.xpath.XPathExpression
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.builtinType
-import nl.adaptivity.xmlutil.XMLConstants
+import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 @OptIn(XPathInternal::class)
@@ -32,14 +33,19 @@ class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
-        val expectedType = builtinType(type.substringAfterLast(':'), XMLConstants.XSD_NS_URI)
-            ?: return AssertionResult.Failure("Unknown type $type", AssertionError("Assertion failure"))
+        val typeExpr = XPathExpression(". instance of $type")
 
-        val actualType = evalResult.staticType as? XdmSchemaType ?: return AssertionResult.Failure("Expected Schema type $expectedType, got ${evalResult.staticType}", AssertionError("Assertion failure"))
+        val r = typeExpr.eval(evalResult).single()
+        if (r !is XdmAtomic<*>) return AssertionResult.Failure("Expected atomic value, got $r", AssertionError("Assertion failure"))
+        val v = r.value
+        if (v !is XsdBoolean) return AssertionResult.Failure("Expected boolean value, got $v", AssertionError("Assertion failure"))
 
-        if (actualType.schemaType.derivesFrom(expectedType)) return AssertionResult.Success
+        if (v.value) return AssertionResult.Success
 
-        return AssertionResult.Failure("Expected Schema type $expectedType, got ${actualType.schemaType}", AssertionError("Assertion failure"))
+        val actualType = evalResult.staticType as? XdmSchemaType ?: return AssertionResult.Failure("Expected type ($typeExpr), got ${evalResult.staticType}", AssertionError("Assertion failure"))
+
+
+        return AssertionResult.Failure("Expected type ($typeExpr), got ${actualType.schemaType}", AssertionError("Assertion failure"))
     }
 
 }
