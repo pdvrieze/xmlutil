@@ -43,6 +43,12 @@ class XsdRelaxedUri(override val xmlString: String) : XsdAnyURI {
         }
     }
 
+    override fun resolve(u: XsdAnyURI): XsdAnyURI {
+        return when (u) {
+            is XsdParsedUri if u.scheme != null -> u
+            else -> XsdParsedUri(xmlString).resolve(u)
+        }
+    }
 
     override val length: Int get() = xmlString.length
 

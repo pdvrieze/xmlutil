@@ -99,7 +99,8 @@ abstract class AbstractTestSetSuite {
             decimalFormats = namedDecimalFormats,
             // example variables to test. Note that multiple are needed due to broken tests
             environmentVariables = mapOf("QTTEST" to "42", "QTTEST2" to "other"),
-            collections = collections
+            baseURI = environment?.staticBaseUris?.singleOrNull()?.uri,
+            collections = collections,
         )
 
         val testExpression = testCase.test.expr.getOrThrow() as XPathExpression

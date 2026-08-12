@@ -37,70 +37,52 @@ import nl.adaptivity.xmlutil.xmlCollapseWhitespace
  */
 @ExperimentalXmlUtilApi
 @Serializable(XsdParsedUri.Serializer::class)
-class XsdParsedUri(str: String) : XsdAnyURI {
-    constructor(charSequence: CharSequence) : this(charSequence.toString())
+class XsdParsedUri(
+    val scheme: String?,
+    val authority: String?,
+    val path: String,
+    val query: String?,
+    val fragment: String?,
+) : XsdAnyURI {
 
-    private val scheme: String?
-    private val authority: String?
-    private val path: String
-    private val query: String?
-    private val fragment: String?
 
-    init {
-        // Parse according to https://www.ietf.org/rfc/rfc3986.txt
-        // This can not be AnyURIType as it is used in defining AtomicDataType
-        require(str == xmlCollapseWhitespace(str))
-        var next = 0
-        var pos: Int
-        if (':' in str) {
-            while (next < str.length && str[next] != ':') {
-                val c = str[next]
-                when (next) {
-                    0 -> require(c.isAlpha()) { "Scheme must start with a letter, not '$c' for uri '$str'" }
-                    else -> require(c.isSchemeLetter()) { "Scheme has limited valid values, not '$c' for uri '$str'" }
+    override fun resolve(u: XsdAnyURI): XsdAnyURI {
+        val u = u as? XsdParsedUri ?: XsdParsedUri(u)
+        if (u.scheme != null) return u
+
+        val newScheme: String? = scheme
+        val newAuthority: String? = authority
+        val newPath: String
+        val newQuery: String?
+        val newFragment: String?
+
+        when {
+            u.path.startsWith('/') -> {
+                newPath = u.path
+                newQuery = u.query
+                newFragment = u.fragment
+            }
+            u.isNotEmpty() -> {
+                newPath = "${path.substringBeforeLast('/')}/${u.path}"
+                newQuery = u.query
+                newFragment = u.fragment
+            }
+            else -> {
+                newPath = path
+                when {
+                    u.query != null  -> {
+                        newQuery = u.query
+                        newFragment = u.fragment
+                    }
+                    else -> {
+                        newQuery = query
+                        newFragment = u.fragment ?: fragment
+                    }
                 }
-                require(++next < str.length) { "No scheme end in uri" }
+
             }
-            scheme = str.substring(0, next).also { check(it.isValid(Part.SCHEME)) { "Scheme '$it' is not valid" } }
-            pos = next + 1
-
-            next = pos
-            if (str.length >= next + 2 && str[next] == '/' && str[next + 1] == '/') {
-                pos += 2
-                next = pos
-                val delims = arrayOf('/', '?', '#')
-                while (next < str.length && str[next].let { it != '/' && it != '?' && it != '#' }) ++next
-                authority = str.substring(pos, next).also { check(it.isValid(Part.AUTHORITY)) }
-                pos = next
-            } else {
-                authority = null
-            }
-        } else {
-            scheme = null
-            authority = null
-            pos = 0
         }
-
-        while (next < str.length && str[next].let { it != '?' && it != '#' }) ++next
-        path = str.substring(pos, next).also { check(it.isValid(Part.PATH)) { "Path '$it' is not valid" } }
-        if (next < str.length && str[next] == '?') {
-            pos = ++next
-            while (next < str.length && str[next] != '#') ++next
-            query = str.substring(pos, next).also { check(it.isValid(Part.QUERY)) { "Query '$it' is not valid" } }
-        } else {
-            query = null
-        }
-        pos = next
-
-        if (next < str.length) {
-            require(str[next] == '#')
-            fragment =
-                str.substring(pos + 1).also { check(it.isValid(Part.FRAGMENT)) { "Fragment '$it' is not valid" } }
-        } else {
-            fragment = null
-        }
-
-        check(str == xmlString) { "'$str' != '$xmlString'" }
+        return XsdParsedUri(newScheme, newAuthority, newPath, newQuery, newFragment)
     }
 
     override val xmlString: String
@@ -312,6 +294,74 @@ class XsdParsedUri(str: String) : XsdAnyURI {
                 ':'.code, '/'.code, '?'.code, '#'.code, '['.code, ']'.code -> error("Character '$this' is a delimeter")
                 '@'.code -> if (pos != POS_AUTHORITY) error("@ outside of authority")
             }
+        }
+
+        operator fun invoke(str: String): XsdParsedUri = parseFromString(str)
+        operator fun invoke(str: CharSequence): XsdParsedUri = parseFromString(str.toString())
+
+        private fun parseFromString(str: String): XsdParsedUri {
+            var scheme: String? = null
+            var authority: String? = null
+            var path: String = ""
+            var query: String? = null
+            var fragment: String? = null
+
+            // Parse according to https://www.ietf.org/rfc/rfc3986.txt
+            // This can not be AnyURIType as it is used in defining AtomicDataType
+            require(str == xmlCollapseWhitespace(str))
+            var next = 0
+            var pos: Int
+            if (':' in str) {
+                while (next < str.length && str[next] != ':') {
+                    val c = str[next]
+                    when (next) {
+                        0 -> require(c.isAlpha()) { "Scheme must start with a letter, not '$c' for uri '$str'" }
+                        else -> require(c.isSchemeLetter()) { "Scheme has limited valid values, not '$c' for uri '$str'" }
+                    }
+                    require(++next < str.length) { "No scheme end in uri" }
+                }
+                scheme = str.substring(0, next).also { check(it.isValid(Part.SCHEME)) { "Scheme '$it' is not valid" } }
+                pos = next + 1
+
+                next = pos
+                if (str.length >= next + 2 && str[next] == '/' && str[next + 1] == '/') {
+                    pos += 2
+                    next = pos
+                    val delims = arrayOf('/', '?', '#')
+                    while (next < str.length && str[next].let { it != '/' && it != '?' && it != '#' }) ++next
+                    authority = str.substring(pos, next).also { check(it.isValid(Part.AUTHORITY)) }
+                    pos = next
+                } else {
+                    authority = null
+                }
+            } else {
+                scheme = null
+                authority = null
+                pos = 0
+            }
+
+            while (next < str.length && str[next].let { it != '?' && it != '#' }) ++next
+            path = str.substring(pos, next).also { check(it.isValid(Part.PATH)) { "Path '$it' is not valid" } }
+            if (next < str.length && str[next] == '?') {
+                pos = ++next
+                while (next < str.length && str[next] != '#') ++next
+                query = str.substring(pos, next).also { check(it.isValid(Part.QUERY)) { "Query '$it' is not valid" } }
+            } else {
+                query = null
+            }
+            pos = next
+
+            if (next < str.length) {
+                require(str[next] == '#')
+                fragment =
+                    str.substring(pos + 1).also { check(it.isValid(Part.FRAGMENT)) { "Fragment '$it' is not valid" } }
+            } else {
+                fragment = null
+            }
+
+            val r = XsdParsedUri(scheme, authority, path, query, fragment)
+            check(str == r.xmlString) { "'$str' != '${r.xmlString}'" }
+            return r
         }
 
     }

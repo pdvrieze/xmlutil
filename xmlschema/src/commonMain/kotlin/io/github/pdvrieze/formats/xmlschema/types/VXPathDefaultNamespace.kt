@@ -59,6 +59,13 @@ sealed class VXPathDefaultNamespace(): XsdAtomic {
         override val length: Int get() = uri.length
         override fun get(index: Int): Char = uri.get(index)
 
+        override fun resolve(u: XsdAnyURI): XsdAnyURI {
+            return when (val t = uri.resolve(u)) {
+                uri -> this
+                else -> Uri(t)
+            }
+        }
+
         override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
             uri.subSequence(startIndex, endIndex)
     }

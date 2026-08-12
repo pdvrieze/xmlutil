@@ -499,11 +499,14 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         functionType(ITEM.any),
         functionType(ITEM.any, STRING.opt),
     )) { args ->
+        val ctx = contextOf<ExprEvalContext>()
         val uri = when (args.size) {
             0 -> XsdAnyURI("")
-            else -> args.atomicOrEmpty<XsdString>(0)?.let { XsdAnyURI(it.xmlString) } ?: XsdAnyURI("")
+            else -> args.atomicOrEmpty<XsdString>(0)?.let {
+                val u = XsdAnyURI(it.xmlString)
+                val baseUri = ctx.baseUri
+                if (baseUri != null) baseUri.resolve(u) else u } ?: XsdAnyURI("")
         }
-        val ctx = contextOf<ExprEvalContext>()
         ctx.collections[uri] ?: throw EvaluationException(ErrorCodes.FODC0002, "Unknown collection: $uri")
     }
 

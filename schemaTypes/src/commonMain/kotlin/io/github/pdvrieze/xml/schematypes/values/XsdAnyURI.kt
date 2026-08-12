@@ -44,6 +44,8 @@ interface XsdAnyURI : XsdPrimitive, CharSequence {
         return collation.compare(value, other.value)
     }
 
+    fun resolve(u: XsdAnyURI): XsdAnyURI
+
     companion object Companion : SimpleTypeSerializer<XsdAnyURI>("xsd.anyURI") {
         operator fun invoke(value: String) = value.toAnyUri()
         operator fun invoke(value: CharSequence) = value.toString().toAnyUri()
