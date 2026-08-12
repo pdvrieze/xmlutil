@@ -82,8 +82,8 @@ abstract class AbstractTestSetSuite {
             }
 
             for (c in environment.collections) {
-                val uri = c.uri ?: ""
-                val seq = c.getValues()
+                val uri = c.uri ?: XsdAnyURI("")
+                collections[uri] = c.getValues()
             }
         }
 
