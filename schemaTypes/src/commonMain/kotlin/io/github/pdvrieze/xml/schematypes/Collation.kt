@@ -28,4 +28,18 @@ interface Collation : Comparator<String> {
     fun equals(left: String, right: String): Boolean = compare(left, right) == 0
 
     fun key(key: String): XsdBase64Binary
+
+    fun indexOf(key: String, value: String, startPos: Int = 0): Int {
+        return indexOfImpl(key, value, startPos)
+    }
+
+    fun contains(key: String, value: String): Boolean = indexOf(key, value) >= 0
+}
+
+internal tailrec fun Collation.indexOfImpl(key: String, value: String, startPos: Int = 0): Int {
+    if (startPos + key.length > value.length) return -1
+
+    if (compare(key, value.substring(startPos, startPos + key.length)) == 0) return startPos
+
+    return indexOfImpl(key, value, startPos + 1)
 }

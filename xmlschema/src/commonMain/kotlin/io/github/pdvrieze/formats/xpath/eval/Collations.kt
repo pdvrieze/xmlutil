@@ -31,6 +31,9 @@ enum class Collations(override val uri: String): Collation {
             return XsdBase64Binary(key.encodeToByteArray())
         }
 
+        override fun indexOf(key: String, value: String, startPos: Int): Int {
+            return value.indexOf(key, startPos)
+        }
     },
     ASCII_CASE_INSENSITIVE("http://www.w3.org/2005/xpath-functions/collation/html-ascii-case-insensitive") {
         override fun compare(a: String, b: String): Int {
@@ -60,3 +63,6 @@ enum class Collations(override val uri: String): Collation {
     }
 
 }
+
+
+internal expect fun resolveCollation(uri: String): Collation?

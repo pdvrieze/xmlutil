@@ -27,6 +27,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmFunction
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
+import io.github.pdvrieze.formats.xpath.eval.resolveCollation
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.xml.schematypes.Collation
@@ -91,7 +92,7 @@ open class EvalContext(
     }
 
     fun collation(uri: String): Collation? {
-        return Collations.entries.firstOrNull { it.uri == uri }
+        return resolveCollation(uri)
     }
 
     fun trace(label: String?, value: String) =
