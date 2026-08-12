@@ -171,6 +171,19 @@ class XdmAtomic<out T : XsdAtomic>(
 
     override fun toString(): String = value.xmlString
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as XdmAtomic<*>
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
     companion object {
         val NaN = XdmAtomic(XsdDouble(Double.NaN))
 
