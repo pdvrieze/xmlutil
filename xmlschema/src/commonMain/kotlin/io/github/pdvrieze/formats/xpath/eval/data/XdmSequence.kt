@@ -40,7 +40,6 @@ import io.github.pdvrieze.xml.schematypes.values.XsdIntegerProgression
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.experimental.ExperimentalTypeInference
 
 @OptIn(XPathInternal::class)
 abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
@@ -322,21 +321,23 @@ abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         }
 
         fun <T : XdmSingleValue<T>> fromList(
-            result: List<T>,
+            result: Collection<T>,
             staticType: XdmType = XdmSequenceType.ANYSEQ
         ): XdmValue<T> = when (result.size) {
             0 -> EMPTY
             1 -> result.single().asT()
-            else -> Impl(result, staticType)
+            else if result is List -> Impl(result, staticType)
+            else -> Impl(result.toList(), staticType)
         }
 
         fun <T : XsdAtomic> fromList(
-            result: List<XdmAtomic<T>>,
+            result: Collection<XdmAtomic<T>>,
             staticType: XdmType = XdmSequenceType.ANYSEQ
         ): XdmAtomicOrSequence<XdmAtomic<T>> = when (result.size) {
             0 -> EMPTY
             1 -> result.single().asT()
-            else -> Impl(result, staticType)
+            else if result is List -> Impl(result, staticType)
+            else -> Impl(result.toList(), staticType)
         }
 
         operator fun <T : XdmSingleValue<T>> invoke(

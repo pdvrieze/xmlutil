@@ -464,11 +464,27 @@ sealed class Operator(
     }
 
     @NeedsXPath1
-    object UNION: Operator("union", 10, XPathVersion.XPath1_0, false)
+    object UNION: Operator("union", 10, XPathVersion.XPath1_0, false) {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+            val result = LinkedHashSet<XdmSingleValue<*>>(left)
+            result.addAll(right)
+
+            return XdmSequence.fromList(result)
+        }
+    }
+
     @NeedsXPath1
     object PIPEUNION: Operator("|", 10, XPathVersion.XPath1_0, true){
         @OptIn(NeedsXPath3_0::class)
         override val longer: List<Operator> = listOf(CONCAT)
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmValue<*> {
+            return UNION.eval(left, right)
+        }
     }
 
     @NeedsXPath2
