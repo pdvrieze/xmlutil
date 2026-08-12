@@ -51,7 +51,7 @@ open class AxisStep(
             when (current) {
                 is XdmSequence<*> -> {
                     val newElems = current.filterIndexed { index, value ->
-                        val evalResult = ctx.withValueContext(value, index, current.size) { predicate.eval() }
+                        val evalResult = ctx.withValueContext(value, index+1, current.size) { predicate.eval() }
 
                         when ((evalResult as? XdmAtomic<*>)?.value) {
                             is XsdNumeric<*> ->
