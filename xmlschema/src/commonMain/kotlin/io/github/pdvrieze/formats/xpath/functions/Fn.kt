@@ -82,6 +82,9 @@ enum class Fn(
     lowerCase(StringFunctions.fnLowerCase),
     translate(StringFunctions.fnTranslate),
 
+    contains(StringFunctions.fnContains),
+    startsWith(StringFunctions.fnStartsWith),
+    endsWith(StringFunctions.fnEndsWith),
     substringBefore(StringFunctions.fnSubstringBefore),
     substringAfter(StringFunctions.fnSubstringAfter),
 
