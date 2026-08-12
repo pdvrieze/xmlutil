@@ -39,7 +39,7 @@ sealed interface XdmNodeBase<out T: XdmNode<T>> : XdmSingleValue<T> {
     context(ctx: ExprEvalContext)
     override fun toBoolean(): Boolean {
         // TODO this is overly simple
-        return false
+        return true // single element sequence with node
 //        if (type.isSubtypeOf(BooleanType.Instance))
     }
 
