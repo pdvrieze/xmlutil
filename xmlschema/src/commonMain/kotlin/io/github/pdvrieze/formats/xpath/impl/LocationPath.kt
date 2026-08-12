@@ -65,11 +65,17 @@ internal class LocationPath(
                         ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES,
                         "Expected node as context item, found: ${e.staticType}"
                     )
-                } as XdmValue<*>?
+                }
             }
 
             val last = steps.last()
-            val result = last.eval(base)
+
+            val result = when (base?.size) {
+                null -> last.eval(null)
+                0 -> XdmSequence.EMPTY
+                1 -> last.eval(base[0])
+                else -> XdmSequence.fromList(base.flatMap { c -> last.eval(c) })
+            }
 
             if (result.isEmpty()) return XdmSequence.EMPTY
 
