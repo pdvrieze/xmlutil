@@ -27,7 +27,8 @@ import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 /**
  * This is base class for special tokens like character classes and quantifiers.
  */
-internal abstract class XRSpecialToken {
+@XmlUtilInternal
+abstract class XRSpecialToken {
 
     /**
      * Returns the type of the token, may return following values:

@@ -33,6 +33,8 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmString
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.functions.*
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
+import io.github.pdvrieze.formats.xpath.functions.impl.crossplatform.NormalizationForm
+import io.github.pdvrieze.formats.xpath.functions.impl.crossplatform.normalize
 import io.github.pdvrieze.formats.xpath.impl.*
 import io.github.pdvrieze.xml.schematypes.types.Base64BinaryType
 import io.github.pdvrieze.xml.schematypes.values.XsdDouble
@@ -194,9 +196,19 @@ object StringFunctions : AbstractFunctionObject() {
         functionType(STRING, STRING.opt, STRING),
         functionType(STRING, STRING.opt),
     )) Fn@{ args ->
+        val str = args.atomicArgOrEmpty<XsdString>(0)?.xmlString ?: return@Fn atomic("")
+        val form = when (args.size) {
+            2 -> {
+                val s = args.atomicArgN<XsdString>(1).xmlString
+                if (s.isEmpty()) return@Fn atomic(str)
 
-        //XdmAtomic(XsdString(""))
-        TODO("Unicode normalization not yet supported")
+                NormalizationForm.entries.firstOrNull { it.txt == s }
+                    ?: throw EvaluationException(ErrorCodes.FOCH0003, "Unknown normalization form '$s'")
+            }
+
+            else -> NormalizationForm.NFC
+        }
+        atomic(str.normalize(form))
     }
 
     val fnUpperCase = BuiltinFunctionImpl.Fn("upper-case", functionType(STRING, STRING.opt)) Fn@{ args ->

@@ -55,10 +55,8 @@ public class XdmDocumentType internal constructor(
 
     override fun asT(): XdmDocumentType = this
 
-    override var posInParent: Int get() = -1
-        @XdmNodeFriend set(value) {
-            if (value >= 0) throw DOMException.hierarchyRequestErr("Cannot set position of a document")
-        }
+    override var posInParent: Int = -1
+        @XdmNodeFriend set
 
     // TODO this is not necessarily valid. Probably just maps to the document element.
     final override var staticType: XdmSingleType = XdmSchemaType(UntypedType.Instance)

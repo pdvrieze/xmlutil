@@ -45,8 +45,8 @@ internal class XRUnicodeCategoryScope(category: Int) : XRUnicodeCategory(categor
  * This class represents character classes, i.e. sets of character either predefined or user defined.
  * Note: this class represent a token, not node, so being constructed by lexer.
  */
-@OptIn(XmlUtilInternal::class)
-internal abstract class XRAbstractCharClass : XRSpecialToken() {
+@XmlUtilInternal
+abstract class XRAbstractCharClass : XRSpecialToken() {
     /**
      * Show if the class has alternative meaning:
      * if the class contains character 'a' and alt == true then the class will contains all characters except 'a'.
@@ -471,7 +471,7 @@ internal abstract class XRAbstractCharClass : XRSpecialToken() {
          * Character classes.
          * See http://www.unicode.org/reports/tr18/, http://www.unicode.org/Public/4.1.0/ucd/Blocks.txt
          */
-        enum class CharClasses(val regexName : String, val factory: () -> CachedCharClass) {
+        enum class CharClasses(val regexName : String, internal val factory: () -> CachedCharClass) {
             LOWER("Lower", ::CachedLower),
             UPPER("Upper", ::CachedUpper),
             ASCII("ASCII", ::CachedASCII),
