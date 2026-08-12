@@ -28,11 +28,15 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
 import io.github.pdvrieze.formats.xpath.functions.argN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.maybeCollation
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
+import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
+import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.DoubleType
 import io.github.pdvrieze.xml.schematypes.types.FloatType
@@ -40,6 +44,7 @@ import io.github.pdvrieze.xml.schematypes.values.*
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdBigDecimal
 import kotlin.math.round
 
+@OptIn(NeedsXPath2::class)
 @XPathInternal
 internal object SequenceFunctions : AbstractFunctionObject() {
 
@@ -493,6 +498,24 @@ internal object SequenceFunctions : AbstractFunctionObject() {
                 add(atomic(key))
             }
         }
+    }
+
+    val fnDoc = BuiltinFunctionImpl.Fn("doc", XdmNodeKindTest(NodeKindTest.DocumentTest(null), OccurrenceType.OPTIONAL), STRING.opt) { args ->
+        val uriStr = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@Fn XdmSequence.EMPTY
+        val uri = XsdAnyURI(uriStr)
+
+        val ctx = contextOf<ExprEvalContext>()
+
+        ctx.loadDoc(uri)
+    }
+
+    val fnDocAvailable = BuiltinFunctionImpl.Fn("doc-available", BOOLEAN, STRING.opt) { args ->
+        val uriStr = args.atomicOrEmpty<XsdString>(0)?.xmlString ?: return@Fn XdmSequence.EMPTY
+        val uri = XsdAnyURI(uriStr)
+
+        val ctx = contextOf<ExprEvalContext>()
+
+        atomic(ctx.hasDoc(uri))
     }
 
     val fnCollection = BuiltinFunctionImpl.Fn("collection", listOf(

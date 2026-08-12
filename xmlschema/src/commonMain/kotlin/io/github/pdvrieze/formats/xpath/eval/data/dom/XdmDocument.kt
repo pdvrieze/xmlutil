@@ -34,6 +34,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnySimpleType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import nl.adaptivity.xmlutil.dom.DOMException
 import nl.adaptivity.xmlutil.dom.PlatformDocument
@@ -83,6 +84,8 @@ class XdmDocument private constructor(doctype: XdmDocumentType?) :
 
 
     internal constructor(doctype1: PlatformDocumentType?) : this(doctype = doctype1?.let(XdmDocumentType::coerce))
+
+    var documentUri: XsdAnyURI? = null
 
     @XdmNodeFriend
     override fun setOwnerDocument(ownerDocument: XdmDocument): Nothing {
@@ -212,7 +215,6 @@ class XdmDocument private constructor(doctype: XdmDocumentType?) :
         else -> "document<$docId>"
 //        else -> e.toString()
     }
-
     companion object {
         private var nextDocId: Int = 1
 

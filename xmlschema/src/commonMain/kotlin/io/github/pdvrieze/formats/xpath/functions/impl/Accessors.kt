@@ -23,7 +23,9 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
+import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.types.AnyURIType
 import io.github.pdvrieze.xml.schematypes.types.QNameType
@@ -94,11 +96,25 @@ object Accessors : AbstractFunctionObject() {
 //        TODO("Needs XdmNode to properly implement DOM and not do delegation")
     }
 
-    val fnDocumentUri: BuiltinFunctionImpl<XdmAtomic<XsdAnyURI>> = BuiltinFunctionImpl.Fn("document-uri",
+    val fnDocumentUri: BuiltinFunctionImpl<XdmSingleOrEmpty<XdmAtomic<XsdAnyURI>>> = BuiltinFunctionImpl.Fn("document-uri",
         contextFunctionTypes(AnyURIType.Instance.opt, NODE.opt)
     ) Fn@{ args ->
-        val node = args.toSingleNode(true) ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
-        TODO("Needs XdmNode to properly implement DOM and not do delegation")
+        val ctx = contextOf<ExprEvalContext>()
+        val a = when (args.size) {
+            0 -> ctx.contextValue ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT)
+            1 -> args[0]
+            else -> throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
+        }
+        if (a.isEmpty()) return@Fn XdmSequence.EMPTY
+        if (a.size > 1) throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH)
+        val v = a.single()
+        if (v !is XdmNodeBase<*>) throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected node, found: ${v.staticType}")
+        val d = when (v) {
+            is XdmNodeAlias -> v.base
+            is XdmNode -> v
+        }
+        if (d !is XdmDocument) return@Fn XdmSequence.EMPTY
+        d.documentUri?.let { atomic(it) } ?: XdmSequence.EMPTY
     }
 
 }

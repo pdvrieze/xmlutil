@@ -167,6 +167,8 @@ enum class Fn(
     environmentVariable(SequenceFunctions.fnEnvironmentVariable),
     availableEnvironmentVariables(SequenceFunctions.fnAvailableEnvironmentVariables),
 
+    doc(SequenceFunctions.fnDoc),
+    docAvailable(SequenceFunctions.fnDocAvailable),
     collection(SequenceFunctions.fnCollection),
     //endregion
 

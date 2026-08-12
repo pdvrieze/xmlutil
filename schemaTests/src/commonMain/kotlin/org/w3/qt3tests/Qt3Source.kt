@@ -59,7 +59,11 @@ class Qt3Source: Qt3SourceType, Qt3Environment.Element, Qt3Collection.Element {
 
     context(ctx: ResolutionContext)
     override fun resolve(): ResolvedQt3Source {
-        val parsed = ctx.parseDocument(file.value)
+        val parsed = ctx.parseDocument(file.value).apply {
+            documentUri = uri
+        }
+
+
         return ResolvedQt3Source(
             parsed,
             role,

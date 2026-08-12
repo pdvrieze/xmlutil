@@ -25,7 +25,9 @@ import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.xml.schematypes.types.AnyType
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
@@ -88,6 +90,17 @@ class ExprEvalContext(
     override fun newVarsScope(vars: Iterable<Pair<QName, XdmValue<*>>>): ExprEvalContext {
         val newVars = newVarsMap(vars)
         return copy(variables = newVars)
+    }
+
+    fun loadDoc(uri: XsdAnyURI): XdmDocument {
+        deterministicState.collections[uri]?.let { return it as? XdmDocument ?: throw EvaluationException(ErrorCodes.FODC0002, "URI does not point to a document") }
+        throw EvaluationException(ErrorCodes.FODC0002, "Dynamic loading of documents from arbitrary URLs not supported: $uri")
+    }
+
+    fun hasDoc(uri: XsdAnyURI): Boolean {
+        val v = deterministicState.collections[uri]
+        return v != null && v is XdmDocument
+        // TODO add support for dynamic loading of documents not in the collection.
     }
 
     companion object {
