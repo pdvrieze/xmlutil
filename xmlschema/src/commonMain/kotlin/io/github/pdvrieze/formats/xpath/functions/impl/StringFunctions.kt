@@ -132,14 +132,14 @@ object StringFunctions : AbstractFunctionObject() {
         functionType(BOOLEAN, STRING.any, STRING),
         functionType(BOOLEAN, STRING.any, STRING, STRING),
     )) Fn@{ args ->
-        val input = args[0]
-        val token = args[1]
+        val input = args.atomicSeq<XsdString>(0)
+        val token = args.atomicArgN<XsdString>(1)
         val collation = args.maybeCollation(2)
         if (input.isEmpty()) return@Fn XdmSequence.EMPTY
-        val tokens = fnTokenize(token).mapTo(HashSet()) { collation.key(it.value.xmlString) }
-        val inputStrings = input.asSequence().map { collation.key((it as XdmAtomic<*>).value.xmlString) }
+        val tokens = fnTokenize(atomic(token)).mapTo(HashSet()) { collation.key(it.value.xmlString) }
+        val inputStringTokens = input.toList().map { fnTokenize(it).asSequence().mapTo(mutableListOf()) { collation.key(it.value.xmlString) } }
 
-        atomic(inputStrings.any { a -> a in tokens })
+        atomic(inputStringTokens.any { l -> l.any { it in tokens } })
     }
 
     //endregion

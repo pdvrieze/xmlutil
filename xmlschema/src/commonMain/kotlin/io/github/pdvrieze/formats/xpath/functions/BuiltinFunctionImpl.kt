@@ -25,6 +25,7 @@ package io.github.pdvrieze.formats.xpath.functions
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
+import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
@@ -305,6 +306,19 @@ internal fun List<XdmValue<*>>.maybeCollation(pos: Int): Collation {
         }
 
         else -> ctx.defaultCollation
+    }
+}
+
+context(ctx: ExprEvalContext)
+internal inline fun <reified U: XsdAtomic> List<XdmValue<*>>.atomicSeq(arg: Int): XdmAtomicOrSequence<XdmAtomic<U>> {
+    val arg = this[arg]
+    return when (arg) {
+        is XdmSequence.EMPTY -> XdmSequence.EMPTY
+        is XdmAtomic<*> -> XdmAtomic(arg.value as? U ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic sequence, found: ${arg.staticType}"))
+        is XdmSequence<*> -> XdmSequence(arg.map {
+            XdmAtomic((it as? XdmAtomic<*>)?.value as? U ?: throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic sequence, found: ${arg.staticType}"))
+        })
+        else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Expected atomic sequence, found: ${arg.staticType}")
     }
 }
 
