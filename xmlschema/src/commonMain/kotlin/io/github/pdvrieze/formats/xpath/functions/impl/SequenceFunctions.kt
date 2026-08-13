@@ -189,15 +189,17 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         val collation = args.maybeCollation(2)
 
         XdmSequence.buildAtomic {
-            for (arg in seq) {
+            for ((idx, arg) in seq.withIndex()) {
                 val isEqual = when (collation) {
                     // null -> arg.value == search
                     else -> collation.compare(arg.value.xmlString, search.xmlString) == 0
                 }
-                if (isEqual) this.add(arg)
+                if (isEqual) this.add(atomic(idx + 1))
             }
         }
     }
+
+
     val fnDeepEqual = BuiltinFunctionImpl.Fn("deep-equal", listOf(
         functionType(BOOLEAN, ITEM.any, ITEM.any),
         functionType(BOOLEAN, ITEM.any, ITEM.any, STRING),
