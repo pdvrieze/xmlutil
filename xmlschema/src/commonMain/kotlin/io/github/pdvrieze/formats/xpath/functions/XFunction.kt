@@ -32,10 +32,7 @@ import io.github.pdvrieze.formats.xpath.eval.type.XdmFunctionType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.*
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
-import io.github.pdvrieze.xml.schematypes.types.DoubleType
-import io.github.pdvrieze.xml.schematypes.types.FloatType
-import io.github.pdvrieze.xml.schematypes.types.StringType
-import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
+import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
 import nl.adaptivity.xmlutil.QName
 
@@ -115,7 +112,8 @@ interface XFunction<out R : XdmValue<*>> {
             val argType = arg.dynamicType.schemaType
             val argValue = arg.value
             when {
-                argType is UntypedAtomicType -> return XdmAtomic(argType.castFrom(argValue))
+                argType is UntypedAtomicType && neededSchemaType is AnyAtomicType<*>
+                    -> return XdmAtomic(neededSchemaType.castFrom(argValue))
 
                 neededSchemaType.name isEquivalent FloatType.Instance.name &&
                         argValue is XsdDecimal -> return XdmAtomic(XsdFloat(argValue.toFloat()))
