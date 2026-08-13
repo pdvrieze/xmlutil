@@ -38,13 +38,72 @@ class JvmCollation(override val uri: String, private val collator: Collator): Co
 
     companion object {
         fun fromUri(uri: URI): Collation? {
-            val query = uri.query.splitToSequence(';', '&')
-                .mapNotNull {
+            val query = uri.query?.splitToSequence(';', '&')
+                ?.mapNotNull {
                     val i = it.indexOf('=')
                     if (i < 0) null else Pair(it.substring(0, i), it.substring(i + 1))
-                }.associate { (k, v) -> k to v }
+                }?.associate { (k, v) -> k to v } ?: emptyMap()
+
+            val fallback = when (query["fallback"]) {
+                "no" -> false
+                else -> true // TODO perhaps throw an error on unknown value
+            }
 
             val lang = query.getOrElse("lang") { Locale.getDefault().language }
+            val version = query["version"]
+            val strength = when (query["strength"]?.lowercase()) {
+                "1", "primary" -> Collator.PRIMARY
+                "2", "secondary" -> Collator.SECONDARY
+                "3", "tertiary" -> Collator.TERTIARY
+                "4", "quaternary" -> {
+                    if (!fallback) return null
+                    Collator.IDENTICAL
+                }
+                "5", "identical" -> Collator.IDENTICAL
+                else -> Collator.TERTIARY
+            }
+            val maxVariable = when (query["maxVariable"]) {
+                "space" -> Collation.MaxVariable.SPACE
+                null,
+                "punct" -> Collation.MaxVariable.PUNCT
+                "symbol" -> Collation.MaxVariable.SYMBOL
+                "currency" -> Collation.MaxVariable.CURRENCY
+                else -> if (!fallback) return null else Collation.MaxVariable.PUNCT
+            }
+            val alternate = when (query["alternate"]) {
+                null, "non-ignorable" -> Collation.Alternate.NON_IGNORABLE
+                "shifted" -> Collation.Alternate.SHIFTED
+                "blanked" -> Collation.Alternate.BLANKED
+                else -> if (!fallback) return null else Collation.Alternate.NON_IGNORABLE
+            }
+            val backwards = when(query["backwards"]?.lowercase()) {
+                "yes" -> true
+                null, "false" -> false
+                else -> if (!fallback) return null else false
+            }
+            val normalization = when(query["normalization"]?.lowercase()) {
+                "yes" -> true
+                null, "false" -> false
+                else -> if (!fallback) return null else false
+            }
+            val caseLevel = when(query["caseLevel"]?.lowercase()) {
+                "yes" -> true
+                null, "false" -> false
+                else -> if (!fallback) return null else false
+            }
+            val caseFirst = when(query["caseFirst"]?.lowercase()) {
+                "upper" -> Collation.CaseFirst.UPPER
+                "lower" -> Collation.CaseFirst.LOWER
+                null -> null
+                else -> if (!fallback) return null else null
+            }
+            val numeric = when(query["numeric"]?.lowercase()) {
+                "yes" -> true
+                null, "false" -> false
+                else -> if (!fallback) return null else false
+            }
+
+
             var locale = Locale.forLanguageTag(lang)
 
             query["co"]?.let { co ->
@@ -56,12 +115,7 @@ class JvmCollation(override val uri: String, private val collator: Collator): Co
 
             val collator = Collator.getInstance(locale)
 
-            when (query["strength"]?.lowercase()) {
-                "primary" -> collator.strength = Collator.PRIMARY
-                "secondary" -> collator.strength = Collator.SECONDARY
-                "tertiary" -> collator.strength = Collator.TERTIARY
-                "identical" -> collator.strength = Collator.IDENTICAL
-            }
+            collator.strength = strength
 
             /** TODO: caseFirst Not supported for  now
             query["caseFirst"]?.let { caseFirst ->

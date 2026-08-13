@@ -34,6 +34,27 @@ interface Collation : Comparator<String> {
     }
 
     fun contains(key: String, value: String): Boolean = indexOf(key, value) >= 0
+
+    enum class MaxVariable(val text: String) {
+        SPACE("space"),
+        PUNCT("punct"),
+        SYMBOL("symbol"),
+        CURRENCY("currency"),
+        ;
+    }
+
+    enum class Alternate(val text: String) {
+        NON_IGNORABLE("non-ignorable"),
+        SHIFTED("shifted"),
+        BLANKED("blanked"),
+        ;
+    }
+
+    enum class CaseFirst(val text: String) {
+        UPPER("upper"),
+        LOWER("lower"),
+        ;
+    }
 }
 
 internal tailrec fun Collation.indexOfImpl(key: String, value: String, startPos: Int = 0): Int {
