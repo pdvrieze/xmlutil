@@ -22,9 +22,10 @@ package io.github.pdvrieze.formats.xpath.eval
 
 import io.github.pdvrieze.formats.xpath.impl.JvmCollation
 import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import java.net.URI
 
-internal actual fun resolveCollation(uri: String): Collation? {
-    return Collations.entries.firstOrNull { it.uri == uri }
-        ?: JvmCollation.fromUri(URI.create(uri))
+internal actual fun resolveCollation(uri: XsdAnyURI): Collation? {
+    return Collations.entries.firstOrNull { it.uri == uri.xmlString }
+        ?: JvmCollation.fromUri(URI.create(uri.xmlString))
 }

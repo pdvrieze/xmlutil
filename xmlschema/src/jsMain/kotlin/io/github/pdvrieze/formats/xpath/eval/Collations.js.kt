@@ -21,7 +21,8 @@
 package io.github.pdvrieze.formats.xpath.eval
 
 import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 
-internal actual fun resolveCollation(uri: String): Collation? {
-    return Collations.entries.firstOrNull { it.uri == uri }
+internal actual fun resolveCollation(uri: XsdAnyURI): Collation? {
+    return Collations.entries.firstOrNull { it.uri == uri.xmlString }
 }

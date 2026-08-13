@@ -21,11 +21,26 @@
 package io.github.pdvrieze.formats.xpath.eval
 
 import io.github.pdvrieze.xml.schematypes.Collation
+import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.XsdBase64Binary
+import io.github.pdvrieze.xml.schematypes.values.unicodeChar
+import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
 
 enum class Collations(override val uri: String): Collation {
     CODEPOINT("http://www.w3.org/2005/xpath-functions/collation/codepoint") {
-        override fun compare(a: String, b: String): Int = a.compareTo(b)
+        override fun compare(a: String, b: String): Int {
+            var leftPos = 0
+            var rightPos = 0
+            while (leftPos < a.length && rightPos < b.length) {
+                val c = a.unicodeChar(leftPos).codePoint - b.unicodeChar(rightPos).codePoint
+                if (c != 0) return c
+                leftPos = a.nextCodePointPos(leftPos)
+                rightPos = b.nextCodePointPos(rightPos)
+            } // if same characters then both are beyond the length, one is always beyond.
+            if (leftPos < a.length) return 1
+            if (rightPos < b.length) return -1
+            return 0
+        }
 
         override fun key(key: String): XsdBase64Binary {
             return XsdBase64Binary(key.encodeToByteArray())
@@ -65,4 +80,4 @@ enum class Collations(override val uri: String): Collation {
 }
 
 
-internal expect fun resolveCollation(uri: String): Collation?
+internal expect fun resolveCollation(uri: XsdAnyURI): Collation?

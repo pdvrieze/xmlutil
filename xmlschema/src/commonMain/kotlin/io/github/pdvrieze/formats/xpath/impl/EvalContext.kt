@@ -92,7 +92,7 @@ open class EvalContext(
     }
 
     fun collation(uri: String): Collation? {
-        return resolveCollation(uri)
+        return resolveCollation(deterministicState.baseURI?.resolve(XsdAnyURI(uri))?: XsdAnyURI(uri))
     }
 
     fun trace(label: String?, value: String) =
