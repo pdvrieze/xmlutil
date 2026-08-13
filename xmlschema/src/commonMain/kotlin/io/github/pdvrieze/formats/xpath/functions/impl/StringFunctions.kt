@@ -146,13 +146,13 @@ object StringFunctions : AbstractFunctionObject() {
 
     //region 5.4 functions on string values
     val fnConcat: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn("concat", flexFunctionType(STRING, ATOMIC.opt, ATOMIC.opt)) Fn@{ args ->
-        if (args.size < 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "Concat requires at least two arguments")
+        if (args.size < 2) throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Concat requires at least two arguments")
         val concat = args.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString("")
         atomic(concat)
     }
 
     val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) Fn@{ args ->
-        if (args.size > 2) throw EvaluationException(ErrorCodes.FOAP0001_WRONG_ARG_CNT, "String-join takes 1 or 2 arguments")
+        if (args.size > 2) throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "String-join takes 1 or 2 arguments")
         val seq = args.argN<XdmAtomicOrSequence<XdmAtomic<*>>>(0)
         val separator = if (args.size == 2) args.atomicArgN<XsdString>(1) else ""
         val join = seq.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString(separator)
