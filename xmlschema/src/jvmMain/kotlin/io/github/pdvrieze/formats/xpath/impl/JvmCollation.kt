@@ -38,6 +38,8 @@ class JvmCollation(override val uri: String, private val collator: Collator): Co
 
     companion object {
         fun fromUri(uri: URI): Collation? {
+            if (uri.scheme != "http" || uri.host != "www.w3.org" || uri.path != "/2013/collation/UCA") return null
+
             val query = uri.query?.splitToSequence(';', '&')
                 ?.mapNotNull {
                     val i = it.indexOf('=')
