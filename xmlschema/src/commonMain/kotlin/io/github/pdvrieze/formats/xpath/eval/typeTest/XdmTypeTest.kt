@@ -52,6 +52,7 @@ sealed class XdmSequenceTypeTest {
     context(ctx: ExprEvalContext)
     abstract fun sharedBaseType(other: XdmSequenceTypeTest): XdmSequenceTypeTest
 
+
     object NONE : XdmSequenceTypeTest() {
         @XPathInternal
         context(ctx: ExprEvalContext)
@@ -195,10 +196,10 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
     }
 
     class AnyItem(cardinality: OccurrenceType): XdmTypeTest(cardinality) {
-        override val opt: AnyItem get() = AnyItem(OccurrenceType.OPTIONAL)
-        override val single: AnyItem get() = AnyItem(OccurrenceType.SINGLE)
-        override val any: AnyItem get() = AnyItem(OccurrenceType.ANY)
-        override val atLeastOne: AnyItem get() = AnyItem(OccurrenceType.AT_LEAST_ONE)
+        override val opt: AnyItem get() = ANY_ITEM.opt
+        override val single: AnyItem get() = ANY_ITEM.single
+        override val any: AnyItem get() = ANY_ITEM.any
+        override val atLeastOne: AnyItem get() = ANY_ITEM.atLeastOne
 
         @XPathInternal
         context(ctx: ExprEvalContext)
@@ -231,6 +232,14 @@ sealed class XdmTypeTest(val cardinality: OccurrenceType) : XdmSequenceTypeTest(
             append("item(*)")
             append(cardinality.literal)
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+            return true
+        }
+
     }
 
     abstract val opt: XdmTypeTest

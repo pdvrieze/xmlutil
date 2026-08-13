@@ -37,11 +37,14 @@ internal class MapConstructor @NeedsXPath3_1 constructor(val entries: List<Entry
 
     context(c: OutputContext)
     override fun appendToString(builder: Appendable) {
-        builder.append("map{")
-        builder.joinHelper(entries) {
-            it.key.appendToString(builder)
-            append(" : ")
-            it.value.appendToString(builder)
+        builder.apply {
+            append("map{")
+            joinHelper(entries) {
+                it.key.appendToString(builder)
+                append(" : ")
+                it.value.appendToString(builder)
+            }
+            append("}")
         }
     }
 

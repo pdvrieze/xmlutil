@@ -22,11 +22,7 @@ package io.github.pdvrieze.formats.xpath.impl
 
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
-import io.github.pdvrieze.formats.xpath.eval.data.XdmArray
-import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
-import io.github.pdvrieze.formats.xpath.eval.data.XdmMap
-import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
-import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.impl.Accessors
 import io.github.pdvrieze.xml.schematypes.types.AnyAtomicType
 import io.github.pdvrieze.xml.schematypes.values.XsdInt
@@ -53,13 +49,13 @@ internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key
                         is NCNameKey -> XdmAtomic(keyType.fromString(key.value))
                         is IntegerKey -> XdmAtomic(keyType.castFrom(XsdInt(key.value)))
 
-                        AnyKey -> XdmSequence.build {
+                        AnyKey -> return XdmSequence.build<XdmSingleValue<*>> {
                             for (v in c.content.values) {
                                 addAll(v.atomize())
                             }
                         }
 
-                        is ParenKey -> XdmSequence.build {
+                        is ParenKey -> return XdmSequence.build<XdmSingleValue<*>> {
                             for (k in Accessors.fnData(key.params.map { it.eval() })) {
                                 val v: XdmValue<*>? = c.content[k]
                                 if (v != null) addAll(v.atomize())

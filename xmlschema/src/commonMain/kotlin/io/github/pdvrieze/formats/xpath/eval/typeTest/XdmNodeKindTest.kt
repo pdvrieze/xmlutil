@@ -72,5 +72,23 @@ class XdmNodeKindTest(val nodeKind: NodeKindTest, cardinality: OccurrenceType) :
     override fun toValueType(fallbackType: XdmSingleType): XdmType {
         return XdmNodeType(nodeKind.type).cardinality(cardinality)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XdmNodeKindTest
+
+        return nodeKind == other.nodeKind
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + nodeKind.hashCode()
+        return result
+    }
+
+
 }
 

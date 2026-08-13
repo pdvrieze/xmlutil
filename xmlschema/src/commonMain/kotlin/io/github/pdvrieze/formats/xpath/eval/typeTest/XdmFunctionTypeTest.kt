@@ -42,10 +42,10 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
     }
 
     class AnyFunction(cardinality: OccurrenceType): XdmFunctionTypeTest(cardinality) {
-        override val opt: AnyFunction get() = AnyFunction(OccurrenceType.OPTIONAL)
-        override val single: AnyFunction get() = AnyFunction(OccurrenceType.SINGLE)
-        override val any: AnyFunction get() = AnyFunction(OccurrenceType.ANY)
-        override val atLeastOne: AnyFunction get() = AnyFunction(OccurrenceType.AT_LEAST_ONE)
+        override val opt: AnyFunction get() = ANY_FUNCTION.opt
+        override val single: AnyFunction get() = ANY_FUNCTION.single
+        override val any: AnyFunction get() = ANY_FUNCTION.any
+        override val atLeastOne: AnyFunction get() = ANY_FUNCTION.atLeastOne
 
         context(ctxt: ExprEvalContext)
         override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean = when (source){
@@ -158,6 +158,26 @@ sealed class XdmFunctionTypeTest(cardinality: OccurrenceType) : XdmTypeTest(card
             argTypes.joinTo(this)
             append(") as ")
             append(returnType)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            if (!super.equals(other)) return false
+
+            other as Typed
+
+            if (argTypes != other.argTypes) return false
+            if (returnType != other.returnType) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + argTypes.hashCode()
+            result = 31 * result + returnType.hashCode()
+            return result
         }
     }
 

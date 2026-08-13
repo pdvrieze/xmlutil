@@ -40,7 +40,9 @@ object MapFunctions : AbstractFunctionObject() {
             functionType(ANYMAP.single, ANYMAP.any, ANYMAP.single),
         )
     ) Fn@{ args ->
-        val maps = args[0] as XdmMap
+        @Suppress("UNCHECKED_CAST")
+        val maps = args[0] as XdmValue<XdmMap>
+
         val options = (args.getOrNull(1) as XdmMap?)?.content
         val duplicates = options?.get(XdmAtomic(XsdString("duplicates")))
             ?.let {
@@ -49,7 +51,7 @@ object MapFunctions : AbstractFunctionObject() {
             }
             ?: DuplicateHandling.USE_FIRST
 
-        if (maps.size == 1) return@Fn maps
+        if (maps.size == 1) return@Fn maps as XdmMap
 
         val mapIt = maps.iterator()
 

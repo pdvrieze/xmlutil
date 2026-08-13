@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmArray
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmType
@@ -49,10 +51,10 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
     }
 
     class AnyArray(cardinality: OccurrenceType) : XdmArrayTypeTest(XdmTypeTest.ANY_ITEM.any, cardinality) {
-        override val opt: AnyArray get() = AnyArray(OccurrenceType.OPTIONAL)
-        override val single: AnyArray get() = AnyArray(OccurrenceType.SINGLE)
-        override val any: AnyArray get() = AnyArray(OccurrenceType.ANY)
-        override val atLeastOne: AnyArray get() = AnyArray(OccurrenceType.AT_LEAST_ONE)
+        override val opt: AnyArray get() = ANY_ARRAY.opt
+        override val single: AnyArray get() = ANY_ARRAY.single
+        override val any: AnyArray get() = ANY_ARRAY.any
+        override val atLeastOne: AnyArray get() = ANY_ARRAY.atLeastOne
 
         context(ctxt: ExprEvalContext)
         override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean {
@@ -78,6 +80,12 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
         context(ctxt: ExprEvalContext)
         override fun isAssignableToSingle(receiver: XdmTypeTest): Boolean {
             return receiver is AnyArray || receiver is XdmTypeTest.AnyItem
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+            return value is XdmArray
         }
     }
 
@@ -107,6 +115,13 @@ sealed class XdmArrayTypeTest(itemType: XdmSequenceTypeTest, cardinality: Occurr
         override fun isAssignableFromSingle(source: XdmSequenceTypeTest): Boolean = when {
             source !is Typed -> false
             else -> itemType.isAssignableFrom(source.itemType)
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+            if (value !is XdmArray) return false
+            return value.all { itemType.isInstance(it) }
         }
     }
 }

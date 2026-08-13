@@ -20,6 +20,8 @@
 
 package io.github.pdvrieze.formats.xpath.eval.typeTest
 
+import io.github.pdvrieze.formats.xpath.eval.data.XdmMap
+import io.github.pdvrieze.formats.xpath.eval.data.XdmSingleValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSingleType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmType
@@ -41,6 +43,28 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
     val keyType: XdmSchemaTypeTest get() = argTypes.single() as XdmSchemaTypeTest
     val valueType: XdmSequenceTypeTest get() = returnType
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        if (!super.equals(other)) return false
+
+        other as XdmMapTypeTest
+
+        if (keyType != other.keyType) return false
+        if (valueType != other.valueType) return false
+        if (cardinality != other.cardinality) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + keyType.hashCode()
+        result = 31 * result + valueType.hashCode()
+        result = 31 * result + cardinality.hashCode()
+        return result
+    }
+
     object ANY{
         val single: AnyMap = AnyMap(OccurrenceType.SINGLE)
         val opt: AnyMap = AnyMap(OccurrenceType.OPTIONAL)
@@ -54,10 +78,10 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
         cardinality
     ) {
 
-        override val opt: AnyMap get() = AnyMap(OccurrenceType.OPTIONAL)
-        override val single: AnyMap get() = AnyMap(OccurrenceType.SINGLE)
-        override val any: AnyMap get() = AnyMap(OccurrenceType.ANY)
-        override val atLeastOne: AnyMap get() = AnyMap(OccurrenceType.AT_LEAST_ONE)
+        override val opt: AnyMap get() = ANY.opt
+        override val single: AnyMap get() = ANY.single
+        override val any: AnyMap get() = ANY.any
+        override val atLeastOne: AnyMap get() = ANY.atLeastOne
 
         override fun toValueType(fallbackType: XdmSingleType): XdmType {
             return fallbackType.cardinality(cardinality)
@@ -71,6 +95,18 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
             !is XdmMapTypeTest -> super.sharedBaseType(other, neededCardinality)
             else -> AnyMap(neededCardinality)
         }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+            return value is XdmMap
+        }
+
+        override fun toString(): String {
+            return "map(*)${cardinality.literal}"
+        }
+
+
     }
 
     class Typed(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTypeTest, cardinality: OccurrenceType) :
@@ -101,6 +137,26 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
 
             val sharedValueType = valueType.sharedBaseType(other.valueType)
             return Typed(sharedKeyType, sharedValueType, neededCardinality)
+        }
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
+            if (value !is XdmMap) return false
+            for ((k, v) in value.content) {
+                if (!keyType.isInstance(k)) return false
+                if (!valueType.isInstance(v)) return false
+            }
+            return true
+        }
+
+        override fun toString(): String {
+            return buildString {
+                append("map(")
+                append(keyType).append(", ").append(valueType)
+                append(')')
+                append(cardinality.literal)
+            }
         }
     }
 }
