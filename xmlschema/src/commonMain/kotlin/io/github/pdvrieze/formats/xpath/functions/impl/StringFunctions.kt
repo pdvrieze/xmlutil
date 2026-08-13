@@ -104,7 +104,12 @@ object StringFunctions : AbstractFunctionObject() {
         val comparand1 = args.atomicArgOrEmpty<XsdString>(0) ?: return@Fn XdmSequence.EMPTY
         val comparand2 = args.atomicArgOrEmpty<XsdString>(1) ?: return@Fn XdmSequence.EMPTY
         val collation = args.maybeCollation(2)
-        atomic(collation.compare(comparand1.xmlString, comparand2.xmlString))
+        val cmp = collation.compare(comparand1.xmlString, comparand2.xmlString)
+        when {
+            cmp == 0 -> atomic(0)
+            cmp < 0 -> atomic(-1)
+            else -> atomic(1)
+        }
     }
 
     val fnCodePointEqual = BuiltinFunctionImpl.Fn("codepoint-equal", BOOLEAN.opt, STRING.opt, STRING.opt) Fn@{ args ->
