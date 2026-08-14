@@ -23,6 +23,8 @@ package org.w3.qt3tests
 import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -66,10 +68,17 @@ interface UnresolvedXPathExpr : UnresolvedXQueryExpr {
 class UnresolvedXPathExprImpl(expr: String, locationInfo: XmlReader.LocationInfo?) :
     UnresolvedXQueryExprImpl(expr, locationInfo), UnresolvedXPathExpr {
 
+    @OptIn(XPathInternal::class)
     context(ctx: AssertionResolutionContext)
     override fun resolveXQuery(): Result<XQueryExpression> {
         return runCatching {
-            XPathExpression(expr, ctx.namespaceContext, ctx.minRequiredXPath ?: XPathVersion.XPath3_1, locationInfo)
+            XPathExpression(
+                expr,
+                ctx.namespaceContext,
+                ctx.minRequiredXPath ?: XPathVersion.XPath3_1,
+                posInfo = locationInfo,
+                defaultFunctionNamespace = BuiltinFunction.FN_NAMESPACE
+            )
         }
     }
 

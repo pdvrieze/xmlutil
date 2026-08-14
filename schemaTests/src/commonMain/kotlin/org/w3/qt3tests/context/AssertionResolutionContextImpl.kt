@@ -26,8 +26,9 @@ import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import kotlinx.serialization.DeserializationStrategy
 import nl.adaptivity.xmlutil.NamespaceContext
-import nl.adaptivity.xmlutil.XMLConstants
+import nl.adaptivity.xmlutil.SimpleNamespaceContext
 import nl.adaptivity.xmlutil.serialization.XML
+import nl.adaptivity.xmlutil.util.impl.CombiningNamespaceContext
 import org.w3.qt3tests.Qt3SpecDependency
 import org.w3.qt3tests.resolved.CatalogResolutionContext
 import org.w3.qt3tests.resolved.ResolutionContext
@@ -85,32 +86,14 @@ class AssertionResolutionContextImpl(
         return orig.subContext(file)
     }
 
-    override val namespaceContext: NamespaceContext = object : NamespaceContext {
-        override fun getNamespaceURI(prefix: String): String? {
-            return when (prefix) {
-                "xml" -> XMLConstants.XML_NS_URI
-                "xmlns" -> XMLConstants.XMLNS_ATTRIBUTE_NS_URI
-                else -> environment?.namespaces?.firstOrNull { it.prefix == prefix }?.uri?.value
-            }
-        }
+    override val namespaceContext: NamespaceContext
 
-        override fun getPrefix(namespaceURI: String): String? {
-            return when (namespaceURI) {
-                XMLConstants.XML_NS_URI -> "xml"
-                XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> "xmlns"
-                else -> environment?.namespaces?.firstOrNull { it.uri.value == namespaceURI }?.prefix
-            }
+    init {
+        val ns = environment?.namespaces
+        namespaceContext = when (ns?.isNotEmpty()) {
+            true -> CombiningNamespaceContext(SimpleNamespaceContext(ns), Qt3NsContext)
+            else -> Qt3NsContext
         }
-
-        override fun getPrefixes(namespaceURI: String): Iterator<String> {
-            return when (namespaceURI) {
-                XMLConstants.XML_NS_URI -> listOf("xml").iterator()
-                XMLConstants.XMLNS_ATTRIBUTE_NS_URI -> listOf("xmlns").iterator()
-                else -> environment?.namespaces?.filter { it.uri.value == namespaceURI }?.map { it.prefix }?.iterator()
-                ?: emptyList<String>().iterator()
-            }
-        }
-
     }
 
 }

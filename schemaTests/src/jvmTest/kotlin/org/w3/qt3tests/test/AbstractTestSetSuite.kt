@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdAnyURI
 import io.github.pdvrieze.xml.schematypes.values.formatters.DecimalFormat
 import nl.adaptivity.xmlutil.SimpleNamespaceContext
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlEvent
 import org.junit.jupiter.api.Named
 import org.opentest4j.AssertionFailedError
@@ -71,7 +72,7 @@ abstract class AbstractTestSetSuite {
 
             for (param in environment.params) {
                 val select = param.select ?: continue
-                val value = XPathExpression(select).eval(context, nsContext, vars)
+                val value = XPathExpression(select, defaultFunctionNamespace = BuiltinFunction.FN_NAMESPACE).eval(context, nsContext, vars)
                 val nsUri = param.name.namespaceURI
                 if (param.name.prefix.isEmpty()) {
                     (vars.getOrPut("") { mutableMapOf() })[param.name.localPart] = value
@@ -211,6 +212,8 @@ abstract class AbstractTestSetSuite {
             XmlEvent.NamespaceImpl("map", BuiltinFunction.MAP_NAMESPACE),
             XmlEvent.NamespaceImpl("array", BuiltinFunction.ARRAY_NAMESPACE),
             XmlEvent.NamespaceImpl("math", BuiltinFunction.MATH_NAMESPACE),
+            XmlEvent.NamespaceImpl("xs", XMLConstants.XSD_NS_URI),
+            XmlEvent.NamespaceImpl("ERR", "http://www.w3.org/2005/xqt-errors"),
         )
 
     }

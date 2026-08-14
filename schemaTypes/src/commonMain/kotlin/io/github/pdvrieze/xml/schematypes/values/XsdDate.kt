@@ -70,6 +70,10 @@ interface XsdDate : IXsdDateTime, XsdPrimitive {
 
     companion object: SimpleTypeSerializer<XsdDate>("xsd.date") {
 
+        operator fun invoke(dateTime: XsdDateTime): XsdDate {
+            return invoke(dateTime.year, dateTime.month, dateTime.day, dateTime.timezoneOffset)
+        }
+
         operator fun invoke(str: CharSequence): XsdDate = XsdDateImpl(str)
 
         operator fun invoke(year: Int, month: Int, day: Int, timezoneOffset: Int? = null): XsdDate {

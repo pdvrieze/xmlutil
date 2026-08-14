@@ -31,7 +31,53 @@ import nl.adaptivity.xmlutil.namespaceURI
 import nl.adaptivity.xmlutil.prefix
 
 @XPathInternal
-internal sealed interface QNameSpec {
+internal sealed interface UnresolvedQNameSpec {
+    context(c: XQueryParser.ParseContext)
+    fun resolveElementType(): QNameSpec
+
+    context(c: XQueryParser.ParseContext)
+    fun resolveFunction(): QNameSpec
+
+
+    @XPathInternal
+    @OptIn(NeedsXPath3_0::class)
+    class UnresolvedQName(override val localName: String, override val prefix: String): NamedQNameSpec {
+        context(c: XQueryParser.ParseContext)
+        override fun resolveElementType(): QNameSpec.EQName {
+            val ns = when (prefix) {
+                "" -> c.defaultElementTypeNamespace
+                else -> requireNotNull(c.namespaceContext.getNamespaceURI(prefix)) { "Missing namespace for prefix '$prefix'" }
+            }
+            return QNameSpec.ResolvedQName(QName(ns, localName, prefix))
+        }
+
+        context(c: XQueryParser.ParseContext)
+        override fun resolveFunction(): QNameSpec.EQName {
+            val ns = when (prefix) {
+                "" -> c.defaultFunctionNamespace
+                else -> requireNotNull(c.namespaceContext.getNamespaceURI(prefix)) { "Missing namespace for prefix '$prefix'" }
+            }
+            return QNameSpec.ResolvedQName(QName(ns, localName, prefix))
+        }
+    }
+
+}
+
+@OptIn(XPathInternal::class)
+internal sealed interface NamedQNameSpec: UnresolvedQNameSpec {
+    val localName: String
+    val prefix: String?
+
+    context(c: XQueryParser.ParseContext)
+    override fun resolveElementType(): QNameSpec.EQName
+
+    context(c: XQueryParser.ParseContext)
+    override fun resolveFunction(): QNameSpec.EQName
+
+}
+
+@XPathInternal
+internal sealed interface QNameSpec : UnresolvedQNameSpec {
 
     fun asNodeTest(version: XPathVersion): NodeTest
 
@@ -43,12 +89,17 @@ internal sealed interface QNameSpec {
     fun eval(namespaceURI: String?, localName: String): Boolean
     fun isAssignableFrom(elemName: QNameSpec): Boolean
 
+    context(c: XQueryParser.ParseContext)
+    override fun resolveElementType(): QNameSpec = this
+
+    context(c: XQueryParser.ParseContext)
+    override fun resolveFunction(): QNameSpec = this
 
     @XPathInternal
-    sealed class EQName: QNameSpec {
+    sealed class EQName: QNameSpec, NamedQNameSpec {
         abstract val namespace: String
-        abstract val localName: String
-        abstract val prefix: String?
+        abstract override val localName: String
+        abstract override val prefix: String?
 
         override fun isAssignableFrom(elemName: QNameSpec): Boolean = when {
             elemName !is EQName -> false
@@ -56,6 +107,12 @@ internal sealed interface QNameSpec {
             localName != elemName.localName -> false
             else -> true
         }
+
+        context(c: XQueryParser.ParseContext)
+        override fun resolveElementType(): EQName = this
+
+        context(c: XQueryParser.ParseContext)
+        override fun resolveFunction(): EQName = this
     }
 
     @XPathInternal
@@ -78,7 +135,6 @@ internal sealed interface QNameSpec {
             builder.append("Q{").append(namespace).append("}").append(localName)
         }
     }
-
 
     @XPathInternal
     class ResolvedQName @NeedsXPath3_0 constructor(val name: QName) : EQName() {
@@ -124,6 +180,11 @@ internal sealed interface QNameSpec {
     sealed interface WildCard : QNameSpec {
         override fun asNodeTest(version: XPathVersion): NodeTest = asNodeTest()
         fun asNodeTest(): NodeTest
+
+        context(c: XQueryParser.ParseContext)
+        override fun resolveFunction(): QNameSpec {
+            throw UnsupportedOperationException("Function names cannot be wildcards")
+        }
     }
 
     object Any : WildCard {

@@ -24,6 +24,8 @@ import io.github.pdvrieze.formats.xpath.XPathExpression
 import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.XQueryExpression
 import io.github.pdvrieze.formats.xpath.XQueryVersion
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
+import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -71,6 +73,7 @@ open class UnresolvedXQueryExprImpl(
     override val expr: String,
     override val locationInfo: XmlReader.LocationInfo?
 ) : UnresolvedXQueryExpr {
+    @OptIn(XPathInternal::class)
     context(ctx: AssertionResolutionContext)
     override fun resolveXQuery(): Result<XQueryExpression> {
         val minPath = ctx.minRequiredXPath
@@ -80,10 +83,17 @@ open class UnresolvedXQueryExprImpl(
             when {
                 // if not null, xquery is required, but try XPath expression anyway
                 minPath == null -> runCatching {
-                    XPathExpression(expr, ctx.namespaceContext, minPath ?: XPathVersion.XPath3_1, locationInfo, true)
+                    XPathExpression(
+                        expr,
+                        ctx.namespaceContext,
+                        minPath ?: XPathVersion.XPath3_1,
+                        true,
+                        posInfo = locationInfo,
+                        defaultFunctionNamespace = BuiltinFunction.FN_NAMESPACE,
+                    )
                 }.getOrElse { stubXQueryExpression(expr, ctx.namespaceContext, minQuery ?: XQueryVersion.XQuery3_1, locationInfo) }
 
-                else -> XPathExpression(expr, ctx.namespaceContext, minPath, locationInfo)
+                else -> XPathExpression(expr, ctx.namespaceContext, minPath, posInfo = locationInfo)
             }
         }
     }

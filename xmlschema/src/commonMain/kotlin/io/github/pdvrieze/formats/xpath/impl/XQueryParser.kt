@@ -27,7 +27,6 @@ import io.github.pdvrieze.formats.xpath.impl.token.*
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdQNameImpl
 import nl.adaptivity.xmlutil.NamespaceContext
 import nl.adaptivity.xmlutil.QName
-import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.XmlReader
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import nl.adaptivity.xmlutil.core.internal.isNameStartChar
@@ -36,18 +35,31 @@ import kotlin.contracts.ExperimentalContracts
 internal class XQueryParser(
     str: String,
     private val namespaceContext: NamespaceContext,
+    private val defaultElementTypeNamespace: String,
+    private val defaultFunctionNamespace: String,
     override val xpathVersion: XPathVersion,
     posInfo: XmlReader.LocationInfo?
 ): Tokenizer(str, posInfo) {
+
+    constructor(
+        str: String,
+        ctx: ParseContext,
+        xpathVersion: XPathVersion,
+        posInfo: XmlReader.LocationInfo?,
+    ): this(str, ctx.namespaceContext, ctx.defaultElementTypeNamespace, ctx.defaultFunctionNamespace, xpathVersion, posInfo)
 
     override val isXPath2 get() = xpathVersion >= XPathVersion.XPath2_0
     override val isXPath30 get() = xpathVersion >= XPathVersion.XPath3_0
     override val isXPath31 get() = xpathVersion >= XPathVersion.XPath3_1
 
+    fun UnresolvedQNameToken.toElemTypeQName(): QName {
+        val effectiveNS = namespace ?: lookupElementTypeNamespace(prefix?.toString())
+
+        return XsdQNameImpl(effectiveNS.toString(), localName.toString(), prefix?.toString() ?: "")
+    }
+
     fun UnresolvedQNameToken.toQName(): QName {
-        val effectiveNS = namespace ?: prefix?.let { p ->
-            requireNotNull(lookupNamespace(p.toString())) { "No namespace for prefix '$p' found" }
-        } ?: ""
+        val effectiveNS = namespace ?: lookupFunctionNamespace(prefix?.toString())
 
         return XsdQNameImpl(effectiveNS.toString(), localName.toString(), prefix?.toString() ?: "")
     }
@@ -637,7 +649,7 @@ internal class XQueryParser(
                 val axis = Axis.ATTRIBUTE
                 val name = parseRequireNotNull(parseEQNameOrWildcard(), "Missing node test in expression")
                 @OptIn(NeedsXPath2::class)
-                val nodeTest = NodeKindTest.AttributeTest(name)
+                val nodeTest = NodeKindTest.AttributeTest(name.resolveElementType())
 
                 val predicates = parsePredicates()
                 @OptIn(NeedsXPath2::class)
@@ -720,7 +732,7 @@ internal class XQueryParser(
                         return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
                     }
 
-                    is QNameSpec.EQName -> when (val c = peekNextToken()) {
+                    is NamedQNameSpec -> when (val c = peekNextToken()) {
                         '('.code -> when (val nt = maybeParseNodeTypeTest(nameOrWildcard)) {
                             null -> {
                                 if (nameOrWildcard.prefix.isNullOrEmpty()) {
@@ -731,7 +743,7 @@ internal class XQueryParser(
                                     }
                                 }
 
-                                val funcCall = StaticFunctionCall(nameOrWildcard.toQName(), parseArgs())
+                                val funcCall = StaticFunctionCall(nameOrWildcard.resolveFunction().toQName(), parseArgs())
 
                                 return parsePostfixExpr(funcCall)
                             }
@@ -753,10 +765,10 @@ internal class XQueryParser(
                             val idx = parseUnsignedLong()
 
                             @OptIn(NeedsXPath3_0::class)
-                            return parsePostfixExpr(FunctionItem.NamedRef(nameOrWildcard.toQName(), idx))
+                            return parsePostfixExpr(FunctionItem.NamedRef(nameOrWildcard.resolveFunction().toQName(), idx))
                         }
 
-                        else -> return AxisStep(Axis.CHILD, nameOrWildcard.asNodeTest(xpathVersion), parsePredicates())
+                        else -> return AxisStep(Axis.CHILD, nameOrWildcard.resolveElementType().asNodeTest(xpathVersion), parsePredicates())
                     }
                 }
             }
@@ -992,16 +1004,18 @@ internal class XQueryParser(
     context(ctx: ParseContext)
     private fun parseNodeTest(): NodeTest {
         val name = parseRequireNotNull(parseEQNameOrWildcard(), "Missing node test in expression")
+            .resolveElementType()
         return maybeParseNodeTypeTest(name) ?: name.asNodeTest(xpathVersion)
     }
 
     context(ctx: ParseContext)
     private fun maybeParseNodeTest(): NodeTest? {
-        return parseEQNameOrWildcard()?.let { maybeParseNodeTypeTest(it) ?: it.asNodeTest(xpathVersion) }
+        return parseEQNameOrWildcard()?.resolveElementType()
+            ?.let { maybeParseNodeTypeTest(it) ?: it.asNodeTest(xpathVersion) }
     }
 
     @OptIn(ExperimentalContracts::class)
-    private fun parseEQNameOrWildcard(): QNameSpec? {
+    private fun parseEQNameOrWildcard(): UnresolvedQNameSpec? {
         val word = when {
             tryCurrentToken('*') -> "*"
 
@@ -1013,7 +1027,7 @@ internal class XQueryParser(
     }
 
     @OptIn(ExperimentalContracts::class)
-    private fun parseEQNameOrWildcard(initialWord: String): QNameSpec {
+    private fun parseEQNameOrWildcard(initialWord: String): UnresolvedQNameSpec {
 
         if (initialWord == "*") {
             return when { // *: must start localname woildcard
@@ -1038,23 +1052,25 @@ internal class XQueryParser(
                 return QNameSpec.UriQualifiedName(namespace, localPart)
             }
         } else if (tryCurrentToken(':')) { //namespace separator
-            val ns = lookupNamespace(initialWord)
             return when {
-                tryCurrent('*') -> QNameSpec.Namespace(ns, initialWord)
+                tryCurrent('*') -> QNameSpec.Namespace(lookupElementTypeNamespace(initialWord), initialWord)
 
-                else -> QNameSpec.ResolvedQName(XsdQNameImpl(ns, parseNCNameUndelim().name, initialWord))
+                else -> UnresolvedQNameSpec.UnresolvedQName(parseNCNameUndelim().name, initialWord)
             }
         } else {
-            return QNameSpec.ResolvedQName(XsdQNameImpl(lookupNamespace(""), initialWord, ""))
+            return UnresolvedQNameSpec.UnresolvedQName(initialWord, "")
         }
     }
 
     context(ctx: ParseContext)
-    private fun maybeParseNodeTypeTest(name: QNameSpec): NodeTest? {
+    private fun maybeParseNodeTypeTest(name: UnresolvedQNameSpec): NodeTest? {
         val nodeType = when (name) {
             is QNameSpec.WildCard -> return name.asNodeTest()
 
             is QNameSpec.ResolvedQName if (name.prefix.isEmpty() && name.namespace.isEmpty()) ->
+                NodeType.maybeValueOf(name.localName, xpathVersion) ?: return null
+
+            is UnresolvedQNameSpec.UnresolvedQName if (name.prefix.isEmpty()) ->
                 NodeType.maybeValueOf(name.localName, xpathVersion) ?: return null
 
             else -> return null
@@ -1134,30 +1150,36 @@ internal class XQueryParser(
         }
     }
 
-    fun lookupNamespace(prefix: String?): String = when {
-        prefix.isNullOrEmpty() -> namespaceContext.getNamespaceURI("") ?: ""
+    fun lookupFunctionNamespace(prefix: String?): String = when {
+        prefix.isNullOrEmpty() -> defaultFunctionNamespace
         else -> {
             return namespaceContext.getNamespaceURI(prefix)
-                ?: XQUERY_BUILTIN_PREFIX_MAPPINGS[prefix]
+                /*?: XQUERY_BUILTIN_PREFIX_MAPPINGS[prefix]*/
+                ?: parseError("Missing namespace for prefix '$prefix'")
+        }
+    }
+
+    fun lookupElementTypeNamespace(prefix: String?): String = when {
+        prefix.isNullOrEmpty() -> defaultElementTypeNamespace
+        else -> {
+            return namespaceContext.getNamespaceURI(prefix)
+                /*?: XQUERY_BUILTIN_PREFIX_MAPPINGS[prefix]*/
                 ?: parseError("Missing namespace for prefix '$prefix'")
         }
     }
 
 
-    internal data class ParseContext(val isXQuery: Boolean)
+    internal data class ParseContext(
+        val isXQuery: Boolean,
+        val namespaceContext: NamespaceContext,
+        val defaultElementTypeNamespace: String,
+        val defaultFunctionNamespace: String,
+    )
 
     companion object {
 
         val STEP_DESCENDANT_OR_SELF = AxisStep(Axis.DESCENDANT_OR_SELF, NodeTest.node)
 
-        private val XQUERY_BUILTIN_PREFIX_MAPPINGS = HashMap<String, String>().apply {
-            put("xs", XMLConstants.XSD_NS_URI)
-            put("fn", XMLConstants.XPATH_FUNCTIONS_NAMESPACE)
-            put("map", "${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/map")
-            put("array", "${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/array")
-            put("math", "${XMLConstants.XPATH_FUNCTIONS_NAMESPACE}/math")
-            put("err", "http://www.w3.org/2005/xqt-errors")
-        }
 
     }
 }

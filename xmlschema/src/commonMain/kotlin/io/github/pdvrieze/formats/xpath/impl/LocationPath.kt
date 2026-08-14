@@ -46,27 +46,18 @@ internal class LocationPath(
     context(ctx: EvalContext)
     override fun eval(): XdmValue<*> {
         withExprContext {
-            val base: XdmValue<*>? = steps.dropLast(1).fold(ctx.contextValue) { c, step ->
-                when (val e = step.eval(c)) {
-                    XdmSequence.EMPTY -> return XdmSequence.EMPTY
+            var c = ctx.contextValue
+            for (step in steps.dropLast(1)) {
+                c = step.eval(c)
 
-                    is XdmNodeBase<*> -> e
-
-                    is XdmSequence<*> -> {
-                        for (m in e) {
-                            if (m !is XdmNodeBase<*>) throw EvaluationException(
-                                ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item"
-                            )
-                        }
-                        e
+                if (step is AxisStep) {
+                    if (c.any { it !is XdmNodeBase<*> }) {
+                        throw EvaluationException(ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES, "Expected node as context item")
                     }
-
-                    else -> throw EvaluationException(
-                        ErrorCodes.XPTY0019_PATH_INTERMEDIATE_NOT_NODES,
-                        "Expected node as context item, found: ${e.staticType}"
-                    )
                 }
+
             }
+            val base: XdmValue<*>? = c
 
             val last = steps.last()
 

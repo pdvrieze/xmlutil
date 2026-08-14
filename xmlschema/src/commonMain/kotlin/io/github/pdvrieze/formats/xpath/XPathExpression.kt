@@ -21,6 +21,7 @@
 package io.github.pdvrieze.formats.xpath
 
 import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
+import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.FN_NAMESPACE
 import io.github.pdvrieze.formats.xpath.impl.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -131,16 +132,25 @@ interface XPathExpression: XQueryExpression {
             )
         }
 
+        @OptIn(XPathInternal::class)
         operator fun invoke(
             path: String,
             namespaceContext: NamespaceContext = SimpleNamespaceContext(),
             ver: XPathVersion = XPathVersion.XPath3_1,
-            posInfo: XmlReader.LocationInfo? = null,
-            isXQuery: Boolean = false
+            isXQuery: Boolean = false,
+            defaultElementTypeNamespace: String = namespaceContext.getNamespaceURI("") ?: "",
+            defaultFunctionNamespace: String = FN_NAMESPACE,
+            posInfo: XmlReader.LocationInfo? = null
         ): XPathExpression {
             val trimmedPath = path.trim()
-            val parser = XQueryParser(trimmedPath, namespaceContext, ver, posInfo)
-            return context(XQueryParser.ParseContext(isXQuery)) {
+            val defaultElementTypeNamespace = namespaceContext.getNamespaceURI("") ?: ""
+            val defaultFunctionNamespace = FN_NAMESPACE
+            val ctx = XQueryParser.ParseContext(isXQuery, namespaceContext, defaultElementTypeNamespace,
+                defaultFunctionNamespace
+            )
+
+            val parser = XQueryParser(trimmedPath, ctx, ver, posInfo)
+            return context(ctx) {
                 XPathExpressionImpl(trimmedPath, parser.parseXPathExpr(), ver)
             }
         }

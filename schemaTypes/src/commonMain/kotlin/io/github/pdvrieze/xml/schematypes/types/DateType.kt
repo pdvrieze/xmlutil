@@ -22,7 +22,9 @@ package io.github.pdvrieze.xml.schematypes.types
 
 import io.github.pdvrieze.xml.schematypes.WhitespaceValue
 import io.github.pdvrieze.xml.schematypes.facets.*
+import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdDate
+import io.github.pdvrieze.xml.schematypes.values.XsdDateTime
 import io.github.pdvrieze.xml.schematypes.values.XsdQName
 import nl.adaptivity.xmlutil.XMLConstants
 
@@ -55,6 +57,12 @@ interface DateType<out T : XsdDate> : PrimitiveType<T> {
             FacetWhiteSpace(WhitespaceValue.COLLAPSE, true),
             FacetExplicitTimezone.OPTIONAL
         )
+
+        override fun castFrom(other: XsdAtomic): XsdDate = when (other) {
+            is XsdDateTime -> XsdDate(other)
+
+            else -> fromString(other.xmlString)
+        }
 
         override fun fromString(value: CharSequence): XsdDate = XsdDate(value)
     }

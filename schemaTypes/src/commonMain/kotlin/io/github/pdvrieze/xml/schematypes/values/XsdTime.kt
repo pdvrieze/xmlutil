@@ -69,6 +69,10 @@ interface XsdTime : IXsdDateTime, XsdPrimitive {
     companion object : SimpleTypeSerializer<XsdTime>("xsd.time") {
         operator fun invoke(str: CharSequence): XsdTime = XsdTimeImpl(str)
 
+        operator fun invoke(dt: XsdDateTime): XsdTime {
+            return invoke(dt.hour, dt.minute, dt.second, dt.timezoneOffset)
+        }
+
         operator fun invoke(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int? = null): XsdTime =
             XsdTimeImpl(hours, minutes, millis, timezoneOffset)
 

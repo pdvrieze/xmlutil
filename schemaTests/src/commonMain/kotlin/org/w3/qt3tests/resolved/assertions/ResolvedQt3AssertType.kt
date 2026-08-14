@@ -26,6 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdBoolean
+import org.w3.qt3tests.context.Qt3NsContext
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 
 @OptIn(XPathInternal::class)
@@ -33,7 +34,7 @@ class ResolvedQt3AssertType(val type: String): ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val evalResult = evalResult.getOrElse { return AssertionResult.Failure(it) }
 
-        val typeExpr = XPathExpression(". instance of $type")
+        val typeExpr = XPathExpression(". instance of $type", Qt3NsContext)
 
         val r = typeExpr.eval(evalResult).single()
         if (r !is XdmAtomic<*>) return AssertionResult.Failure("Expected atomic value, got $r", AssertionError("Assertion failure"))

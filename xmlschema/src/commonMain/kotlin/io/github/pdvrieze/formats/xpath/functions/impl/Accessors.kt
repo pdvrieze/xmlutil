@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
+import io.github.pdvrieze.formats.xpath.XPathVersion
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
@@ -81,6 +82,10 @@ object Accessors : AbstractFunctionObject() {
         "data",
         contextFunctionTypes(ATOMIC.any, ITEM.any)
     ) Fn@{ args ->
+        val ctx = contextOf<ExprEvalContext>()
+        if (args.isEmpty() && ! ctx.specVersion.includes(XPathVersion.XPath3_0)) {
+            throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "data() takes 1 argument. The contextual version is new in 3.0")
+        }
         (args.argOrContext() ?: throw EvaluationException(ErrorCodes.XPDY0002_ABSENT_DYNAMIC_CONTEXT))
             .atomize()
     }

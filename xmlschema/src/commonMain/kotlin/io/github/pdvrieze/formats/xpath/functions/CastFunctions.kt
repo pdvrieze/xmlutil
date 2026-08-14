@@ -302,7 +302,7 @@ object CastFunctions: AbstractFunctionObject() {
 
     object constructTime: AtomicConstructor<XsdTime>(TimeType.Instance) {
         context(ctx: ExprEvalContext)
-        override fun constructXsd(arg: XdmAtomic<*>): XsdTime = XsdTime(arg.value.xmlString)
+        override fun constructXsd(arg: XdmAtomic<*>): XsdTime = TimeType.Instance.castFrom(arg.value)
     }
 
     object constructENTITIES: ListConstructor<XsdEntities, XsdEntity>("ENTITIES", EntitiesType.Instance) {
