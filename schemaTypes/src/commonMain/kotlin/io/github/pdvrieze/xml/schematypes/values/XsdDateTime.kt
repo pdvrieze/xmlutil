@@ -24,9 +24,7 @@ import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DateTimeType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -65,15 +63,11 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDateTimeStamp
 
     operator fun plus(duration: XsdDuration): XsdDateTime {
+        val tz = timezone ?: TimeZone.UTC
+
         val newBase = when (val monthsToAdd = duration.months) {
             0L -> instant()
-            else -> {
-                // todo check validity for dates below 0
-                val fullMonths = year * 12 + month.toInt() - 1 + monthsToAdd
-                val newYear = (fullMonths/12L).toInt()
-                val newMonth = ((fullMonths.absoluteValue % 12) + 1).toUInt()
-                XsdDateTimeImpl(newYear, newMonth, day, hour, minute, second, timezoneOffset).instant()
-            }
+            else -> instant().plus(monthsToAdd, DateTimeUnit.MONTH, tz)
         }
         val newInstant = when (val millisToAdd = duration.millis) {
             0L -> newBase
