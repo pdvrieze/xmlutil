@@ -491,7 +491,7 @@ abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         }
 
         override fun toString(): String {
-            return "Map($base, ${operation(base.first())}..${operation(base.last())})"
+            return "Map($base -> ${operation(base.first())}..${operation(base.last())})"
         }
 
         private inner class MapIterator(private val baseIterator: ListIterator<T>): ListIterator<R> {

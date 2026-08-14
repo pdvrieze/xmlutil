@@ -45,9 +45,9 @@ class XsdDateTimeStampImpl(
     override val hour: UInt get()= localDateTime.hour.toUInt()
     override val minute: UInt get()= localDateTime.minute.toUInt()
     override val second: XsdDecimal
-        get() = when {
-            localDateTime.nanosecond == 0 -> XsdInt(localDateTime.second)
-            else -> BigDecimal(localDateTime.nanosecond, -9) + XsdInt(localDateTime.second)
+        get() = when (val ns = localDateTime.nanosecond) {
+            0 -> XsdInt(localDateTime.second)
+            else -> BigDecimal(ns, -9) + XsdInt(localDateTime.second)
         }
     override val timezoneOffset: Int get() = timezone.offsetAt(instant).totalSeconds/60
 

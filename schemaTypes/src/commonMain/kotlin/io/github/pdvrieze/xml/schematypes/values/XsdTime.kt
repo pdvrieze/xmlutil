@@ -46,12 +46,12 @@ interface XsdTime : IXsdDateTime, XsdPrimitive {
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdTime
 
     operator fun plus(duration: XsdDuration): XsdTime {
-        return XsdDateTime(XsdDate(1972,12,31), XsdTime(0u, 0u, 0u))
+        return XsdDateTime(XsdDate(1972,12,31), XsdTime(0u, 0u, 0uL))
             .plus(duration).toTime()
     }
 
     operator fun minus(duration: XsdDuration): XsdTime {
-        return XsdDateTime(XsdDate(1972,12,31), XsdTime(0u, 0u, 0u))
+        return XsdDateTime(XsdDate(1972,12,31), XsdTime(0u, 0u, 0uL))
             .minus(duration).toTime()
     }
 
@@ -73,11 +73,11 @@ interface XsdTime : IXsdDateTime, XsdPrimitive {
             return invoke(dt.hour, dt.minute, dt.second, dt.timezoneOffset)
         }
 
-        operator fun invoke(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int? = null): XsdTime =
-            XsdTimeImpl(hours, minutes, millis, timezoneOffset)
+        operator fun invoke(hours: UInt, minutes: UInt, nanos: ULong, timezoneOffset: Int? = null): XsdTime =
+            XsdTimeImpl(hours, minutes, nanos, timezoneOffset)
 
         operator fun invoke(hours: UInt, minutes: UInt, seconds: XsdDecimal, timezoneOffset: Int? = null): XsdTime =
-            XsdTimeImpl(hours, minutes, (seconds*1000).toUInt(), timezoneOffset)
+            XsdTimeImpl(hours, minutes, (seconds*1000_000_000uL).toULong(), timezoneOffset)
 
         override fun deserialize(raw: String, input: XmlReader?): XsdTime {
             return invoke(raw)

@@ -202,7 +202,7 @@ private abstract class DateTimePartFormatter protected constructor(val widthModi
     }*/
 
     protected fun toLocalDateTime(dateTime: IXsdDateTime, fallbackTimezone: TimeZone = TimeZone.UTC): LocalDateTime? = when (dateTime) {
-        is XsdDate -> XsdDateTime(dateTime, XsdTime(1u, 1u, 0u)).toLocalDateTime(fallbackTimezone)
+        is XsdDate -> XsdDateTime(dateTime, XsdTime(1u, 1u, 0uL)).toLocalDateTime(fallbackTimezone)
         is XsdDateTime -> dateTime.toLocalDateTime(fallbackTimezone)
         else -> return null
     }

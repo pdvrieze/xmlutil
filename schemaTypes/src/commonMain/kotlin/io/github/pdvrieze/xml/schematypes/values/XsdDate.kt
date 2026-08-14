@@ -54,12 +54,12 @@ interface XsdDate : IXsdDateTime, XsdPrimitive {
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDate
 
     operator fun plus(duration: XsdDuration): XsdDate {
-        return XsdDateTime(this, XsdTime(0u, 0u, 0u))
+        return XsdDateTime(this, XsdTime(0u, 0u, 0uL))
             .plus(duration).toDate()
     }
 
     operator fun minus(duration: XsdDuration): XsdDate {
-        return XsdDateTime(this, XsdTime(0u, 0u, 0u))
+        return XsdDateTime(this, XsdTime(0u, 0u, 0uL))
             .minus(duration).toDate()
     }
 

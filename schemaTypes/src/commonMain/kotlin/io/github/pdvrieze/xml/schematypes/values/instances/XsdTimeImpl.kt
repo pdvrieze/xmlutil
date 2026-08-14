@@ -22,38 +22,49 @@ package io.github.pdvrieze.xml.schematypes.values.instances
 
 import io.github.pdvrieze.xml.schematypes.impl.intFromBits
 import io.github.pdvrieze.xml.schematypes.impl.toLBits
+import io.github.pdvrieze.xml.schematypes.impl.uLongFromBits
 import io.github.pdvrieze.xml.schematypes.impl.uintFromBits
 import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.TimeType
 import io.github.pdvrieze.xml.schematypes.values.XsdDecimal
 import io.github.pdvrieze.xml.schematypes.values.XsdTime
 import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedInt
+import io.github.pdvrieze.xml.schematypes.values.XsdUnsignedLong
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
 
 @XmlUtilInternal
-class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
+class XsdTimeImpl private constructor(val nSecVal: ULong) : XsdTime {
     constructor(hours: UInt, minutes: UInt, millis: UInt) : this(
         hours.toLBits(5) or
                 minutes.toLBits(6, 5) or
-                millis.toLBits(16, 11)
+                (millis*1_000_000uL).toLBits(36, 11)
     ) {
         requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
         requireRange(millis < 60000u) { "Millis out of range: $millis" }
     }
 
+    constructor(hours: UInt, minutes: UInt, nanos: ULong) : this(
+        hours.toLBits(5) or
+                minutes.toLBits(6, 5) or
+                nanos.toLBits(36, 11)
+    ) {
+        requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
+        requireRange(nanos < 60_000_000_000u) { "Nanos out of range: $nanos" }
+    }
+
     constructor(hours: UInt, minutes: UInt, seconds: XsdDecimal) : this(
-        hours, minutes, millis = ((seconds* XsdUnsignedInt(1000u)).toUInt())
+        hours, minutes, nanos = ((seconds* XsdUnsignedLong(1_000_000_000uL)).toULong())
     )
 
     constructor(hours: UInt, minutes: UInt, millis: UInt, timezoneOffset: Int?) : this(
         hours.toLBits(5) or
                 minutes.toLBits(6, 5) or
-                millis.toLBits(16, 11) or
+                (millis * 1_000_000uL).toLBits(36, 11) or
                 when (timezoneOffset) {
                     null -> 0uL
-                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 27)
+                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 47)
                 }
     ) {
         requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
@@ -61,21 +72,37 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
         requireRange(timezoneOffset == null || timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
     }
 
+    constructor(hours: UInt, minutes: UInt, nanos: ULong, timezoneOffset: Int?) : this(
+        hours.toLBits(5) or
+                minutes.toLBits(6, 5) or
+                nanos.toLBits(36, 11) or
+                when (timezoneOffset) {
+                    null -> 0uL
+                    else -> (1uL shl 63) or timezoneOffset.toLBits(13, 47)
+                }
+    ) {
+        requireRange(minutes < 60u) { "Minutes out of range: $minutes" }
+        requireRange(nanos < 60_000_000_000uL) { "Nanos out of range: $nanos" }
+        requireRange(timezoneOffset == null || timezoneOffset in -1440..1440) { "Timezone offset out of range: $timezoneOffset" }
+    }
+
 
     override val hour: UInt
-        get() = msecVal.uintFromBits(5)
+        get() = nSecVal.uintFromBits(5)
 
     override val minute: UInt
-        get() = (msecVal shr 5).uintFromBits(6)
+        get() = (nSecVal shr 5).uintFromBits(6)
 
-    val millis: UInt = (msecVal shr 11).uintFromBits(16)
+    val millis: UInt = ((nSecVal shr 11).uLongFromBits(36) / 1_000_000uL).toUInt()
+
+    val nanos: ULong = (nSecVal shr 11).uLongFromBits(36)
 
     override val second: XsdDecimal
         get() {
-            val millis = millis
+            val nanos = nanos
             return when {
-                millis % 1000u == 0u -> XsdUnsignedInt(millis / 1000u)
-                else -> BigDecimal(millis, -3)
+                nanos % 1000_000_000uL == 0uL -> XsdUnsignedInt((nanos / 1000_000_000uL).toUInt())
+                else -> BigDecimal(nanos, -9)
             }
         }
 
@@ -84,16 +111,21 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
             return (hour * 24uL + minute) * 60_000uL + millis
         }
 
+    val totalNanos: ULong
+        get() {
+            return (hour * 24uL + minute) * 60_000_000_000uL + nanos
+        }
+
     override val timezoneOffset: Int?
         get() = when {
-            msecVal and 0x80000000_00000000uL == 0uL -> null
-            else -> (msecVal shr 27).intFromBits(13)
+            nSecVal and 0x80000000_00000000uL == 0uL -> null
+            else -> (nSecVal shr 47).intFromBits(13)
         }
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdTime = when {
-        msecVal and TZ_MARKER == 0uL -> {
+        nSecVal and TZ_MARKER == 0uL -> {
             val newOffset = fallbackTimezone.offsetAt(instant()).totalSeconds / 60
-            XsdTimeImpl(msecVal.toLBits(27) or newOffset.toLBits(13, 27) or TZ_MARKER)
+            XsdTimeImpl(nSecVal.toLBits(47) or newOffset.toLBits(13, 47) or TZ_MARKER)
         }
 
         else -> this
@@ -105,7 +137,7 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
     override fun toString(): String = xmlString
 
     override fun hashCode(): Int = when (val tzMinutes = timezoneOffset){
-        null -> msecVal.hashCode() // this will work if there is no timezone
+        null -> nSecVal.hashCode() // this will work if there is no timezone
 
         // in this case calculate the UTC seconds and use that as hashcode// the addition of 24 hours
         // is to deal with "negative" timezones
@@ -117,7 +149,7 @@ class XsdTimeImpl private constructor(val msecVal: ULong) : XsdTime {
         if (this === other) return true
         if (other !is XsdTimeImpl) return false // extend to broader
 
-        if (msecVal == other.msecVal) return true
+        if (nSecVal == other.nSecVal) return true
         if ((timezoneOffset == null) != (other.timezoneOffset == null)) return false
         if (timezoneOffset == null) return false // should not happen due to the msecVal comparison
 

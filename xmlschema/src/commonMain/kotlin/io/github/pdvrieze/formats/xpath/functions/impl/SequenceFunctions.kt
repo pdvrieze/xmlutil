@@ -20,6 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.functions.impl
 
+import io.github.pdvrieze.formats.xpath.eval.Collations
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes.FORG0006_INVALID_ARGUMENT_TYPE
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
@@ -190,9 +191,13 @@ internal object SequenceFunctions : AbstractFunctionObject() {
 
         XdmSequence.buildAtomic {
             for ((idx, arg) in seq.withIndex()) {
-                val isEqual = when (collation) {
+                val isEqual = when (search) {
+                    is XsdString -> when (collation) {
+                        Collations.CODEPOINT -> arg.value.xmlString == search.xmlString
+                        else -> collation.compare(arg.value.xmlString, search.xmlString) == 0
+                    }
                     // null -> arg.value == search
-                    else -> collation.compare(arg.value.xmlString, search.xmlString) == 0
+                    else -> arg.value == search
                 }
                 if (isEqual) this.add(atomic(idx + 1))
             }

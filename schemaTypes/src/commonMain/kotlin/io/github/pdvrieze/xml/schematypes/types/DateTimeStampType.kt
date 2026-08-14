@@ -58,7 +58,7 @@ interface DateTimeStampType<out T : XsdDateTimeStamp> : DateTimeType<T> {
             }
             is XsdDate -> {
                 val tz = requireNotNull(other.timezone) { "No timezone for casting to dateTimeStamp"}
-                val inst = XsdDateTime(other, XsdTime(0u,0u,0u)).instant()
+                val inst = XsdDateTime(other, XsdTime(0u,0u,0uL)).instant()
                 XsdDateTimeStampImpl(inst, tz)
             }
             is UntypedAtomicType.XsdUntyped, is XsdString -> XsdDateTimeStampImpl(other.xmlString)
