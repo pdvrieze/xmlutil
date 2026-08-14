@@ -51,7 +51,10 @@ object MapFunctions : AbstractFunctionObject() {
             }
             ?: DuplicateHandling.USE_FIRST
 
-        if (maps.size == 1) return@Fn maps as XdmMap
+        when (maps.size) {
+            0 -> return@Fn XdmMap(emptyMap(), XdmMapType(ATOMIC.single, ITEM.any))
+            1 -> return@Fn maps as XdmMap
+        }
 
         val mapIt = maps.iterator()
 
