@@ -1044,6 +1044,25 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         return DivRem(quotientX, remainder)
     }
 
+    override fun reduceDecimalDigits(): XsdDecimal {
+        if (exponent >= 0 || sign == 0) return this
+        var count = ints.size * 9
+        for (intIdx in ints.indices) {
+            for (j in 0..2) {
+                val pos = D1000StoredPos(intIdx * 3)
+                val d1000 = getStoredDigit(pos)
+                when (d1000) {
+                    0u -> continue
+                    in 1u..9u -> count = intIdx * 9 + j * 3
+                    in 10u..99u -> count = intIdx * 9 + j * 3 + 1
+                    else -> count = intIdx * 9 + j * 3 + 2
+                }
+                break
+            }
+        }
+        val decimalsToDrop = count.coerceAtMost(-exponent)
+        return withNewExp(exponent + decimalsToDrop)
+    }
 
     override fun equals(other: Any?): Boolean {
         return when {

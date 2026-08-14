@@ -33,22 +33,27 @@ import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 class ResolvedQt3AssertStringValue(val expected: String, val normalizeSpace: Boolean) : ResolvedQt3Assertion() {
     override fun verify(evalResult: Result<XdmValue<*>>, testCase: ResolvedQt3TestCase): AssertionResult {
         val r = evalResult.getOrElse { return AssertionResult.Failure(it) }
-        var stringValue = context(ExprEvalContext.DUMMY) {
-            StringFunctions.fnStringJoin(r, XdmAtomic(XsdString(" "))).value.xmlString
-        }
-        val normExpected: String
-        if (normalizeSpace) {
-            normExpected = xmlCollapseWhitespace(expected)
-            stringValue = xmlCollapseWhitespace(stringValue)
-        } else {
-            normExpected = expected
+
+        val normExpected = when {
+            normalizeSpace -> xmlCollapseWhitespace(expected)
+            else -> expected
         }
 
+        val atomicVal = (r as? XdmAtomic<*>)?.value
 
-        return when {
-            normExpected == stringValue -> AssertionResult.Success
-            else -> AssertionResult.Failure("Expected '$normExpected', got '$stringValue'", AssertionError("Assertion failure"))
+        if (atomicVal != null && atomicVal !is XsdString) {
+            val expectedNonString = atomicVal.schemaType.fromString(normExpected)
+            if(atomicVal == expectedNonString) return AssertionResult.Success
         }
+
+        val stringValue = context(ExprEvalContext.DUMMY) {
+            StringFunctions.fnStringJoin(r, XdmAtomic(XsdString(" "))).value.xmlString.let {
+                if (normalizeSpace) xmlCollapseWhitespace(it) else it
+            }
+        }
+        if (normExpected == stringValue) return AssertionResult.Success
+
+        return AssertionResult.Failure("Expected '$normExpected', got '$stringValue'", AssertionError("Assertion failure"))
     }
 
 }

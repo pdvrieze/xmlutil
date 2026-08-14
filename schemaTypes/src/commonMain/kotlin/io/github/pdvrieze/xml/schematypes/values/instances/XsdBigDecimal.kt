@@ -119,4 +119,7 @@ interface XsdBigDecimal : Comparable<XsdDecimal>, XsdDecimal {
     }
 
     fun getDecimalDigit(pos: Int): Char
+
+
+    fun reduceDecimalDigits() : XsdDecimal
 }

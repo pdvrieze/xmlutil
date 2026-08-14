@@ -373,7 +373,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         when (val sum = seqSum(arg)) {
             is XsdDouble -> atomic(sum.value / arg.size)
             is XsdFloat -> atomic(sum.value / arg.size)
-            is XsdDecimal -> atomic(sum.toBigDecimal() / XsdBigDecimal(arg.size)) // division gives decimal
+            is XsdDecimal -> atomic((sum.toBigDecimal() / XsdBigDecimal(arg.size)).reduceDecimalDigits()) // division gives decimal
             is XsdYearMonthDuration -> atomic(sum / XsdDouble(arg.size.toDouble()))
             is XsdDayTimeDuration -> atomic(sum / XsdDouble(arg.size.toDouble()))
             else -> throw EvaluationException(FORG0006_INVALID_ARGUMENT_TYPE, "Average with unsupported type: ${sum.schemaType}")
