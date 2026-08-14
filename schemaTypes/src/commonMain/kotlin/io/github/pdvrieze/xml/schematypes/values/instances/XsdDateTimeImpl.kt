@@ -65,7 +65,7 @@ open class XsdDateTimeImpl private constructor(
         date.year,
         date.month,
         date.day,
-        time.hour,
+        time.hour % 24u,
         time.minute,
         time.second,
         when {
