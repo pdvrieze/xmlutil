@@ -69,7 +69,9 @@ internal class MapConstructor @NeedsXPath3_1 constructor(val entries: List<Entry
             keyType = keyType?.sharedBaseType(key.staticType) ?: key.staticType
             valueType = valueType.sharedBaseType(value.staticType)
 
-            content[key] = value
+            if (content.put(key, value) != null) {
+                throw EvaluationException(ErrorCodes.XQDY0137_DUPLICATE_KEYS, "Duplicate key: $key")
+            }
         }
 
 
