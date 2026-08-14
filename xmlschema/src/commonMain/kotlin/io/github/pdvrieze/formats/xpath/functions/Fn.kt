@@ -101,6 +101,15 @@ enum class Fn(
     not(BooleanFunctions.fnNot),
     //endregion
 
+    //region Duration functions (8)
+    yearsFromDuration(DurationFunctions.fnYearsFromDuration),
+    monthsFromDuration(DurationFunctions.fnMonthsFromDuration),
+    daysFromDuration(DurationFunctions.fnDaysFromDuration),
+    hoursFromDuration(DurationFunctions.fnHoursFromDuration),
+    minutesFromDuration(DurationFunctions.fnMinutesFromDuration),
+    secondsFromDuration(DurationFunctions.fnSecondsFromDuration),
+    //endregion
+
     //region Date/Time functions (9)
     dateTime(DateTimeFunctions.fnDateTime),
     yearFromDateTime(DateTimeFunctions.fnYearFromDateTime),
