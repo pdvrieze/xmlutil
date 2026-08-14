@@ -435,7 +435,37 @@ sealed class Operator(
         }
     }
     @NeedsXPath2
-    object IDIV: ArithmeticOperator("idiv", 9, XPathVersion.XPath2_0, false)
+    object IDIV: ArithmeticOperator("idiv", 9, XPathVersion.XPath2_0, false) {
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdInteger> {
+            val l = (left.single() as? XdmAtomic<*>)?.value as? XsdNumeric<*>
+            val r = (right.single() as? XdmAtomic<*>)?.value as? XsdNumeric<*>
+            @Suppress("UNCHECKED_CAST")
+            if (l == null || r == null) return super.eval(left, right) as XdmAtomic<XsdInteger>
+
+            return when (l) {
+                is XsdDouble -> XdmAtomic(XsdInteger((l.value / r.toDouble()).toInt()))
+                else if r is XsdDouble -> XdmAtomic(XsdInteger((l.toDouble() / r.value).toInt()))
+
+                is XsdFloat -> XdmAtomic(XsdInteger((l.value / r.toFloat()).toInt()))
+                else if r is XsdFloat -> XdmAtomic(XsdInteger((l.toFloat() / r.value).toInt()))
+
+                is XsdInteger if (r is XsdInteger) -> XdmAtomic(evalInteger(l, r))
+
+                is XsdDecimal -> XdmAtomic((l.divRem(r as XsdDecimal)).quotient.floor().roundToInteger())
+            }
+        }
+
+
+
+        @XPathInternal
+        context(ctx: ExprEvalContext)
+        override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger {
+            return left/right
+        }
+    }
+
     @NeedsXPath1
     object MOD: ArithmeticOperator("mod", 9, XPathVersion.XPath1_0, false) {
         @XPathInternal

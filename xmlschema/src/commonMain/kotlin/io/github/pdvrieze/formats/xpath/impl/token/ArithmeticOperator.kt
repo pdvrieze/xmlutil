@@ -105,7 +105,8 @@ abstract class ArithmeticOperator(
         return XdmAtomic(value)
     }
 
-    context(ctx: ExprEvalContext) @XPathInternal
+    @XPathInternal
+    context(ctx: ExprEvalContext)
     protected open fun operatorMapping(
         lType: AnyAtomicType<XsdAtomic>,
         rType: AnyAtomicType<XsdAtomic>
