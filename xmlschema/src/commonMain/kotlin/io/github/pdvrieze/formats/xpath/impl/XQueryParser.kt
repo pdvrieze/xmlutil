@@ -58,7 +58,7 @@ internal class XQueryParser(
         return XsdQNameImpl(effectiveNS.toString(), localName.toString(), prefix?.toString() ?: "")
     }
 
-    fun UnresolvedQNameToken.toQName(): QName {
+    fun UnresolvedQNameToken.toFunctionQName(): QName {
         val effectiveNS = namespace ?: lookupFunctionNamespace(prefix?.toString())
 
         return XsdQNameImpl(effectiveNS.toString(), localName.toString(), prefix?.toString() ?: "")
@@ -124,7 +124,7 @@ internal class XQueryParser(
                     }
 
                     else -> {
-                        val inType = AtomicOrUnionTypeTest(parseEQNameTokenDelim().toQName())
+                        val inType = AtomicOrUnionTypeTest(parseEQNameTokenDelim().toElemTypeQName())
                         parseRequire(tryCurrentToken(','))
                         val outType = parseSequenceType()
                         parseRequire(tryCurrentToken(')')) { "Map specifiers must be closed by ')'" }
@@ -171,7 +171,7 @@ internal class XQueryParser(
         if (qNameOrToken !is UnresolvedQNameToken) {
             parseError("Unsupported token $qNameOrToken found while parsing item type specifier")
         } else {
-            return AtomicOrUnionTypeTest(qNameOrToken.toQName())
+            return AtomicOrUnionTypeTest(qNameOrToken.toElemTypeQName())
         }
     }
 
@@ -190,10 +190,10 @@ internal class XQueryParser(
                 else -> {
                     val name = when {
                         tryCurrent('*') -> QNameSpec.Any
-                        else -> QNameSpec.ResolvedQName(parseEQNameTokenDelim().toQName())
+                        else -> QNameSpec.ResolvedQName(parseEQNameTokenDelim().toElemTypeQName())
                     }
                     if (tryCurrentToken(',')) {
-                        val typeName = parseEQNameTokenDelim().toQName()
+                        val typeName = parseEQNameTokenDelim().toElemTypeQName()
                         NodeKindTest.ElementTest(name, typeName, tryCurrentToken('?'))
                     } else {
                         NodeKindTest.ElementTest(name)
@@ -207,10 +207,10 @@ internal class XQueryParser(
                 else -> {
                     val name = when {
                         tryCurrent('*') -> QNameSpec.Any
-                        else -> QNameSpec.ResolvedQName(parseEQNameTokenDelim().toQName())
+                        else -> QNameSpec.ResolvedQName(parseEQNameTokenDelim().toElemTypeQName())
                     }
                     if (tryCurrentToken(',')) {
-                        val typeName = parseEQNameTokenDelim().toQName()
+                        val typeName = parseEQNameTokenDelim().toElemTypeQName()
                         NodeKindTest.AttributeTest(name, typeName, tryCurrentToken('?'))
                     } else {
                         NodeKindTest.AttributeTest(name)
@@ -218,9 +218,9 @@ internal class XQueryParser(
                 }
             }
 
-            NodeType.SCHEMA_ELEMENT -> NodeKindTest.SchemaElementTest(parseEQNameTokenDelim().toQName())
+            NodeType.SCHEMA_ELEMENT -> NodeKindTest.SchemaElementTest(parseEQNameTokenDelim().toElemTypeQName())
 
-            NodeType.SCHEMA_ATTRIBUTE -> NodeKindTest.SchemaAttributeTest(parseEQNameTokenDelim().toQName())
+            NodeType.SCHEMA_ATTRIBUTE -> NodeKindTest.SchemaAttributeTest(parseEQNameTokenDelim().toElemTypeQName())
 
             NodeType.COMMENT -> NodeKindTest.CommentTest
             NodeType.TEXT -> NodeKindTest.TextTest
@@ -231,7 +231,7 @@ internal class XQueryParser(
                 when (peekNextChar()) {
                     ')' -> NodeKindTest.ProcInstrTest()
                     '\'', '"' -> NodeKindTest.ProcInstrTest(parseStringLiteral().value)
-                    else -> NodeKindTest.ProcInstrTest(parseEQNameTokenDelim().toQName())
+                    else -> NodeKindTest.ProcInstrTest(parseEQNameTokenDelim().toElemTypeQName())
                 }
             }
         }
@@ -265,7 +265,7 @@ internal class XQueryParser(
     private fun parseVariableReference(): VariableRef {
         parseRequire(tryCurrentToken('$'), "Missing '$' in variable reference")
         skipWhitespace()
-        return VariableRef(parseEQNameTokenUndelim().toQName())
+        return VariableRef(parseEQNameTokenUndelim().toElemTypeQName())
     }
 
     @OptIn(NeedsXPath2::class)
@@ -307,7 +307,7 @@ internal class XQueryParser(
         val bindings = mutableListOf<ForExpr.Binding>()
         do {
             parseRequire(tryCurrentToken('$'))
-            val varName = parseEQNameTokenUndelim().toQName()
+            val varName = parseEQNameTokenUndelim().toElemTypeQName()
             parseRequire(tryCurrent(Keywords.IN), "Missing 'in' in for expression")
             val seqExpr = parseExprSingle()
             bindings.add(ForExpr.Binding(varName, seqExpr))
@@ -325,7 +325,7 @@ internal class XQueryParser(
         val bindings = mutableListOf<LetExpr.Binding>()
         do {
             parseRequire(tryCurrentToken('$'))
-            val varName = parseEQNameTokenUndelim().toQName()
+            val varName = parseEQNameTokenUndelim().toElemTypeQName()
             parseRequire(tryCurrentToken(":="))
             val rValueExpr = parseExprSingle()
             bindings.add(LetExpr.Binding(varName, rValueExpr))
@@ -475,7 +475,7 @@ internal class XQueryParser(
             parseRequire(tryCurrent(Keywords.AS), "Missing 'as' in 'castable as' expression")
 
             skipWhitespace()
-            val typeName = parseQName().toQName()
+            val typeName = parseQName().toElemTypeQName()
             val allowsEmpty = tryCurrentToken('?')
             return CastableExpr(e, typeName, allowsEmpty)
         }
@@ -492,7 +492,7 @@ internal class XQueryParser(
         parseRequire(tryCurrent(Keywords.AS), "Missing 'as' in 'castable as' expression")
         skipWhitespace()
 
-        val typeName = parseQName().toQName()
+        val typeName = parseQName().toElemTypeQName()
         val allowsEmpty = tryCurrentToken('?')
         return CastExpr(expr, typeName, allowsEmpty)
     }
@@ -520,7 +520,7 @@ internal class XQueryParser(
             '$'.code -> ArrowFunctionSpecifier.VarRefFunc(parseVariableReference().varName)
             // this is just a sequence, not parameters/arguments
             '('.code -> ArrowFunctionSpecifier.SeqFunc(parseParenthesizedExpressionList())
-            else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameTokenDelim().toQName())
+            else -> ArrowFunctionSpecifier.QNameFunc(parseEQNameTokenDelim().toFunctionQName())
         }
 
     }
@@ -927,7 +927,7 @@ internal class XQueryParser(
             params = mutableListOf()
             do {
                 parseRequire(tryCurrentToken('$'), "Function parameters start with \$")
-                val varName = parseEQNameTokenUndelim().toQName()
+                val varName = parseEQNameTokenUndelim().toElemTypeQName()
                 val type = if (tryCurrent(Keywords.AS)) parseSequenceType() else null
                 params.add(FunctionItem.Inline.Param(varName, type))
             } while (tryCurrent(Operator.COMMA))
