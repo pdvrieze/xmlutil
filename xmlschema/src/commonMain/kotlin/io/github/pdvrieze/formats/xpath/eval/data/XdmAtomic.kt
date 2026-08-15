@@ -61,7 +61,7 @@ class XdmAtomic<out T : XsdAtomic>(
     @OptIn(NeedsXPath2::class)
     context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
-        return expected is XdmAtomic<*> && Operator.VAL_EQ.cmpAtomic(value, expected.value)
+        return expected is XdmAtomic<*> && Operator.VAL_EQ.cmpAtomic(value, expected.value, null)
     }
 
     @OptIn(NeedsXPath2::class)
@@ -76,7 +76,7 @@ class XdmAtomic<out T : XsdAtomic>(
             }
         }
         val otherValue = (other as? XdmAtomic<*> ?: return false).value
-        return Operator.VAL_EQ.cmpAtomic(value, otherValue)
+        return Operator.VAL_EQ.cmpAtomic(value, otherValue, null)
     }
 
     context(ctx: ExprEvalContext)

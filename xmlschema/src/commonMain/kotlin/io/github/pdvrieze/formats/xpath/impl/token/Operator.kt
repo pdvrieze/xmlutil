@@ -139,8 +139,8 @@ sealed class Operator(
         override fun numericCompare(cmp: Int): Boolean = cmp != 0
 
         context(ctx: ExprEvalContext)
-        override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
-            return leftVal != rightVal
+        override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic, errorOnMismatch: ErrorCodes?): Boolean {
+            return !VAL_EQ.cmpAtomic(leftVal, rightVal, errorOnMismatch)
         }
     }
 
@@ -731,8 +731,8 @@ abstract class ComparisonOperator(
     }
 
     context(ctx: ExprEvalContext)
-    internal open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
-        val result: Boolean = when (leftVal) {
+    internal open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic, errorOnMismatch: ErrorCodes? = ErrorCodes.XPTY0004_TYPE_ERROR): Boolean {
+        return when (leftVal) {
             is XsdDouble if (rightVal is XsdNumeric<*>) -> cmp(leftVal.value, rightVal.toDouble())
             is XsdNumeric<*> if (rightVal is XsdDouble) -> cmp(leftVal.toDouble(), rightVal.value)
 
@@ -781,9 +781,11 @@ abstract class ComparisonOperator(
                 cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))
             }
 
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch (${leftVal.schemaType} and ${rightVal.schemaType})")
+            else if (errorOnMismatch != null) ->
+                throw EvaluationException(errorOnMismatch, "Type mismatch (${leftVal.schemaType} and ${rightVal.schemaType})")
+
+            else -> false
         }
-        return result
     }
 
     context(ctx: ExprEvalContext)
