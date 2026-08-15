@@ -21,6 +21,7 @@
 package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.types.IntegerType
+import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import nl.adaptivity.xmlutil.core.impl.multiplatform.assert
 import kotlin.math.absoluteValue
 
@@ -251,8 +252,10 @@ class BigInt internal constructor(override val sign: Int, ints: UIntArray, exp: 
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        return compareTo(other as? XsdInteger ?: return false) == 0
+    override fun equals(other: Any?): Boolean = when (other) {
+        is XsdInteger -> compareTo(other) == 0
+        is XsdDecimal -> BigDecimal(this).compareTo(other) == 0
+        else -> false
     }
 
     operator fun rangeTo(other: BigInt): XsdIntegerProgression<BigInt> {
