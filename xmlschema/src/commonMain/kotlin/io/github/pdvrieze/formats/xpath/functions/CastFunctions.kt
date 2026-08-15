@@ -95,7 +95,10 @@ object CastFunctions: AbstractFunctionObject() {
 
     object constructBoolean: AtomicConstructor<XsdBoolean>(BooleanType.Instance) {
         context(ctx: ExprEvalContext)
-        override fun constructXsd(arg: XdmAtomic<*>): XsdBoolean = XsdBoolean(arg.toBoolean())
+        override fun constructXsd(arg: XdmAtomic<*>): XsdBoolean = when (val v= arg.value) {
+            is XsdString -> XsdBoolean(v.xmlString)
+            else -> XsdBoolean(arg.toBoolean())
+        }
     }
 
     object constructDate: AtomicConstructor<XsdDate>(DateType.Instance)
