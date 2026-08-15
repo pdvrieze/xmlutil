@@ -62,14 +62,17 @@ class XdmAtomic<out T : XsdAtomic>(
 
         return when (value) {
             is XsdQName -> expectedValue is XsdQName && value.isEquivalent(expectedValue)
+
             is XsdDouble if (expectedValue is XsdNumeric<*>) -> value.value == expectedValue.toDouble()
+            is XsdNumeric<*> if (expectedValue is XsdDouble) -> value.toDouble() == expectedValue.value
+
             is XsdFloat if (expectedValue is XsdNumeric<*>) -> value.toDouble() == expectedValue.toDouble()
-            is XsdDecimal if (expectedValue is XsdNumeric<*>) -> when (expectedValue) {
-                is XsdDouble,
-                is XsdFloat -> value.toDouble() == expectedValue.toDouble()
-                is XsdDecimal -> value == expectedValue
-            }
+            is XsdNumeric<*> if (expectedValue is XsdFloat) -> value.toFloat() == expectedValue.value
+
+            is XsdDecimal if (expectedValue is XsdNumeric<*>) -> value == expectedValue
+
             else if(collation != null) -> collation.compare(value.xmlString, expectedValue.xmlString) == 0
+
             else -> value.xmlString == expectedValue.xmlString
         }
     }
