@@ -215,12 +215,12 @@ internal object SequenceFunctions : AbstractFunctionObject() {
 
         when {
             param1.size != param2.size -> return@Fn atomic(false)
-            param1.size == 0 -> return@Fn atomic(true)
+            param1.isEmpty() -> return@Fn atomic(true)
         }
 
-        for (i in 0 until param1.size) {
+        for (i in param1.indices) {
             val elem1 = param1[i]
-            val elem2 = param1[i]
+            val elem2 = param2[i]
             if (! elem1.isDeepEqual(elem2, collation)) return@Fn atomic(false)
         }
 
