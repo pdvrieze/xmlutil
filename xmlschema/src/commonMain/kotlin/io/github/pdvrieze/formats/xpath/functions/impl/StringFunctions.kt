@@ -153,7 +153,7 @@ object StringFunctions : AbstractFunctionObject() {
 
     val fnStringJoin: BuiltinFunctionImpl<XdmString> = BuiltinFunctionImpl.Fn("string-join", contextFunctionTypes(STRING, STRING, ATOMIC.any)) Fn@{ args ->
         if (args.size > 2) throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "String-join takes 1 or 2 arguments")
-        val seq = args.argN<XdmAtomicOrSequence<XdmAtomic<*>>>(0)
+        val seq = args.xdmArg<XdmAtomicOrSequence<XdmAtomic<*>>>(0)
         val separator = if (args.size == 2) args.atomicArgN<XsdString>(1) else ""
         val join = seq.asSequence().map { Accessors.fnString(it).value.xmlString }.joinToString(separator)
         atomic(join)

@@ -37,7 +37,7 @@ import nl.adaptivity.xmlutil.QName
 class XdmArray(
     val content: List<XdmValue<*>>,
     override val staticType: XdmArrayType,
-    override val dynamicType: XdmArrayType
+    override val dynamicType: XdmArrayType = staticType
 ) : XdmFunction<XdmArray>() {
     override fun asT(): XdmArray = this
 
@@ -91,6 +91,10 @@ class XdmArray(
         val arg = args.atomicArgN<XsdInteger>(0).toInt()
         if (arg !in content.indices) throw EvaluationException(ErrorCodes.FOAY0001_ARRAY_BOUNDS, "Index $arg out of array bounds")
         return content[arg]
+    }
+
+    override fun toString(): String {
+        return content.joinToString(prefix = "[", postfix = "] as $dynamicType")
     }
 }
 

@@ -283,17 +283,16 @@ internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.xdmArg(idx: Int):
     return r
 }
 
+@Deprecated("Use xdmArg", ReplaceWith("this.xdmArg<T>(arg)"))
+context(ctx: ExprEvalContext)
+internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T {
+    return xdmArg<T>(arg)
+}
 
 context(ctx: ExprEvalContext)
 internal inline fun <reified T: XsdAtomic> List<XdmValue<*>>.singleAtomicArg(): T {
     checkArgCount(1)
     return atomicArgN(0)
-}
-
-context(ctx: ExprEvalContext)
-internal inline fun <reified T: XdmValue<*>> List<XdmValue<*>>.argN(arg: Int): T {
-    return this[arg] as? T
-        ?: throw EvaluationException("Argument not of expected type ${T::class.simpleName}")
 }
 
 context(ctx: ExprEvalContext)

@@ -20,10 +20,7 @@
 
 package io.github.pdvrieze.formats.xpath.eval.type
 
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmFunctionTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
-import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
+import io.github.pdvrieze.formats.xpath.eval.typeTest.*
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.SequenceType.OccurrenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
@@ -61,6 +58,19 @@ class XdmMapType(
             else -> ANY
         }
     }
+
+
+    override fun toString(): String = when {
+        keyType == XdmSchemaTypeTest.ANY_ATOMIC.single -> when {
+            valueType == XdmTypeTest.ANY_ITEM.any -> "map(*)"
+            else -> "map(*, $valueType)"
+        }
+
+        valueType == XdmTypeTest.ANY_ITEM.any -> "map($keyType, *)"
+
+        else -> "array($keyType, $valueType)"
+    }
+
 
     @XPathInternal
     context(ctx: ExprEvalContext)

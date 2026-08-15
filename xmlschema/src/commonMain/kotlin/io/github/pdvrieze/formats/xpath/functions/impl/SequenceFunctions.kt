@@ -31,9 +31,9 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.type.XdmSchemaType
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmNodeKindTest
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.argN
 import io.github.pdvrieze.formats.xpath.functions.atomicArgN
 import io.github.pdvrieze.formats.xpath.functions.maybeCollation
+import io.github.pdvrieze.formats.xpath.functions.xdmArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
 import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.NodeKindTest
@@ -166,7 +166,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         functionType(ATOMIC.any, ATOMIC.any),
         functionType(ATOMIC.any, ATOMIC.any, STRING),
     )) Fn@{ args ->
-        val arg = args.argN<XdmSequence<XdmAtomic<*>>>(0)
+        val arg = args.xdmArg<XdmSequence<XdmAtomic<*>>>(0)
         val collation = args.maybeCollation(1)
 
         if (arg.isEmpty()) return@Fn XdmSequence.EMPTY
@@ -185,7 +185,7 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         functionType(INTEGER, ATOMIC.any, ATOMIC),
         functionType(INTEGER, ATOMIC.any, ATOMIC, STRING),
     )) Fn@{ args ->
-        val seq = args.argN<XdmValue<XdmAtomic<*>>>(0) as XdmValue<XdmAtomic<*>>
+        val seq = args.xdmArg<XdmValue<XdmAtomic<*>>>(0) as XdmValue<XdmAtomic<*>>
         val search = args.atomicArgN<XsdAtomic>(1)
         val collation = args.maybeCollation(2)
 
@@ -209,8 +209,8 @@ internal object SequenceFunctions : AbstractFunctionObject() {
         functionType(BOOLEAN, ITEM.any, ITEM.any),
         functionType(BOOLEAN, ITEM.any, ITEM.any, STRING),
     )) Fn@{ args ->
-        val param1 = args.argN<XdmValue<*>>(0)
-        val param2 = args.argN<XdmValue<*>>(1)
+        val param1 = args.xdmArg<XdmValue<*>>(0)
+        val param2 = args.xdmArg<XdmValue<*>>(1)
         val collation = args.maybeCollation(2)
 
         when {

@@ -26,7 +26,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
-import io.github.pdvrieze.formats.xpath.functions.argN
+import io.github.pdvrieze.formats.xpath.functions.xdmArg
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
 import io.github.pdvrieze.xml.schematypes.values.XsdString
 
@@ -86,7 +86,7 @@ object MapFunctions : AbstractFunctionObject() {
         "size",
         INTEGER.single, ANYMAP.single
     ) Fn@{ args ->
-        val map = args[0].single() as XdmMap
+        val map = args.xdmArg<XdmMap>(0)
         atomic(map.size)
     }
 
@@ -94,7 +94,7 @@ object MapFunctions : AbstractFunctionObject() {
         "keys",
         ATOMIC.any, ANYMAP.single
     ) Fn@{ args ->
-        val map = args[0].single() as XdmMap
+        val map = args.xdmArg<XdmMap>(0)
         XdmSequence.build<XdmAtomic<*>> {
             addAll(map.content.keys)
         }
@@ -104,8 +104,8 @@ object MapFunctions : AbstractFunctionObject() {
         "contains",
         BOOLEAN.single, ANYMAP.single, ATOMIC.single
     ) Fn@{ args ->
-        val map = args[0].single() as XdmMap
-        val key = args.argN<XdmAtomic<*>>(1)
+        val map = args.xdmArg<XdmMap>(0)
+        val key = args.xdmArg<XdmAtomic<*>>(1)
 
         atomic(map.content.containsKey(key))
     }
@@ -114,8 +114,8 @@ object MapFunctions : AbstractFunctionObject() {
         "get",
         ITEM.any, ANYMAP.single, ATOMIC.single
     ) Fn@{ args ->
-        val map = args[0].single() as XdmMap
-        val key = args.argN<XdmAtomic<*>>(1)
+        val map = args.xdmArg<XdmMap>(0)
+        val key = args.xdmArg<XdmAtomic<*>>(1)
 
         map.content.get(key) ?: XdmSequence.EMPTY
     }
@@ -141,7 +141,7 @@ object MapFunctions : AbstractFunctionObject() {
         ITEM.any, ITEM.any, ATOMIC.single
     ) Fn@{ args ->
         val input = args[0]
-        val key = args.argN<XdmAtomic<*>>(1)
+        val key = args.xdmArg<XdmAtomic<*>>(1)
         val result = mutableListOf<XdmValue<*>>()
 
         findImpl(result, input, key)
@@ -153,9 +153,9 @@ object MapFunctions : AbstractFunctionObject() {
         "put",
         ANYMAP.single, ANYMAP.single, ATOMIC.single, ITEM.any
     ) Fn@{ args ->
-        val map = args.argN<XdmMap>(0)
-        val key = args.argN<XdmAtomic<*>>(1)
-        val value = args.argN<XdmValue<*>>(2)
+        val map = args.xdmArg<XdmMap>(0)
+        val key = args.xdmArg<XdmAtomic<*>>(1)
+        val value = args.xdmArg<XdmValue<*>>(2)
 
         val newContent = map.content.toMutableMap()
         newContent[key] = value
@@ -167,8 +167,8 @@ object MapFunctions : AbstractFunctionObject() {
         "entry",
         ANYMAP.single, ATOMIC.single, ITEM.any
     ) Fn@{ args ->
-        val key = args.argN<XdmAtomic<*>>(0)
-        val value = args.argN<XdmValue<*>>(1)
+        val key = args.xdmArg<XdmAtomic<*>>(0)
+        val value = args.xdmArg<XdmValue<*>>(1)
 
         XdmMap(mapOf(key to value), XdmMapType(ATOMIC.single, ITEM.any))
     }
@@ -177,8 +177,8 @@ object MapFunctions : AbstractFunctionObject() {
         "remove",
         ANYMAP.single, ANYMAP.single, ATOMIC.single
     ) Fn@{ args ->
-        val map = args[0].single() as XdmMap
-        val key = args.argN<XdmAtomic<*>>(1)
+        val map = args.xdmArg<XdmMap>(0)
+        val key = args.xdmArg<XdmAtomic<*>>(1)
 
         val changed = map.content.filterKeys { it != key }
         when {

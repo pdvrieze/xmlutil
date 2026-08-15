@@ -28,8 +28,10 @@ import io.github.pdvrieze.formats.xpath.eval.data.XdmValue
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDOMImplementation
 import io.github.pdvrieze.formats.xpath.eval.data.dom.XdmDocument
 import io.github.pdvrieze.formats.xpath.eval.resolveCollation
+import io.github.pdvrieze.formats.xpath.functions.ArrayFn
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction
 import io.github.pdvrieze.formats.xpath.functions.Fn
+import io.github.pdvrieze.formats.xpath.functions.MapFn
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.AnyType
 import io.github.pdvrieze.xml.schematypes.types.builtinType
@@ -178,7 +180,7 @@ open class EvalContext(
 
     fun resolveFunction(name: QName, arity: Int): XdmFunction<*>? {
         return when (name.getNamespaceURI()) {
-            "", // by default empty functions are just mapped to Fn
+//            "", // by default empty functions are just mapped to Fn
             BuiltinFunction.FN_NAMESPACE ->
                 Fn.of(name.localPart)?.let { c ->
                     c.functionTypes.firstOrNull { it.argTypes.size == arity || (it.isVarArg && arity >= it.argTypes.size - 1) }
@@ -186,6 +188,24 @@ open class EvalContext(
                             XdmBuiltinFunction(c, type)
                         }
                 }
+
+            BuiltinFunction.ARRAY_NAMESPACE ->
+                ArrayFn.of(name.localPart)?.let { c ->
+                    c.functionTypes.firstOrNull { it.argTypes.size == arity || (it.isVarArg && arity >= it.argTypes.size - 1) }
+                        ?.let { type ->
+                            XdmBuiltinFunction(c, type)
+                        }
+                }
+
+            BuiltinFunction.MAP_NAMESPACE ->
+                MapFn.of(name.localPart)?.let { c ->
+                    c.functionTypes.firstOrNull { it.argTypes.size == arity || (it.isVarArg && arity >= it.argTypes.size - 1) }
+                        ?.let { type ->
+                            XdmBuiltinFunction(c, type)
+                        }
+                }
+
+            BuiltinFunction.MATH_NAMESPACE -> TODO("Map functions not implemented yet")
 
             else -> null
         }

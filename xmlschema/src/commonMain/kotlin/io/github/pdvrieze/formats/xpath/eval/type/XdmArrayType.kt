@@ -58,4 +58,13 @@ class XdmArrayType(
             else -> false
         }
     }
+
+    override fun toString(): String = when (elemType){
+        XdmTypeTest.ANY_ITEM.any -> "array(*)"
+        else -> "array($elemType)"
+    }
+
+    companion object {
+        val ANY = XdmArrayType(XdmTypeTest.ANY_ITEM.any)
+    }
 }
