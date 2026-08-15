@@ -82,6 +82,11 @@ class XdmAtomic<out T : XsdAtomic>(
         other: XdmValue<*>,
         collation: Collation?
     ): Boolean {
+        when {
+            value is XsdNumeric<*> && value.isNaN -> return ((other as? XdmAtomic<*>)?.value as? XsdNumeric<*>).let {
+                it != null && it.isNaN
+            }
+        }
         return isValEqual(other, collation)
     }
 
