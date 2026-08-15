@@ -180,7 +180,11 @@ object MapFunctions : AbstractFunctionObject() {
         val map = args[0].single() as XdmMap
         val key = args.argN<XdmAtomic<*>>(1)
 
-        map.content.get(key) ?: XdmSequence.EMPTY
+        val changed = map.content.filterKeys { it != key }
+        when {
+            changed.size == map.content.size -> return@Fn map
+            else -> return@Fn XdmMap(changed, map.staticType)
+        }
     }
 
     enum class DuplicateHandling(val txt: String) {

@@ -105,8 +105,10 @@ interface XFunction<out R : XdmValue<*>> {
 
             val neededSchemaType = when (type) {
                 is XdmTypeTest.AnyItem -> return arg
-                is XdmNodeKindTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected node of kind ${type.nodeKind} but got ${arg.staticType}")
-                is XdmFunctionTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected function type $type, but got $arg")
+                is XdmNodeKindTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected node of kind ${type.nodeKind} but got '${arg.staticType}'")
+                is XdmMapTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected map type $type, but got ${arg.staticType}")
+                is XdmArrayTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected array type $type, but got ${arg.staticType}")
+                is XdmFunctionTypeTest -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected function type $type, but got ${arg.staticType}")
                 is XdmSchemaTypeTest -> type.schemaType
             }
             val argType = arg.dynamicType.schemaType
