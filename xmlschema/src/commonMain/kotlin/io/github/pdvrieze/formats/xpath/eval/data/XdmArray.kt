@@ -64,6 +64,7 @@ class XdmArray(
         return XdmArray(content, concreteType, dynamicType)
     }
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return expected is XdmArray &&
                 content.isContentEqual(expected.content)

@@ -53,14 +53,19 @@ interface XsdDate : IXsdDateTime, XsdPrimitive {
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdDate
 
+    /**
+     * Converts this value to a dateTime by filling missing bits to 1972-12-1T:00:00:00
+     */
+    override fun toStandardDateTime(): XsdDateTime {
+        return XsdDateTime(this, XsdTime(0u, 0u, 0uL, timezoneOffset))
+    }
+
     operator fun plus(duration: XsdDuration): XsdDate {
-        return XsdDateTime(this, XsdTime(0u, 0u, 0uL))
-            .plus(duration).toDate()
+        return toStandardDateTime().plus(duration).toDate()
     }
 
     operator fun minus(duration: XsdDuration): XsdDate {
-        return XsdDateTime(this, XsdTime(0u, 0u, 0uL))
-            .minus(duration).toDate()
+        return toStandardDateTime().minus(duration).toDate()
     }
 
     operator fun minus(other: XsdDate): XsdDayTimeDuration {

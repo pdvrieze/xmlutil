@@ -55,6 +55,7 @@ class XdmPartialApplication(
         }
     }
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return this == expected
     }

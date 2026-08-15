@@ -76,6 +76,7 @@ sealed interface XdmValue<out T : XdmSingleValue<*>> : Collection<T> {
     /**
      * Implement the VAL_EQ operator
      */
+    context(ctx: ExprEvalContext)
     fun isValEqual(expected: XdmValue<*>, collation: Collation? = null): Boolean
 
     context(ctx: ExprEvalContext)

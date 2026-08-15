@@ -56,8 +56,9 @@ sealed interface XdmNodeBase<out T: XdmNode<T>> : XdmSingleValue<T> {
     context(ctx: ExprEvalContext)
     override fun atomize(): XdmAtomicOrSequence<XdmAtomic<XsdAtomic>>
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
-        return equals(expected)
+        return this.equals(expected)
     }
 
     context(ctx: ExprEvalContext)

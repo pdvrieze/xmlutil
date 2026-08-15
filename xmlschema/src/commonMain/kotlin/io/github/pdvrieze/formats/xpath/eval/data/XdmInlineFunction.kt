@@ -52,6 +52,7 @@ class XdmInlineFunction(
         TODO("Function casting not yet implemented")
     }
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return expected is XdmInlineFunction &&
             params.size == expected.params.size &&

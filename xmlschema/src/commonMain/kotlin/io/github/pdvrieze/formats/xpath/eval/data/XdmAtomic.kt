@@ -28,8 +28,10 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
 import io.github.pdvrieze.formats.xpath.functions.Fn
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
+import io.github.pdvrieze.formats.xpath.impl.NeedsXPath2
 import io.github.pdvrieze.formats.xpath.impl.SequenceType
 import io.github.pdvrieze.formats.xpath.impl.XPathInternal
+import io.github.pdvrieze.formats.xpath.impl.token.Operator
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.values.*
@@ -56,27 +58,13 @@ class XdmAtomic<out T : XsdAtomic>(
     override val dynamicType: XdmSchemaType
         get() = XdmSchemaType(value.schemaType)
 
+    @OptIn(NeedsXPath2::class)
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
-        if (expected !is XdmAtomic<*>) return false
-        val expectedValue = expected.value
-
-        return when (value) {
-            is XsdQName -> expectedValue is XsdQName && value.isEquivalent(expectedValue)
-
-            is XsdDouble if (expectedValue is XsdNumeric<*>) -> value.value == expectedValue.toDouble()
-            is XsdNumeric<*> if (expectedValue is XsdDouble) -> value.toDouble() == expectedValue.value
-
-            is XsdFloat if (expectedValue is XsdNumeric<*>) -> value.toDouble() == expectedValue.toDouble()
-            is XsdNumeric<*> if (expectedValue is XsdFloat) -> value.toFloat() == expectedValue.value
-
-            is XsdDecimal if (expectedValue is XsdNumeric<*>) -> value == expectedValue
-
-            else if(collation != null) -> collation.compare(value.xmlString, expectedValue.xmlString) == 0
-
-            else -> value.xmlString == expectedValue.xmlString
-        }
+        return expected is XdmAtomic<*> && Operator.VAL_EQ.cmpAtomic(value, expected.value)
     }
 
+    @OptIn(NeedsXPath2::class)
     context(ctx: ExprEvalContext)
     override fun isDeepEqual(
         other: XdmValue<*>,
@@ -87,7 +75,8 @@ class XdmAtomic<out T : XsdAtomic>(
                 it != null && it.isNaN
             }
         }
-        return isValEqual(other, collation)
+        val otherValue = (other as? XdmAtomic<*> ?: return false).value
+        return Operator.VAL_EQ.cmpAtomic(value, otherValue)
     }
 
     context(ctx: ExprEvalContext)

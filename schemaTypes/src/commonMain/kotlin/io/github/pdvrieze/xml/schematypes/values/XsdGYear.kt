@@ -44,10 +44,15 @@ interface XsdGYear : IXsdDateTime, XsdPrimitive {
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
         is XsdGYear -> compareTo(other)
+        is IXsdDateTime -> toStandardDateTime().compareTo(other.toStandardDateTime())
         else -> throw IllegalArgumentException("Cannot compare $this with $other")
     }
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGYear
+
+    override fun toStandardDateTime(): XsdDateTime {
+        return XsdDateTime(year, 1u, 1u, 0u, 0u, XsdInt.ZERO, timezoneOffset)
+    }
 
     companion object: SimpleTypeSerializer<XsdGYear>("xsd.gYear") {
         operator fun invoke(str: CharSequence): XsdGYear = XsdGYearImpl(str)

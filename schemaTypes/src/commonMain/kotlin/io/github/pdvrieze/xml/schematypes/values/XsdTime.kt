@@ -63,7 +63,12 @@ interface XsdTime : IXsdDateTime, XsdPrimitive {
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
         is XsdTime -> compareTo(other)
+        is IXsdDateTime -> compareTo(other.toStandardDateTime())
         else -> throw IllegalArgumentException("Cannot compare $this with $other")
+    }
+
+    override fun toStandardDateTime(): XsdDateTime {
+        return XsdDateTime(1972, 12u, 31u, hour, minute, second, timezoneOffset)
     }
 
     companion object : SimpleTypeSerializer<XsdTime>("xsd.time") {

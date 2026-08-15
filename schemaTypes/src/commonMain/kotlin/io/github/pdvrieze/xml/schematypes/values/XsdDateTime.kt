@@ -56,6 +56,8 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
         }
     }
 
+    override fun toStandardDateTime(): XsdDateTime = this
+
     fun toDate(): XsdDate = XsdDate(year, month, day, timezoneOffset)
     fun toTime(): XsdTime = XsdTime(hour, minute, second, timezoneOffset)
     fun toLocalDateTime(fallbackTimezone: TimeZone = TimeZone.UTC): LocalDateTime = instant().toLocalDateTime(timezone ?: fallbackTimezone)

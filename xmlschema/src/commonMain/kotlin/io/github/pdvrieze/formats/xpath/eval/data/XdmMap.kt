@@ -28,7 +28,6 @@ import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmMapTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSequenceTypeTest
 import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmTypeTest
-import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.ARRAY_NAMESPACE
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunction.Companion.MAP_NAMESPACE
 import io.github.pdvrieze.formats.xpath.functions.xdmArg
 import io.github.pdvrieze.formats.xpath.impl.ExprEvalContext
@@ -58,6 +57,7 @@ class XdmMap private constructor(
         return XdmMap(content, type.toValueType(staticType).single as XdmMapType, _dynamicType)
     }
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         if (expected !is XdmMap) return false
         if (expected.content.size != content.size) return false

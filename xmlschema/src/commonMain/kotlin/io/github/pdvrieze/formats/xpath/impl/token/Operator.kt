@@ -97,66 +97,42 @@ sealed class Operator(
         override fun numericCompare(cmp: Int): Boolean = cmp == 0
 
         context(ctx: ExprEvalContext)
-        override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
-            return leftVal.equals(rightVal)
-        }
-
-
-
-/*
-
-        context(ctx: ExprEvalContext)
-        override fun cmpNumbers(left: XsdNumeric<*>, right: XsdNumeric<*>): Boolean {
+        override fun defaultCmpXXX(left: XsdAtomic, right: XsdAtomic): Boolean {
             return left == right
         }
 
         context(ctx: ExprEvalContext)
-        override fun cmp(left: Double, right: Double): Boolean = left == right
-
-        context(ctx: ExprEvalContext)
-        override fun cmp(left: Float, right: Float): Boolean = left == right
-
-        context(ctx: ExprEvalContext)
-        override fun cmp(left: Boolean, right: Boolean): Boolean = left == right
-
-        context(ctx: ExprEvalContext)
-        override fun cmp(left: String, right: String): Boolean = left == right
-
-        context(ctx: ExprEvalContext)
-        @XPathInternal
-        override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomicOrEmpty<XdmBoolean> {
-            val leftVal = when (val a = left.atomize()) {
-                is XdmSequence.EMPTY -> return a
-                is XdmAtomic<*> -> a.value
-                is XdmSequence<*> -> throw EvaluationException(
-                    ErrorCodes.XPTY0004_TYPE_ERROR,
-                    "Sequence as value comparison operand"
-                )
-            }
-            val rightVal = when (val a = right.atomize()) {
-                is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-                is XdmAtomic<*> -> a.value
-                is XdmSequence<*> -> throw EvaluationException(
-                    ErrorCodes.XPTY0004_TYPE_ERROR,
-                    "Sequence as value comparison operand"
-                )
-            }
-
-            val result: Boolean = when (leftVal) {
-                is XsdFloat if rightVal is XsdFloat -> leftVal.value == rightVal.value
-                is XsdDouble if rightVal is XsdDouble -> leftVal.value == rightVal.value
-                is XsdDecimal if rightVal is XsdDecimal -> leftVal == rightVal
-                is XsdNumeric<*> if rightVal is XsdNumeric<*> -> leftVal.toDouble() == rightVal.toDouble()
-
-                is XsdBoolean if rightVal is XsdBoolean -> leftVal.value == rightVal.value
-
-                else -> return XdmAtomic((leftVal.equals(rightVal)))
-            }
-            return XdmAtomic((result))
+        override fun cmp(left: XsdDecimal, right: XsdDecimal): Boolean {
+            return left == right
         }
-*/
 
+        context(ctx: ExprEvalContext)
+        override fun cmp(left: Float, right: Float): Boolean {
+            return left == right
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun cmp(left: Double, right: Double): Boolean {
+            return left == right
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun cmp(left: String, right: String): Boolean {
+            // TODO consider collation
+            return left == right
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun cmp(left: Boolean, right: Boolean): Boolean {
+            return left == right
+        }
+
+        context(ctx: ExprEvalContext)
+        override fun cmp(left: XsdQName, right: XsdQName): Boolean {
+            return left.isEquivalent(right)
+        }
     }
+
     @NeedsXPath2
     object VAL_NEQ: ComparisonOperator("ne", 5, XPathVersion.XPath2_0, false) {
         context(ctx: ExprEvalContext)
@@ -167,6 +143,7 @@ sealed class Operator(
             return leftVal != rightVal
         }
     }
+
     @NeedsXPath2
     object VAL_LT: ComparisonOperator("lt", 5, XPathVersion.XPath2_0, false) {
                 @OptIn(NeedsXPath2::class)
@@ -176,6 +153,7 @@ sealed class Operator(
         override fun numericCompare(cmp: Int): Boolean = cmp < 0
 
     }
+
     @NeedsXPath2
     object VAL_LE: ComparisonOperator("le", 5, XPathVersion.XPath2_0, false) {
                 @OptIn(NeedsXPath2::class)
@@ -185,6 +163,7 @@ sealed class Operator(
         override fun numericCompare(cmp: Int): Boolean = cmp <= 0
 
     }
+
     @NeedsXPath2
     object VAL_GT: ComparisonOperator("gt", 5, XPathVersion.XPath2_0, false) {
                 @OptIn(NeedsXPath2::class)
@@ -194,6 +173,7 @@ sealed class Operator(
         override fun numericCompare(cmp: Int): Boolean = cmp > 0
 
     }
+
     @NeedsXPath2
     object VAL_GE: ComparisonOperator("ge", 5, XPathVersion.XPath2_0, false) {
                 @OptIn(NeedsXPath2::class)
@@ -202,10 +182,13 @@ sealed class Operator(
         context(ctx: ExprEvalContext)
         override fun numericCompare(cmp: Int): Boolean = cmp >= 0
     }
+
     @NeedsXPath2
     object PRECEDES: Operator("<<", 5, XPathVersion.XPath2_0, true)
+
     @NeedsXPath2
     object FOLLOWS: Operator(">>", 5, XPathVersion.XPath2_0, true)
+
     @NeedsXPath2
     object IS: Operator("is", 5, XPathVersion.XPath2_0, false)
 
@@ -218,6 +201,7 @@ sealed class Operator(
             return StringFunctions.fnConcat.invokePromoting(left, right)
         }
     }
+
     @NeedsXPath2
     object TO: Operator("to", 7, XPathVersion.XPath2_0, false)
 
@@ -434,6 +418,7 @@ sealed class Operator(
             return left.toBigDecimal() / right.toBigDecimal()
         }
     }
+
     @NeedsXPath2
     object IDIV: ArithmeticOperator("idiv", 9, XPathVersion.XPath2_0, false) {
         @XPathInternal
@@ -748,17 +733,33 @@ abstract class ComparisonOperator(
     context(ctx: ExprEvalContext)
     internal open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic): Boolean {
         val result: Boolean = when (leftVal) {
-            is XsdFloat if rightVal is XsdFloat -> cmp(leftVal.value, rightVal.value)
-            is XsdDouble if rightVal is XsdDouble -> cmp(leftVal.value, rightVal.value)
+            is XsdDouble if (rightVal is XsdNumeric<*>) -> cmp(leftVal.value, rightVal.toDouble())
+            is XsdNumeric<*> if (rightVal is XsdDouble) -> cmp(leftVal.toDouble(), rightVal.value)
+
+            is XsdFloat if rightVal is XsdNumeric<*> -> cmp(leftVal.value, rightVal.toFloat())
+            is XsdNumeric<*> if rightVal is XsdFloat -> cmp(leftVal.toFloat(), rightVal.value)
+
             is XsdDecimal if rightVal is XsdDecimal -> cmp(leftVal, rightVal)
+
             is XsdNumeric<*> if rightVal is XsdNumeric<*> -> numericCompare(numericCompare(leftVal, rightVal))
+
             is XsdBoolean if rightVal is XsdBoolean -> cmp(leftVal.value, rightVal.value)
 
-            is XsdString if rightVal is XsdString -> cmp(leftVal.xmlString, rightVal.xmlString)
+            is XsdString if (rightVal is XsdString || rightVal is XsdAnyURI) -> cmp(leftVal.xmlString, rightVal.xmlString)
+            is XsdAnyURI if (rightVal is XsdString || rightVal is XsdAnyURI) -> cmp(leftVal.xmlString, rightVal.xmlString)
+
             is XsdDateTime if rightVal is XsdDateTime -> {
                 val tz = ctx.defaultTimeZone
                 cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))
             }
+            is IXsdDateTime if rightVal is IXsdDateTime -> {
+                val tz = ctx.defaultTimeZone
+                val leftAug = leftVal.toStandardDateTime()
+                val rightAug = rightVal.toStandardDateTime()
+
+                cmp(leftAug.ensureTimezone(tz), rightAug.ensureTimezone(tz))
+            }
+
             is XsdDate if rightVal is XsdDate -> {
                 val tz = ctx.defaultTimeZone
                 cmp(leftVal.ensureTimezone(tz), rightVal.ensureTimezone(tz))

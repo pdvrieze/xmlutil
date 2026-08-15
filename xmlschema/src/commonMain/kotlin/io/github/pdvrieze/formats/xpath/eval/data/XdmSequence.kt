@@ -60,6 +60,7 @@ abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
         )
     }
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         val rightIt = expected.iterator()
         for (left in this) {
@@ -195,6 +196,7 @@ abstract class XdmSequence<out T : XdmSingleValue<T>> internal constructor(
             return Impl(elements,type.toValueType(staticType.single))
         }
 
+        context(ctx: ExprEvalContext)
         override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
             if (expected is Impl<*>) return elements.isContentEqual(expected.elements)
             return super.isValEqual(expected, collation)

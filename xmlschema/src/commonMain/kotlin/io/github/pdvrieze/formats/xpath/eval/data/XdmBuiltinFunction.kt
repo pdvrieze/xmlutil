@@ -48,6 +48,7 @@ class XdmBuiltinFunction(
         TODO("Function casting not yet implemented")
     }
 
+    context(ctx: ExprEvalContext)
     override fun isValEqual(expected: XdmValue<*>, collation: Collation?): Boolean {
         return expected is XdmBuiltinFunction && expected.function == function
     }

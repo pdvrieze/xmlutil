@@ -45,10 +45,15 @@ interface XsdGMonthDay: IXsdDateTime, XsdPrimitive {
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
         is XsdGMonthDay -> compareTo(other)
+        is IXsdDateTime -> toStandardDateTime().compareTo(other.toStandardDateTime())
         else -> throw IllegalArgumentException("Cannot compare $this with $other")
     }
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGMonthDay
+
+    override fun toStandardDateTime(): XsdDateTime {
+        return XsdDateTime(1972, month, day, 0u, 0u, XsdInt.ZERO, timezoneOffset)
+    }
 
     companion object: SimpleTypeSerializer<XsdGMonthDay>("xsd.gMonthDay") {
         operator fun invoke(str: CharSequence): XsdGMonthDay = XsdGMonthDayImpl(str)

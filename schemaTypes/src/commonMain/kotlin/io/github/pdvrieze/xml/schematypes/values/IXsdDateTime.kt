@@ -90,8 +90,8 @@ interface IXsdDateTime: XsdAtomic {
         val t = second?.splitToSecondsAndNanos() ?: 0uL
 
         val dateTime = LocalDateTime(
-            year ?: 0,
-            month?.toInt() ?: 1,
+            year ?: 1972,
+            month?.toInt() ?: 12,
             day?.toInt() ?: 1,
             hour?.toInt() ?: 0,
             minute?.toInt() ?: 0,
@@ -101,6 +101,8 @@ interface IXsdDateTime: XsdAtomic {
 
         return dateTime.toInstant(timezone ?: TimeZone.UTC)
     }
+
+    fun toStandardDateTime(): XsdDateTime
 
     val timezone: TimeZone?
         get() = timezoneOffset?.let { UtcOffset(minutes = it).asTimeZone() }

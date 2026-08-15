@@ -45,10 +45,15 @@ interface XsdGYearMonth : IXsdDateTime, XsdPrimitive {
 
     override fun compareTo(other: XsdPrimitive, collation: Collation): Int = when (other) {
         is XsdGMonth -> compareTo(other)
+        is IXsdDateTime -> toStandardDateTime().compareTo(other.toStandardDateTime())
         else -> throw IllegalArgumentException("Cannot compare $this with $other")
     }
 
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGYearMonth
+
+    override fun toStandardDateTime(): XsdDateTime {
+        return XsdDateTime(year, month, 1u, 0u, 0u, XsdInt.ZERO, timezoneOffset)
+    }
 
     companion object : SimpleTypeSerializer<XsdGYearMonth>("xsd.gYearMonth") {
         operator fun invoke(str: CharSequence): XsdGYearMonth = XsdGYearMonthImpl(str)
