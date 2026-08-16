@@ -62,16 +62,22 @@ interface XFunction<out R : XdmValue<*>> {
 
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun invokePromoting(vararg args: XdmValue<*>): R = invokePromoting(args.toList())
+    fun invokePromoting(functionType: XdmFunctionType, vararg args: XdmValue<*>): R = invokePromoting(functionType, args.toList())
+
+    @XPathInternal
+    context(ctx: ExprEvalContext)
+    fun invokePromoting(vararg args: XdmValue<*>): R {
+        val functionType = functionTypes.singleOrNull { it.isVarArg || it.argTypes.size == args.size }
+            ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name $functionName has no matching signature")
+        return invokePromoting(functionType, args.toList())
+    }
 
     /**
      * Invoke the function by applying promotion of arguments.
      */
     @XPathInternal
     context(ctx: ExprEvalContext)
-    fun invokePromoting(args: List<XdmValue<*>>): R {
-        val functionType = functionTypes.singleOrNull { it.isVarArg || it.argTypes.size == args.size }
-            ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name $functionName has no matching signature")
+    fun invokePromoting(functionType: XdmFunctionType, args: List<XdmValue<*>>): R {
 
         val evalArgs = promoteArguments(args, functionType, functionName)
         return invoke(evalArgs)

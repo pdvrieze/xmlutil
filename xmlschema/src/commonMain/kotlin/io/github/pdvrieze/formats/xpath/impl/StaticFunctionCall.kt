@@ -67,9 +67,13 @@ internal class StaticFunctionCall(val name: QName, args: List<ExprSingleOrPlaceh
             return XdmPartialApplication(XdmBuiltinFunction(function, funType), partialArgs)
         }
 
+        val functionType = function.functionTypes.singleOrNull { it.isVarArg || it.argTypes.size == args.size }
+            ?: throw EvaluationException(ErrorCodes.XPST0017_ARGS_MISMATCH, "Function with name ${function.functionName} has no matching signature")
+
+
         return withExprContext {
             val initialArgs = args.map { (it as ExprSingle).eval() }
-            function.invokePromoting(initialArgs)
+            function.invokePromoting(functionType, initialArgs)
         }
     }
 
