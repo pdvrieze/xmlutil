@@ -133,7 +133,8 @@ enum class Fn(
     adjustTimeToTimezone(DateTimeFunctions.fnAdjustTimeToTimezone),
 
     formatDateTime(DateTimeFunctions.fnFormatDateTime),
-
+    formatDate(DateTimeFunctions.fnFormatDate),
+    formatTime(DateTimeFunctions.fnFormatTime),
     //endregion
 
     //region Functions related to QNames (10)

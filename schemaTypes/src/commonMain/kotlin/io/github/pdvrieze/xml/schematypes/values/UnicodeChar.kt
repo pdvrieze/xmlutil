@@ -88,6 +88,7 @@ value class UnicodeChar(val codePoint: Int) : CharSequence, Comparable<UnicodeCh
                 in 0xA9D0 .. 0xA9D9 -> 0xA9D0 // Javanese Digits
                 in 0xAA50 .. 0xAA59 -> 0xAA50 // Cham Digits
                 in 0xABF0 .. 0xABF9 -> 0xABF0 // Meetei Mayek Digits
+                in 0x104a0..0x104a9 -> 0x104a0 // Osmanya Digits
                 in 0x11066 .. 0x1106F -> 0x11066 // Brahmi Digits
                 in 0x11136 .. 0x1113F -> 0x11136 // Chakma Digits
                 in 0x111D0 .. 0x111D9 -> 0x111D0 // Sharada Digits

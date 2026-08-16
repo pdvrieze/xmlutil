@@ -261,7 +261,7 @@ object DateTimeFunctions : AbstractFunctionObject() {
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
     )) Fn@{ args ->
         // use IXsdDateTime to allow using this for the date/time versions.
-        val dateTime = args.atomicArgOrEmpty<IXsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
+        val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage?
         val calendar: String?
@@ -287,5 +287,75 @@ object DateTimeFunctions : AbstractFunctionObject() {
             throw EvaluationException(ErrorCodes.FOFD1350, "Picture and datetime mismatch", e)
         }
     }
+
+    val fnFormatDate = BuiltinFunctionImpl.Fn("format-date", listOf(
+        functionType(STRING.opt, DateType.Instance.opt, STRING),
+        functionType(STRING.opt, DateType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
+    )) Fn@{ args ->
+        // use IXsdDateTime to allow using this for the date/time versions.
+        val dateTime = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
+        val picture = args.atomicArgN<XsdString>(1).xmlString
+        val language: XsdLanguage?
+        val calendar: String?
+        val place: String?
+        if (args.size==5) {
+            language = args.atomicArgOrEmpty<XsdString>(2)?.let { XsdLanguage(it.xmlString) }
+            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
+            place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
+        } else {
+            language = null
+            calendar = null
+            place = null
+        }
+        val formatter = try {
+            DateTimeFormatter(picture, language ?: contextOf<ExprEvalContext>().defaultLanguage, calendar, place)
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FOFD1340, "Invalid picture for format-date: '$picture'", e)
+        }
+
+        if (formatter.hasTimeParts) throw EvaluationException(ErrorCodes.FOFD1350, "Picture for format-date must not contain time parts")
+
+        try {
+            atomic(formatter.format(dateTime))
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FOFD1350, "Picture and datetime mismatch", e)
+        }
+    }
+
+    val fnFormatTime = BuiltinFunctionImpl.Fn("format-time", listOf(
+        functionType(STRING.opt, TimeType.Instance.opt, STRING),
+        functionType(STRING.opt, TimeType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
+    )) Fn@{ args ->
+        // use IXsdDateTime to allow using this for the date/time versions.
+        val dateTime = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
+        val picture = args.atomicArgN<XsdString>(1).xmlString
+        val language: XsdLanguage?
+        val calendar: String?
+        val place: String?
+        if (args.size==5) {
+            language = args.atomicArgOrEmpty<XsdString>(2)?.let { XsdLanguage(it.xmlString) }
+            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
+            place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
+        } else {
+            language = null
+            calendar = null
+            place = null
+        }
+        val formatter = try {
+            DateTimeFormatter(picture, language ?: contextOf<ExprEvalContext>().defaultLanguage, calendar, place)
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FOFD1340, "Invalid picture for format-date: '$picture'", e)
+        }
+
+        if (formatter.hasDateParts) throw EvaluationException(ErrorCodes.FOFD1350, "Picture for format-date must not contain time parts")
+
+        try {
+            atomic(formatter.format(dateTime))
+        } catch (e: IllegalArgumentException) {
+            throw EvaluationException(ErrorCodes.FOFD1350, "Picture and datetime mismatch", e)
+        }
+    }
+
+
     //endregion
 }
