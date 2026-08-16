@@ -49,7 +49,7 @@ value class UnicodeChar(val codePoint: Int) : CharSequence, Comparable<UnicodeCh
     val zeroDigitOrNull: UnicodeChar? get() {
         val rawCp = when (codePoint) {
             in 0x30..0x39 -> 0x30
-            in 0x0 .. 0x1baf -> return null
+            in 0x0 .. 0x65f -> return null
             else if (codePoint < 0x1BB0) -> when (codePoint) {
                 in 0x0660 .. 0x0669 -> 0x0660 // Arabic-Indic Digits (٠١٢٣٤٥٦٧٨٩)
                 in 0x06F0 .. 0x06F9 -> 0x06F0 // Extended Arabic-Indic Digits (۰۱۲۳۴۵۶۷۸۹)
