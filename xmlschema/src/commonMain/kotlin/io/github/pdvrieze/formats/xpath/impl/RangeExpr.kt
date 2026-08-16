@@ -23,6 +23,9 @@ package io.github.pdvrieze.formats.xpath.impl
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomic
 import io.github.pdvrieze.formats.xpath.eval.data.XdmAtomicOrSequence
 import io.github.pdvrieze.formats.xpath.eval.data.XdmSequence
+import io.github.pdvrieze.formats.xpath.eval.typeTest.XdmSchemaTypeTest
+import io.github.pdvrieze.formats.xpath.functions.XFunction
+import io.github.pdvrieze.xml.schematypes.types.IntegerType
 import io.github.pdvrieze.xml.schematypes.values.XsdInteger
 
 @OptIn(XPathInternal::class)
@@ -31,16 +34,20 @@ class RangeExpr @NeedsXPath2 constructor(val from: Expr, val to: Expr) : Abstrac
     @XPathInternal
     context(ctx: EvalContext)
     override fun eval(): XdmAtomicOrSequence<XdmAtomic<XsdInteger>> {
-        val fromEval = from.eval()
-        val endEval = to.eval()
-        if (fromEval.isEmpty() || endEval.isEmpty()) return XdmSequence.EMPTY
+        ctx.withExprContext(this) {
+            val fromEval = XFunction.promoteArgumentSequence(from.eval(), XdmSchemaTypeTest(IntegerType.Instance, SequenceType.OccurrenceType.OPTIONAL))
+            val endEval = XFunction.promoteArgumentSequence(to.eval(), XdmSchemaTypeTest(IntegerType.Instance, SequenceType.OccurrenceType.OPTIONAL))
 
-        val start = (fromEval as XdmAtomic<XsdInteger>).value
-        val end = (endEval as XdmAtomic<XsdInteger>).value
-        if (start > end) return XdmSequence.EMPTY
-        if (start == end) return fromEval
+            if (fromEval.isEmpty() || endEval.isEmpty()) return XdmSequence.EMPTY
 
-        return XdmSequence.RangeSequence(start..end)
+            val start = (fromEval as XdmAtomic<XsdInteger>).value
+            val end = (endEval as XdmAtomic<XsdInteger>).value
+            if (start > end) return XdmSequence.EMPTY
+            if (start == end) return fromEval
+
+            return XdmSequence.RangeSequence(start..end)
+
+        }
     }
 
     context(c: OutputContext)

@@ -85,8 +85,9 @@ interface XFunction<out R : XdmValue<*>> {
 
     companion object {
 
+        @XPathInternal
         context(ctx: ExprEvalContext)
-        private fun promoteArgumentSequence(arg: XdmValue<*>, type: XdmSequenceTypeTest, funName: QName): XdmValue<*> {
+        fun promoteArgumentSequence(arg: XdmValue<*>, type: XdmSequenceTypeTest, funName: QName = QName("<unknown>")): XdmValue<*> {
             when (type) {
                 is XdmSequenceTypeTest.NONE -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "None cannot be instantiated")
                 is XdmSequenceTypeTest.EMPTY -> when(arg.size) {
@@ -101,8 +102,9 @@ interface XFunction<out R : XdmValue<*>> {
             return atomizedArg.map { promoteArgument(it, type, funName) }
         }
 
+        @XPathInternal
         context(ctx: ExprEvalContext)
-        private fun promoteArgument(arg: XdmSingleValue<*>, type: XdmTypeTest, funName: QName): XdmSingleValue<*> {
+        fun promoteArgument(arg: XdmSingleValue<*>, type: XdmTypeTest, funName: QName = QName("unknown")): XdmSingleValue<*> {
             when {
                 type.isInstance(arg) -> return arg
                 arg !is XdmAtomic<*> -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "In $funName expected type $type, but got ${arg.staticType}")
