@@ -407,12 +407,14 @@ sealed class Operator(
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalFloat(left: Float, right: Float): Float {
+            if (right == 0f) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left/right
         }
 
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalDouble(left: Double, right: Double): Double {
+            if (right == 0.0) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left/right
         }
 
@@ -422,6 +424,7 @@ sealed class Operator(
             left: XsdDecimal,
             right: XsdDecimal
         ): XsdDecimal {
+            if (right == XsdInteger.ZERO) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left.toBigDecimal() / right.toBigDecimal()
         }
     }
@@ -433,6 +436,8 @@ sealed class Operator(
         override fun eval(left: XdmValue<*>, right: XdmValue<*>): XdmAtomic<XsdInteger> {
             val l = (left.single() as? XdmAtomic<*>)?.value as? XsdNumeric<*>
             val r = (right.single() as? XdmAtomic<*>)?.value as? XsdNumeric<*>
+
+            if (r == XsdInteger.ZERO) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             @Suppress("UNCHECKED_CAST")
             if (l == null || r == null) return super.eval(left, right) as XdmAtomic<XsdInteger>
 
@@ -454,6 +459,7 @@ sealed class Operator(
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger {
+            if (right == XsdInteger.ZERO) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left/right
         }
     }
@@ -463,24 +469,28 @@ sealed class Operator(
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalFloat(left: Float, right: Float): Float {
+            if (right == 0f) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left.mod(right)
         }
 
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalDouble(left: Double, right: Double): Double {
+            if (right == 0.0) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left.mod(right)
         }
 
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalInteger(left: XsdInteger, right: XsdInteger): XsdInteger {
+            if (right == XsdInteger.ZERO) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left.mod(right)
         }
 
         @XPathInternal
         context(ctx: ExprEvalContext)
         override fun evalDecimal(left: XsdDecimal, right: XsdDecimal): XsdDecimal {
+            if (right == XsdInteger.ZERO) throw EvaluationException(ErrorCodes.FOAR0001_DIV_BY_ZERO)
             return left.mod(right)
         }
     }
