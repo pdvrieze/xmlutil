@@ -152,7 +152,7 @@ object MapFunctions : AbstractFunctionObject() {
         ANYMAP.single, ANYMAP.single, ATOMIC.single
     ) Fn@{ args ->
         val map = args.xdmArg<XdmMap>(0)
-        val keys = args.xdmArg< XdmSequence<XdmAtomic<*>>>(1)
+        val keys = args.xdmArg<XdmValue<XdmAtomic<*>>>(1)
 
         return@Fn map.remove(keys)
     }

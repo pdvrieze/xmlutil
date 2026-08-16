@@ -87,7 +87,7 @@ class XdmMap private constructor(
     }
 
     context(ctx: ExprEvalContext)
-    fun remove(keys: XdmSequence<XdmAtomic<*>>): XdmMap {
+    fun remove(keys: XdmValue<XdmAtomic<*>>): XdmMap {
         val normalizedKeys = keys.mapTo(HashSet()) { normalizeKey(it.value) }
         val changed = content.filterTo(HashMap()) { (k, _) -> k !in normalizedKeys }
         when {
@@ -272,9 +272,9 @@ class XdmMap private constructor(
 
             is XsdDayTimeDuration -> XsdDuration(key.months, key.millis)
 
-            is XsdDateTime -> key.ensureTimezone(ctx.defaultTimeZone)
+            is XsdDateTime -> key
 
-            is IXsdDateTime -> key.toStandardDateTime().ensureTimezone(ctx.defaultTimeZone)
+            is IXsdDateTime -> key.toStandardDateTime()
 
             is XsdNotation -> XsdNotation(key.getNamespaceURI(), key.getLocalPart())
 
