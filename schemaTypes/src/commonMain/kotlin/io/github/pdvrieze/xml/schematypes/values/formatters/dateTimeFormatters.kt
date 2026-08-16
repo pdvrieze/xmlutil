@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.values.*
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
 import kotlin.math.absoluteValue
@@ -32,16 +33,19 @@ import kotlin.math.absoluteValue
 class DateTimeFormatter private constructor(
     private val parts: List<DateTimePartFormatter>,
     private val language: XsdLanguage = XsdLanguage("en"),
-    private val calendar: String? = null,
+    private val calendar: QName? = null,
     private val place: String? = null
 ) {
 
-    constructor(picture: String, language: XsdLanguage, calendar: String? = null, place: String? = null) : this(parsePicture(
-        picture,
-        language,
-        calendar,
-        place
-    ), language, calendar, place)
+    constructor(picture: String, language: XsdLanguage, calendar: QName? = null, place: String? = null) :
+            this(
+                parsePicture(
+                    picture,
+                    language,
+                    calendar,
+                    place
+                ), language, calendar, place
+            )
 
     val hasDateParts: Boolean get() {
         return parts.any { it.isDateFormatter }
@@ -56,9 +60,11 @@ class DateTimeFormatter private constructor(
             if (!language.xmlString.let { it.isEmpty() || it.startsWith("en", ignoreCase = true) }) {
                 append("Language: en; ")
             }
-            when (calendar) {
-                null, "ISO", "AD" -> {}
-                else -> append("Calendar: AD; ")
+            when {
+                calendar.let { it == null ||
+                        (it.getLocalPart() in setOf(null, "ISO", "AD") && it.getNamespaceURI().isEmpty())} -> {}
+
+                else -> append("Calendar: $calendar; ")
             }
 
             for (part in parts) {
@@ -68,7 +74,7 @@ class DateTimeFormatter private constructor(
     }
 
     companion object {
-        private fun parsePicture(picture: String, language: XsdLanguage, calendar: String?, place: String?): List<DateTimePartFormatter> {
+        private fun parsePicture(picture: String, language: XsdLanguage, calendar: QName?, place: String?): List<DateTimePartFormatter> {
             val parts = mutableListOf<DateTimePartFormatter>()
             var i = 0
             while (i < picture.length) {
@@ -117,7 +123,7 @@ class DateTimeFormatter private constructor(
             }
         }
 
-        private fun parseMarker(marker: String, lang: XsdLanguage, calendar: String?, place: String?): DateTimePartFormatter {
+        private fun parseMarker(marker: String, lang: XsdLanguage, calendar: QName?, place: String?): DateTimePartFormatter {
             val widthModIdx = marker.lastIndexOf(',')
             val widthModifier = if (widthModIdx >= 0) WidthModifier(marker.substring(widthModIdx + 1)) else WidthModifier()
             val markerContent = when {
@@ -365,6 +371,10 @@ private class DayOfWeekFormatter(format: IntegerFormatter, widthModifier: WidthM
     override fun getValue(dateTime: IXsdDateTime): Long? {
         return toLocalDate(dateTime)?.run { dayOfWeek.ordinal.toLong() + 1 }
     }
+
+    override fun toString(): String {
+        return "F$intFormat$widthModifier"
+    }
 }
 
 private class DayNameInWeekAsTextFormatter(val case: Case, val lang: XsdLanguage, widthModifier: WidthModifier) : DateTimePartFormatter(
@@ -382,10 +392,10 @@ private class WeekInYearFormatter(format: IntegerFormatter, widthModifier: Width
     format,
     widthModifier
 ) {
-    constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage, calendar: String?): this(
+    constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage, calendar: QName?): this(
         IntegerFormatter(markerContent, lang),
         widthModifier,
-        calendar == "ISO"
+        calendar.isEquivalent(QName("", "ISO"))
     )
 
     override val isDateFormatter: Boolean get() = true

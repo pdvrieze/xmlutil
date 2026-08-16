@@ -37,6 +37,7 @@ import io.github.pdvrieze.xml.schematypes.values.formatters.DateTimeFormatter
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.asTimeZone
+import nl.adaptivity.xmlutil.QName
 import kotlin.math.roundToInt
 
 @XPathInternal
@@ -256,6 +257,26 @@ object DateTimeFunctions : AbstractFunctionObject() {
     //endregion
 
     //region Date time formatting 9.8
+    context(ctx: ExprEvalContext)
+    private fun parseCalendarName(name: String): QName {
+        if (name.startsWith("Q{")) {
+            val closePos = name.indexOf('}', 2)
+            val ns = name.substring(2, closePos)
+            val cname = name.substring(closePos + 1)
+
+            val cPos = cname.indexOf(':', 1)
+            if (cPos < 0) return QName(ns, cname)
+            return QName(ns, cname.substring(cPos + 1), cname.substring(0, cPos))
+        }
+        val cPos = name.indexOf(':', 1)
+        if (cPos < 0) return QName(name)
+
+        val prefix = name.substring(0, cPos)
+        val ns = ctx.namepaceContext.getNamespaceURI(prefix) ?: throw EvaluationException(ErrorCodes.FOFD1340, "Unknown namespace prefix: $prefix")
+
+        return QName(ns, name.substring(cPos+1), prefix)
+    }
+
     val fnFormatDateTime = BuiltinFunctionImpl.Fn("format-dateTime", listOf(
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING),
         functionType(STRING.opt, DateTimeType.Instance.opt, STRING, STRING.opt, STRING.opt, STRING.opt),
@@ -264,11 +285,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
         val dateTime = args.atomicArgOrEmpty<XsdDateTime>(0) ?: return@Fn XdmSequence.EMPTY
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage?
-        val calendar: String?
+        val calendar: QName?
         val place: String?
-        if (args.size==5) {
+        if (args.size == 5) {
             language = args.atomicArgOrEmpty<XsdString>(2)?.let { XsdLanguage(it.xmlString) }
-            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
+            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString?.let { parseCalendarName(it) }
             place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
         } else {
             language = null
@@ -296,11 +317,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
         val dateTime = args.atomicArgOrEmpty<XsdDate>(0) ?: return@Fn XdmSequence.EMPTY
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage?
-        val calendar: String?
+        val calendar: QName?
         val place: String?
-        if (args.size==5) {
+        if (args.size == 5) {
             language = args.atomicArgOrEmpty<XsdString>(2)?.let { XsdLanguage(it.xmlString) }
-            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
+            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString?.let { parseCalendarName(it) }
             place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
         } else {
             language = null
@@ -330,11 +351,11 @@ object DateTimeFunctions : AbstractFunctionObject() {
         val dateTime = args.atomicArgOrEmpty<XsdTime>(0) ?: return@Fn XdmSequence.EMPTY
         val picture = args.atomicArgN<XsdString>(1).xmlString
         val language: XsdLanguage?
-        val calendar: String?
+        val calendar: QName?
         val place: String?
-        if (args.size==5) {
+        if (args.size == 5) {
             language = args.atomicArgOrEmpty<XsdString>(2)?.let { XsdLanguage(it.xmlString) }
-            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString
+            calendar = args.atomicArgOrEmpty<XsdString>(3)?.xmlString?.let { parseCalendarName(it) }
             place = args.atomicArgOrEmpty<XsdString>(4)?.xmlString
         } else {
             language = null

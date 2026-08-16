@@ -24,6 +24,7 @@ import io.github.pdvrieze.xml.schematypes.values.formatters.DateTimeFormatter
 import io.github.pdvrieze.xml.schematypes.values.instances.BigDecimal
 import kotlinx.datetime.*
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
+import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.XmlUtilInternal
 import kotlin.math.absoluteValue
 import kotlin.time.Instant
@@ -114,7 +115,7 @@ interface IXsdDateTime: XsdAtomic {
     fun ensureTimezone(fallbackTimezone: TimeZone): IXsdDateTime
 
 
-    fun format(picture: String, language: XsdLanguage, calendar: String? = null, place: String? = null): String {
+    fun format(picture: String, language: XsdLanguage, calendar: QName? = null, place: String? = null): String {
         val formatter = DateTimeFormatter(picture, language, calendar, place)
         return formatter.format(this)
     }
