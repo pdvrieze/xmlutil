@@ -150,7 +150,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                         // early return to handle format-integer-38 if following groups
                         val prev = result.lastOrNull()// ?: return SimpleFormatter to modifier
                         //
-                        require(prev !is GroupingSeparator) { "Grouping separators must not follow each other" }
+                        require(prev !is GroupingSeparator) { "Grouping separators must not follow each other ($prev, $cp)" }
                         result.add(GroupingSeparator(cp))
                         i = primary.nextCodePointPos(i)
                     }

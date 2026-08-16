@@ -43,6 +43,14 @@ class DateTimeFormatter private constructor(
         place
     ), language, calendar, place)
 
+    val hasDateParts: Boolean get() {
+        return parts.any { it.isDateFormatter }
+    }
+
+    val hasTimeParts: Boolean get() {
+        return parts.any { it.isTimeFormatter }
+    }
+
     fun format(dateTime: IXsdDateTime): String {
         return buildString {
             if (!language.xmlString.let { it.isEmpty() || it.startsWith("en", ignoreCase = true) }) {
@@ -197,6 +205,9 @@ class DateTimeFormatter private constructor(
 
 private abstract class DateTimePartFormatter protected constructor(val widthModifier: WidthModifier) {
 
+    open val isTimeFormatter: Boolean get() = false
+    open val isDateFormatter: Boolean get() = false
+
     abstract fun formatTo(dest: Appendable, dateTime: IXsdDateTime)/* {
         TODO("Not yet implemented")
     }*/
@@ -268,6 +279,8 @@ private class YearFormatter(format: IntegerFormatter, widthModifier: WidthModifi
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) :
             this(IntegerFormatter(markerContent, lang), widthModifier)
 
+    override val isDateFormatter: Boolean get() = true
+
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         formatWithClipping(dest, dateTime, 2)
     }
@@ -285,11 +298,16 @@ private class MonthInYearFormatter(format: IntegerFormatter, widthModifier: Widt
         widthModifier
     )
 
+    override val isDateFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.month?.toLong()
 }
 
 private class MonthNameInYearFormatter(val case: Case, val lang: XsdLanguage, widthModifier: WidthModifier) :
     DateTimePartFormatter(widthModifier) {
+
+    override val isDateFormatter: Boolean get() = true
+
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val month = requireNotNull(dateTime.month).toInt() - 1
         when (case) {
@@ -314,6 +332,8 @@ private class DayInMonthFormatter(format: IntegerFormatter, widthModifier: Width
         widthModifier
     )
 
+    override val isDateFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.day?.toLong()
 }
 
@@ -323,6 +343,8 @@ private class DayInYearFormatter(format: IntegerFormatter, widthModifier: WidthM
         IntegerFormatter(markerContent, lang),
         widthModifier
     )
+
+    override val isDateFormatter: Boolean get() = true
 
     override fun getValue(dateTime: IXsdDateTime): Long? {
         return toLocalDate(dateTime)?.run { dayOfYear.toLong() + 1L }
@@ -338,6 +360,8 @@ private class DayOfWeekFormatter(format: IntegerFormatter, widthModifier: WidthM
         widthModifier
     )
 
+    override val isDateFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? {
         return toLocalDate(dateTime)?.run { dayOfWeek.ordinal.toLong() + 1 }
     }
@@ -346,6 +370,8 @@ private class DayOfWeekFormatter(format: IntegerFormatter, widthModifier: WidthM
 private class DayNameInWeekAsTextFormatter(val case: Case, val lang: XsdLanguage, widthModifier: WidthModifier) : DateTimePartFormatter(
     widthModifier
 ) {
+    override val isDateFormatter: Boolean get() = true
+
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val localDateTime = toLocalDate(dateTime) ?: return
         dest.append(case.adjust(localDateTime.dayOfWeek.name))
@@ -362,6 +388,8 @@ private class WeekInYearFormatter(format: IntegerFormatter, widthModifier: Width
         calendar == "ISO"
     )
 
+    override val isDateFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? {
         return dateTime.weekOfYear()?.toLong()
     }
@@ -376,6 +404,8 @@ private class WeekInMonthFormatter(format: IntegerFormatter, widthModifier: Widt
         widthModifier
     )
 
+    override val isDateFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? {
         return dateTime.weekOfMonth()?.toLong()
     }
@@ -387,6 +417,8 @@ private class Hour24InDayFormatter(format: IntegerFormatter, widthModifier: Widt
         IntegerFormatter(markerContent, lang),
         widthModifier
     )
+
+    override val isTimeFormatter: Boolean get() = true
 
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.hour?.let { (((it +23u) % 24u) + 1u).toLong() }
 }
@@ -400,10 +432,14 @@ private class Hour12InDayFormatter(format: IntegerFormatter, widthModifier: Widt
         widthModifier
     )
 
+    override val isTimeFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.hour?.let { (((it+11u) % 12u)+ 1u).toLong() }
 }
 
 private class AmPmMarkerFormatter(val case: Case, val lang: XsdLanguage) : DateTimePartFormatter(WidthModifier()) {
+
+    override val isTimeFormatter: Boolean get() = true
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val hour = requireNotNull(dateTime.hour) { "Format requires hour, but not provided" }
@@ -424,6 +460,8 @@ private class MinuteInHourFormatter(format: IntegerFormatter, widthModifier: Wid
         widthModifier
     )
 
+    override val isTimeFormatter: Boolean get() = true
+
     override fun getValue(dateTime: IXsdDateTime): Long? = dateTime.minute?.toLong()
 }
 
@@ -440,6 +478,8 @@ private class SecondInMinuteFormatter(format: IntegerFormatter, widthModifier: W
 private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier: WidthModifier) : NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage):
             this(adjustMarker(markerContent.reversed(), widthModifier, lang), widthModifier)
+
+    override val isTimeFormatter: Boolean get() = true
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val seconds = requireNotNull(dateTime.second) { "Format requires second, but not provided" }
