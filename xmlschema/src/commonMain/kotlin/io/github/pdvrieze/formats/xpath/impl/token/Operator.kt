@@ -29,6 +29,7 @@ import io.github.pdvrieze.formats.xpath.eval.data.*
 import io.github.pdvrieze.formats.xpath.functions.impl.NumericFunctions
 import io.github.pdvrieze.formats.xpath.functions.impl.StringFunctions
 import io.github.pdvrieze.formats.xpath.impl.*
+import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.types.*
 import io.github.pdvrieze.xml.schematypes.values.*
 
@@ -117,9 +118,9 @@ sealed class Operator(
         }
 
         context(ctx: ExprEvalContext)
-        override fun cmp(left: String, right: String): Boolean {
-            // TODO consider collation
-            return left == right
+        override fun cmp(left: String, right: String, collation: Collation?): Boolean = when (collation) {
+            null -> left == right
+            else -> collation.compare(left, right) == 0
         }
 
         context(ctx: ExprEvalContext)
@@ -139,8 +140,13 @@ sealed class Operator(
         override fun numericCompare(cmp: Int): Boolean = cmp != 0
 
         context(ctx: ExprEvalContext)
-        override fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic, errorOnMismatch: ErrorCodes?): Boolean {
-            return !VAL_EQ.cmpAtomic(leftVal, rightVal, errorOnMismatch)
+        override fun cmpAtomic(
+            leftVal: XsdAtomic,
+            rightVal: XsdAtomic,
+            collation: Collation?,
+            errorOnMismatch: ErrorCodes?
+        ): Boolean {
+            return !VAL_EQ.cmpAtomic(leftVal, rightVal, collation, errorOnMismatch)
         }
     }
 
@@ -543,61 +549,6 @@ sealed class Operator(
     fun eval(params: List<XdmValue<*>>): XdmValue<*> =
         params.reduce { acc, param -> eval(acc, param) }
 
-    @XPathInternal
-    context(ctx: ExprEvalContext)
-    private fun evalComparison(
-        left: XdmValue<*>,
-        right: XdmValue<*>,
-        operator : ComparisonOperator,
-    ): XdmAtomicOrEmpty<XdmBoolean> {
-        val leftVal = when (val a = left.atomize()) {
-            is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
-            is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
-            is XdmSequence<*> -> throw EvaluationException(
-                ErrorCodes.XPTY0004_TYPE_ERROR,
-                "Sequence as value comparison operand"
-            )
-        }
-        val rightVal = when (val a = right.atomize()) {
-            is XdmSequence.EMPTY -> return XdmSequence.EMPTY
-            is XdmAtomic<*> if (a.staticType.schemaType is UntypedAtomicType) -> XsdString(a.value.xmlString)
-            is XdmAtomic<*> -> a.value.let { if (it is XsdAnyURI) XsdString(it.xmlString) else it }
-            is XdmSequence<*> -> throw EvaluationException(
-                ErrorCodes.XPTY0004_TYPE_ERROR,
-                "Sequence as value comparison operand"
-            )
-        }
-
-        val result: Boolean = when (leftVal) {
-            is XsdFloat if rightVal is XsdFloat -> operator.cmp(leftVal.value, rightVal.value)
-            is XsdDouble if rightVal is XsdDouble -> operator.cmp(leftVal.value, rightVal.value,)
-            is XsdDecimal if rightVal is XsdDecimal -> operator.cmp(leftVal, rightVal)
-            is XsdNumeric<*> if rightVal is XsdNumeric<*> -> operator.cmp(leftVal.toDouble(), rightVal.toDouble(),)
-            is XsdBoolean if rightVal is XsdBoolean -> operator.cmp(leftVal.value, rightVal.value)
-
-            is XsdString if rightVal is XsdString -> operator.cmp(leftVal.xmlString, rightVal.xmlString)
-            is XsdDateTime if rightVal is XsdDateTime -> operator.cmp(leftVal, rightVal)
-            is XsdDate if rightVal is XsdDate -> operator.cmp(leftVal, rightVal)
-            is XsdDuration if rightVal is XsdDuration -> operator.cmp(leftVal, rightVal)
-            is XsdGDay if rightVal is XsdGDay -> operator.cmp(leftVal, rightVal)
-
-            is XsdGMonthDay if rightVal is XsdGMonthDay -> operator.cmp(leftVal, rightVal)
-            is XsdGMonth if rightVal is XsdGMonth -> operator.cmp(leftVal, rightVal)
-            is XsdGYearMonth if rightVal is XsdGYearMonth -> operator.cmp(leftVal, rightVal)
-            is XsdGYear if rightVal is XsdGYear -> operator.cmp(leftVal, rightVal)
-            is XsdHexBinary if rightVal is XsdHexBinary -> operator.cmp(leftVal, rightVal)
-
-            is XsdNotation if rightVal is XsdNotation -> operator.cmp(leftVal, rightVal)
-            is XsdQName if rightVal is XsdQName -> operator.cmp(leftVal, rightVal)
-            is XsdTime if rightVal is XsdTime -> operator.cmp(leftVal, rightVal)
-
-            else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Type mismatch")
-        }
-        return XdmAtomic((result))
-    }
-
-
 }
 
 abstract class SequenceComparisonOperator(
@@ -731,7 +682,12 @@ abstract class ComparisonOperator(
     }
 
     context(ctx: ExprEvalContext)
-    internal open fun cmpAtomic(leftVal: XsdAtomic, rightVal: XsdAtomic, errorOnMismatch: ErrorCodes? = ErrorCodes.XPTY0004_TYPE_ERROR): Boolean {
+    internal open fun cmpAtomic(
+        leftVal: XsdAtomic,
+        rightVal: XsdAtomic,
+        collation: Collation? = null,
+        errorOnMismatch: ErrorCodes? = ErrorCodes.XPTY0004_TYPE_ERROR
+    ): Boolean {
         return when (leftVal) {
             is XsdDouble if (rightVal is XsdNumeric<*>) -> cmp(leftVal.value, rightVal.toDouble())
             is XsdNumeric<*> if (rightVal is XsdDouble) -> cmp(leftVal.toDouble(), rightVal.value)
@@ -745,8 +701,17 @@ abstract class ComparisonOperator(
 
             is XsdBoolean if rightVal is XsdBoolean -> cmp(leftVal.value, rightVal.value)
 
-            is XsdString if (rightVal is XsdString || rightVal is XsdAnyURI) -> cmp(leftVal.xmlString, rightVal.xmlString)
-            is XsdAnyURI if (rightVal is XsdString || rightVal is XsdAnyURI) -> cmp(leftVal.xmlString, rightVal.xmlString)
+            is XsdString if (rightVal is XsdString || rightVal is XsdAnyURI) -> cmp(
+                leftVal.xmlString,
+                rightVal.xmlString,
+                collation,
+            )
+
+            is XsdAnyURI if (rightVal is XsdString || rightVal is XsdAnyURI) -> cmp(
+                leftVal.xmlString,
+                rightVal.xmlString,
+                collation,
+            )
 
             is XsdDateTime if rightVal is XsdDateTime -> {
                 val tz = ctx.defaultTimeZone
@@ -838,7 +803,7 @@ abstract class ComparisonOperator(
     open fun cmp(left: Boolean, right: Boolean): Boolean = numericCompare(left.compareTo(right))
 
     context(ctx: ExprEvalContext)
-    open fun cmp(left: String, right: String): Boolean = numericCompare(left.compareTo(right))
+    open fun cmp(left: String, right: String, collation: Collation?): Boolean = numericCompare(left.compareTo(right))
 
     context(ctx: ExprEvalContext)
     open fun <T : IXsdDateTime> cmpDateTime(left: T, right: T): Boolean = numericCompare(defaultCmp(left, right))
