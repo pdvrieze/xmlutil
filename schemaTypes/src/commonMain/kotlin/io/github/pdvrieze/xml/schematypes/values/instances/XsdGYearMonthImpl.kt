@@ -29,7 +29,6 @@ import io.github.pdvrieze.xml.schematypes.values.XsdGYearMonth
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import nl.adaptivity.xmlutil.XmlUtilInternal
-import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 import kotlin.jvm.JvmInline
 
 @XmlUtilInternal
@@ -81,9 +80,18 @@ value class XsdGYearMonthImpl(val monthYear: ULong) : XsdGYearMonth {
         val TZ_MARKER = 1uL shl 63
 
         operator fun invoke(str: CharSequence): XsdGYearMonth {
-            val (year, month) = xmlCollapseWhitespace(str).split('-').map { it.xsToLong() }
+            val yearSplitIdx = str.indexOf('-', 1) // skip leading digit/sign
+            requireRange(yearSplitIdx>=0) { "Invalid yearMonth format: $str" }
+            val monthEnd = str.indexOfAny(charArrayOf('-', '+', 'Z'), yearSplitIdx + 1)
+                .let { if (it < 0) str.length else it }
+
+            val year = str.substring(0, yearSplitIdx).xsToLong()
+            val month = str.substring(yearSplitIdx + 1, monthEnd).xsToLong()
+
+            val tz = XsdDateTimeImpl.timezoneFragValue(str.substring(monthEnd))
+
             requireRange(month in 1..12) { "Month values must be between 1 and 12, was $month"}
-            return XsdGYearMonthImpl(year, month.toUInt())
+            return XsdGYearMonthImpl(year, month.toUInt(), tz)
         }
     }
 

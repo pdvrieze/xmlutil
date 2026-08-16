@@ -23,11 +23,13 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.GDayType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGDayImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.xsToInt
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.XmlUtilInternal
+import nl.adaptivity.xmlutil.xmlCollapseWhitespace
 
 @XmlUtilInternal
 @Serializable(XsdGDay.Companion::class)
@@ -56,7 +58,18 @@ interface XsdGDay : IXsdDateTime, XsdPrimitive {
     }
 
     companion object: SimpleTypeSerializer<XsdGDay>("xsd.gDay") {
-        operator fun invoke(raw: CharSequence): XsdGDay = XsdGDayImpl(raw.xsToInt())
+        operator fun invoke(raw: CharSequence): XsdGDay {
+            val normalized = xmlCollapseWhitespace(raw)
+            require(normalized.startsWith("---"))
+            val tzIndex = normalized.indexOfAny(charArrayOf('-', '+', 'Z'), 4).let {
+                if (it < 0) normalized.length else it
+            }
+
+            val day = normalized.substring(3, tzIndex).xsToInt()
+            val tz = XsdDateTimeImpl.timezoneFragValue(normalized.substring(tzIndex))
+
+            return XsdGDayImpl( day, tz)
+        }
 
         override fun deserialize(raw: String, input: nl.adaptivity.xmlutil.XmlReader?): XsdGDay {
             return XsdGDayImpl(raw.xsToInt())

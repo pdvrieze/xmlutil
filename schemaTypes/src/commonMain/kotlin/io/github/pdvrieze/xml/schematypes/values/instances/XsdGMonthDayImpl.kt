@@ -84,21 +84,24 @@ value class XsdGMonthDayImpl(val monthdayVal: UInt) : XsdGMonthDay {
 
 
     companion object {
-        private val TZ_MARKER = 1u shl 32
+        private val TZ_MARKER = 1u shl 31
 
         operator fun invoke(str: CharSequence) : XsdGMonthDayImpl {
             val normalized = xmlCollapseWhitespace(str)
             require(normalized.startsWith("--"))
-            val tzIndex = normalized.indexOf('Z', 2)
+            val monthEnd = normalized.indexOf('-', 2)
+            val month = normalized.substring(2, monthEnd).xsToUInt()
+            val tzIndex = normalized.indexOfAny(charArrayOf('-', '+', 'Z'), monthEnd + 1).let {
+                if (it < 0) normalized.length else it
+            }
+
+            val day = normalized.substring(monthEnd + 1, tzIndex).xsToUInt()
+
             return when {
-                tzIndex < 0 -> {
-                    val (month, day) = normalized.substring(2).split('-').map { it.xsToUInt() }
-                    XsdGMonthDayImpl(month, day)
-                }
+                tzIndex >= normalized.length -> XsdGMonthDayImpl(month, day)
 
                 else -> {
                     val tz = XsdDateTimeImpl.timezoneFragValue(normalized.substring(tzIndex))
-                    val (month, day) = normalized.substring(2, tzIndex).split('-').map { it.xsToUInt() }
                     XsdGMonthDayImpl(month, day, tz)
                 }
             }

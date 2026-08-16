@@ -70,7 +70,7 @@ value class XsdGDayImpl(val dayVal: UInt) : XsdGDay {
     override fun toString(): String = xmlString
 
     companion object {
-        private val TZ_MARKER = 1u shl 32
+        private val TZ_MARKER = 1u shl 31
     }
 
 }

@@ -70,7 +70,7 @@ value class XsdGYearImpl(val yearVal: UInt) : XsdGYear {
 
         operator fun invoke(str: CharSequence): XsdGYearImpl {
             val s = xmlCollapseWhitespace(str)
-            val yearEnd = s.substring(1).indexOfFirst { it !in '0'..'9' }.let { if (it >= 0) it + 1 else s.length }
+            val yearEnd = s.indexOfAny(charArrayOf('Z', '+', '-'), 1).let { if (it >= 0) it else s.length }
             val year = s.substring(0, yearEnd).xsToInt()
             val tzOffset = XsdDateTimeImpl.timezoneFragValue(s.substring(yearEnd))
             return XsdGYearImpl(year, tzOffset)

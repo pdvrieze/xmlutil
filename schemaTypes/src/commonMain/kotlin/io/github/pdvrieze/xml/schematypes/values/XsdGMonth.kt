@@ -22,7 +22,9 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.Collation
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
+import io.github.pdvrieze.xml.schematypes.requireRange
 import io.github.pdvrieze.xml.schematypes.types.GMonthType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDateTimeImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdGMonthImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.xsToInt
 import kotlinx.datetime.TimeZone
@@ -53,12 +55,17 @@ interface XsdGMonth: IXsdDateTime, XsdPrimitive {
     override fun ensureTimezone(fallbackTimezone: TimeZone): XsdGMonth
 
     override fun toStandardDateTime(): XsdDateTime {
-        return XsdDateTime(1972, month, 0u,0u, 0u, XsdInt.ZERO, timezoneOffset)
+        return XsdDateTime(1972, month, 1u,0u, 0u, XsdInt.ZERO, timezoneOffset)
     }
 
     companion object: SimpleTypeSerializer<XsdGMonth>("xsd.gMonth") {
         operator fun invoke(str: CharSequence): XsdGMonth {
-            return XsdGMonthImpl(str.xsToInt(), null)
+            requireRange(str.startsWith("--")) { "Invalid gMonth format: $str" }
+            val month = str.subSequence(2, 4)
+
+            val tz = XsdDateTimeImpl.timezoneFragValue(str.substring(4))
+
+            return XsdGMonthImpl(month.xsToInt(), tz)
         }
 
         override fun deserialize(raw: String, input: XmlReader?): XsdGMonth {

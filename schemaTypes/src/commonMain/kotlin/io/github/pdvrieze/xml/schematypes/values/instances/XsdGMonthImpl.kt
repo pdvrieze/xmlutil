@@ -72,7 +72,7 @@ value class XsdGMonthImpl private constructor(val monthVal: UInt) : XsdGMonth {
     override fun toString(): String = xmlString
 
     companion object {
-        private val TZ_MARKER = 1u shl 32
+        private val TZ_MARKER = 1u shl 31
     }
 
 }
