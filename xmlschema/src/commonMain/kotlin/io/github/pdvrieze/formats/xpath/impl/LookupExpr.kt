@@ -50,19 +50,19 @@ internal class LookupExpr @NeedsXPath3_1 constructor(val context: Expr?, val key
                         is IntegerKey -> XdmAtomic(keyType.castFrom(XsdInt(key.value)))
 
                         AnyKey -> return XdmSequence.build<XdmSingleValue<*>> {
-                            for (v in c.content.values) {
+                            for (v in c.values) {
                                 addAll(v.atomize())
                             }
                         }
 
                         is ParenKey -> return XdmSequence.build<XdmSingleValue<*>> {
                             for (k in Accessors.fnData(key.params.map { it.eval() })) {
-                                val v: XdmValue<*>? = c.content[k]
+                                val v: XdmValue<*>? = c.get(k)
                                 if (v != null) addAll(v.atomize())
                             }
                         }
                     }
-                    c.content[k] ?: XdmSequence.EMPTY
+                    c.get(k) ?: XdmSequence.EMPTY
                 }
 
                 is XdmArray -> when (key) {

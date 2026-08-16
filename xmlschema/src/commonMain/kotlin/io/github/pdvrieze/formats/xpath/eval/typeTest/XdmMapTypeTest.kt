@@ -143,7 +143,7 @@ sealed class XdmMapTypeTest(keyType: XdmSchemaTypeTest, valueType: XdmSequenceTy
         context(ctx: ExprEvalContext)
         override fun isSingleInstance(value: XdmSingleValue<*>): Boolean {
             if (value !is XdmMap) return false
-            for ((k, v) in value.content) {
+            for ((k, v) in value.entries) {
                 if (!keyType.isInstance(k)) return false
                 if (!valueType.isInstance(v)) return false
             }

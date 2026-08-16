@@ -1044,7 +1044,7 @@ abstract class AbstractBigDecimal<T : AbstractBigDecimal<T>> internal constructo
         return DivRem(quotientX, remainder)
     }
 
-    override fun reduceDecimalDigits(): XsdDecimal {
+    override fun reduceDecimalDigits(): XsdBigDecimal {
         if (exponent >= 0 || sign == 0) return this
         var count = ints.size * 9
         outer@for (intIdx in ints.indices) {

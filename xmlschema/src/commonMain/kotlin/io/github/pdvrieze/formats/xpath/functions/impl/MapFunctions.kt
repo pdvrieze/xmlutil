@@ -23,6 +23,7 @@ package io.github.pdvrieze.formats.xpath.functions.impl
 import io.github.pdvrieze.formats.xpath.eval.ErrorCodes
 import io.github.pdvrieze.formats.xpath.eval.EvaluationException
 import io.github.pdvrieze.formats.xpath.eval.data.*
+import io.github.pdvrieze.formats.xpath.eval.data.XdmMap.DuplicateHandling
 import io.github.pdvrieze.formats.xpath.eval.type.XdmArrayType
 import io.github.pdvrieze.formats.xpath.eval.type.XdmMapType
 import io.github.pdvrieze.formats.xpath.functions.BuiltinFunctionImpl
@@ -43,7 +44,7 @@ object MapFunctions : AbstractFunctionObject() {
         @Suppress("UNCHECKED_CAST")
         val maps = args[0] as XdmValue<XdmMap>
 
-        val options = (args.getOrNull(1) as XdmMap?)?.content
+        val options = (args.getOrNull(1) as XdmMap?)
         val duplicates = options?.get(XdmAtomic(XsdString("duplicates")))
             ?.let {
                 DuplicateHandling.fromString(((it as XdmAtomic<*>).value as XsdString).xmlString)
@@ -52,34 +53,10 @@ object MapFunctions : AbstractFunctionObject() {
             ?: DuplicateHandling.USE_FIRST
 
         when (maps.size) {
-            0 -> return@Fn XdmMap(emptyMap(), XdmMapType(ATOMIC.single, ITEM.any))
-            1 -> return@Fn maps as XdmMap
+            0 -> XdmMap(emptyMap(), XdmMapType(ATOMIC.single, ITEM.any))
+            1 -> maps as XdmMap
+            else -> XdmMap.merge(maps, duplicates)
         }
-
-        val mapIt = maps.iterator()
-
-        val resultMap = mapIt.next().content.toMutableMap()
-
-        while (mapIt.hasNext()) {
-            for ((key, value) in mapIt.next().content.entries) {
-                when (duplicates) {
-                    DuplicateHandling.REJECT -> if(resultMap.put(key, value)!=null) throw EvaluationException(ErrorCodes.FOJS0003, "Duplicate key $key already exists")
-                    DuplicateHandling.USE_FIRST -> resultMap.put(key, value)?.let { resultMap.put(key, it) } // revert back to original
-                    DuplicateHandling.USE_LAST,
-                    DuplicateHandling.USE_ANY -> resultMap[key] = value
-                    DuplicateHandling.COMBINE -> resultMap.put(key, value)?.let {
-                        val combined = XdmSequence.build<XdmSingleValue<*>> {
-                            add(it)
-                            add(value)
-                        }
-                        resultMap.put(key, combined)
-                    }
-                }
-            }
-        }
-
-
-        XdmMap(resultMap, maps[0].staticType)
     }
 
     val fnSize = BuiltinFunctionImpl.Map(
@@ -96,7 +73,7 @@ object MapFunctions : AbstractFunctionObject() {
     ) Fn@{ args ->
         val map = args.xdmArg<XdmMap>(0)
         XdmSequence.build<XdmAtomic<*>> {
-            addAll(map.content.keys)
+            addAll(map.keys)
         }
     }
 
@@ -107,7 +84,7 @@ object MapFunctions : AbstractFunctionObject() {
         val map = args.xdmArg<XdmMap>(0)
         val key = args.xdmArg<XdmAtomic<*>>(1)
 
-        atomic(map.content.containsKey(key))
+        atomic(map.containsKey(key))
     }
 
     val fnGet = BuiltinFunctionImpl.Map(
@@ -117,13 +94,13 @@ object MapFunctions : AbstractFunctionObject() {
         val map = args.xdmArg<XdmMap>(0)
         val key = args.xdmArg<XdmAtomic<*>>(1)
 
-        map.content.get(key) ?: XdmSequence.EMPTY
+        map.get(key) ?: XdmSequence.EMPTY
     }
 
     private fun findImpl(collector: MutableList<XdmValue<*>>, input: XdmValue<*>, key: XdmAtomic<*>) {
         for (i in input) {
             when (i) {
-                is XdmMap -> for ((k, v) in i.content) {
+                is XdmMap -> for ((k, v) in i.entries) {
                     if (k == key) collector.add(v)
                     findImpl(collector, v, key)
                 }
@@ -157,10 +134,7 @@ object MapFunctions : AbstractFunctionObject() {
         val key = args.xdmArg<XdmAtomic<*>>(1)
         val value = args.xdmArg<XdmValue<*>>(2)
 
-        val newContent = map.content.toMutableMap()
-        newContent[key] = value
-
-        XdmMap(newContent, map.staticType)
+        map.put(key, value)
     }
 
     val fnEntry = BuiltinFunctionImpl.Map(
@@ -178,27 +152,10 @@ object MapFunctions : AbstractFunctionObject() {
         ANYMAP.single, ANYMAP.single, ATOMIC.single
     ) Fn@{ args ->
         val map = args.xdmArg<XdmMap>(0)
-        val key = args.xdmArg<XdmAtomic<*>>(1)
+        val keys = args.xdmArg< XdmSequence<XdmAtomic<*>>>(1)
 
-        val changed = map.content.filterKeys { it != key }
-        when {
-            changed.size == map.content.size -> return@Fn map
-            else -> return@Fn XdmMap(changed, map.staticType)
-        }
+        return@Fn map.remove(keys)
     }
 
-    enum class DuplicateHandling(val txt: String) {
-        REJECT("reject"),
-        USE_FIRST("use-first"),
-        USE_LAST("use-last"),
-        USE_ANY("use-any"),
-        COMBINE("combine"),
-        ;
-
-        companion object {
-            fun fromString(str: String): DuplicateHandling? =
-                entries.firstOrNull { it.txt == str }
-        }
-    }
 
 }
