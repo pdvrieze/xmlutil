@@ -41,7 +41,10 @@ sealed class UnaryExpr: AbstractExprSingle() {
         override fun eval(): XdmValue<*> {
             val e = expr.eval()
             ctx.withExprContext(this) {
-                return XdmAtomic(NumericFunctions.fnNumber(e).value.unaryPlus())
+                when (val v = (e as? XdmAtomic<*>)?.value) {
+                    is XsdNumeric<*> -> return XdmAtomic(v.unaryPlus())
+                    else -> return XdmAtomic(NumericFunctions.fnNumber(e).value.unaryPlus())
+                }
             }
         }
 
