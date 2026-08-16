@@ -37,6 +37,7 @@ import io.github.pdvrieze.xml.schematypes.types.UntypedAtomicType
 import io.github.pdvrieze.xml.schematypes.types.UntypedType
 import io.github.pdvrieze.xml.schematypes.values.XsdAtomic
 import io.github.pdvrieze.xml.schematypes.values.XsdString
+import nl.adaptivity.xmlutil.XMLConstants
 import nl.adaptivity.xmlutil.dom.*
 import nl.adaptivity.xmlutil.dom2.Element
 import nl.adaptivity.xmlutil.dom2.NamedNodeMap
@@ -136,6 +137,19 @@ public class XdmElement internal constructor(
     override fun getAttributes(): NamedNodeMap<XdmAttr> {
         @Suppress("UNCHECKED_CAST")
         return super.getAttributes() as NamedNodeMap<XdmAttr>
+    }
+
+    private fun inScopePrefixes(acc: HashSet<String>) {
+        for (a in getAttributes()) {
+            if (a.getNamespaceURI() == XMLConstants.XMLNS_ATTRIBUTE_NS_URI) {
+                acc.add(if(a.getPrefix().isNullOrEmpty()) "" else a.getLocalName())
+            }
+        }
+        getParentElement()?.inScopePrefixes(acc)
+    }
+
+    fun inScopePrefixes(): Set<String> {
+        return HashSet<String>().also { inScopePrefixes(it) }
     }
 
     override fun cloneNode(deep: Boolean): XdmElement {

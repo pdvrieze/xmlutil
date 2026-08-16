@@ -222,6 +222,8 @@ abstract class AbstractFunctionObject() {
         val INTEGER = XdmSchemaTypeTest(IntegerType.Instance, SINGLE)
         val DOUBLE = XdmSchemaTypeTest(DoubleType.Instance, SINGLE)
         val QNAME = XdmSchemaTypeTest(QNameType.Instance, SINGLE)
+        val NCNAME = XdmSchemaTypeTest(NCNameType.Instance, SINGLE)
+        val ANYURI = XdmSchemaTypeTest(AnyURIType.Instance, SINGLE)
 
         val ANYMAP = XdmMapTypeTest.ANY
         val ANYARRAY = XdmArrayTypeTest.ANY_ARRAY

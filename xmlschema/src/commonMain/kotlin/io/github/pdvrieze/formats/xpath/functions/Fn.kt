@@ -136,6 +136,16 @@ enum class Fn(
 
     //endregion
 
+    //region Functions related to QNames (10)
+    resolveQName(QNameFunctions.fnResolveQName),
+    qName(QNameFunctions.fnQName),
+    prefixFromQName(QNameFunctions.fnPrefixFromQName),
+    localnameFromQName(QNameFunctions.fnLocalnameFromQName),
+    namespaceUriFromQName(QNameFunctions.fnNamespaceUriFromQName),
+    namespaceUriForPrefix(QNameFunctions.fnNamespaceUriForPrefix),
+    inScopePrefixes(QNameFunctions.fnInScopePrefixes),
+    //endregion
+
     //region Node Operations (13)
     Name(NodeFunctions.fnName),
     localName(NodeFunctions.fnLocalName),
