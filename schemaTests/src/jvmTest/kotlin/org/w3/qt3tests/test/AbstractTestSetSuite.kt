@@ -36,6 +36,7 @@ import org.opentest4j.AssertionFailedError
 import org.w3.qt3tests.Qt3Dependency
 import org.w3.qt3tests.Qt3DependencyType
 import org.w3.qt3tests.Qt3SpecDependency
+import org.w3.qt3tests.context.Qt3NsContext
 import org.w3.qt3tests.resolved.ResolvedQt3TestCase
 import org.w3.qt3tests.resolved.assertions.AssertionResult
 import javax.xml.namespace.QName
@@ -72,7 +73,7 @@ abstract class AbstractTestSetSuite {
 
             for (param in environment.params) {
                 val select = param.select ?: continue
-                val value = XPathExpression(select, defaultFunctionNamespace = BuiltinFunction.FN_NAMESPACE).eval(context, nsContext, vars)
+                val value = XPathExpression(select, defaultFunctionNamespace = BuiltinFunction.FN_NAMESPACE, namespaceContext = Qt3NsContext).eval(context, nsContext, vars)
                 val nsUri = param.name.namespaceURI
                 if (param.name.prefix.isEmpty()) {
                     (vars.getOrPut("") { mutableMapOf() })[param.name.localPart] = value
