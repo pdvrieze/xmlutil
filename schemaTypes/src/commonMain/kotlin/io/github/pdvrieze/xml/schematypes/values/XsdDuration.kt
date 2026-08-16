@@ -48,6 +48,12 @@ interface XsdDuration : XsdPrimitive {
         return compareTo(other)
     }
 
+    operator fun plus(other: XsdDuration): XsdDuration {
+        val m = months + other.months
+        val mi = millis + other.millis
+        return XsdDurationImpl(m, mi)
+    }
+
     companion object : SimpleTypeSerializer<XsdDuration>("xsd.duration") {
 
         operator fun invoke(str: CharSequence): XsdDuration {

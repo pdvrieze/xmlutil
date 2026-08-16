@@ -22,6 +22,7 @@ package io.github.pdvrieze.xml.schematypes.values
 
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.YearMonthDurationType
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDurationImpl
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdYearMonthDurationImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -44,6 +45,15 @@ interface XsdYearMonthDuration : XsdDuration {
     operator fun div(other: XsdYearMonthDuration): XsdDecimal
     operator fun div(other: XsdDouble): XsdYearMonthDuration = div(other.value)
     operator fun div(other: Double): XsdYearMonthDuration
+
+    override operator fun plus(other: XsdDuration): XsdDuration {
+        if (other is XsdYearMonthDuration) return plus(other)
+
+        val m = months + other.months
+        val mi = millis + other.millis
+        return XsdDurationImpl(m, mi)
+    }
+
 
     companion object : SimpleTypeSerializer<XsdYearMonthDuration>("xsd.dateTimeDuration") {
 

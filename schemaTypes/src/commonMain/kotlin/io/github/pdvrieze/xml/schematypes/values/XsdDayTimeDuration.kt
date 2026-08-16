@@ -23,6 +23,7 @@ package io.github.pdvrieze.xml.schematypes.values
 import io.github.pdvrieze.xml.schematypes.impl.SimpleTypeSerializer
 import io.github.pdvrieze.xml.schematypes.types.DayTimeDurationType
 import io.github.pdvrieze.xml.schematypes.values.instances.XsdDayTimeDurationImpl
+import io.github.pdvrieze.xml.schematypes.values.instances.XsdDurationImpl
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
@@ -46,6 +47,13 @@ interface XsdDayTimeDuration : XsdDuration {
     operator fun div(other: XsdDouble): XsdDayTimeDuration = div(other.value)
     operator fun div(other: Double): XsdDayTimeDuration
 
+    override operator fun plus(other: XsdDuration): XsdDuration {
+        if (other is XsdDayTimeDuration) return plus(other)
+
+        val m = months + other.months
+        val mi = millis + other.millis
+        return XsdDurationImpl(m, mi)
+    }
 
     companion object : SimpleTypeSerializer<XsdDayTimeDuration>("xsd.dayTimeDuration") {
 

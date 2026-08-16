@@ -254,6 +254,7 @@ sealed class Operator(
             right is XsdTime -> right + (left as XsdDayTimeDuration)
             right is XsdDate -> right + (left as XsdDuration)
             right is XsdDateTime -> right + (left as XsdDuration)
+            left is XsdDuration && right is XsdDuration -> left + right
             else -> throw EvaluationException(ErrorCodes.XPTY0004_TYPE_ERROR, "Unsupported parameters: ${left.schemaType} + ${right.schemaType}")
         }
     }
