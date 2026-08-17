@@ -28,6 +28,7 @@ import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
 import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 
 class DateTimeFormatter private constructor(
@@ -570,8 +571,8 @@ private class TimeZoneFormatter(
         when (offset) {
             0 if (variants and (VAR_ZULU or VAR_MILTIME) != 0u) -> dest.append('Z')
 
-            else if minutes == 0 && (variants and VAR_MILTIME != 0u) ->{
-                dest.append(MILTIME_HOURS[hours + 12])
+            else if minutes == 0 && (variants and VAR_MILTIME != 0u && hours<=12) ->{
+                dest.append(MILTIME_HOURS[(offset.sign * hours) + 12])
             }
 
             else -> {
