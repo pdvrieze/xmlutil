@@ -312,13 +312,13 @@ private abstract class NumericFormatter(val intFormat: IntegerFormatter, widthMo
     private fun adjustWithFormatter(
         widthModifier: WidthModifier,
         formatter: IntegerFormatter,
-        minDigits: Int
+        noImplicitClippingBelow: Int
     ): WidthModifier {
         if (widthModifier.isMaxSpecified) return widthModifier
 
         val fTotalDigits = formatter.totalDigitCount
         return when {
-            fTotalDigits >= minDigits -> WidthModifier(widthModifier.minWidth, fTotalDigits)
+            fTotalDigits >= noImplicitClippingBelow && fTotalDigits >= widthModifier.minWidth -> WidthModifier(widthModifier.minWidth, fTotalDigits)
             else -> WidthModifier(widthModifier.minWidth)
         }
     }
