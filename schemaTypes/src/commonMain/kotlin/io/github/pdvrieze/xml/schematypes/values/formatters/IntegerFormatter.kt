@@ -452,7 +452,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
             when (val patternElem = pattern[patternPos]) {
                 is ReqDigits,
                 is OptDigits -> { // can be handled together as we already have the needed length
-                    val len = digitFamily.length
+                    val len = digitFamily.length * patternElem.length
                     if (stringPos > len) formatHelper(digitSource, stringPos - len, patternPos - 1, appendable)
                     appendable.appendRange(digitSource, (stringPos - len).coerceAtLeast(0), stringPos)
                 }
