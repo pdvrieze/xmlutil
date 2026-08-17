@@ -359,7 +359,7 @@ private class TextFormatter(val text: String) : DateTimePartFormatter(WidthModif
 private class YearFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) :
-            this(IntegerFormatter(markerContent, lang), widthModifier)
+            this(IntegerFormatter("$markerContent;", lang), widthModifier)
 
     override val isDateFormatter: Boolean get() = true
 
@@ -376,7 +376,7 @@ private class YearFormatter(format: IntegerFormatter, widthModifier: WidthModifi
 private class MonthInYearFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, lang: XsdLanguage, widthModifier: WidthModifier) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -410,7 +410,7 @@ private class MonthNameInYearFormatter(val case: Case, val lang: XsdLanguage, wi
 private class DayInMonthFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -422,7 +422,7 @@ private class DayInMonthFormatter(format: IntegerFormatter, widthModifier: Width
 private class DayInYearFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -438,7 +438,7 @@ private class DayOfWeekFormatter(format: IntegerFormatter, widthModifier: WidthM
     widthModifier
 ) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -471,7 +471,7 @@ private class WeekInYearFormatter(format: IntegerFormatter, widthModifier: Width
         widthModifier
     ) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage, calendar: QName?) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier,
         calendar.isEquivalent(QName("", "ISO"))
     )
@@ -488,7 +488,7 @@ private class WeekInMonthFormatter(format: IntegerFormatter, widthModifier: Widt
     widthModifier
 ) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -502,7 +502,7 @@ private class WeekInMonthFormatter(format: IntegerFormatter, widthModifier: Widt
 private class Hour24InDayFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -516,7 +516,7 @@ private class Hour12InDayFormatter(format: IntegerFormatter, widthModifier: Widt
     widthModifier
 ) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -544,7 +544,7 @@ private class MinuteInHourFormatter(format: IntegerFormatter, widthModifier: Wid
     NumericFormatter(format, widthModifier) {
 
     constructor(markerContent: String, lang: XsdLanguage, widthModifier: WidthModifier) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -556,7 +556,7 @@ private class MinuteInHourFormatter(format: IntegerFormatter, widthModifier: Wid
 private class SecondInMinuteFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) : this(
-        IntegerFormatter(markerContent, lang),
+        IntegerFormatter("$markerContent;", lang),
         widthModifier
     )
 
@@ -566,7 +566,7 @@ private class SecondInMinuteFormatter(format: IntegerFormatter, widthModifier: W
 private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) :
-            this(adjustMarker(markerContent.reversed(), widthModifier, lang), widthModifier)
+            this(adjustMarker("${markerContent.reversed()};", widthModifier, lang), widthModifier)
 
     override val isTimeFormatter: Boolean get() = true
 
@@ -588,7 +588,7 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
     companion object {
         private fun adjustMarker(marker: String, widthModifier: WidthModifier, lang: XsdLanguage): IntegerFormatter {
             if ((!widthModifier.isSpecified || widthModifier.minWidth <= 1) && marker.length == 1) {
-                return IntegerFormatter(marker, lang)
+                return IntegerFormatter(if (marker.endsWith(';')) marker else "$marker;", lang)
             }
             val minDigits = widthModifier.minWidth
             val maxDigits = widthModifier.maxWidth
@@ -621,7 +621,9 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
                 }
                 if ((seenDigits + seenOptional) >= maxDigits) break
             }
-            return IntegerFormatter(if (adjustedMarker.isEmpty()) "0" else adjustedMarker.toString(), lang)
+            if (adjustedMarker.isEmpty()) adjustedMarker.appendCodepoint(0)
+            adjustedMarker.append(';')
+            return IntegerFormatter(adjustedMarker.toString(), lang)
         }
 
     }
