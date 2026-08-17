@@ -27,6 +27,8 @@ import kotlinx.datetime.TimeZone
 import nl.adaptivity.xmlutil.QName
 import nl.adaptivity.xmlutil.core.internal.appendCodepoint
 import nl.adaptivity.xmlutil.core.internal.codepointAt
+import nl.adaptivity.xmlutil.core.internal.nextCodePointPos
+import nl.adaptivity.xmlutil.isXmlWhitespace
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -137,16 +139,19 @@ class DateTimeFormatter private constructor(
         }
 
         private fun parseMarker(
-            marker: String,
+            wsMarker: String,
             lang: XsdLanguage,
             calendar: QName?,
             place: String?
         ): DateTimePartFormatter {
+            val marker = wsMarker.filterNot { isXmlWhitespace(it) }
+
             val widthModIdx = marker.lastIndexOf(',')
             val widthModifier =
                 if (widthModIdx >= 0) WidthModifier(marker.substring(widthModIdx + 1)) else WidthModifier()
             val markerContent = when {
                 widthModIdx >= 0 -> marker.substring(1, widthModIdx)
+                marker.isEmpty() -> ""
                 else -> marker.substring(1)
             }.takeIf { it.isNotEmpty() }
             return when (marker[0]) {
@@ -198,8 +203,25 @@ class DateTimeFormatter private constructor(
         ): TimeZoneFormatter {
             var variants = if (prefixed) TimeZoneFormatter.VAR_PREFIXED else 0u
             val format: IntegerFormatter
-            val firstDigitIdx = markerContent.indexOfFirst { it.isDigit() }
-            val lastDigitIdx = markerContent.indexOfLast { it.isDigit() }
+            var firstDigitIdx = -1
+
+            var idx = 0
+            do {
+                val zeroDigit = markerContent.unicodeChar(idx).zeroDigitOrNull
+                if (zeroDigit != null) {
+                    firstDigitIdx = idx; break
+                }
+                idx = markerContent.nextCodePointPos(idx)
+            } while (idx < markerContent.length)
+            var lastDigitIdx = firstDigitIdx
+            while (idx < markerContent.length) {
+                if (markerContent.unicodeChar(idx).zeroDigitOrNull != null) {
+                    lastDigitIdx = idx
+                }
+                idx = markerContent.nextCodePointPos(idx)
+            }
+
+
             var modifierChars: String
             val markerDigits = when {
                 firstDigitIdx < 0 || lastDigitIdx < 0 -> {
@@ -212,8 +234,9 @@ class DateTimeFormatter private constructor(
                     }
                 }
                 else -> {
-                    modifierChars = markerContent.substring(lastDigitIdx + 1)
-                    markerContent.substring(firstDigitIdx, lastDigitIdx + 1)
+                    val posAfterLastDigit = markerContent.nextCodePointPos(lastDigitIdx)
+                    modifierChars = markerContent.substring(posAfterLastDigit)
+                    markerContent.substring(firstDigitIdx, posAfterLastDigit)
                 }
             }
 
