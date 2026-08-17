@@ -66,7 +66,7 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
 
     companion object {
 
-        private fun parseModifier(modifier: String): Modifier? {
+        internal fun parseModifier(modifier: String): Modifier? {
             if (modifier.isEmpty()) return null
             val isCardinal = when (modifier[0]) {
                 'c' -> true
@@ -539,14 +539,14 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
 
     internal sealed class Modifier(val variant: String?, val isAlphabetic: Boolean)
 
-    private class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) :
+    internal class CardinalModifier(variant: String? = null, isAlphabetic: Boolean = true) :
         Modifier(variant, isAlphabetic) {
 
         override fun toString(): String {
             return "c${variant ?: ""}${if (isAlphabetic) "a" else "t"}"
         }
     }
-    private class OrdinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic) {
+    internal class OrdinalModifier(variant: String? = null, isAlphabetic: Boolean = true) : Modifier(variant, isAlphabetic) {
         override fun toString(): String {
             return "o${variant ?: ""}${if (isAlphabetic) "a" else "t"}"
         }
