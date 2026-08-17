@@ -429,7 +429,7 @@ private class DayInYearFormatter(format: IntegerFormatter, widthModifier: WidthM
     override val isDateFormatter: Boolean get() = true
 
     override fun getValue(dateTime: IXsdDateTime): Long? {
-        return toLocalDate(dateTime)?.run { dayOfYear.toLong() + 1L }
+        return toLocalDate(dateTime)?.run { dayOfYear.toLong() }
     }
 }
 
