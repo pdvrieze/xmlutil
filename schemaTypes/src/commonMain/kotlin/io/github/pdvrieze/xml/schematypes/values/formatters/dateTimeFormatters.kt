@@ -456,14 +456,12 @@ private class DayOfWeekFormatter(format: IntegerFormatter, widthModifier: WidthM
 }
 
 private class DayNameInWeekAsTextFormatter(val case: Case, val lang: XsdLanguage, widthModifier: WidthModifier) :
-    DateTimePartFormatter(
-        widthModifier
-    ) {
+    DateTimePartFormatter(widthModifier) {
     override val isDateFormatter: Boolean get() = true
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val localDateTime = toLocalDate(dateTime) ?: return
-        dest.append(case.adjust(localDateTime.dayOfWeek.name))
+        dest.append(widthModifier.adjustStr(case.adjust(localDateTime.dayOfWeek.name), ' '))
     }
 }
 
@@ -737,7 +735,10 @@ enum class Case {
 
     TITLE {
         override fun adjust(str: String): String {
-            return str.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            return buildString(str.length) {
+                append(str[0].uppercase())
+                append(str.substring(1).lowercase())
+            }
         }
     };
 
