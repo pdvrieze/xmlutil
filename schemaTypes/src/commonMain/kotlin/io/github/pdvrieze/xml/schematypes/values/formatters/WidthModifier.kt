@@ -52,6 +52,15 @@ value class WidthModifier private constructor(val data: ULong) {
         }
     }
 
+    fun adjustStr(str: String, prefix: Char): String {
+        return when {
+            !isSpecified -> str
+            str.length < minWidth -> str.padStart(minWidth, prefix)
+            isMaxSpecified && str.length > maxWidth -> str.substring(0, maxWidth)
+            else -> str
+        }
+    }
+
     companion object {
         private fun parse(str: String): ULong {
             val idx = str.indexOf('-')

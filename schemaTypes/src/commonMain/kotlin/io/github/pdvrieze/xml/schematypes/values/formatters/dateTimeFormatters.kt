@@ -392,10 +392,12 @@ private class MonthNameInYearFormatter(val case: Case, val lang: XsdLanguage, wi
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val month = requireNotNull(dateTime.month).toInt() - 1
+        val monthStr = widthModifier.adjustStr(months[month], ' ')
+
         when (case) {
-            Case.UPPER -> dest.append(months[month].uppercase())
-            Case.LOWER -> dest.append(months[month].lowercase())
-            Case.TITLE -> dest.append(months[month])
+            Case.UPPER -> dest.append(monthStr.uppercase())
+            Case.LOWER -> dest.append(monthStr.lowercase())
+            Case.TITLE -> dest.append(monthStr)
         }
     }
 
@@ -566,7 +568,7 @@ private class SecondInMinuteFormatter(format: IntegerFormatter, widthModifier: W
 private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier: WidthModifier) :
     NumericFormatter(format, widthModifier) {
     constructor(markerContent: String, widthModifier: WidthModifier, lang: XsdLanguage) :
-            this(adjustMarker("${markerContent.reversed()};", widthModifier, lang), widthModifier)
+            this(adjustMarker(markerContent.reversed(), widthModifier, lang), widthModifier)
 
     override val isTimeFormatter: Boolean get() = true
 
@@ -621,7 +623,7 @@ private class FractionalSecondsFormatter(format: IntegerFormatter, widthModifier
                 }
                 if ((seenDigits + seenOptional) >= maxDigits) break
             }
-            if (adjustedMarker.isEmpty()) adjustedMarker.appendCodepoint(0)
+            if (adjustedMarker.isEmpty()) adjustedMarker.append('0')
             adjustedMarker.append(';')
             return IntegerFormatter(adjustedMarker.toString(), lang)
         }
