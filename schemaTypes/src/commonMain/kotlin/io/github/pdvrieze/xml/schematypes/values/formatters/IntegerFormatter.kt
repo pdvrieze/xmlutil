@@ -383,6 +383,23 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
 
                 else -> receiver.append(baseString)
             }
+            when (modifier) {
+                is OrdinalModifier -> {
+                    when (val digits = (int.toInt() %100)) {
+                        in 4..20 -> receiver.append("th")
+
+                        else -> when (digits % 10) {
+                            1 -> receiver.append("st")
+                            2 -> receiver.append("nd")
+                            3 -> receiver.append("rd")
+                            else -> receiver.append("th")
+                        }
+                    }
+                }
+
+                else -> {}
+            }
+
         }
 
         override fun toString(): String = "1"
@@ -506,6 +523,24 @@ class IntegerFormatter private constructor(internal val format: FormatterImpl, p
                 }
             } else {
                 formatHelper(base, base.length, pattern.lastIndex, receiver)
+            }
+
+            // TODO handle lang
+            when (modifier) {
+                is OrdinalModifier -> {
+                    when (val digits = (int.toInt() %100)) {
+                        in 4..20 -> receiver.append("th")
+
+                        else -> when (digits % 10) {
+                            1 -> receiver.append("st")
+                            2 -> receiver.append("nd")
+                            3 -> receiver.append("rd")
+                            else -> receiver.append("th")
+                        }
+                    }
+                }
+
+                else -> {}
             }
         }
 

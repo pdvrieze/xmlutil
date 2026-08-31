@@ -52,13 +52,34 @@ value class WidthModifier private constructor(val data: ULong) {
         }
     }
 
-    fun adjustStr(str: String, prefix: Char): String {
+    fun adjustStr(str: String, padding: Char, isSuffix: Boolean = true): String {
         return when {
             !isSpecified -> str
-            str.length < minWidth -> str.padStart(minWidth, prefix)
+            str.length < minWidth -> when {
+                isSuffix -> str.padEnd(minWidth, padding)
+                else -> str.padStart(minWidth, padding)
+            }
             isMaxSpecified && str.length > maxWidth -> str.substring(0, maxWidth)
             else -> str
         }
+    }
+
+    fun restricts(len: Int): Boolean = when {
+        !isSpecified -> false
+        len < minWidth -> true
+        ! isMaxSpecified -> false
+        else -> len > maxWidth
+    }
+
+    /**
+     * Determine how much the length of the string should be adjusted.
+     * @return 0 if no adjustment, <0 if the string should be shortened, >0 if it should be extended
+     */
+    fun adjLength(len: Int): Int = when {
+        !isSpecified -> 0
+        len < minWidth -> minWidth - len
+        len <= maxWidth -> 0
+        else -> maxWidth - len
     }
 
     companion object {

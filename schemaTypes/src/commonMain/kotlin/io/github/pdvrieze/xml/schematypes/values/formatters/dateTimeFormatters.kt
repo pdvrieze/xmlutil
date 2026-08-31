@@ -461,8 +461,41 @@ private class DayNameInWeekAsTextFormatter(val case: Case, val lang: XsdLanguage
 
     override fun formatTo(dest: Appendable, dateTime: IXsdDateTime) {
         val localDateTime = toLocalDate(dateTime) ?: return
-        dest.append(widthModifier.adjustStr(case.adjust(localDateTime.dayOfWeek.name), ' '))
+        val dayName = localDateTime.dayOfWeek.name
+        val widthAdj = widthModifier.adjLength(dayName.length)
+
+        when {
+            widthAdj == 0 -> dest.append(case.adjust(dayName))
+
+            widthAdj > 0 -> {
+                dest.append(case.adjust(dayName))
+                repeat(widthAdj) { dest.append(' ') }
+            }
+
+            else -> {
+                val noSuffix = ABBREV_NAME[localDateTime.dayOfWeek.ordinal]
+                val nsAdj = widthModifier.adjLength(noSuffix.length)
+                when {
+                    nsAdj == 0 -> dest.append(case.adjust(noSuffix))
+                    else -> dest.append(case.adjust(dayName.substring(0, widthModifier.maxWidth)))
+                }
+            }
+        }
     }
+
+    companion object {
+        val ABBREV_NAME = arrayOf(
+            "MON",
+            "TUES",
+            "WEDS",
+            "THUR",
+            "FRI",
+            "SAT",
+            "SUN",
+        )
+
+    }
+
 }
 
 private class WeekInYearFormatter(format: IntegerFormatter, widthModifier: WidthModifier, val isISO: Boolean) :

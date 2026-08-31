@@ -78,7 +78,7 @@ open class XsdDateTimeImpl private constructor(
     init {
         when (month) {
             1u, 3u, 5u, 7u, 8u, 10u, 12u -> requireRange(day in 1u..31u) { "Long months must have days 1..31 (was $day)" }
-            4u, 6u, 9u, 11u -> requireRange(day in 1u..30u) { "Short months must have days 1..30 (was $day)" }
+            4u, 6u, 9u, 11u -> requireRange(day in 1u..30u) { "Short months (${month}) must have days 1..30 (was $day)" }
             2u -> {
                 val isLeap = year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)
                 val days = if (isLeap) 29u else 28u
