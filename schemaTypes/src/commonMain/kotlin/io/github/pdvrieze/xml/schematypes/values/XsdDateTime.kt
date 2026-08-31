@@ -28,7 +28,6 @@ import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.XmlReader
-import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -81,13 +80,8 @@ interface XsdDateTime : IXsdDateTime, XsdPrimitive {
     operator fun minus(duration: XsdDuration): XsdDateTime {
         val newBase = when (val monthsToSubtract = duration.months) {
             0L -> instant()
-            else -> {
-                // todo check validity for dates below 0
-                val fullMonths = year * 12 + month.toInt() - monthsToSubtract
-                val newYear = (fullMonths/12L).toInt()
-                val newMonth = (fullMonths.absoluteValue % 12).toUInt()
-                XsdDateTimeImpl(newYear, newMonth, day, hour, minute, second, timezoneOffset).instant()
-            }
+            // use instant to allow for Aug 31 - 2 months
+            else -> instant().minus(monthsToSubtract, DateTimeUnit.MONTH, timezone ?: TimeZone.UTC)
         }
         val newInstant = when (val millisToSubtract = duration.millis) {
             0L -> newBase
