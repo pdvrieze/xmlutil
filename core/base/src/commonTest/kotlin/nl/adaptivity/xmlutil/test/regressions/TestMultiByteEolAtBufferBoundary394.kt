@@ -37,17 +37,39 @@ class TestMultiByteEolAtBufferBoundary394 {
     }
 
     @Test
-    fun readStream() {
-        readForTesting(KtXmlReader(StringReader(data)))
+    fun readStreamMid() {
+        readForTesting(KtXmlReader(StringReader(dataMid)))
     }
 
     @Test
-    fun readStreamString() {
-        readForTesting(KtXmlReader(StringReader(data)))
+    fun readStreamStringMid() {
+        readForTesting(KtXmlReader(StringReader(dataMid)))
+    }
+
+    @Test
+    fun readStreamLeft() {
+        readForTesting(KtXmlReader(StringReader(dataLeft)))
+    }
+
+    @Test
+    fun readStreamStringLeft() {
+        readForTesting(KtXmlReader(StringReader(dataLeft)))
+    }
+
+    @Test
+    fun readStreamRight() {
+        readForTesting(KtXmlReader(StringReader(dataRight)))
+    }
+
+    @Test
+    fun readStreamStringRight() {
+        readForTesting(KtXmlReader(StringReader(dataRight)))
     }
 
     companion object {
-        private val data = " ".repeat(4093)+"<x>"+"_".repeat(4095)+"\r\n"+"_".repeat(32)+"</x>"
+        private val dataMid = " ".repeat(4093)+"<x>"+"_".repeat(4095)+"\r\n"+"_".repeat(32)+"</x>"
+        private val dataLeft = " ".repeat(4093)+"<x>"+"_".repeat(4094)+"\r\n"+"_".repeat(32)+"</x>"
+        private val dataRight = " ".repeat(4093)+"<x>"+"_".repeat(4096)+"\r\n"+"_".repeat(32)+"</x>"
 //        private val data = "<x>"+"y".repeat(4083)+"\r"+"_".repeat(32)+"</x>"
 
     }
