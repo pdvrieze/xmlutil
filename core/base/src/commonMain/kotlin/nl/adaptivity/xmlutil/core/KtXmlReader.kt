@@ -1431,15 +1431,13 @@ public class KtXmlReader(
                     append('>')
                 }
 
-                et == IGNORABLE_WHITESPACE -> {}
-
-                et != TEXT -> append(text)
+                et != TEXT -> { }
 
                 _isWhitespace -> append(
                     "(whitespace)"
                 )
 
-                else -> { // nonwhitespace text
+                else -> if (! outputBuf.isNullOrEmpty()){ // nonwhitespace text
                     var textCpy = text
                     if (textCpy.length > 16) textCpy = textCpy.take(16) + "..."
                     append(textCpy)

@@ -403,8 +403,17 @@ public class SwappedInOutBuffer(public val reader: Reader): InOutBuffer {
         return buildString {
             append("SwappedInputBuffer(")
             append("Next = '")
-            if (srcBufPos <BUF_SIZE) appendRange(bufLeft, srcBufPos, (srcBufPos + 10).coerceAtMost(srcBufCount))
-            else appendRange(bufRight, srcBufPos-BUF_SIZE, ((srcBufPos + 10).coerceAtMost(srcBufCount) - BUF_SIZE).coerceAtMost(BUF_SIZE))
+            when {
+                srcBufPos >= BUF_SIZE ->
+                    appendRange(bufRight, srcBufPos - BUF_SIZE, ((srcBufPos + 10).coerceAtMost(srcBufCount) - BUF_SIZE).coerceAtMost(BUF_SIZE))
+
+                srcBufPos + 10 > BUF_SIZE -> {
+                    appendRange(bufLeft, srcBufPos, BUF_SIZE)
+                    appendRange(bufRight, 0, (srcBufPos + 10 - BUF_SIZE).coerceAtMost(BUF_SIZE))
+                }
+
+                else -> appendRange(bufLeft, srcBufPos, (srcBufPos + 10).coerceAtMost(BUF_SIZE))
+            }
             append("', output buffer = ")
             val b = copyBuilder
 
