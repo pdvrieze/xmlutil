@@ -1,5 +1,8 @@
 # 1.0.3-SNAPSHOT
 
+Fixes:
+- Fix handling of single CR/NEL characters just starting a buffer boundary (#394)
+
 # 1.0.2
 *(Aug 8, 2026)<br />*
 Changes:

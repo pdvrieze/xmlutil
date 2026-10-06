@@ -311,7 +311,10 @@ public class SwappedInOutBuffer(public val reader: Reader): InOutBuffer {
         when (peeked) {
             '\r' -> handle2CharLineEnd(oldPos)
             '\u0085', '\u2028' -> {
-                bufLeft[oldPos] = '\n'
+                when {
+                    oldPos < BUF_SIZE -> bufLeft[oldPos] = '\n'
+                    else -> bufRight[oldPos - BUF_SIZE] = '\n'
+                }
                 handleLineEnd(oldPos + 1)
             }
 
@@ -340,8 +343,13 @@ public class SwappedInOutBuffer(public val reader: Reader): InOutBuffer {
         val inc = when (nextChar) {
             0xA, 0x85 -> 2
 
-            else -> {
+            else if oldPos < BUF_SIZE -> {
                 bufLeft[oldPos] = '\n'
+                1
+            }
+
+            else -> {
+                bufRight[oldPos - BUF_SIZE] = '\n'
                 1
             }
         }
